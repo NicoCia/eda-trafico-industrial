@@ -44,8 +44,17 @@ etiqueta y nada más. La sección 2 de `INFORME.md` lo detalla archivo por
 archivo.
 
 **Nada se afirma sin haberlo medido.** Donde un dato no se pudo verificar, el
-texto lo dice en lugar de completarlo. `INFORME.md` cierra con una lista de
-las cifras que no salen de correr el código.
+texto lo dice en lugar de completarlo, y `INFORME.md` enumera las cifras que
+no salen de correr el código.
+
+Eso no alcanzó. Una auditoría independiente recalculó más de 150 cifras y
+encontró quince errores, ninguno de aritmética: los quince eran una frase que
+respondía una pregunta distinta de la que medía la cifra de al lado —otra
+población, otro denominador, otra ventana—. Están corregidos, y para que no
+haya un decimosexto las **veinte afirmaciones que sostienen alguna conclusión
+están escritas como comprobaciones ejecutables**: `make todo` falla si alguna
+deja de valer. La sección 7 de `INFORME.md` las lista con la sección que
+defiende cada una.
 
 ## Los datos no están acá
 
@@ -78,7 +87,9 @@ make -C eda venv
 make -C eda todo
 ```
 
-`make todo` regenera las 36 salidas y las 13 figuras desde los datos. Dos pasos
+`make todo` regenera las 42 salidas y las 13 figuras desde los datos, y
+termina corriendo las guardas, de modo que una afirmación que dejó de valer
+hace fallar la regeneración completa en lugar de pasar inadvertida. Dos pasos
 son lentos: la pregunta 1 recorre 3,46 GB de PCAP y 31,1 millones de paquetes, y
 la sección 4 recorre 1,8 GB y 25,2 millones; tardan alrededor de cinco y de
 siete minutos. Hay objetivos sueltos para rehacer una parte sola —`p1`, `p2`,

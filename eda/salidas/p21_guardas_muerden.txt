@@ -1,0 +1,37 @@
+# Las guardas muerden?
+
+Que las guardas del script 20 den «ok» no prueba nada por si solo: una
+guarda mal escrita tambien da «ok», y lo da para siempre. Aca se rompe
+una cosa por vez sobre una COPIA de las salidas y se exige que la
+guarda que corresponde falle.
+
+En limpio se sostienen las 20.
+
+guarda                         resultado  que se rompe
+------------------------------------------------------------------------------
+qut-sin-control                ok         aparece un objeto de control g12v1 en QUT
+qut-subconjunto-unico          ok         cierra un segundo subconjunto de grupos
+qut-fragmentos                 ok         aparece una trama de apertura de fragmento multiple
+hai-ruido                      ok (+1)    el ruido del estimador sube por encima del umbral
+hai-deriva-no-es-ruido         ok         la deriva interna deja de superar al ruido diez veces
+hai-segmentada                 ok         la autocorrelacion vuelve a medirse sobre la union
+hai-train-sucio                ok         otra version trae ataques en entrenamiento
+westermo-union-unica           ok         dos agregaciones caen dentro de 2 pp
+westermo-union-sin-duplicar    ok         aparecen flujos repetidos en un punto
+faltantes-estructurales        ok         cambia el reparto de patrones de faltantes
+auc-poblacion-completa         ok         se invierte el orden entre conjuntos
+ninguna-variable-sola          ok         una caracteristica sola llega a 0,72
+cv-por-bloques                 ok         la etiqueta deja de estar autocorrelacionada
+eventos-independientes         ok         una categoria de Morris se agrupa
+un-solo-estadistico            ok         un caso se publica sin el intervalo de Wilson
+ventana-invierte               ok         deja de invertirse el orden a recuento igualado
+entropia-invierte              ok         la normalizada deja de invertir el orden
+identidades                    ok         una identidad nueva deja de cumplirse
+constantes-solo-en-normal      ok         las diez vuelven a ser constantes en todo el tramo
+------------------------------------------------------------------------------
+
+particion-qut                  ok         una ruta apunta a testing/
+
+Casos probados: 20 de 20 guardas.
+
+**Todas muerden**, y cada rotura hace saltar a la suya.

@@ -970,6 +970,22 @@ de una red en producción, donde la consideración ya no sería la misma.
 
 ---
 
+## Qué sostiene estas afirmaciones
+
+Las afirmaciones de este documento que sostienen alguna conclusión están
+escritas además como comprobaciones ejecutables, de modo que dejen de
+depender de que alguien las relea. Están en `eda/scripts/20_guardas.py`, cada
+una con la sección que defiende, y `make -C eda todo` falla cuando alguna
+deja de valer. De este documento se guardan seis: el reparto de patrones de
+faltantes, que ninguna característica sola llegue a 0,70 de AUC, que el mejor
+de cada conjunto se compare sobre población completa, que la etiqueta siga
+autocorrelacionada —que es lo que obliga a partir por bloques—, que la
+autocorrelación de HAI se mida por tramos y que las identidades del
+inventario se cumplan salvo las tres declaradas.
+
+El motivo de que existan está en la sección 7 de
+[`INFORME.md`](INFORME.md), junto con la lista completa de las veinte.
+
 ## Cómo reproducir
 
 ```bash
@@ -995,16 +1011,10 @@ mismo por tres caminos —scikit-learn, autovalores de la covarianza y
 descomposición en valores singulares— con una diferencia máxima de 10⁻¹⁵. El
 script los silencia y deja dicho el motivo.
 
-El reporte genérico de la materia, sobre los derivados del tramo de
-entrenamiento:
-
-```bash
-eda/.venv/bin/python -I ~/.claude/skills/analisis-de-datos/scripts/eda_report.py \
-  eda/derivados/westermo_bottom_entrenamiento.csv --target NST_B_Label \
-  --out eda/derivados/reporte_westermo.md
-```
-
 Los derivados del tramo de entrenamiento los escribe el propio script en
-`eda/derivados/`, que no se versiona. Todo corre en `eda/.venv`; el script de
-la materia solo necesita pandas y numpy, que ya están ahí, de modo que no hace
-falta instalar nada aparte.
+`eda/derivados/`, que no se versiona. Sobre esos CSV se corrió además un
+generador de reportes descriptivos genérico, externo a este repositorio, para
+contrastar su lectura automática contra la de acá; las diferencias que
+aparecieron están comentadas en las fichas —la imputación que propone para
+los faltantes estructurales es la principal—. No hace falta para reproducir
+nada de este documento.

@@ -4,10 +4,10 @@ Alimenta `eda/EXPLORATORIO.md`. Es la capa descriptiva que `eda/INFORME.md`
 no tiene: que trae cada conjunto, de que tipo, que falta y por que, como se
 relacionan las caracteristicas entre si y como esta el balance de clases.
 
-Complementa al reporte generico que produce el script de la materia
-(`scripts/eda_report.py` del skill `analisis-de-datos`), guardado en
-`eda/derivados/reporte_*.md`. Lo que agrega este script es lo que el reporte
-generico no puede saber sin el dominio:
+Complementa a un generador de reportes descriptivos generico, externo a este
+repositorio, cuya salida quedo en `eda/derivados/reporte_*.md` (ese directorio
+no se versiona). Lo que agrega este script es lo que un reporte generico no
+puede saber sin el dominio:
 
   1. que los faltantes son **estructurales** y no aleatorios, con la prueba;
   2. los grupos de redundancia entre caracteristicas, no solo los pares;

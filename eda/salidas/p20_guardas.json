@@ -1,0 +1,107 @@
+{
+ "total": 20,
+ "fallan": 0,
+ "guardas": [
+  {
+   "clave": "particion-qut",
+   "afirmacion": "Solo se leyeron las capturas de entrenamiento de QUT",
+   "donde": "INFORME.md seccion 2"
+  },
+  {
+   "clave": "qut-sin-control",
+   "afirmacion": "QUT no contiene ningun objeto de control (g12v1, g41, g40)",
+   "donde": "INFORME.md 1.2"
+  },
+  {
+   "clave": "qut-subconjunto-unico",
+   "afirmacion": "Un solo subconjunto de grupos suma las operaciones WRITE",
+   "donde": "INFORME.md 1.2"
+  },
+  {
+   "clave": "qut-fragmentos",
+   "afirmacion": "No hay fragmentos DNP3 bien formados de varias tramas",
+   "donde": "INFORME.md pregunta 1"
+  },
+  {
+   "clave": "hai-ruido",
+   "afirmacion": "El ruido del estimador de HAI queda por debajo de su umbral al 95 %",
+   "donde": "INFORME.md pregunta 5"
+  },
+  {
+   "clave": "hai-deriva-no-es-ruido",
+   "afirmacion": "La deriva dentro de una campana supera al ruido diez veces o mas",
+   "donde": "INFORME.md pregunta 5"
+  },
+  {
+   "clave": "hai-segmentada",
+   "afirmacion": "La autocorrelacion de HAI se mide por tramos y no sobre la union",
+   "donde": "EXPLORATORIO.md HAI"
+  },
+  {
+   "clave": "hai-train-sucio",
+   "afirmacion": "Solo 20.07 trae ataques etiquetados en sus archivos de entrenamiento",
+   "donde": "INFORME.md pregunta 3"
+  },
+  {
+   "clave": "westermo-union-unica",
+   "afirmacion": "Una sola agregacion reproduce el reparto de clases publicado",
+   "donde": "INFORME.md 1.6"
+  },
+  {
+   "clave": "westermo-union-sin-duplicar",
+   "afirmacion": "La union de los tres puntos no cuenta el mismo flujo dos veces",
+   "donde": "INFORME.md 1.6"
+  },
+  {
+   "clave": "faltantes-estructurales",
+   "afirmacion": "El reparto de patrones de faltantes se mantiene en 10 / 6 / 30 / 8",
+   "donde": "EXPLORATORIO.md hallazgo 3"
+  },
+  {
+   "clave": "auc-poblacion-completa",
+   "afirmacion": "El mejor AUC de los tres se compara sobre poblacion completa",
+   "donde": "EXPLORATORIO.md hallazgo 1"
+  },
+  {
+   "clave": "ninguna-variable-sola",
+   "afirmacion": "Ninguna caracteristica sola llega a 0,70 de AUC en ningun conjunto",
+   "donde": "EXPLORATORIO.md hallazgo 1"
+  },
+  {
+   "clave": "cv-por-bloques",
+   "afirmacion": "La etiqueta esta autocorrelacionada: una validacion al azar filtra",
+   "donde": "EXPLORATORIO.md hallazgo 5"
+  },
+  {
+   "clave": "eventos-independientes",
+   "afirmacion": "Los eventos de Morris no se agrupan entre si",
+   "donde": "INFORME.md pregunta 4"
+  },
+  {
+   "clave": "un-solo-estadistico",
+   "afirmacion": "Las cifras de precision salen todas del intervalo de Wilson",
+   "donde": "INFORME.md preguntas 4 y 4.4"
+  },
+  {
+   "clave": "ventana-invierte",
+   "afirmacion": "A recuento igualado se invierte el orden del indice de dispersion",
+   "donde": "INFORME.md 1.5"
+  },
+  {
+   "clave": "entropia-invierte",
+   "afirmacion": "La entropia normalizada invierte el orden de la cruda",
+   "donde": "INFORME.md pregunta 2"
+  },
+  {
+   "clave": "identidades",
+   "afirmacion": "Las identidades del inventario se cumplen salvo las tres declaradas",
+   "donde": "EXPLORATORIO.md coherencia interna"
+  },
+  {
+   "clave": "constantes-solo-en-normal",
+   "afirmacion": "Las caracteristicas constantes lo son solo en el trafico normal",
+   "donde": "INFORME.md 5.4 y 5.5"
+  }
+ ],
+ "fallidas": []
+}

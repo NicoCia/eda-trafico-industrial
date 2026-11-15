@@ -1417,7 +1417,58 @@ veces»**.
 
 ---
 
-## 7. Cómo reproducir
+## 7. Qué sostiene estas afirmaciones
+
+Un informe puede tener todas sus cifras bien calculadas y aun así afirmar
+cosas que los datos no dicen. Fue lo que pasó acá: una auditoría independiente
+recalculó más de 150 cifras contra los archivos, la aritmética reprodujo casi
+toda exacta —Morris entero sin una sola diferencia— y aun así encontró quince
+errores. Los quince eran de la misma forma: **una frase que respondía una
+pregunta distinta de la que medía la cifra de al lado.** Otra población, otro
+denominador, otra ventana, otra unidad.
+
+Corregir quince frases no evita la decimosexta. Lo que la evita es que la
+afirmación deje de vivir solo en prosa. Por eso las veinte afirmaciones que
+sostienen alguna conclusión de este documento están escritas además como
+**comprobaciones ejecutables** en `eda/scripts/20_guardas.py`, cada una con la
+sección que defiende, y `make todo` **falla** cuando alguna deja de valer:
+
+| Lo que se guarda | Dónde vive |
+|---|---|
+| Solo se leyeron las capturas de entrenamiento de QUT | §2 |
+| QUT no contiene ningún objeto de control | §1.2 |
+| Un solo subconjunto de grupos suma las operaciones WRITE | §1.2 |
+| No hay fragmentos DNP3 bien formados de varias tramas | Pregunta 1 |
+| A recuento igualado se invierte el orden del índice de dispersión | §1.5 |
+| La entropía normalizada invierte el orden de la cruda | Pregunta 2 |
+| Una sola agregación reproduce el reparto de clases publicado | §1.6 |
+| La unión de los tres puntos no cuenta el mismo flujo dos veces | §1.6 |
+| Solo 20.07 trae ataques en sus archivos de entrenamiento | Pregunta 3 |
+| Los eventos de Morris no se agrupan entre sí | Pregunta 4 |
+| Las cifras de precisión salen todas del intervalo de Wilson | Preguntas 4 y §4.4 |
+| El ruido del estimador de HAI queda bajo su umbral al 95 % | Pregunta 5 |
+| La deriva dentro de una campaña supera al ruido diez veces | Pregunta 5 |
+| La autocorrelación de HAI se mide por tramos, no sobre la unión | `EXPLORATORIO.md` |
+| Las características constantes lo son solo en el tráfico normal | §5.4 y §5.5 |
+| Los cinco restantes | `EXPLORATORIO.md` |
+
+**Una guarda que no puede fallar no es una guarda**, y ese error es fácil de
+cometer y difícil de ver, porque el síntoma es que todo anda bien. De modo que
+hay una segunda comprobación, `21_guardas_muerden.py`, que rompe una cosa por
+vez sobre una copia de las salidas y exige que la guarda que corresponde
+falle. Las veinte muerden, y cada rotura hace saltar a la suya.
+
+Lo que **no** se guarda, a propósito: las cifras que solo se citan —esas se
+regeneran y se leen—, las afirmaciones sobre documentación externa, que no
+están bajo control de este análisis, y lo que el propio documento declara como
+no medido. Una guarda de más es ruido que el lector termina por ignorar, y
+una guarda ignorada es peor que ninguna.
+
+Las salidas están en `eda/salidas/p20_guardas.txt` y
+`eda/salidas/p21_guardas_muerden.txt`. Si alguna falla, lo que hay que
+corregir es este documento, no la guarda.
+
+## 8. Cómo reproducir
 
 ```bash
 cd eda
@@ -1460,6 +1511,12 @@ rehacer la sección 5 sin repetir lo anterior.
 | `scripts/13_icsflow_determinismo.py` | determinismo de ICS-Flow (D2) |
 | `scripts/14_schuster_pd_pfa.py` | PD y PFA de Schuster y König, despejadas |
 | `scripts/15_regla_calificacion.py` | regla de calificación de la tabla de criterios |
+| `scripts/16_exploratorio_flujos.py` | ficha de Westermo y de ICS-Flow (`EXPLORATORIO.md`) |
+| `scripts/17_discriminante_estructura.py` | poder discriminante y estructura temporal de los de flujo |
+| `scripts/18_exploratorio_resto.py` | ficha de Morris y de HAI |
+| `scripts/19_qut_escrituras.py` | qué escriben las operaciones WRITE de QUT; guarda de §1.2 |
+| `scripts/20_guardas.py` | las afirmaciones de los dos documentos, como comprobaciones |
+| `scripts/21_guardas_muerden.py` | comprueba que las guardas pueden fallar |
 
 Notas de reproducibilidad:
 
