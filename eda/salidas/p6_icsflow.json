@@ -1,0 +1,97 @@
+{
+ "particion": {
+  "t0": 1663319679.510337,
+  "t1": 1663328062.089522,
+  "corte60": 1663324709.057848,
+  "corte80": 1663326385.573685,
+  "span_s": 8382.579184770584
+ },
+ "contadores_pcap": {
+  "paquetes": 25161400,
+  "ip": 25135480,
+  "tcp": 25135246,
+  "no_tcp": {
+   "UDP": 10,
+   "ICMP": 224
+  },
+  "con_carga": 5924975,
+  "puerto_502": 5924975,
+  "adus": 5924975,
+  "primer_ts": 1663319679.510337,
+  "ultimo_ts": 1663328062.089522
+ },
+ "funciones": {
+  "Read Holding Registers": 1190823,
+  "Write Multiple Registers": 898
+ },
+ "escrituras": 448,
+ "escrituras_con_valor32": 448,
+ "valores_distintos": 402,
+ "por_registro": {
+  "192.168.0.11:6": {
+   "variable": "3",
+   "nombre": "tank_level_min",
+   "escrituras": 166,
+   "valores_distintos": 145,
+   "min": 1.0026,
+   "max": 4.6667
+  },
+  "192.168.0.11:8": {
+   "variable": "4",
+   "nombre": "tank_level_max",
+   "escrituras": 116,
+   "valores_distintos": 110,
+   "min": 5.5258,
+   "max": 9.5714
+  },
+  "192.168.0.12:22": {
+   "variable": "11",
+   "nombre": "bottle_level_max",
+   "escrituras": 166,
+   "valores_distintos": 147,
+   "min": 1.0037,
+   "max": 1.8869
+  }
+ },
+ "eventos_por_particion": {
+  "entrenamiento": {
+   "ddos": 1,
+   "ip-scan": 11,
+   "mitm": 5,
+   "port-scan": 5,
+   "replay": 4
+  },
+  "calibracion": {
+   "ddos": 4,
+   "ip-scan": 6,
+   "mitm": 6,
+   "port-scan": 8,
+   "replay": 3
+  },
+  "prueba": {
+   "ddos": 3,
+   "ip-scan": 7,
+   "mitm": 5,
+   "port-scan": 5,
+   "replay": 1
+  }
+ },
+ "emparejadas": 591469,
+ "conteo_por_particion": {
+  "entrenamiento": {
+   "adus": 1191721,
+   "escrituras": 448,
+   "escrituras_en_mitm": 44
+  },
+  "calibracion": {
+   "adus": 2593792,
+   "escrituras": 176,
+   "escrituras_en_mitm": 48
+  },
+  "prueba": {
+   "adus": 2139462,
+   "escrituras": 178,
+   "escrituras_en_mitm": 51
+  }
+ }
+}

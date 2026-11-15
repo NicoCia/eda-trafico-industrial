@@ -1,0 +1,281 @@
+{
+ "denominadores": {
+  "total": 274628,
+  "normales": 214580,
+  "ataques": 60048,
+  "con_valor": 68888,
+  "con_valor_normales": 48060,
+  "con_valor_ataques": 20828,
+  "con_valor_no_nulo": 63314,
+  "sin_valor": 205740,
+  "sin_valor_normales": 166520,
+  "sin_valor_ataques": 39220
+ },
+ "distribucion": {
+  "con_valor": {
+   "normal": {
+    "n": 48060,
+    "min": 0.482759,
+    "q1": 1.28736,
+    "mediana": 5.50575,
+    "q3": 13.0575,
+    "max": 39.6782,
+    "riq": 11.77014
+   },
+   "ataque": {
+    "n": 20828,
+    "min": -0.0,
+    "q1": 0.0,
+    "mediana": 0.55581,
+    "q3": 8.92888,
+    "max": 3.36031e+38,
+    "riq": 8.92888
+   }
+  },
+  "no_nulos": {
+   "normal": {
+    "n": 48060,
+    "min": 0.482759,
+    "q1": 1.28736,
+    "mediana": 5.50575,
+    "q3": 13.0575,
+    "max": 39.6782,
+    "riq": 11.77014
+   },
+   "ataque": {
+    "n": 15254,
+    "min": 8.444219999999999e-42,
+    "q1": 0.1748215,
+    "mediana": 2.743175,
+    "q3": 16.1379,
+    "max": 3.36031e+38,
+    "riq": 15.963078499999998
+   }
+  },
+  "riq_solapan": true,
+  "rangos_solapan": true
+ },
+ "umbral_unico": {
+  "subconjunto": {
+   "n": 68888,
+   "exactitud": 0.8497125769364766,
+   "mayoria": 0.6976541632795261,
+   "regla": "ataque si x <= t",
+   "umbral": 0.56232,
+   "auc": 0.3223424857187909,
+   "vp": 10923,
+   "fn": 9905,
+   "fp": 448,
+   "vn": 47612
+  },
+  "total_sin_valor_a_normal": {
+   "n": 274628,
+   "exactitud": 0.8194903651484918,
+   "mayoria": 0.7813478596501449
+  },
+  "total_sin_valor_a_ataque": {
+   "n": 274628,
+   "exactitud": 0.3559542362759806,
+   "mayoria": 0.7813478596501449
+  }
+ },
+ "fuera_de_rango": {
+  "min-max de las normales": {
+   "intervalo": [
+    0.482759,
+    39.6782
+   ],
+   "ataques_fuera": 12155,
+   "pct_del_total_274628": 4.425987153531322,
+   "pct_de_ataques_60048": 20.242139621636024,
+   "pct_de_ataques_con_valor_20828": 58.35893988861149,
+   "normales_fuera": 0
+  },
+  "vallas de Tukey, 1,5 RIQ": {
+   "intervalo": [
+    -16.36785,
+    30.71271
+   ],
+   "ataques_fuera": 2315,
+   "pct_del_total_274628": 0.8429584747367348,
+   "pct_de_ataques_60048": 3.8552491340261126,
+   "pct_de_ataques_con_valor_20828": 11.114845400422508,
+   "normales_fuera": 453
+  },
+  "percentiles 0,1 y 99,9": {
+   "intervalo": [
+    0.528736,
+    38.95332150000007
+   ],
+   "ataques_fuera": 12237,
+   "pct_del_total_274628": 4.45584572585461,
+   "pct_de_ataques_60048": 20.378697042366106,
+   "pct_de_ataques_con_valor_20828": 58.75264067601306,
+   "normales_fuera": 96
+  }
+ },
+ "cero_explicito": {
+  "filas": 5574,
+  "normales": 0,
+  "ataques": 5574,
+  "precision": 1.0,
+  "cobertura_de_ataques_60048": 0.09282573940847322,
+  "cobertura_de_ataques_con_valor_20828": 0.2676205108507778
+ },
+ "por_tipo": {
+  "1": {
+   "nombre": "NMRI  (inyeccion simple de respuesta maliciosa)",
+   "instancias": 7753,
+   "con_valor": 7753,
+   "medible": true,
+   "n_comparacion": 55813,
+   "mayoria": 0.8610897102825507,
+   "mejor_umbral": 0.9537921272821744,
+   "regla": "ataque si x <= t",
+   "umbral": 0.46067,
+   "ganancia_pp": 9.270241699962378
+  },
+  "2": {
+   "nombre": "CMRI  (inyeccion compleja de respuesta maliciosa)",
+   "instancias": 13035,
+   "con_valor": 13035,
+   "medible": true,
+   "n_comparacion": 61095,
+   "mayoria": 0.7866437515344955,
+   "mejor_umbral": 0.8720844586300025,
+   "regla": "ataque si x <= t",
+   "umbral": 0.558504,
+   "ganancia_pp": 8.544070709550699
+  },
+  "3": {
+   "nombre": "MSCI  (inyeccion de estado malicioso)",
+   "instancias": 7900,
+   "con_valor": 0,
+   "medible": false
+  },
+  "4": {
+   "nombre": "MPCI  (inyeccion de parametros de comando)",
+   "instancias": 20412,
+   "con_valor": 0,
+   "medible": false
+  },
+  "5": {
+   "nombre": "MFCI  (inyeccion de codigo de funcion malicioso)",
+   "instancias": 4898,
+   "con_valor": 0,
+   "medible": false
+  },
+  "6": {
+   "nombre": "DoS   (denegacion de servicio)",
+   "instancias": 2176,
+   "con_valor": 0,
+   "medible": false
+  },
+  "7": {
+   "nombre": "Reconnaissance (reconocimiento)",
+   "instancias": 3874,
+   "con_valor": 40,
+   "medible": true,
+   "n_comparacion": 48100,
+   "mayoria": 0.9991683991683992,
+   "mejor_umbral": 1.0,
+   "regla": "ataque si x <= t",
+   "umbral": 0.0,
+   "ganancia_pp": 0.08316008316008316
+  }
+ },
+ "dataset3": {
+  "filas": 97019,
+  "normales": 61156,
+  "ataques": 35863,
+  "con_valor": 97019,
+  "binario": {
+   "mayoria": 0.6303507560374773,
+   "mejor_umbral": 0.7223430462074439,
+   "regla": "ataque si x <= t",
+   "umbral": 0.0,
+   "n": 97019
+  },
+  "por_tipo": {
+   "1": {
+    "instancias": 2763,
+    "n_comparacion": 63919,
+    "mayoria": 0.9567734163550744,
+    "mejor_umbral": 0.9957133246765437,
+    "regla": "ataque si x <= t",
+    "umbral": -0.2197265625,
+    "ganancia_pp": 3.893990832146932
+   },
+   "2": {
+    "instancias": 15466,
+    "n_comparacion": 76622,
+    "mayoria": 0.7981519667980476,
+    "mejor_umbral": 0.9003549894286237,
+    "regla": "ataque si x > t",
+    "umbral": 7.98850584030151,
+    "ganancia_pp": 10.220302263057611
+   },
+   "3": {
+    "instancias": 782,
+    "n_comparacion": 61938,
+    "mayoria": 0.987374471245439,
+    "mejor_umbral": 0.987374471245439,
+    "regla": "ataque si x > t",
+    "umbral": 6.64613997892458e+35,
+    "ganancia_pp": 0.0
+   },
+   "4": {
+    "instancias": 7637,
+    "n_comparacion": 68793,
+    "mayoria": 0.8889857979736311,
+    "mejor_umbral": 0.8889857979736311,
+    "regla": "ataque si x > t",
+    "umbral": 6.64613997892458e+35,
+    "ganancia_pp": 0.0
+   },
+   "5": {
+    "instancias": 573,
+    "n_comparacion": 61729,
+    "mayoria": 0.9907174909685885,
+    "mejor_umbral": 0.9907174909685885,
+    "regla": "ataque si x > t",
+    "umbral": 6.64613997892458e+35,
+    "ganancia_pp": 0.0
+   },
+   "6": {
+    "instancias": 1837,
+    "n_comparacion": 62993,
+    "mayoria": 0.970838029622339,
+    "mejor_umbral": 0.970838029622339,
+    "regla": "ataque si x > t",
+    "umbral": 6.64613997892458e+35,
+    "ganancia_pp": 0.0
+   },
+   "7": {
+    "instancias": 6805,
+    "n_comparacion": 67961,
+    "mayoria": 0.8998690425391033,
+    "mejor_umbral": 0.9889495445917511,
+    "regla": "ataque si x <= t",
+    "umbral": 0.0,
+    "ganancia_pp": 8.908050205264784
+   }
+  }
+ },
+ "conclusion": {
+  "fuga_se_reproduce": false,
+  "mejor_umbral_subconjunto": 0.8497125769364766,
+  "mayoria_subconjunto": 0.6976541632795261,
+  "ganancia_pp_subconjunto": 15.20584136569505,
+  "mejor_umbral_total": 0.8194903651484918,
+  "mayoria_total": 0.7813478596501449,
+  "auc_subconjunto": 0.3223424857187909,
+  "tipos_sin_valor_de_presion": [
+   "3",
+   "4",
+   "5",
+   "6"
+  ],
+  "referencias_por_tipo_utilizables": true
+ }
+}

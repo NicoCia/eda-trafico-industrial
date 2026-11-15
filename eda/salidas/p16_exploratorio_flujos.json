@@ -1,0 +1,243 @@
+{
+ "Westermo": {
+  "filas": 21080,
+  "columnas": 64,
+  "duplicadas": 0,
+  "duplicadas_features": 2705,
+  "faltantes_estructurales": {
+   "sttl": true,
+   "rttl": true,
+   "sWinTCP": true,
+   "rWinTCP": true,
+   "sAckRate": true,
+   "rAckRate": true,
+   "sIPs": true,
+   "rIPs": true
+  },
+  "constantes": [
+   "rFragmentRate",
+   "rUrgRate",
+   "sFragmentRate",
+   "sUrgRate",
+   "sttl"
+  ],
+  "casi_constantes": [
+   "rFinRate",
+   "rPayloadMin",
+   "rRstRate",
+   "sAckRate",
+   "sFinRate",
+   "sRstRate"
+  ],
+  "asimetria": {
+   "simetrica": 4,
+   "moderada": 5,
+   "alta": 33
+  },
+  "grupos_redundancia": [
+   [
+    "duration",
+    "rAckDelayAvg",
+    "rAckDelayMax",
+    "rInterPacketAvg",
+    "rLoad",
+    "sLoad"
+   ],
+   [
+    "rBytesAvg",
+    "rBytesMax",
+    "rBytesSum",
+    "rPackets",
+    "rPayloadAvg",
+    "rPayloadMax",
+    "rPayloadSum",
+    "rPshRate",
+    "rWinTCP",
+    "sAckDelayAvg",
+    "sAckDelayMax",
+    "sBytesAvg",
+    "sBytesMin",
+    "sBytesSum",
+    "sPackets",
+    "sPayloadAvg",
+    "sPayloadMin",
+    "sPayloadSum",
+    "sPshRate",
+    "sWinTCP"
+   ],
+   [
+    "sBytesMax",
+    "sPayloadMax"
+   ],
+   [
+    "rAckRate",
+    "rSynRate",
+    "rttl",
+    "sSynRate"
+   ],
+   [
+    "sAckRate",
+    "sRstRate"
+   ],
+   [
+    "rFinRate",
+    "sFinRate"
+   ]
+  ],
+  "pares_fuertes": 83,
+  "balance": {
+   "IT_B_Label": {
+    "normal": 7852,
+    "anomalo": 13228
+   },
+   "NST_B_Label": {
+    "normal": 17456,
+    "anomalo": 3624
+   },
+   "IT_M_Label": {
+    "Normal": 7852,
+    "BAD-SSH": 6727,
+    "BAD-MITM": 2104,
+    "BAD-MISCONF-DUPLICATION": 1494,
+    "BAD-MISCONF": 1413,
+    "BAD-PORTSCAN2": 909,
+    "BAD-PORTSCAN1": 376,
+    "GOOD-SSH": 205
+   },
+   "NST_M_Label": {
+    "Normal": 17456,
+    "BAD-MISCONF-DUPLICATION": 1494,
+    "BAD-MISCONF": 1413,
+    "BAD-MITM": 310,
+    "BAD-SSH": 229,
+    "BAD-PORTSCAN2": 145,
+    "BAD-PORTSCAN1": 26,
+    "GOOD-SSH": 7
+   }
+  }
+ },
+ "ICS-Flow": {
+  "filas": 25620,
+  "columnas": 64,
+  "duplicadas": 0,
+  "duplicadas_features": 334,
+  "faltantes_estructurales": {
+   "sttl": true,
+   "rttl": true,
+   "sWinTCP": true,
+   "rWinTCP": true,
+   "sAckRate": true,
+   "rAckRate": true,
+   "sIPs": true,
+   "rIPs": true
+  },
+  "constantes": [
+   "rFragmentRate",
+   "rUrgRate",
+   "sFragmentRate",
+   "sUrgRate"
+  ],
+  "casi_constantes": [
+   "rFinRate",
+   "rRstRate",
+   "sAckRate",
+   "sFinRate",
+   "sSynRate"
+  ],
+  "asimetria": {
+   "simetrica": 4,
+   "moderada": 4,
+   "alta": 35
+  },
+  "grupos_redundancia": [
+   [
+    "duration",
+    "rAckDelayMax"
+   ],
+   [
+    "sBytesSum",
+    "sPackets"
+   ],
+   [
+    "rBytesSum",
+    "rPackets"
+   ],
+   [
+    "sBytesMax",
+    "sPayloadMax"
+   ],
+   [
+    "rBytesAvg",
+    "rBytesMax",
+    "rPayloadAvg",
+    "rPayloadMax",
+    "rPshRate",
+    "rWinTCP",
+    "sBytesAvg",
+    "sBytesMin",
+    "sPayloadAvg",
+    "sPayloadMin",
+    "sPshRate",
+    "sWinTCP"
+   ],
+   [
+    "sInterPacketAvg",
+    "sLoad"
+   ],
+   [
+    "rAckDelayAvg",
+    "rInterPacketAvg",
+    "rLoad"
+   ],
+   [
+    "rPayloadSum",
+    "sPayloadSum"
+   ],
+   [
+    "rRstRate",
+    "sAckRate",
+    "sSynRate"
+   ],
+   [
+    "rAckRate",
+    "rSynRate",
+    "sRstRate"
+   ],
+   [
+    "rFinRate",
+    "sFinRate"
+   ],
+   [
+    "sAckDelayAvg",
+    "sAckDelayMax"
+   ]
+  ],
+  "pares_fuertes": 46,
+  "balance": {
+   "IT_B_Label": {
+    "normal": 21006,
+    "anomalo": 4614
+   },
+   "NST_B_Label": {
+    "normal": 22856,
+    "anomalo": 2764
+   },
+   "IT_M_Label": {
+    "Normal": 21006,
+    "replay": 1855,
+    "port-scan": 952,
+    "mitm": 942,
+    "ddos": 541,
+    "ip-scan": 324
+   },
+   "NST_M_Label": {
+    "Normal": 22856,
+    "replay": 1051,
+    "mitm": 807,
+    "port-scan": 574,
+    "ddos": 244,
+    "ip-scan": 88
+   }
+  }
+ }
+}

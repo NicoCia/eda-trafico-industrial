@@ -1,0 +1,219 @@
+# Exploración de Morris y de HAI
+
+Generado por `eda/scripts/18_exploratorio_resto.py`.
+Solo tramo de entrenamiento.
+
+## Morris / Turnipseed
+
+### Qué es
+
+Registros de un gasoducto de laboratorio del Mississippi State SCADA
+Lab, en su versión corregida. **No es tráfico de red**: cada fila es
+una transacción Modbus con sus campos ya extraídos, de modo que no hay
+captura ni posibilidad de recalcular las características.
+
+- 163823 transacciones en el tramo de entrenamiento, de 274628 en total
+- 20 atributos: 1 de tiempo, 16 características y 3 etiquetas
+- Sin licencia declarada; recuperado del Internet Archive
+
+### Qué falta, y por qué
+
+atributo                  % nulos
+setpoint                    76.6 %
+gain                        76.6 %
+reset rate                  76.6 %
+deadband                    76.6 %
+cycle time                  76.6 %
+rate                        76.6 %
+system mode                 76.6 %
+control scheme              76.6 %
+pump                        76.6 %
+solenoid                    76.6 %
+pressure measurement        74.9 %
+
+La falta es estructural y la explica el sentido de la transacción: una
+petición no trae medición y una respuesta no trae consigna. Medido:
+
+atributo                  nulos si cr=1  nulos si cr=0
+pressure measurement               100 %            50 %
+setpoint                            53 %           100 %
+gain                                53 %           100 %
+
+`pressure measurement` falta en el 74.9 % de las filas del tramo,
+y es el atributo con el que la literatura discute la fuga del conjunto
+original. No corresponde imputarlo: en una petición no existe.
+
+### Qué variables hay en realidad
+
+- Constantes: **0** — ninguna
+- Pares con |Spearman| ≥ 0,8: **0**
+
+Hay mucha menos redundancia que en los conjuntos de flujo, donde un
+solo grupo reunía veinte columnas. Acá los atributos son de naturaleza
+distinta —consigna, ganancia, modo, código de función— y se mueven por
+separado.
+
+### Cómo se distribuyen
+
+- asimetría simetrica   3
+- asimetría moderada    4
+- asimetría alta        9
+
+### Poder discriminante
+
+AUC de cada atributo frente a `binary result`, sobre las filas en que
+el atributo existe:
+
+atributo                      AUC  AUC pleg.          n
+pressure measurement        0.316      0.684      41085
+crc rate                    0.611      0.611     163823
+command response            0.394      0.606     163823
+function                    0.604      0.604     163823
+setpoint                    0.553      0.553      38398
+pump                        0.553      0.553      38398
+rate                        0.550      0.550      38398
+system mode                 0.547      0.547      38398
+
+El mejor es `pressure measurement` con AUC plegado **0.684**, frente a 0.563 de Westermo y 0.669 de ICS-Flow.
+
+Es el más alto de los tres conjuntos con etiqueta, pero por poco y
+sin llegar a separar bien: **en ninguno de los tres hay un atributo
+que alcance solo.** Que Morris quede algo por encima es esperable,
+porque sus atributos son semánticos y la anomalía los manipula de
+forma directa, mientras que en los de flujo la anomalía aparece
+recién al agregar paquetes. Pero la diferencia es de centésimas y
+no cambia la conclusión.
+
+### Estructura temporal
+
+Es una sola secuencia de transacciones, no varias conversaciones en
+paralelo, de modo que la autocorrelación se mide sobre la serie
+ordenada por `time`.
+
+retardo       mediana   con |ac|>0,3
+1                0.86             11
+2                0.89             12
+5                0.71             11
+10               0.60             12
+
+Con 0.86 a retardo 1, las 163823 transacciones valen como **12060**, el 7 %.
+Las transacciones consecutivas se parecen porque el lazo de control
+repite el mismo ciclo, así que vale la misma advertencia que en
+ICS-Flow: validación por bloques y no al azar.
+
+### ¿Conviene reducir la dimensión?
+
+Solo **0** de las 163823 filas tienen los 16 atributos a la vez (0.0 %),
+porque los faltantes estructurales se excluyen entre sí: una fila es
+petición o respuesta, nunca las dos. Un PCA sobre esas filas describe
+un subconjunto muy particular y no el conjunto, de modo que **no se
+calcula**: la reducción, si se hiciera, tendría que ser por separado
+para peticiones y para respuestas.
+
+### Balance de clases
+
+Binario: 128457 normales y 35366 ataques, razón 3.6 : 1.
+
+Por categoría: 0 128457, 1 4427, 2 7666, 3 5046, 4 12260, 5 2714, 6 1044, 7 2209
+
+Es el único de los cinco con una taxonomía de anomalías contextuales
+etiquetada, y por eso sostiene el compromiso de PD por tipo.
+
+---
+
+## HAI
+
+### Qué es
+
+Series de proceso de un banco de pruebas de generación térmica e
+hidráulica, muestreadas a 1 Hz. **No trae ni una característica de
+red**: todas sus columnas son variables físicas, en bar, mm, l/h, %,
+grados, RPM, MW y Hz.
+
+Son cinco versiones que no comparten esquema entre sí:
+
+versión         archivos  columnas      filas        horas
+hai-20.07              2        64     550800          153
+hai-21.03              3        84     921603          256
+hai-22.04              6        88    1004402          279
+hai-23.05              4        87     896400          249
+haiend-23.05           4       226     896400          249
+
+La ficha que sigue se hace sobre **hai-20.07**, que es la versión con línea
+base publicada y la que el relevamiento usa de referencia.
+
+### Qué falta, y por qué
+
+No falta nada: el máximo de nulos en cualquier columna es 0.00 %.
+Es lo esperable en un registro de proceso, que muestrea a intervalo
+fijo y escribe el valor del instante.
+
+### Qué variables hay en realidad
+
+- Columnas de proceso: 59
+- Constantes en el tramo de entrenamiento: **8**
+- Casi constantes (un valor en ≥ 99 %): **0**
+- Pares con |Spearman| ≥ 0,8 entre las no constantes: **74**
+
+
+El 14 % de las columnas no varía en todo el tramo. Es la firma de un
+banco de pruebas donde parte de los lazos queda en reposo.
+
+### Cómo se distribuyen
+
+- asimetría simetrica  30
+- asimetría moderada   10
+- asimetría alta       11
+
+### Poder discriminante: no se puede medir
+
+**Los archivos de entrenamiento de HAI no traen anomalías.** En esta
+versión hay 776 filas con etiqueta distinta de cero sobre 550800, y son los
+dos ataques que se colaron en `train2` y que INFORME.md ya
+había detectado. Con una clase positiva de ese tamaño no se puede
+estimar el poder discriminante de nada.
+
+Es una diferencia de diseño respecto de Westermo, ICS-Flow y Morris,
+que sí traen anomalías etiquetadas dentro del tramo de entrenamiento.
+Medirlo sobre el tramo de prueba daría el número, pero rompería el
+protocolo, de modo que **queda sin medir y se deja dicho**.
+
+### Estructura temporal
+
+retardo       mediana   con |ac|>0,3
+1                1.00             46
+2                1.00             46
+5                0.99             48
+10               0.99             48
+
+Con 1.00 a retardo 1 es **el valor más alto de los cuatro conjuntos**.
+Tan cerca de 1 la corrección AR(1) deja de ser fiable, porque su
+resultado cambia de orden con la cuarta cifra de la autocorrelación.
+Se usa en su lugar el tiempo de decorrelación, el retardo en que la
+autocorrelación cae por debajo de 1/e:
+
+- Tiempo de decorrelación mediano: **1800 s**
+- Muestras independientes equivalentes: **≈ 306** sobre 550800
+
+A 1 Hz cada fila es casi idéntica a la anterior. El conjunto tiene
+órdenes de magnitud menos observaciones independientes de las que
+aparenta, y esa es la cifra que hay que usar para cualquier intervalo.
+
+### ¿Conviene reducir la dimensión?
+
+PCA sobre las 51 columnas no constantes, con las 550800 filas completas.
+
+- **13 componentes** para el 90 % de la varianza, **17** para el 95 %
+- La primera explica el 24.8 %
+
+Es la reducción más fuerte de los cuatro conjuntos medidos: 13 de 51
+columnas bastan para el 90 % de la varianza.
+
+### Balance de clases
+
+No aplica en el tramo de entrenamiento, por lo dicho más arriba: no
+hay clase positiva. El recuento de ataques por versión, sobre los
+archivos de prueba y solo como conteo, está en la pregunta 4 de
+INFORME.md.
+
+---

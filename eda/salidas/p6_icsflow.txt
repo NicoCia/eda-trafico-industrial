@@ -1,0 +1,220 @@
+# Pregunta 6 - ICS-Flow: escrituras Modbus con parametros
+
+## 6.1 Particion temporal (se define aqui; el conjunto no la trae)
+
+Marca de tiempo del conjunto: 1663319679.510 a 1663328062.090
+Duracion: 8383 s = 2.33 h
+
+particion      offset (s)             uso                   
+entrenamiento  0 - 5030 (60 %)        exploracion           
+calibracion    5030 - 6706 (20 %)     umbral; no se explora 
+prueba         6706 - 8383 (20 %)     no se abre            
+
+El primer evento empieza a los 3661 s, o sea que los primeros 3661 s
+(43.7 % de la captura) son trafico normal sin ningun ataque activo.
+A diferencia de Westermo, aca si hay un tramo normal limpio y largo.
+
+**El PCAP se lee solo hasta el corte del 60 %.** Lo unico que se mira
+fuera de ese tramo son conteos de etiqueta y el inventario de eventos.
+
+## 6.2 Escrituras Modbus en el tramo de entrenamiento
+
+Paquetes leidos: 25161400  |  IP 25135480  |  TCP 25135246  |  con carga 5924975  |  puerto 502 5924975
+Paquetes IP que no son TCP, descartados antes de leer puerto: {'UDP': 10, 'ICMP': 224}
+  (son de los escaneos y del DDoS; hay que filtrarlos antes de
+   tocar `sport`, o el lector rompe)
+ADU Modbus delimitadas: 5924975
+
+Codigos de funcion:
+   Read Holding Registers               1190823
+   Write Multiple Registers                 898
+
+Peticiones emparejadas con su respuesta por identificador de
+transaccion: 591469; latencia mediana 0.2 ms
+
+Peticiones de escritura: **448**
+
+Reparto por destino, direccion y variable:
+
+destino            dir.   variable nombre                           escrit. distintos        min        max
+192.168.0.11          6          3 tank_level_min                       166       145     1.0026     4.6667
+192.168.0.11          8          4 tank_level_max                       116       110     5.5258     9.5714
+192.168.0.12         22         11 bottle_level_max                     166       147     1.0037     1.8869
+
+Las escrituras usan funcion 16 con cantidad 2: ICSSIM reparte cada
+variable en dos registros de 16 bits, el mas significativo primero, y
+el valor fisico es el entero de 32 bits dividido por 10000.
+Por eso la direccion Modbus es el doble del indice de variable que
+declaran las cabeceras de snapshots_PLC1.csv y snapshots_PLC2.csv.
+
+Escrituras con valor de 32 bits recuperado: 448 de 448 (100.0 %)
+Valores distintos en total: 402 sobre 448 escrituras
+
+**Esto es lo que decide la pregunta**: el valor escrito no es un bit ni
+un puñado de estados, es una consigna con 402 valores distintos sobre 448
+escrituras. Es el repertorio que hace falta para la familia MPCI.
+
+Contraste con los registros de proceso, que es lo que confirma la
+interpretacion de la escala y del mapa de registros:
+
+variable                       rango escrito (entren.) rango en el snapshot  
+tank_level_min(3)              1.0026 - 4.6667        1.0026 - 4.6666       
+tank_level_max(4)              5.5258 - 9.5714        5.5258 - 9.5714       
+bottle_level_max(11)           1.0037 - 1.8869        1.0025 - 1.8959       
+
+Los rangos se corresponden, de modo que la consigna escrita por la red
+es la que el PLC aplica: una manipulacion de ese valor tiene efecto
+observable sobre el proceso, y no se queda en la trama.
+
+## 6.3 El ataque de intermediario, se ve en la carga util?
+
+Eventos de intermediario: 16 en total, 5 dentro del tramo de
+entrenamiento. Solo se analizan esos 5.
+MAC del atacante: 02:42:c0:a8:00:29   IP: 192.168.0.41
+
+Escrituras dentro de ventanas de intermediario: 44
+Escrituras fuera: 404
+
+MAC de origen de las escrituras, dentro y fuera de las ventanas:
+
+MAC de origen             en mitm        fuera
+02:42:c0:a8:00:17              24          384
+02:42:c0:a8:00:29              20           20
+
+Escrituras cuya MAC de origen es la del atacante pero cuya IP de
+origen no lo es: **20**
+Esa combinacion es la firma del envenenamiento de ARP: el atacante
+retransmite la trama del HMI con su propia MAC de capa 2.
+
+Valores escritos, dentro y fuera de las ventanas:
+
+variable                                n      mediana          min          max
+tank_level_min (fuera)                145       2.9640       1.0026       4.4992
+tank_level_min (en mitm)               21       2.6525       1.1592       4.6667
+tank_level_max (fuera)                105       7.0800       5.5258       8.9944
+tank_level_max (en mitm)               11       8.7013       7.4837       9.5714
+bottle_level_max (fuera)              154       1.4429       1.0037       1.8869
+bottle_level_max (en mitm)             12       1.2118       1.1525       1.2713
+
+Escrituras repetidas sobre la misma variable en menos de 1 s: 40
+  de ellas dentro de una ventana de intermediario: 32
+
+La pareja esperable de un relay es la misma escritura vista dos
+veces: una con la MAC del HMI y otra con la del atacante. Se
+separa por eso, que es mas firme que la mera proximidad.
+
+Parejas en las que la segunda trama lleva la MAC del atacante
+y la primera no: **22**
+
+Distribucion de la razon entre el segundo valor y el primero:
+
+razon (3 decimales)             relay      resto
+0.543                               0          1
+0.909                               0          7
+1.000                               7         10
+1.100                              15          0
+
+**El factor de manipulacion es 1.100**: en 15 de las 15
+parejas de relay con valor alterado, el atacante reescribe
+la consigna multiplicada por ese factor. El articulo dice
+que el intermediario multiplica los valores por un factor;
+aca queda medido cual es.
+
+Primeras parejas, para poder leerlas a mano:
+
+variable             dt(s)    valor 1    valor 2     razon   relay en mitm
+tank_level_min       0.208     1.7688     1.7688     1.000      no      si
+tank_level_min       0.209     1.7688     1.7688     1.000      no      si
+tank_level_min       0.006     1.7688     1.9456     1.100      si      si
+tank_level_min       0.315     1.9456     1.9456     1.000      no      si
+tank_level_min       0.094     1.9456     1.7688     0.909      no      si
+tank_level_min       0.099     1.7688     1.9456     1.100      si      si
+tank_level_min       0.425     1.9456     1.9456     1.000      no      si
+tank_level_min       0.167     4.2425     4.6667     1.100      si      si
+tank_level_min       0.235     3.5321     3.8853     1.100      si      si
+tank_level_min       0.167     3.8853     3.5321     0.909      no      si
+tank_level_min       0.206     3.5321     3.8853     1.100      si      si
+tank_level_min       0.000     3.2544     3.2544     1.000      si      no
+tank_level_min       0.179     2.9693     3.2662     1.100      si      si
+tank_level_min       0.070     3.2662     2.9693     0.909      no      si
+
+Escrituras del tramo de entrenamiento por MAC de origen y por ventana
+de ataque declarada:
+
+MAC de origen                          ddos      ip-scan         mitm      ninguna    port-scan       replay
+02:42:c0:a8:00:17                         5            4           24          348            7           20
+02:42:c0:a8:00:29 (atacante)              0            0           20            1            0           19
+
+El atacante escribe bajo **dos** mecanismos distintos, no uno: con el
+intermediario reescribe la consigna multiplicada por el factor, y con
+la repeticion reenvia consignas capturadas antes, que llegan al PLC
+fuera de tiempo. Las dos son anomalias contextuales sobre el mismo
+campo, de modo que el conjunto aporta dos mecanismos y no uno.
+
+Detalle de las 448 escrituras del tramo de entrenamiento: eda/derivados/icsflow_escrituras_entrenamiento.csv
+
+## 6.4 Eventos por tipo de anomalia y por particion
+
+tipo            eventos  entrenamiento  calibracion     prueba  dur.med.(s)
+ddos                  8              1            4          3         61.3
+ip-scan              24             11            6          7          4.2
+mitm                 16              5            6          5         37.2
+port-scan            18              5            8          5         16.1
+replay                8              4            3          1         67.3
+TOTAL                74             26           27         21
+
+Flujos etiquetados en Dataset.csv (conteo, no distribuciones):
+
+  NST  {'Normal': np.int64(36706), 'mitm': np.int64(2584), 'replay': np.int64(2358), 'port-scan': np.int64(1944), 'ddos': np.int64(1934), 'ip-scan': np.int64(192)}
+  IT   {'Normal': np.int64(30236), 'replay': np.int64(4300), 'ddos': np.int64(4221), 'port-scan': np.int64(3235), 'mitm': np.int64(3014), 'ip-scan': np.int64(712)}
+
+Con 21 eventos en el tramo de prueba repartidos en 5 tipos, el tipo
+menos representado tiene 1. Es el mismo problema que en Westermo: PD
+por tipo sobre eventos no se puede estimar con precision util, y hay
+que reportarla por flujo o de forma agregada.
+
+## 6.5 Cuantas escrituras hay, y cuantas bajo intermediario
+
+Este es el conteo que decide el alcance. Son cantidades por particion,
+sin mirar valores fuera del tramo de entrenamiento.
+
+particion          ADU Modbus   escrituras      escr. en mitm  % en mitm
+entrenamiento         1191721          448                 44       9.8%
+calibracion           2593792          176                 48      27.3%
+prueba                2139462          178                 51      28.7%
+TOTAL                 5924975          802                143      17.8%
+
+Peticiones Modbus (la mitad de las ADU): 2962487, de las cuales 2961685 son
+lecturas. Hay una escritura cada 3693 lecturas.
+
+Escrituras bajo intermediario en el tramo de prueba: **51**.
+Es la cifra que fija el alcance: son las instancias disponibles para
+medir PD sobre manipulacion de parametros sin tocar el entrenamiento.
+
+## 6.6 Con que alcance cierra la brecha
+
+Precision alcanzable para una PD cercana a 0,5, por aproximacion
+normal de una binomial:
+
+unidad de medida                                      n      IC 95 %
+ICS-Flow, escritura manipulada (prueba)              51      +-0.137
+ICS-Flow, evento de intermediario (prueba)            5      +-0.438
+Morris, evento MPCI (prueba)                       1808      +-0.023
+
+Lectura. ICS-Flow **si** cierra la mitad que faltaba: es el unico
+conjunto de los cinco donde se puede *calcular* una caracteristica
+semantica de parametro desde la carga util y ademas ver la familia de
+manipulacion actuando sobre ella. Sirve para construir y validar el
+flujo de extraccion del requerimiento 2.3 sobre datos reales.
+
+Pero no reemplaza a Morris para medir. Con 51 escrituras manipuladas
+en el tramo de prueba, una PD por escritura queda con un intervalo de
++-0.14, utilizable pero grueso; por evento, con solo 5 eventos, no es
+estimable. Morris sigue siendo el que sostiene el compromiso por
+familia, y no tiene carga util.
+
+De modo que la division de roles no se resuelve: pasa de dos conjuntos
+a tres. QUT para el grueso de las caracteristicas semanticas de
+funcion y temporizado, ICS-Flow para construir y validar la extraccion
+de parametros y dar una PD gruesa sobre esa familia, y Morris para el
+compromiso numerico por tipo.

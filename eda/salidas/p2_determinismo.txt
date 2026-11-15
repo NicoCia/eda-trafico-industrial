@@ -1,0 +1,204 @@
+# Pregunta 2 - determinismo del trafico normal
+
+Lectura de las medidas:
+  CV del intervalo entre paquetes ~0 = periodico; ~1 = tipo Poisson;
+  >1 = a rafagas. El indice de dispersion de la tasa (var/media)
+  compara contra el azar puro sin que el nivel medio confunda.
+  Entropia normalizada ~0 = un solo interlocutor;
+  ~1 = reparto uniforme. Jaccard ~1 = el mismo conjunto de pares
+  conversa en cada ventana.
+
+## 2.1 Westermo (reduced / bottom), tramo de entrenamiento
+
+Tramo de entrenamiento: 0 a 3265 s.
+Eventos activos durante 2003 s (61.4% del tramo), en 57 intervalos.
+Quedan 1262 s limpios (38.6%) repartidos en los huecos entre eventos.
+
+Se informan dos definiciones de normal, porque dan respuestas
+distintas y conviene no confundirlas:
+  (a) TODO el tramo de entrenamiento, eventos incluidos;
+  (b) SOLO los huecos entre eventos, que es el normal mas estricto
+      posible sobre esta captura.
+
+### (a) Westermo, todo el tramo de entrenamiento
+  paquetes=898597  duracion util=3265 s en 1 tramo(s)  tasa=275.2 pps
+  tasa por ventana de 1 s : media=275.2  sd=27.9  CV=0.10  p05=262 p95=308
+  indice de dispersion (var/media) = 2.83  -> a rafagas
+  intervalo entre paquetes: mediana=0.2 ms  CV=4.40
+  autocorrelacion de la tasa (agrupada por tramo): lag1=0.62  pico en 1 s = 0.62
+  entropia (bits / normalizada / distintos):
+     IP origen     1.85 / 0.37 / 32
+     IP destino    1.79 / 0.40 / 22
+     puerto org    2.34 / 0.26 / 512
+     puerto dst    1.81 / 0.17 / 1499
+  interlocutores: 40 nodos, 51 pares, 52 conversaciones
+  estabilidad del conjunto de pares (Jaccard entre ventanas de 10 s): mediana=0.82  p05=0.72
+  pares nuevos por ventana en el ultimo tercio: 0.01
+  tamano de paquete: 36 valores distintos, H=1.80 bits, moda=78 B (33.2% de los paquetes)
+  mezcla de protocolos (6 categorias, suman 898597 de 898597 paquetes):
+     TCP=881086  ETH-0x0027=8164  ARP=6177
+     IP-2=1875  ETH-0x88cc=648  UDP=647
+  conversaciones principales:
+     origen            destino           proto  paquetes  dt med ms   dt CV  moda tam
+     198.18.134.11     198.18.134.12     TCP      227338        0.2    2.40    78 B (43%)
+     198.18.134.15     198.18.134.11     TCP      186012        0.2    4.76    78 B (55%)
+     198.18.134.12     198.18.134.11     TCP      163250        1.1    2.03    79 B (60%)
+     198.18.134.15     198.18.134.12     TCP      123230        0.2    4.06    78 B (52%)
+     198.18.134.11     198.18.134.15     TCP      103100        1.0    3.64    79 B (100%)
+     198.18.134.12     198.18.134.15     TCP       64360        0.9    2.94    79 B (100%)
+     198.18.134.99     198.18.134.42     TCP        6108        3.4   55.40    62 B (99%)
+     b8:27:eb:15:88:9c ff:ff:ff:ff:ff:ff ARP        4788        0.0    1.87    60 B (100%)
+     198.18.134.99     198.18.134.40     TCP        2070        0.0   29.10    62 B (97%)
+     198.18.134.99     198.18.134.6      TCP        1666        1.2   18.14    66 B (42%)
+
+### (b) Westermo, solo los huecos entre eventos
+  paquetes=344636  duracion util=1262 s en 57 tramo(s)  tasa=273.1 pps
+  tasa por ventana de 1 s : media=272.9  sd=9.6  CV=0.04  p05=263 p95=282
+  indice de dispersion (var/media) = 0.34  -> mas regular que Poisson
+  intervalo entre paquetes: mediana=0.2 ms  CV=4.49
+  autocorrelacion de la tasa (agrupada por tramo): lag1=-0.27  pico en 6 s = 0.17
+  entropia (bits / normalizada / distintos):
+     IP origen     1.73 / 0.38 / 24
+     IP destino    1.65 / 0.41 / 16
+     puerto org    2.18 / 0.63 / 11
+     puerto dst    1.58 / 0.48 / 10
+  interlocutores: 31 nodos, 32 pares, 32 conversaciones
+  estabilidad del conjunto de pares (Jaccard entre ventanas de 10 s): mediana=0.81  p05=0.54
+  pares nuevos por ventana en el ultimo tercio: 0.02
+  tamano de paquete: 11 valores distintos, H=1.70 bits, moda=79 B (33.7% de los paquetes)
+  mezcla de protocolos (6 categorias, suman 344636 de 344636 paquetes):
+     TCP=338402  ETH-0x0027=3160  ARP=1906
+     IP-2=707  ETH-0x88cc=243  UDP=218
+  conversaciones principales:
+     origen            destino           proto  paquetes  dt med ms   dt CV  moda tam
+     198.18.134.11     198.18.134.12     TCP       87856        0.2    2.41    78 B (43%)
+     198.18.134.15     198.18.134.11     TCP       73192        0.2    4.93    78 B (55%)
+     198.18.134.12     198.18.134.11     TCP       63094        1.1    2.04    79 B (60%)
+     198.18.134.15     198.18.134.12     TCP       48520        0.2    4.05    78 B (52%)
+     198.18.134.11     198.18.134.15     TCP       40446        1.0    3.77    79 B (100%)
+     198.18.134.12     198.18.134.15     TCP       25290        0.9    2.93    79 B (100%)
+     b8:27:eb:15:88:9c ff:ff:ff:ff:ff:ff ARP        1848        0.0    1.97    60 B (100%)
+     00:07:7c:8c:43:6f 01:80:c2:00:00:00 ETH-0x0027      635     2000.0    0.00    60 B (100%)
+     00:07:7c:8c:43:6e 01:80:c2:00:00:00 ETH-0x0027      635     2000.0    0.00    60 B (100%)
+     00:07:7c:8c:43:6d 01:80:c2:00:00:00 ETH-0x0027      635     2000.0    0.00    60 B (100%)
+
+### (c) Westermo a nivel de flujo, NST_B_Label = 0 (normal exacto)
+
+Flujos normales en el tramo de entrenamiento: 17456
+  entropia de sAddress: 1.79 bits / 0.43 normalizada / 18 distintos
+  entropia de rAddress: 1.69 bits / 0.51 normalizada / 10 distintos
+  entropia del par (s,r): 2.35 bits / 0.53 normalizada / 22 pares
+  los 5 pares mas frecuentes concentran el 94.1% de los flujos
+  protocolos: {'IPV4-TCP': 14745, 'ARP': 1405, 'IPV4-2': 872, 'IPV4-UDP': 159, 'LLDP': 275}
+  sPackets         mediana=16.000  CV=0.72  p05=3.000  p95=42.000
+  sBytesAvg        mediana=65.000  CV=0.41  p05=58.700  p95=65.000
+  duration         mediana=0.473  CV=0.63  p05=0.000  p95=0.500
+  sInterPacketAvg  mediana=0.011  CV=1.40  p05=0.000  p95=0.055
+
+## 2.2 QUT DNP3, escenario Control (sin ataque), tramo training
+
+### QUT Control / frequent / master.pcap
+  paquetes=419803  duracion util=86486 s en 1 tramo(s)  tasa=4.9 pps
+  tasa por ventana de 1 s : media=4.9  sd=3.8  CV=0.79  p05=2 p95=13
+  indice de dispersion (var/media) = 3.00  -> a rafagas
+  intervalo entre paquetes: mediana=104.6 ms  CV=1.26
+  autocorrelacion de la tasa (agrupada por tramo): lag1=0.35  pico en 53 s = 0.47
+  entropia (bits / normalizada / distintos):
+     IP origen     1.78 / 0.54 / 10
+     IP destino    2.44 / 0.66 / 13
+     puerto org    2.03 / 0.72 / 7
+     puerto dst    2.03 / 0.72 / 7
+  interlocutores: 17 nodos, 16 pares, 16 conversaciones
+  estabilidad del conjunto de pares (Jaccard entre ventanas de 10 s): mediana=0.80  p05=0.73
+  pares nuevos por ventana en el ultimo tercio: 0.00
+  tamano de paquete: 21 valores distintos, H=2.09 bits, moda=174 B (62.5% de los paquetes)
+  mezcla de protocolos (6 categorias, suman 419803 de 419803 paquetes):
+     ETH-0x88b8=262511  TCP=97277  UDP=32375
+     ETH-0x88f7=21582  ARP=6052  ETH-0x86dd=6
+  conversaciones principales:
+     origen            destino           proto  paquetes  dt med ms   dt CV  moda tam
+     00:00:23:06:c9:a5 01:0c:cd:01:d1:12 ETH-0x88b8   133207      999.7    0.68   174 B (100%)
+     00:00:23:06:c9:a5 01:0c:cd:01:d1:11 ETH-0x88b8   129304      999.7    0.65   174 B (100%)
+     192.168.10.221    192.168.10.222    TCP       59309      204.9    1.43    60 B (41%)
+     192.168.10.222    192.168.10.221    TCP       37968     1474.3    1.02    71 B (55%)
+     00:1d:7f:80:02:17 01:1b:19:00:00:00 ETH-0x88f7    21582     4008.0    0.57   124 B (50%)
+     192.168.10.20     255.255.255.255   UDP       10799     8008.7    0.00    90 B (100%)
+     192.168.10.1      192.168.10.221    UDP        8646    10002.2    0.00    74 B (100%)
+     192.168.10.221    192.168.10.1      UDP        8646    10002.5    0.00    60 B (100%)
+     192.168.10.1      192.168.10.255    UDP        4284      750.0    3.65    92 B (95%)
+     84:2b:2b:ab:59:be 00:18:64:02:2f:a6 ARP        2882    29998.6    0.00    60 B (100%)
+
+### QUT Control / frequent, solo DNP3 (TCP 20000)
+  paquetes=97277  duracion util=86486 s en 1 tramo(s)  tasa=1.1 pps
+  tasa por ventana de 1 s : media=1.1  sd=1.8  CV=1.56  p05=0 p95=5
+  indice de dispersion (var/media) = 2.73  -> a rafagas
+  intervalo entre paquetes: mediana=134.0 ms  CV=1.98
+  autocorrelacion de la tasa (agrupada por tramo): lag1=-0.01  pico en 132 s = 0.29
+  entropia (bits / normalizada / distintos):
+     IP origen     0.96 / 0.96 / 2
+     IP destino    0.96 / 0.96 / 2
+     puerto org    0.96 / 0.96 / 2
+     puerto dst    0.96 / 0.96 / 2
+  interlocutores: 2 nodos, 2 pares, 2 conversaciones
+  estabilidad del conjunto de pares (Jaccard entre ventanas de 10 s): mediana=1.00  p05=1.00
+  pares nuevos por ventana en el ultimo tercio: 0.00
+  tamano de paquete: 13 valores distintos, H=2.61 bits, moda=60 B (31.0% de los paquetes)
+  mezcla de protocolos (1 categorias, suman 97277 de 97277 paquetes):
+     TCP=97277
+  conversaciones principales:
+     origen            destino           proto  paquetes  dt med ms   dt CV  moda tam
+     192.168.10.221    192.168.10.222    TCP       59309      204.9    1.43    60 B (41%)
+     192.168.10.222    192.168.10.221    TCP       37968     1474.3    1.02    71 B (55%)
+
+### QUT Control / infrequent / master.pcap
+  paquetes=420050  duracion util=86486 s en 1 tramo(s)  tasa=4.9 pps
+  tasa por ventana de 1 s : media=4.9  sd=3.8  CV=0.79  p05=2 p95=13
+  indice de dispersion (var/media) = 2.99  -> a rafagas
+  intervalo entre paquetes: mediana=104.2 ms  CV=1.26
+  autocorrelacion de la tasa (agrupada por tramo): lag1=0.36  pico en 53 s = 0.48
+  entropia (bits / normalizada / distintos):
+     IP origen     1.78 / 0.46 / 15
+     IP destino    2.45 / 0.60 / 17
+     puerto org    2.03 / 0.64 / 9
+     puerto dst    2.03 / 0.64 / 9
+  interlocutores: 26 nodos, 26 pares, 26 conversaciones
+  estabilidad del conjunto de pares (Jaccard entre ventanas de 10 s): mediana=0.80  p05=0.73
+  pares nuevos por ventana en el ultimo tercio: 0.00
+  tamano de paquete: 22 valores distintos, H=2.09 bits, moda=174 B (62.5% de los paquetes)
+  mezcla de protocolos (6 categorias, suman 420050 de 420050 paquetes):
+     ETH-0x88b8=262671  TCP=97338  UDP=32365
+     ETH-0x88f7=21580  ARP=6054  ETH-0x86dd=42
+  conversaciones principales:
+     origen            destino           proto  paquetes  dt med ms   dt CV  moda tam
+     00:00:23:06:c9:a5 01:0c:cd:01:d1:12 ETH-0x88b8   133255      999.7    0.68   174 B (100%)
+     00:00:23:06:c9:a5 01:0c:cd:01:d1:11 ETH-0x88b8   129416      999.7    0.65   174 B (100%)
+     192.168.10.221    192.168.10.222    TCP       59293      205.0    1.43    60 B (41%)
+     192.168.10.222    192.168.10.221    TCP       38045     1473.2    1.02    71 B (55%)
+     00:1d:7f:80:02:17 01:1b:19:00:00:00 ETH-0x88f7    21580     4008.6    0.57   124 B (50%)
+     192.168.10.20     255.255.255.255   UDP       10799     8008.7    0.00    90 B (100%)
+     192.168.10.1      192.168.10.221    UDP        8647    10002.2    0.00    74 B (100%)
+     192.168.10.221    192.168.10.1      UDP        8647    10002.5    0.00    60 B (100%)
+     192.168.10.1      192.168.10.255    UDP        4248      750.0    4.00    92 B (95%)
+     84:2b:2b:ab:59:be 00:18:64:02:2f:a6 ARP        2882    29998.6    0.00    60 B (100%)
+
+### QUT Control / infrequent, solo DNP3 (TCP 20000)
+  paquetes=97338  duracion util=86486 s en 1 tramo(s)  tasa=1.1 pps
+  tasa por ventana de 1 s : media=1.1  sd=1.8  CV=1.56  p05=0 p95=5
+  indice de dispersion (var/media) = 2.73  -> a rafagas
+  intervalo entre paquetes: mediana=134.1 ms  CV=1.98
+  autocorrelacion de la tasa (agrupada por tramo): lag1=-0.00  pico en 132 s = 0.29
+  entropia (bits / normalizada / distintos):
+     IP origen     0.97 / 0.97 / 2
+     IP destino    0.97 / 0.97 / 2
+     puerto org    0.97 / 0.97 / 2
+     puerto dst    0.97 / 0.97 / 2
+  interlocutores: 2 nodos, 2 pares, 2 conversaciones
+  estabilidad del conjunto de pares (Jaccard entre ventanas de 10 s): mediana=1.00  p05=1.00
+  pares nuevos por ventana en el ultimo tercio: 0.00
+  tamano de paquete: 13 valores distintos, H=2.61 bits, moda=60 B (30.9% de los paquetes)
+  mezcla de protocolos (1 categorias, suman 97338 de 97338 paquetes):
+     TCP=97338
+  conversaciones principales:
+     origen            destino           proto  paquetes  dt med ms   dt CV  moda tam
+     192.168.10.221    192.168.10.222    TCP       59293      205.0    1.43    60 B (41%)
+     192.168.10.222    192.168.10.221    TCP       38045     1473.2    1.02    71 B (55%)

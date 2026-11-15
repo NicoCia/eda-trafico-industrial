@@ -1,0 +1,215 @@
+{
+ "eventos_total": 94,
+ "eventos_por_tipo": {
+  "BAD-MITM": 16,
+  "BAD-MISCONF-DUPLICATION": 16,
+  "BAD-SSH": 16,
+  "GOOD-SSH": 15,
+  "BAD-PORTSCAN1": 8,
+  "BAD-MISCONF": 15,
+  "BAD-PORTSCAN2": 8
+ },
+ "tandas": 16,
+ "tamano_tandas": [
+  6,
+  6,
+  6,
+  6,
+  6,
+  6,
+  6,
+  6,
+  6,
+  6,
+  6,
+  6,
+  6,
+  6,
+  6,
+  4
+ ],
+ "sin_cerrar": [],
+ "reparto_csv": {
+  "reduced/bottom": {
+   "filas": 35404,
+   "columnas": 64,
+   "NST": {
+    "normal": 29167,
+    "misconf_y_ssh": 5307,
+    "ataques": 930
+   },
+   "NST_pct": {
+    "normal": 82.38334651451814,
+    "misconf_y_ssh": 14.989831657439836,
+    "ataques": 2.6268218280420292
+   },
+   "IT": {
+    "normal": 13226,
+    "misconf_y_ssh": 15802,
+    "ataques": 6376
+   },
+   "IT_pct": {
+    "normal": 37.35736075019772,
+    "misconf_y_ssh": 44.63337475991413,
+    "ataques": 18.00926448988815
+   }
+  },
+  "reduced/left": {
+   "filas": 8533,
+   "columnas": 64,
+   "NST": {
+    "normal": 4087,
+    "misconf_y_ssh": 2632,
+    "ataques": 1814
+   },
+   "NST_pct": {
+    "normal": 47.89640220321106,
+    "misconf_y_ssh": 30.84495488105004,
+    "ataques": 21.258642915738896
+   },
+   "IT": {
+    "misconf_y_ssh": 3966,
+    "normal": 1971,
+    "ataques": 2596
+   },
+   "IT_pct": {
+    "misconf_y_ssh": 46.478378061643035,
+    "normal": 23.09855853744287,
+    "ataques": 30.4230634009141
+   }
+  },
+  "reduced/right": {
+   "filas": 4720,
+   "columnas": 64,
+   "NST": {
+    "normal": 3473,
+    "misconf_y_ssh": 837,
+    "ataques": 410
+   },
+   "NST_pct": {
+    "normal": 73.58050847457628,
+    "misconf_y_ssh": 17.733050847457626,
+    "ataques": 8.686440677966102
+   },
+   "IT": {
+    "normal": 1574,
+    "misconf_y_ssh": 2054,
+    "ataques": 1092
+   },
+   "IT_pct": {
+    "normal": 33.347457627118644,
+    "misconf_y_ssh": 43.516949152542374,
+    "ataques": 23.135593220338983
+   }
+  },
+  "extended/bottom": {
+   "filas": 55425,
+   "columnas": 64,
+   "NST": {
+    "normal": 46527,
+    "misconf_y_ssh": 7968,
+    "ataques": 930
+   },
+   "NST_pct": {
+    "normal": 83.94587280108254,
+    "misconf_y_ssh": 14.376184032476319,
+    "ataques": 1.6779431664411366
+   },
+   "IT": {
+    "normal": 20957,
+    "misconf_y_ssh": 24597,
+    "ataques": 9871
+   },
+   "IT_pct": {
+    "normal": 37.81145692377086,
+    "misconf_y_ssh": 44.37889039242219,
+    "ataques": 17.809652683806945
+   }
+  },
+  "extended/left": {
+   "filas": 8555,
+   "columnas": 64,
+   "NST": {
+    "normal": 4095,
+    "misconf_y_ssh": 2646,
+    "ataques": 1814
+   },
+   "NST_pct": {
+    "normal": 47.86674459380479,
+    "misconf_y_ssh": 30.92928112215079,
+    "ataques": 21.203974284044417
+   },
+   "IT": {
+    "misconf_y_ssh": 3981,
+    "normal": 1978,
+    "ataques": 2596
+   },
+   "IT_pct": {
+    "misconf_y_ssh": 46.534190531852715,
+    "normal": 23.120981881940384,
+    "ataques": 30.344827586206897
+   }
+  },
+  "extended/right": {
+   "filas": 4749,
+   "columnas": 64,
+   "NST": {
+    "normal": 3485,
+    "misconf_y_ssh": 854,
+    "ataques": 410
+   },
+   "NST_pct": {
+    "normal": 73.38387028848179,
+    "misconf_y_ssh": 17.982733206990947,
+    "ataques": 8.63339650452727
+   },
+   "IT": {
+    "normal": 1585,
+    "misconf_y_ssh": 2072,
+    "ataques": 1092
+   },
+   "IT_pct": {
+    "normal": 33.37544746262371,
+    "misconf_y_ssh": 43.63023794483049,
+    "ataques": 22.9943145925458
+   }
+  }
+ },
+ "eventos_por_particion": {
+  "BAD-MITM": {
+   "entrenamiento": 10,
+   "calibracion": 3,
+   "prueba": 3
+  },
+  "BAD-MISCONF-DUPLICATION": {
+   "entrenamiento": 9,
+   "calibracion": 4,
+   "prueba": 3
+  },
+  "BAD-SSH": {
+   "entrenamiento": 10,
+   "calibracion": 3,
+   "prueba": 3
+  },
+  "GOOD-SSH": {
+   "entrenamiento": 9,
+   "calibracion": 4,
+   "prueba": 2
+  },
+  "BAD-PORTSCAN1": {
+   "entrenamiento": 5,
+   "calibracion": 2,
+   "prueba": 1
+  },
+  "BAD-MISCONF": {
+   "entrenamiento": 10,
+   "calibracion": 2,
+   "prueba": 3
+  },
+  "BAD-PORTSCAN2": {
+   "entrenamiento": 4,
+   "calibracion": 2,
+   "prueba": 2
+  }
+ }
+}

@@ -1,0 +1,840 @@
+{
+ "reduced_bottom": {
+  "archivo": "datasets/westermo/data/reduced/pcaps/bottom.pcap",
+  "copias": {
+   "pkt_puerto": 993634,
+   "copias": 496859,
+   "frac_copias": 0.500042269084995,
+   "retardo_mediana_ms": 0.00095367431640625,
+   "retardo_p95_ms": 0.0011920928955078125,
+   "retardos_muestreados": 200000
+  },
+  "contadores": {
+   "paquetes": 1513815,
+   "ip": 1488891,
+   "tcp": 1484940,
+   "no_ip": {
+    "ARP": 10230,
+    "LLC": 13608,
+    "bytes": 1086
+   },
+   "no_tcp": {
+    "IGMP": 2875,
+    "UDP": 1076
+   },
+   "con_carga": 999875,
+   "pkt_puerto": 993634,
+   "adus": 993634,
+   "bytes_carga_puerto": 12420460,
+   "bytes_en_adu": 12420460,
+   "bytes_salteados": 0,
+   "bytes_sin_cerrar": 0,
+   "puertos_con_carga": {
+    "5502": 993634,
+    "22": 6241
+   },
+   "primer_ts": 1678440574.078823,
+   "ultimo_ts": 1678446016.482666,
+   "paquetes_hasta_corte": 898597,
+   "pkt_puerto_copias": 496859,
+   "flujos_puerto": 8
+  },
+  "funciones_peticion_unicas": {
+   "Read Holding Registers": 248387
+  },
+  "funciones_respuesta_unicas": {
+   "Read Holding Registers": 248388
+  },
+  "escrituras_n_unicas": 0,
+  "duracion_s": 5442.403842926025,
+  "corte_entrenamiento_s": 3265.0,
+  "paquetes_hasta_corte": 898597,
+  "funciones_peticion": {
+   "Read Holding Registers": 496782
+  },
+  "funciones_respuesta": {
+   "Read Holding Registers": 496852
+  },
+  "funciones_peticion_entrenamiento": {
+   "Read Holding Registers": 297939
+  },
+  "funciones_respuesta_entrenamiento": {
+   "Read Holding Registers": 297978
+  },
+  "escrituras": [],
+  "escrituras_n": 0,
+  "escrituras_n_entrenamiento": 0,
+  "excepciones": {},
+  "unidades": {
+   "1": 993634
+  },
+  "servidores": {
+   "198.18.134.12": 270607,
+   "198.18.134.11": 226175
+  },
+  "pares": {
+   "198.18.134.15 -> 198.18.134.11": 171749,
+   "198.18.134.11 -> 198.18.134.12": 163267,
+   "198.18.134.15 -> 198.18.134.12": 107340,
+   "198.18.134.12 -> 198.18.134.11": 54426
+  },
+  "lecturas_por_registro": {
+   "198.18.134.11 dir=14 cant=2": 75894,
+   "198.18.134.12 dir=22 cant=2": 75891,
+   "198.18.134.12 dir=20 cant=2": 75890,
+   "198.18.134.12 dir=24 cant=2": 75890,
+   "198.18.134.11 dir=4 cant=2": 21473,
+   "198.18.134.11 dir=8 cant=2": 21470,
+   "198.18.134.11 dir=2 cant=2": 21468,
+   "198.18.134.11 dir=6 cant=2": 21468,
+   "198.18.134.11 dir=10 cant=2": 21468,
+   "198.18.134.11 dir=12 cant=2": 21468,
+   "198.18.134.12 dir=16 cant=2": 21468,
+   "198.18.134.12 dir=18 cant=2": 21468,
+   "198.18.134.11 dir=0 cant=2": 21466
+  },
+  "emparejadas": 248392,
+  "emparejadas_entrenamiento": 148970,
+  "sin_emparejar": 0,
+  "latencia_ms": {
+   "mediana": 0.5269050598144531,
+   "p05": 0.4010200500488281,
+   "p95": 0.7770061492919922,
+   "min": 0.0,
+   "max": 112.16497421264648,
+   "cv": 0.6447150655375836
+  },
+  "latencia_ms_entrenamiento": {
+   "mediana": 0.5269050598144531,
+   "p95": 0.7739067077636719
+  },
+  "respuestas_lectura_cuenta_ok": 248392,
+  "respuestas_lectura_cuenta_mal": 0,
+  "variables_leidas": {
+   "198.18.134.11 dir=0": {
+    "variable_idx": 0,
+    "variable": "tank_input_valve_status",
+    "muestras": 10733,
+    "distintos": 2,
+    "min": 0.0,
+    "max": 1.0,
+    "mediana": 0.0
+   },
+   "198.18.134.11 dir=2": {
+    "variable_idx": 1,
+    "variable": "tank_input_valve_mode",
+    "muestras": 10734,
+    "distintos": 1,
+    "min": 3.0,
+    "max": 3.0,
+    "mediana": 3.0
+   },
+   "198.18.134.11 dir=4": {
+    "variable_idx": 2,
+    "variable": "tank_level_value",
+    "muestras": 10737,
+    "distintos": 1181,
+    "min": 2.9966,
+    "max": 7.0133,
+    "mediana": 5.0166
+   },
+   "198.18.134.11 dir=6": {
+    "variable_idx": 3,
+    "variable": "tank_level_min",
+    "muestras": 10734,
+    "distintos": 1,
+    "min": 3.0,
+    "max": 3.0,
+    "mediana": 3.0
+   },
+   "198.18.134.11 dir=8": {
+    "variable_idx": 4,
+    "variable": "tank_level_max",
+    "muestras": 10735,
+    "distintos": 1,
+    "min": 7.0,
+    "max": 7.0,
+    "mediana": 7.0
+   },
+   "198.18.134.11 dir=10": {
+    "variable_idx": 5,
+    "variable": "tank_output_valve_status",
+    "muestras": 10734,
+    "distintos": 2,
+    "min": 0.0,
+    "max": 1.0,
+    "mediana": 1.0
+   },
+   "198.18.134.11 dir=12": {
+    "variable_idx": 6,
+    "variable": "tank_output_valve_mode",
+    "muestras": 10734,
+    "distintos": 1,
+    "min": 3.0,
+    "max": 3.0,
+    "mediana": 3.0
+   },
+   "198.18.134.11 dir=14": {
+    "variable_idx": 7,
+    "variable": "tank_output_flow_value",
+    "muestras": 37947,
+    "distintos": 2,
+    "min": 0.0,
+    "max": 0.0001,
+    "mediana": 0.0001
+   },
+   "198.18.134.12 dir=16": {
+    "variable_idx": 8,
+    "variable": "conveyor_belt_engine_status",
+    "muestras": 10734,
+    "distintos": 2,
+    "min": 0.0,
+    "max": 1.0,
+    "mediana": 0.0
+   },
+   "198.18.134.12 dir=18": {
+    "variable_idx": 9,
+    "variable": "conveyor_belt_engine_mode",
+    "muestras": 10734,
+    "distintos": 1,
+    "min": 3.0,
+    "max": 3.0,
+    "mediana": 3.0
+   },
+   "198.18.134.12 dir=20": {
+    "variable_idx": 10,
+    "variable": "bottle_level_value",
+    "muestras": 37945,
+    "distintos": 140,
+    "min": 0.0,
+    "max": 1.8533,
+    "mediana": 0.7066
+   },
+   "198.18.134.12 dir=22": {
+    "variable_idx": 11,
+    "variable": "bottle_level_max",
+    "muestras": 37946,
+    "distintos": 1,
+    "min": 1.8,
+    "max": 1.8,
+    "mediana": 1.8
+   },
+   "198.18.134.12 dir=24": {
+    "variable_idx": 12,
+    "variable": "bottle_distance_to_filler_value",
+    "muestras": 37945,
+    "distintos": 20,
+    "min": 0.0,
+    "max": 19.0,
+    "mediana": 1.0
+   }
+  },
+  "mbap": {
+   "bytes_carga": 12420460,
+   "bytes_en_adu": 12420460,
+   "bytes_salteados": 0,
+   "bytes_sin_cerrar": 0,
+   "frac_en_adu": 1.0,
+   "frac_salteados": 0.0
+  },
+  "contraste": {
+   "22": {
+    "bytes": 397848,
+    "en_adu": 141970,
+    "salteados": 250442,
+    "muestra": "b'SSH-2.0-OpenSSH_7.6p1 Ubuntu-4ubuntu0.7\\r'",
+    "frac_en_adu": 0.35684482515935734
+   }
+  },
+  "contraste_paquetes": 600000
+ },
+ "reduced_left": {
+  "archivo": "datasets/westermo/data/reduced/pcaps/left.pcap",
+  "copias": {
+   "pkt_puerto": 0,
+   "copias": 0,
+   "frac_copias": null,
+   "retardo_mediana_ms": null,
+   "retardo_p95_ms": null,
+   "retardos_muestreados": 0
+  },
+  "contadores": {
+   "paquetes": 281105,
+   "ip": 259490,
+   "tcp": 256378,
+   "no_ip": {
+    "ARP": 12547,
+    "LLC": 8163,
+    "bytes": 905
+   },
+   "no_tcp": {
+    "IGMP": 1650,
+    "UDP": 1436,
+    "ICMP": 26
+   },
+   "con_carga": 30513,
+   "pkt_puerto": 0,
+   "adus": 0,
+   "bytes_carga_puerto": 0,
+   "bytes_en_adu": 0,
+   "bytes_salteados": 0,
+   "bytes_sin_cerrar": 0,
+   "puertos_con_carga": {
+    "22": 30513
+   },
+   "primer_ts": 1678440574.078825,
+   "ultimo_ts": 1678446014.627376,
+   "paquetes_hasta_corte": 128580,
+   "pkt_puerto_copias": 0,
+   "flujos_puerto": 0
+  },
+  "funciones_peticion_unicas": {},
+  "funciones_respuesta_unicas": {},
+  "escrituras_n_unicas": 0,
+  "duracion_s": 5440.548551082611,
+  "corte_entrenamiento_s": 3265.0,
+  "paquetes_hasta_corte": 128580,
+  "funciones_peticion": {},
+  "funciones_respuesta": {},
+  "funciones_peticion_entrenamiento": {},
+  "funciones_respuesta_entrenamiento": {},
+  "escrituras": [],
+  "escrituras_n": 0,
+  "escrituras_n_entrenamiento": 0,
+  "excepciones": {},
+  "unidades": {},
+  "servidores": {},
+  "pares": {},
+  "lecturas_por_registro": {},
+  "emparejadas": 0,
+  "emparejadas_entrenamiento": 0,
+  "sin_emparejar": 0,
+  "respuestas_lectura_cuenta_ok": 0,
+  "respuestas_lectura_cuenta_mal": 0,
+  "variables_leidas": {},
+  "mbap": {
+   "bytes_carga": 0,
+   "bytes_en_adu": 0,
+   "bytes_salteados": 0,
+   "bytes_sin_cerrar": 0,
+   "frac_en_adu": null,
+   "frac_salteados": null
+  },
+  "contraste": {
+   "22": {
+    "bytes": 5928547,
+    "en_adu": 2002660,
+    "salteados": 3891009,
+    "muestra": "b'SSH-2.0-OpenSSH_7.6p1 Ubuntu-4ubuntu0.7\\r'",
+    "frac_en_adu": 0.33779946418574397
+   }
+  },
+  "contraste_paquetes": 281105
+ },
+ "reduced_right": {
+  "archivo": "datasets/westermo/data/reduced/pcaps/right.pcap",
+  "copias": {
+   "pkt_puerto": 0,
+   "copias": 0,
+   "frac_copias": null,
+   "retardo_mediana_ms": null,
+   "retardo_p95_ms": null,
+   "retardos_muestreados": 0
+  },
+  "contadores": {
+   "paquetes": 35067,
+   "ip": 22896,
+   "tcp": 21740,
+   "no_ip": {
+    "ARP": 6183,
+    "LLC": 5445,
+    "bytes": 543
+   },
+   "no_tcp": {
+    "IGMP": 438,
+    "UDP": 718
+   },
+   "con_carga": 2137,
+   "pkt_puerto": 0,
+   "adus": 0,
+   "bytes_carga_puerto": 0,
+   "bytes_en_adu": 0,
+   "bytes_salteados": 0,
+   "bytes_sin_cerrar": 0,
+   "puertos_con_carga": {
+    "22": 2137
+   },
+   "primer_ts": 1678440574.078826,
+   "ultimo_ts": 1678446018.258841,
+   "paquetes_hasta_corte": 20287,
+   "pkt_puerto_copias": 0,
+   "flujos_puerto": 0
+  },
+  "funciones_peticion_unicas": {},
+  "funciones_respuesta_unicas": {},
+  "escrituras_n_unicas": 0,
+  "duracion_s": 5444.180015087128,
+  "corte_entrenamiento_s": 3265.0,
+  "paquetes_hasta_corte": 20287,
+  "funciones_peticion": {},
+  "funciones_respuesta": {},
+  "funciones_peticion_entrenamiento": {},
+  "funciones_respuesta_entrenamiento": {},
+  "escrituras": [],
+  "escrituras_n": 0,
+  "escrituras_n_entrenamiento": 0,
+  "excepciones": {},
+  "unidades": {},
+  "servidores": {},
+  "pares": {},
+  "lecturas_por_registro": {},
+  "emparejadas": 0,
+  "emparejadas_entrenamiento": 0,
+  "sin_emparejar": 0,
+  "respuestas_lectura_cuenta_ok": 0,
+  "respuestas_lectura_cuenta_mal": 0,
+  "variables_leidas": {},
+  "mbap": {
+   "bytes_carga": 0,
+   "bytes_en_adu": 0,
+   "bytes_salteados": 0,
+   "bytes_sin_cerrar": 0,
+   "frac_en_adu": null,
+   "frac_salteados": null
+  },
+  "contraste": {
+   "22": {
+    "bytes": 418191,
+    "en_adu": 144985,
+    "salteados": 267667,
+    "muestra": "b'SSH-2.0-OpenSSH_7.6p1 Ubuntu-4ubuntu0.7\\r'",
+    "frac_en_adu": 0.346695648639019
+   }
+  },
+  "contraste_paquetes": 35067
+ },
+ "extended_bottom": {
+  "archivo": "datasets/westermo/data/extended/pcaps/bottom.pcap",
+  "copias": {
+   "pkt_puerto": 993634,
+   "copias": 496859,
+   "frac_copias": 0.500042269084995,
+   "retardo_mediana_ms": 0.00095367431640625,
+   "retardo_p95_ms": 0.0011920928955078125,
+   "retardos_muestreados": 200000
+  },
+  "contadores": {
+   "paquetes": 4384183,
+   "ip": 4357976,
+   "tcp": 4348980,
+   "no_ip": {
+    "ARP": 11513,
+    "LLC": 13608,
+    "bytes": 1086
+   },
+   "no_tcp": {
+    "IGMP": 3284,
+    "ICMP": 4636,
+    "UDP": 1076
+   },
+   "con_carga": 2960405,
+   "pkt_puerto": 993634,
+   "adus": 993634,
+   "bytes_carga_puerto": 12420460,
+   "bytes_en_adu": 12420460,
+   "bytes_salteados": 0,
+   "bytes_sin_cerrar": 0,
+   "puertos_con_carga": {
+    "5502": 993634,
+    "11211": 1960530,
+    "22": 6241
+   },
+   "primer_ts": 1678440574.078823,
+   "ultimo_ts": 1678446016.495696,
+   "paquetes_hasta_corte": 2618591,
+   "pkt_puerto_copias": 496859,
+   "flujos_puerto": 8
+  },
+  "funciones_peticion_unicas": {
+   "Read Holding Registers": 248387
+  },
+  "funciones_respuesta_unicas": {
+   "Read Holding Registers": 248388
+  },
+  "escrituras_n_unicas": 0,
+  "duracion_s": 5442.41687297821,
+  "corte_entrenamiento_s": 3265.0,
+  "paquetes_hasta_corte": 2618591,
+  "funciones_peticion": {
+   "Read Holding Registers": 496782
+  },
+  "funciones_respuesta": {
+   "Read Holding Registers": 496852
+  },
+  "funciones_peticion_entrenamiento": {
+   "Read Holding Registers": 297939
+  },
+  "funciones_respuesta_entrenamiento": {
+   "Read Holding Registers": 297978
+  },
+  "escrituras": [],
+  "escrituras_n": 0,
+  "escrituras_n_entrenamiento": 0,
+  "excepciones": {},
+  "unidades": {
+   "1": 993634
+  },
+  "servidores": {
+   "198.18.134.12": 270607,
+   "198.18.134.11": 226175
+  },
+  "pares": {
+   "198.18.134.15 -> 198.18.134.11": 171749,
+   "198.18.134.11 -> 198.18.134.12": 163267,
+   "198.18.134.15 -> 198.18.134.12": 107340,
+   "198.18.134.12 -> 198.18.134.11": 54426
+  },
+  "lecturas_por_registro": {
+   "198.18.134.11 dir=14 cant=2": 75894,
+   "198.18.134.12 dir=22 cant=2": 75891,
+   "198.18.134.12 dir=20 cant=2": 75890,
+   "198.18.134.12 dir=24 cant=2": 75890,
+   "198.18.134.11 dir=4 cant=2": 21473,
+   "198.18.134.11 dir=8 cant=2": 21470,
+   "198.18.134.11 dir=2 cant=2": 21468,
+   "198.18.134.11 dir=6 cant=2": 21468,
+   "198.18.134.11 dir=10 cant=2": 21468,
+   "198.18.134.11 dir=12 cant=2": 21468,
+   "198.18.134.12 dir=16 cant=2": 21468,
+   "198.18.134.12 dir=18 cant=2": 21468,
+   "198.18.134.11 dir=0 cant=2": 21466
+  },
+  "emparejadas": 248392,
+  "emparejadas_entrenamiento": 148970,
+  "sin_emparejar": 0,
+  "latencia_ms": {
+   "mediana": 0.5269050598144531,
+   "p05": 0.4010200500488281,
+   "p95": 0.7770061492919922,
+   "min": 0.0,
+   "max": 112.16497421264648,
+   "cv": 0.6447150655375836
+  },
+  "latencia_ms_entrenamiento": {
+   "mediana": 0.5269050598144531,
+   "p95": 0.7739067077636719
+  },
+  "respuestas_lectura_cuenta_ok": 248392,
+  "respuestas_lectura_cuenta_mal": 0,
+  "variables_leidas": {
+   "198.18.134.11 dir=0": {
+    "variable_idx": 0,
+    "variable": "tank_input_valve_status",
+    "muestras": 10733,
+    "distintos": 2,
+    "min": 0.0,
+    "max": 1.0,
+    "mediana": 0.0
+   },
+   "198.18.134.11 dir=2": {
+    "variable_idx": 1,
+    "variable": "tank_input_valve_mode",
+    "muestras": 10734,
+    "distintos": 1,
+    "min": 3.0,
+    "max": 3.0,
+    "mediana": 3.0
+   },
+   "198.18.134.11 dir=4": {
+    "variable_idx": 2,
+    "variable": "tank_level_value",
+    "muestras": 10737,
+    "distintos": 1181,
+    "min": 2.9966,
+    "max": 7.0133,
+    "mediana": 5.0166
+   },
+   "198.18.134.11 dir=6": {
+    "variable_idx": 3,
+    "variable": "tank_level_min",
+    "muestras": 10734,
+    "distintos": 1,
+    "min": 3.0,
+    "max": 3.0,
+    "mediana": 3.0
+   },
+   "198.18.134.11 dir=8": {
+    "variable_idx": 4,
+    "variable": "tank_level_max",
+    "muestras": 10735,
+    "distintos": 1,
+    "min": 7.0,
+    "max": 7.0,
+    "mediana": 7.0
+   },
+   "198.18.134.11 dir=10": {
+    "variable_idx": 5,
+    "variable": "tank_output_valve_status",
+    "muestras": 10734,
+    "distintos": 2,
+    "min": 0.0,
+    "max": 1.0,
+    "mediana": 1.0
+   },
+   "198.18.134.11 dir=12": {
+    "variable_idx": 6,
+    "variable": "tank_output_valve_mode",
+    "muestras": 10734,
+    "distintos": 1,
+    "min": 3.0,
+    "max": 3.0,
+    "mediana": 3.0
+   },
+   "198.18.134.11 dir=14": {
+    "variable_idx": 7,
+    "variable": "tank_output_flow_value",
+    "muestras": 37947,
+    "distintos": 2,
+    "min": 0.0,
+    "max": 0.0001,
+    "mediana": 0.0001
+   },
+   "198.18.134.12 dir=16": {
+    "variable_idx": 8,
+    "variable": "conveyor_belt_engine_status",
+    "muestras": 10734,
+    "distintos": 2,
+    "min": 0.0,
+    "max": 1.0,
+    "mediana": 0.0
+   },
+   "198.18.134.12 dir=18": {
+    "variable_idx": 9,
+    "variable": "conveyor_belt_engine_mode",
+    "muestras": 10734,
+    "distintos": 1,
+    "min": 3.0,
+    "max": 3.0,
+    "mediana": 3.0
+   },
+   "198.18.134.12 dir=20": {
+    "variable_idx": 10,
+    "variable": "bottle_level_value",
+    "muestras": 37945,
+    "distintos": 140,
+    "min": 0.0,
+    "max": 1.8533,
+    "mediana": 0.7066
+   },
+   "198.18.134.12 dir=22": {
+    "variable_idx": 11,
+    "variable": "bottle_level_max",
+    "muestras": 37946,
+    "distintos": 1,
+    "min": 1.8,
+    "max": 1.8,
+    "mediana": 1.8
+   },
+   "198.18.134.12 dir=24": {
+    "variable_idx": 12,
+    "variable": "bottle_distance_to_filler_value",
+    "muestras": 37945,
+    "distintos": 20,
+    "min": 0.0,
+    "max": 19.0,
+    "mediana": 1.0
+   }
+  },
+  "mbap": {
+   "bytes_carga": 12420460,
+   "bytes_en_adu": 12420460,
+   "bytes_salteados": 0,
+   "bytes_sin_cerrar": 0,
+   "frac_en_adu": 1.0,
+   "frac_salteados": 0.0
+  },
+  "contraste": {
+   "11211": {
+    "bytes": 8399718,
+    "en_adu": 0,
+    "salteados": 8399662,
+    "muestra": "b'get bottle_distance_to_filler_value\\r\\n'",
+    "frac_en_adu": 0.0
+   },
+   "22": {
+    "bytes": 385537,
+    "en_adu": 140912,
+    "salteados": 239203,
+    "muestra": "b'SSH-2.0-OpenSSH_7.6p1 Ubuntu-4ubuntu0.7\\r'",
+    "frac_en_adu": 0.3654953999227052
+   }
+  },
+  "contraste_paquetes": 600000
+ },
+ "extended_left": {
+  "archivo": "datasets/westermo/data/extended/pcaps/left.pcap",
+  "copias": {
+   "pkt_puerto": 0,
+   "copias": 0,
+   "frac_copias": null,
+   "retardo_mediana_ms": null,
+   "retardo_p95_ms": null,
+   "retardos_muestreados": 0
+  },
+  "contadores": {
+   "paquetes": 281197,
+   "ip": 259490,
+   "tcp": 256378,
+   "no_ip": {
+    "ARP": 12639,
+    "LLC": 8163,
+    "bytes": 905
+   },
+   "no_tcp": {
+    "IGMP": 1650,
+    "UDP": 1436,
+    "ICMP": 26
+   },
+   "con_carga": 30513,
+   "pkt_puerto": 0,
+   "adus": 0,
+   "bytes_carga_puerto": 0,
+   "bytes_en_adu": 0,
+   "bytes_salteados": 0,
+   "bytes_sin_cerrar": 0,
+   "puertos_con_carga": {
+    "22": 30513
+   },
+   "primer_ts": 1678440574.078825,
+   "ultimo_ts": 1678446014.627376,
+   "paquetes_hasta_corte": 128648,
+   "pkt_puerto_copias": 0,
+   "flujos_puerto": 0
+  },
+  "funciones_peticion_unicas": {},
+  "funciones_respuesta_unicas": {},
+  "escrituras_n_unicas": 0,
+  "duracion_s": 5440.548551082611,
+  "corte_entrenamiento_s": 3265.0,
+  "paquetes_hasta_corte": 128648,
+  "funciones_peticion": {},
+  "funciones_respuesta": {},
+  "funciones_peticion_entrenamiento": {},
+  "funciones_respuesta_entrenamiento": {},
+  "escrituras": [],
+  "escrituras_n": 0,
+  "escrituras_n_entrenamiento": 0,
+  "excepciones": {},
+  "unidades": {},
+  "servidores": {},
+  "pares": {},
+  "lecturas_por_registro": {},
+  "emparejadas": 0,
+  "emparejadas_entrenamiento": 0,
+  "sin_emparejar": 0,
+  "respuestas_lectura_cuenta_ok": 0,
+  "respuestas_lectura_cuenta_mal": 0,
+  "variables_leidas": {},
+  "mbap": {
+   "bytes_carga": 0,
+   "bytes_en_adu": 0,
+   "bytes_salteados": 0,
+   "bytes_sin_cerrar": 0,
+   "frac_en_adu": null,
+   "frac_salteados": null
+  },
+  "contraste": {
+   "22": {
+    "bytes": 5928547,
+    "en_adu": 2002660,
+    "salteados": 3891009,
+    "muestra": "b'SSH-2.0-OpenSSH_7.6p1 Ubuntu-4ubuntu0.7\\r'",
+    "frac_en_adu": 0.33779946418574397
+   }
+  },
+  "contraste_paquetes": 281197
+ },
+ "extended_right": {
+  "archivo": "datasets/westermo/data/extended/pcaps/right.pcap",
+  "copias": {
+   "pkt_puerto": 0,
+   "copias": 0,
+   "frac_copias": null,
+   "retardo_mediana_ms": null,
+   "retardo_p95_ms": null,
+   "retardos_muestreados": 0
+  },
+  "contadores": {
+   "paquetes": 35124,
+   "ip": 22902,
+   "tcp": 21740,
+   "no_ip": {
+    "ARP": 6234,
+    "LLC": 5445,
+    "bytes": 543
+   },
+   "no_tcp": {
+    "IGMP": 438,
+    "UDP": 718,
+    "ICMP": 6
+   },
+   "con_carga": 2137,
+   "pkt_puerto": 0,
+   "adus": 0,
+   "bytes_carga_puerto": 0,
+   "bytes_en_adu": 0,
+   "bytes_salteados": 0,
+   "bytes_sin_cerrar": 0,
+   "puertos_con_carga": {
+    "22": 2137
+   },
+   "primer_ts": 1678440574.078826,
+   "ultimo_ts": 1678446018.258841,
+   "paquetes_hasta_corte": 20321,
+   "pkt_puerto_copias": 0,
+   "flujos_puerto": 0
+  },
+  "funciones_peticion_unicas": {},
+  "funciones_respuesta_unicas": {},
+  "escrituras_n_unicas": 0,
+  "duracion_s": 5444.180015087128,
+  "corte_entrenamiento_s": 3265.0,
+  "paquetes_hasta_corte": 20321,
+  "funciones_peticion": {},
+  "funciones_respuesta": {},
+  "funciones_peticion_entrenamiento": {},
+  "funciones_respuesta_entrenamiento": {},
+  "escrituras": [],
+  "escrituras_n": 0,
+  "escrituras_n_entrenamiento": 0,
+  "excepciones": {},
+  "unidades": {},
+  "servidores": {},
+  "pares": {},
+  "lecturas_por_registro": {},
+  "emparejadas": 0,
+  "emparejadas_entrenamiento": 0,
+  "sin_emparejar": 0,
+  "respuestas_lectura_cuenta_ok": 0,
+  "respuestas_lectura_cuenta_mal": 0,
+  "variables_leidas": {},
+  "mbap": {
+   "bytes_carga": 0,
+   "bytes_en_adu": 0,
+   "bytes_salteados": 0,
+   "bytes_sin_cerrar": 0,
+   "frac_en_adu": null,
+   "frac_salteados": null
+  },
+  "contraste": {
+   "22": {
+    "bytes": 418191,
+    "en_adu": 144985,
+    "salteados": 267667,
+    "muestra": "b'SSH-2.0-OpenSSH_7.6p1 Ubuntu-4ubuntu0.7\\r'",
+    "frac_en_adu": 0.346695648639019
+   }
+  },
+  "contraste_paquetes": 35124
+ }
+}

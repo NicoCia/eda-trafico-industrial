@@ -1,0 +1,132 @@
+# Pregunta 13 - determinismo (D2) de ICS-Flow
+
+La tabla de criterios de comparabilidad le pone a ICS-Flow D2 = cumple
+sin haberlo medido. D2 exige verificarlo sobre los datos. Aca se
+corren las mismas medidas que 05_determinismo.py aplica a Westermo y
+a QUT, importadas de ese script sin modificarlo, para que las cifras
+se puedan comparar celda por celda.
+
+Lectura de las medidas (la misma que fija el script 05):
+  CV del intervalo entre paquetes ~0 = periodico; ~1 = tipo Poisson;
+  >1 = a rafagas. El indice de dispersion de la tasa (var/media)
+  compara contra el azar puro sin que el nivel medio confunda.
+  Entropia normalizada ~0 = un solo interlocutor; ~1 = reparto
+  uniforme. Jaccard ~1 = el mismo conjunto de pares conversa en cada
+  ventana.
+
+## 13.1 Particion y eventos
+
+Particion identica a la del script 06: 60/20/20 por tiempo sobre la
+marca de Dataset.csv. **El PCAP se lee solo hasta el corte del 60 %.**
+   marca del conjunto : 1663319679.510 a 1663328062.090
+   duracion           : 8383 s = 2.33 h
+   corte del 60 %      : offset 5030 s
+
+Eventos de ataque declarados en attacker_machine_summary.csv: 74
+   por tipo: {'port-scan': 18, 'ip-scan': 24, 'mitm': 16, 'replay': 8, 'ddos': 8}
+   el primero empieza en el offset 3661 s
+
+Paquetes leidos hasta el corte: 6336595
+Primer paquete del PCAP: 1663319679.510 (0.000 s antes que la marca de Dataset.csv)
+El eje de tiempo `t` de aqui en adelante cuenta desde el primer
+paquete del PCAP, igual que en el script 05.
+
+Tramo de entrenamiento: 0 a 5030 s.
+Eventos activos durante 613 s (12.2 % del tramo), en 26 intervalos.
+Quedan 4416 s limpios (87.8 %) en 26 huecos.
+
+## 13.2 (a) ICS-Flow, todo el tramo de entrenamiento
+
+  paquetes=6336595  duracion util=5030 s en 1 tramo(s)  tasa=1259.9 pps
+  tasa por ventana de 1 s : media=1260.0  sd=8194.8  CV=6.50  p05=99 p95=273
+  indice de dispersion (var/media) = 53298.26  -> a rafagas
+  intervalo entre paquetes: mediana=0.0 ms  CV=13.01
+  autocorrelacion de la tasa (agrupada por tramo): lag1=0.92  pico en 1 s = 0.92
+  entropia (bits / normalizada / distintos):
+     IP origen     2.44 / 0.61 / 16
+     IP destino    2.51 / 0.59 / 19
+     puerto org   10.03 / 0.63 / 65535
+     puerto dst    9.49 / 0.59 / 65535
+  interlocutores: 19 nodos, 46 pares, 50 conversaciones
+  estabilidad del conjunto de pares (Jaccard entre ventanas de 10 s): mediana=0.60  p05=0.33
+  pares nuevos por ventana en el ultimo tercio: 0.17
+  tamano de paquete: 13 valores distintos, H=2.02 bits, moda=54 B (36.2% de los paquetes)
+  mezcla de protocolos (5 categorias, suman 6336595 de 6336595 paquetes):
+     TCP=6326926  ARP=9540  IP-1=111
+     UDP=9  ETH-0x86dd=9
+  conversaciones principales:
+     origen            destino           proto  paquetes  dt med ms   dt CV  moda tam
+     192.168.0.41      192.168.0.11      TCP      772206        0.1  279.27    58 B (42%)
+     192.168.0.11      192.168.0.41      TCP      585272        0.1  243.88    54 B (56%)
+     192.168.0.41      192.168.0.12      TCP      564734        0.1  239.34    58 B (58%)
+     192.168.0.12      192.168.0.41      TCP      452984        0.1  214.61    54 B (72%)
+     192.168.0.41      192.168.0.21      TCP      327675        0.1  283.84    58 B (100%)
+     192.168.0.21      192.168.0.41      TCP      327675        0.1  283.84    54 B (100%)
+     192.168.0.41      192.168.0.1       TCP      327675        0.1  283.84    58 B (100%)
+     192.168.0.1       192.168.0.41      TCP      327675        0.1  283.84    54 B (100%)
+     192.168.0.41      192.168.0.23      TCP      327675        0.1  287.07    58 B (100%)
+     192.168.0.23      192.168.0.41      TCP      327675        0.1  287.07    54 B (100%)
+
+## 13.3 (b) ICS-Flow, solo los huecos entre eventos
+
+  paquetes=598301  duracion util=4416 s en 26 tramo(s)  tasa=135.5 pps
+  tasa por ventana de 1 s : media=135.5  sd=13.1  CV=0.10  p05=108 p95=164
+  indice de dispersion (var/media) = 1.27  -> a rafagas
+  intervalo entre paquetes: mediana=0.3 ms  CV=4.33
+  autocorrelacion de la tasa (agrupada por tramo): lag1=-0.45  pico en 22 s = 0.07
+  entropia (bits / normalizada / distintos):
+     IP origen     1.59 / 0.46 / 11
+     IP destino    1.53 / 0.44 / 11
+     puerto org    2.18 / 0.73 / 8
+     puerto dst    1.57 / 0.52 / 8
+  interlocutores: 14 nodos, 22 pares, 22 conversaciones
+  estabilidad del conjunto de pares (Jaccard entre ventanas de 10 s): mediana=0.67  p05=0.50
+  pares nuevos por ventana en el ultimo tercio: 0.03
+  tamano de paquete: 9 valores distintos, H=1.60 bits, moda=78 B (34.0% de los paquetes)
+  mezcla de protocolos (5 categorias, suman 598301 de 598301 paquetes):
+     TCP=597869  ARP=415  UDP=8
+     ETH-0x86dd=8  IP-1=1
+  conversaciones principales:
+     origen            destino           proto  paquetes  dt med ms   dt CV  moda tam
+     192.168.0.11      192.168.0.12      TCP      153201        0.7    2.27    78 B (43%)
+     192.168.0.21      192.168.0.11      TCP      132469        0.4    3.59    78 B (53%)
+     192.168.0.12      192.168.0.11      TCP      110396        1.3    1.90    79 B (60%)
+     192.168.0.21      192.168.0.12      TCP       85924        0.4    2.89    78 B (51%)
+     192.168.0.11      192.168.0.21      TCP       70653        0.9    2.61    79 B (100%)
+     192.168.0.12      192.168.0.21      TCP       44155        0.8    1.99    79 B (100%)
+     192.168.0.23      192.168.0.11      TCP         440        2.7    1.41    66 B (50%)
+     192.168.0.23      192.168.0.12      TCP         262        2.0    1.66    66 B (50%)
+     192.168.0.11      192.168.0.23      TCP         233    15019.0    0.71    78 B (94%)
+     192.168.0.12      192.168.0.23      TCP         136    23026.0    0.90    78 B (95%)
+
+## 13.4 (c) ICS-Flow a nivel de flujo, NST_B_Label = 0
+
+Analogo exacto del bloque (c) de Westermo: ICS-Flow trae el mismo
+esquema de 54 columnas, generado con la misma herramienta.
+
+Flujos normales en el tramo de entrenamiento: 22856
+  entropia de sAddress: 0.95 bits / 0.32 normalizada / 8 distintos
+  entropia de rAddress: 1.11 bits / 0.35 normalizada / 9 distintos
+  entropia del par (s,r): 1.76 bits / 0.47 normalizada / 13 pares
+  los 5 pares mas frecuentes concentran el 99.3 % de los flujos
+  protocolos: {'IPV4-TCP': 22690, 'IPV4-UDP': 9, 'IPV6': 9, 'ARP': 147, 'IPV4-ICMP': 1}
+  sPackets         mediana=10.000  CV=0.52  p05=3.000  p95=21.000
+  sBytesAvg        mediana=65.000  CV=0.05  p05=59.000  p95=65.000
+  duration         mediana=0.415  CV=0.54  p05=0.002  p95=0.500
+  sInterPacketAvg  mediana=0.021  CV=1.13  p05=0.000  p95=0.083
+
+## 13.5 Comparacion con Westermo y QUT
+
+conjunto / definicion   paquetes      pps    disp.    dt CV   Hn org   Hn dst   pares Jaccard   tams
+ICS-Flow limpio           598301    135.5     1.27     4.33     0.46     0.44      22    0.67      9
+ICS-Flow con eventos     6336595   1259.9 53298.26    13.01     0.61     0.59      46    0.60     13
+Westermo limpio           344636    273.1     0.34     4.49     0.38     0.41      32    0.81     11
+Westermo con eventos      898597    275.2     2.83     4.40     0.37     0.40      51    0.82     36
+QUT Control todo          419803      4.9     3.00     1.26     0.54     0.66      16    0.80     21
+QUT Control solo DNP3      97277      1.1     2.73     1.98     0.96     0.96       2    1.00     13
+
+disp. = indice de dispersion de la tasa por ventana de 1 s
+(var/media): por debajo de 1 el trafico es mas regular que un proceso
+de Poisson. dt CV = coeficiente de variacion del intervalo entre
+paquetes agregado. Hn = entropia normalizada. tams = cantidad de
+tamanos de paquete distintos.

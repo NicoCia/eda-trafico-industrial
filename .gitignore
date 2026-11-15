@@ -1,0 +1,9 @@
+# Los conjuntos de datos no se versionan: ver datasets/LEEME.md.
+datasets/*
+!datasets/LEEME.md
+!datasets/morris-turnipseed/
+datasets/morris-turnipseed/*
+!datasets/morris-turnipseed/PROCEDENCIA.md
+
+eda/.venv/
+eda/derivados/

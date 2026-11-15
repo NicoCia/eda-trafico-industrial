@@ -1,0 +1,168 @@
+# Pregunta 9 - los cuatro intervalos de PD, con un solo estadistico
+
+Nivel de confianza: 95 %. Cuantil normal z = 1.959964.
+Premisa de los informes: la PD a acotar esta cerca de 0.5, que es donde
+la varianza de una proporcion es maxima y el intervalo mas ancho.
+
+## 9.0 De donde sale cada n
+
+caso                                               n  fuente
+Morris, DoS (prueba)                             281  salidas/p3_p4_morris.json
+Morris, MPCI (prueba)                           1808  salidas/p3_p4_morris.json
+ICS-Flow, escrituras bajo MITM (prueba)           51  salidas/p6_icsflow.json
+Westermo, tipo con 3 eventos (prueba)              3  datasets/westermo/data/events.txt
+
+Eventos de Westermo en el tramo de prueba, recalculados desde
+`events.txt` (94 eventos en total):
+
+tipo                           prueba
+BAD-PORTSCAN1                       1
+BAD-PORTSCAN2                       2
+GOOD-SSH                            2
+BAD-MISCONF                         3
+BAD-MISCONF-DUPLICATION             3
+BAD-MITM                            3
+BAD-SSH                             3
+
+Los tipos con 3 eventos en prueba son: BAD-MISCONF, BAD-MISCONF-DUPLICATION, BAD-MITM, BAD-SSH.
+
+**Correccion al caso citado.** El peor caso de Westermo no es 3 sino
+1 evento(s), en BAD-PORTSCAN1. El intervalo de +-0,55 que publican los
+informes corresponde al tipo con 3, que no es el tipo mas pobre.
+
+## 9.1 Que estadistico corresponde, y por que
+
+**Se propone el intervalo de Wilson (score) al 95 % como el estadistico
+unico para las cuatro cifras.** Motivos:
+
+- La aproximacion normal (Wald), que es la que usan tres de las cuatro
+  cifras publicadas, **no sirve con n chico**. Con n = 3 y PD = 0,5 el
+  intervalo de Wald es [-0.066, 1.066], que se sale del [0, 1]: no es un
+  intervalo de una proporcion.
+- Wilson no se sale nunca de [0, 1], tiene mejor cobertura que Wald en
+  n chico y no se degrada en n grande, de modo que sirve para las cuatro
+  filas sin cambiar de criterio a mitad de tabla.
+- Se agrega Clopper-Pearson como control conservador. Es exacto en el
+  sentido de que su cobertura nunca baja del 95 %, a costa de ser mas
+  ancho. Si una conclusion se sostiene con Wilson y con Clopper-Pearson,
+  no depende del estadistico.
+
+El error estandar **no** es un intervalo y no se usa aca. Se lo deja en
+la tabla de 9.3 solo para mostrar el factor 1,96 que separa la fila de
+Morris/DoS de las otras tres.
+
+Con PD = 0,5 el intervalo de Wilson queda centrado en 0,5 y es simetrico,
+asi que el `+-` es legitimo. Fuera de 0,5 Wilson es asimetrico y hay que
+citar los dos extremos, no un `+-`.
+
+## 9.2 Las cuatro cifras con el mismo estadistico
+
+Wilson al 95 %, con PD = 0,5 en las cuatro filas, de modo que son
+comparables entre si. La formula de Wilson no necesita que k sea entero
+--- solo entra por k(n-k)/n ---, asi que se evalua en k = 0,5 n y el
+intervalo queda centrado en 0,5 y simetrico. Clopper-Pearson si necesita
+k entero, y se trata en la columna correspondiente de 9.5.
+
+caso                                              n  semiancho  intervalo Wilson 95 %       1/n
+Morris, DoS (prueba)                            281     0.0581       [0.4419, 0.5581]    0.0036
+Morris, MPCI (prueba)                          1808     0.0230       [0.4770, 0.5230]    0.0006
+ICS-Flow, escrituras bajo MITM (prueba)          51     0.1323       [0.3677, 0.6323]    0.0196
+Westermo, tipo con 3 eventos (prueba)             3     0.3747       [0.1253, 0.8747]    0.3333
+Westermo, peor tipo: BAD-PORTSCAN1 (prueba)       1     0.4454       [0.0546, 0.9454]    1.0000
+ICS-Flow, eventos de MITM (prueba)                5     0.3296       [0.1704, 0.8296]    0.2000
+
+## 9.3 Contra las cifras publicadas
+
+Las dos ultimas columnas muestran por que las cuatro no eran
+comparables: el error estandar y el semiancho de Wald difieren en el
+factor 1.96.
+
+caso                                              n    publicado   err.est.   Wald 95% Wilson 95%
+Morris, DoS (prueba)                            281       +-0,03     0.0298     0.0585     0.0581
+Morris, MPCI (prueba)                          1808      +-0,023     0.0118     0.0230     0.0230
+ICS-Flow, escrituras bajo MITM (prueba)          51      +-0,137     0.0700     0.1372     0.1323
+Westermo, tipo con 3 eventos (prueba)             3       +-0,55     0.2887     0.5658     0.3747
+Westermo, peor tipo: BAD-PORTSCAN1 (prueba)       1           no     0.5000     0.9800     0.4454
+ICS-Flow, eventos de MITM (prueba)                5      +-0,438     0.2236     0.4383     0.3296
+
+Lectura fila por fila:
+
+- **Morris, DoS (prueba)**, n = 281. Lo publicado, +-0,03 (error estandar), reproduce
+  el error estandar (0.0298), no un intervalo. Con el mismo
+  criterio que las otras tres filas la cifra es 0.0585, y con
+  Wilson 0.0581.
+- **Morris, MPCI (prueba)**, n = 1808. Lo publicado, +-0,023 (IC 95 %), reproduce
+  el semiancho de Wald (0.0230). Con Wilson es 0.0230.
+- **ICS-Flow, escrituras bajo MITM (prueba)**, n = 51. Lo publicado, +-0,137 (IC 95 %), reproduce
+  el semiancho de Wald (0.1372). Con Wilson es 0.1323.
+- **Westermo, tipo con 3 eventos (prueba)**, n = 3. Lo publicado, +-0,55 (IC 95 %), reproduce
+  el semiancho de Wald (0.5658). Con Wilson es 0.3747.
+  El intervalo de Wald es [-0.066, 1.066]: **se sale de [0, 1]**.
+- **ICS-Flow, eventos de MITM (prueba)**, n = 5. Lo publicado, +-0,438 (IC 95 %), reproduce
+  el semiancho de Wald (0.4383). Con Wilson es 0.3296.
+
+Una nota sobre el +-0,55 de Westermo: no reproduce exactamente con
+ninguno de los tres estadisticos. Wald da 0.5658, Wilson 0.3747 y
+Clopper-Pearson 0.4486. El 0.5658 de Wald es el mas cercano, de modo que
+la cifra publicada parece un Wald redondeado hacia abajo.
+
+## 9.4 El limite que el intervalo no muestra
+
+Con n chico el intervalo no es la unica limitacion: el estimador solo
+puede tomar n + 1 valores, espaciados 1/n. Conviene decirlo porque
+cambia la lectura del caso de Westermo.
+
+caso                                              n        1/n   PD = 0,5?  valores alcanzables de PD
+Morris, DoS (prueba)                            281     0.0036          NO  0, 1/281, 2/281, ... , 1
+Morris, MPCI (prueba)                          1808     0.0006          SI  0, 1/1808, 2/1808, ... , 1
+ICS-Flow, escrituras bajo MITM (prueba)          51     0.0196          NO  0, 1/51, 2/51, ... , 1
+Westermo, tipo con 3 eventos (prueba)             3     0.3333          NO  0.000, 0.333, 0.667, 1.000
+Westermo, peor tipo: BAD-PORTSCAN1 (prueba)       1     1.0000          NO  0.000, 1.000
+ICS-Flow, eventos de MITM (prueba)                5     0.2000          NO  0.000, 0.200, 0.400, 0.600, 0.800, 1.000
+
+**Con 3 eventos la PD solo puede valer 0; 0,333; 0,667 o 1.** El 0,5 que
+suponen los informes para calcular el +-0,55 no es un resultado posible
+del experimento. Citar un intervalo alrededor de un valor inalcanzable
+sugiere una precision que no existe: con n = 3 lo correcto es decir que
+la PD de ese tipo **no es estimable**, no acotarla.
+
+Cota que no supone ningun valor de PD. Es el semiancho de Wilson mas
+ancho entre todos los k posibles, de modo que vale cualquiera sea el
+resultado:
+
+caso                                              n       peor k  semiancho
+Morris, DoS (prueba)                            281          140     0.0581
+Morris, MPCI (prueba)                          1808          904     0.0230
+ICS-Flow, escrituras bajo MITM (prueba)          51           25     0.1323
+Westermo, tipo con 3 eventos (prueba)             3            1     0.3654
+Westermo, peor tipo: BAD-PORTSCAN1 (prueba)       1            0     0.3967
+ICS-Flow, eventos de MITM (prueba)                5            2     0.3258
+
+## 9.5 Tabla citable
+
+Las cuatro cifras con un solo estadistico --- Wilson al 95 %, PD = 0,5
+--- y el control conservador al lado. Es la tabla que hay que citar en
+lugar de convertir ningun numero a mano.
+
+caso                                              n   Wilson 95% Clopper-P. 95%   k entero
+Morris, DoS (prueba)                            281       0.058         0.060         no
+Morris, MPCI (prueba)                          1808       0.023         0.023         si
+ICS-Flow, escrituras bajo MITM (prueba)          51       0.132         0.143         no
+Westermo, tipo con 3 eventos (prueba)             3       0.375         0.449         no
+Westermo, peor tipo: BAD-PORTSCAN1 (prueba)       1       0.445         0.487         no
+ICS-Flow, eventos de MITM (prueba)                5       0.330         0.400         no
+
+Los semianchos de Clopper-Pearson son equivalentes: la mitad del ancho
+del intervalo exacto, que en general es asimetrico. Cuando `k entero` es
+`no`, PD = 0,5 no es alcanzable con ese n y el valor de la columna es el
+mas ancho de los dos k vecinos. Los extremos de cada intervalo, k por k,
+estan en `salidas/p9_intervalos_pd.json`.
+
+Conclusion: el orden de magnitud de las tres filas con n >= 51 no cambia
+al unificar el estadistico --- Morris sigue sosteniendo el compromiso y
+ICS-Flow sigue siendo grueso pero utilizable --- pero la fila de Morris
+DoS pasa de +-0,03 a +-0.058, que es la cifra comparable con las otras,
+y la de Westermo no deberia presentarse como un intervalo.
+
+Reproducible con:
+  eda/.venv/bin/python -I eda/scripts/09_intervalos_pd.py

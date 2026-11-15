@@ -1,0 +1,306 @@
+# Pregunta 14 - PD y PFA de Schuster y Konig (RAID 2024)
+
+Fuente: Schuster y Konig, RAID 2024, tablas 5, 6, 8 y 13. El texto
+extraido del PDF se espera en fuentes/schuster2024noneed.txt, que no se
+redistribuye con este repositorio.
+
+Definiciones del propio articulo (Seccion 5.1, paso 3, y apendice
+A.4), transcritas tal cual:
+   vacc      = 1/2 * [ TN/(TN+FP) + TP/(TP+FN) ]
+   recall    = TP/(TP+FN)                 <- ES la PD
+   precision = TP/(TP+FP)
+De donde:  TNR = 2*vacc - recall    y    PFA = 1 - TNR
+
+## 14.1 Verificacion de la transcripcion
+
+   OK  tabla 6 / Lemay / vacc -> linea 625 de fuentes/schuster2024noneed.txt
+   OK  tabla 6 / WDT / vacc -> linea 627 de fuentes/schuster2024noneed.txt
+   OK  tabla 6 / WDT / vacc_f -> linea 629 de fuentes/schuster2024noneed.txt
+   OK  tabla 6 / DNP3 / vacc -> linea 631 de fuentes/schuster2024noneed.txt
+   OK  tabla 6 / S7comm / vacc -> linea 633 de fuentes/schuster2024noneed.txt
+   OK  tabla 13 / Lemay / precision -> linea 1379 de fuentes/schuster2024noneed.txt
+   OK  tabla 13 / Lemay / recall -> linea 1380 de fuentes/schuster2024noneed.txt
+   OK  tabla 13 / WDT / precision -> linea 1382 de fuentes/schuster2024noneed.txt
+   OK  tabla 13 / WDT / recall -> linea 1383 de fuentes/schuster2024noneed.txt
+   OK  tabla 13 / WDT / precision_f -> linea 1385 de fuentes/schuster2024noneed.txt
+   OK  tabla 13 / WDT / recall_f -> linea 1386 de fuentes/schuster2024noneed.txt
+   OK  tabla 13 / DNP3 / precision -> linea 1388 de fuentes/schuster2024noneed.txt
+   OK  tabla 13 / DNP3 / recall -> linea 1389 de fuentes/schuster2024noneed.txt
+   OK  tabla 13 / S7comm / precision -> linea 1391 de fuentes/schuster2024noneed.txt
+   OK  tabla 13 / S7comm / recall -> linea 1392 de fuentes/schuster2024noneed.txt
+
+Las 15 filas transcritas aparecen literalmente en el texto extraido
+del PDF, con sus cuatro decimales y en el mismo orden de columnas.
+
+## 14.2 Las dos tablas estan medidas sobre la misma particion?
+
+Si, y hay tres razones rastreables:
+
+1. La nota al pie 13 del articulo dice que precision, recall y F1
+   `are not applicable to the sets without anomalies (all sample sets
+   for training and all sets derived from the real datasets)`. Los
+   conjuntos de entrenamiento se armaron solo con trafico normal, de
+   modo que TP y FN no existen ahi: el recall de la tabla 13 solo
+   puede ser de validacion, que es donde la Seccion 5.1 define TP y
+   FN (paso 3, `Detection phase on validation traffic`).
+2. Los dos encabezados dicen `of the best model identified for each
+   setup of traffic perspective, algorithm, and dataset`: son los
+   mismos 48 modelos, elegidos por el mismo criterio (maximo bacc).
+3. Las dos tablas distinguen las mismas dos particiones de WDT: la
+   tabla 6 trae vacc y vacc_f (conjunto de validacion corregido por
+   etiquetas mal puestas) y la tabla 13 trae recall y recallf. Se
+   cruza vacc con recall y vacc_f con recallf, nunca mezclados.
+
+El cierre numerico de 14.4 es la comprobacion dura: si las dos tablas
+no fuesen del mismo conjunto de validacion, el vacc reconstruido a
+partir de precision, recall y el tamano del conjunto no coincidiria
+con el vacc publicado.
+
+## 14.3 Pares PD / PFA derivados
+
+PD = recall de la tabla 13. PFA = 1 - (2*vacc - recall), con vacc de
+la tabla 6. La incertidumbre de la PFA por el redondeo a cuatro
+decimales de las dos tablas es +-0.00015 en todos los casos.
+
+conjunto particion            perspectiva algoritmo     vacc       PD      TNR       PFA
+Lemay    validacion           flujo       envelope    0.8487   0.7000   0.9974    0.0026
+Lemay    validacion           flujo       iforest     0.9479   0.9000   0.9958    0.0042
+Lemay    validacion           flujo       OCSVM       0.8477   0.7000   0.9954    0.0046
+Lemay    validacion           flujo       CAE         0.8227   0.6500   0.9954    0.0046
+Lemay    validacion           paquete     envelope    0.5401   0.0812   0.9990    0.0010
+Lemay    validacion           paquete     iforest     0.5405   0.0811   0.9999    0.0001
+Lemay    validacion           paquete     OCSVM       0.9454   0.8957   0.9951    0.0049
+Lemay    validacion           paquete     CAE         0.9374   0.8804   0.9944    0.0056
+Lemay    validacion           3 paquetes  envelope    0.9324   0.8723   0.9925    0.0075
+Lemay    validacion           3 paquetes  iforest     0.9694   0.9453   0.9935    0.0065
+Lemay    validacion           3 paquetes  OCSVM       0.9348   0.8789   0.9907    0.0093
+Lemay    validacion           3 paquetes  CAE         0.9795   0.9893   0.9697    0.0303
+WDT      validacion           flujo       envelope    0.8467   0.6942   0.9992    0.0008
+WDT      validacion           flujo       iforest     0.8544   0.7140   0.9948    0.0052
+WDT      validacion           flujo       OCSVM       0.8468   0.6940   0.9996    0.0004
+WDT      validacion           flujo       CAE         0.8258   0.7107   0.9409    0.0591
+WDT      validacion           paquete     envelope    0.7572   0.5237   0.9907    0.0093
+WDT      validacion           paquete     iforest     0.7524   0.5338   0.9710    0.0290
+WDT      validacion           paquete     OCSVM       0.7541   0.5305   0.9777    0.0223
+WDT      validacion           paquete     CAE         0.7523   0.5341   0.9705    0.0295
+WDT      validacion           3 paquetes  envelope    0.7595   0.5238   0.9952    0.0048
+WDT      validacion           3 paquetes  iforest     0.7568   0.5315   0.9821    0.0179
+WDT      validacion           3 paquetes  OCSVM       0.7200   0.4425   0.9975    0.0025
+WDT      validacion           3 paquetes  CAE         0.7204   0.4410   0.9998    0.0002
+WDT      validacion corregida flujo       envelope    0.9471   0.8949   0.9993    0.0007
+WDT      validacion corregida flujo       iforest     0.9581   0.9204   0.9958    0.0042
+WDT      validacion corregida flujo       OCSVM       0.9471   0.8946   0.9996    0.0004
+WDT      validacion corregida flujo       CAE         0.9262   0.9066   0.9458    0.0542
+WDT      validacion corregida paquete     envelope    0.9088   0.8281   0.9895    0.0105
+WDT      validacion corregida paquete     iforest     0.9001   0.8309   0.9693    0.0307
+WDT      validacion corregida paquete     OCSVM       0.9033   0.8304   0.9762    0.0238
+WDT      validacion corregida paquete     CAE         0.8999   0.8310   0.9688    0.0312
+WDT      validacion corregida 3 paquetes  envelope    0.8337   0.6730   0.9944    0.0056
+WDT      validacion corregida 3 paquetes  iforest     0.8297   0.6783   0.9811    0.0189
+WDT      validacion corregida 3 paquetes  OCSVM       0.7840   0.5705   0.9975    0.0025
+WDT      validacion corregida 3 paquetes  CAE         0.7846   0.5693   0.9999    0.0001
+DNP3     validacion           flujo       envelope    0.8790   0.8696   0.8884    0.1116
+DNP3     validacion           flujo       iforest     0.9026   1.0000   0.8052    0.1948
+DNP3     validacion           flujo       OCSVM       0.8004   0.6957   0.9051    0.0949
+DNP3     validacion           flujo       CAE         0.7979   0.6957   0.9001    0.0999
+DNP3     validacion           paquete     envelope    0.9395   0.9112   0.9678    0.0322
+DNP3     validacion           paquete     iforest     0.7510   0.5286   0.9734    0.0266
+DNP3     validacion           paquete     OCSVM       0.5441   0.0943   0.9939    0.0061
+DNP3     validacion           paquete     CAE         0.5668   0.9415   0.1921    0.8079
+DNP3     validacion           3 paquetes  envelope    0.9566   0.9211   0.9921    0.0079
+DNP3     validacion           3 paquetes  iforest     0.8539   0.7203   0.9875    0.0125
+DNP3     validacion           3 paquetes  OCSVM       0.8139   0.6661   0.9617    0.0383
+DNP3     validacion           3 paquetes  CAE         0.5877   0.9376   0.2378    0.7622
+S7comm   validacion           flujo       envelope    0.9960   1.0000   0.9920    0.0080
+S7comm   validacion           flujo       iforest     0.9920   1.0000   0.9840    0.0160
+S7comm   validacion           flujo       OCSVM       1.0000   1.0000   1.0000    0.0000
+S7comm   validacion           flujo       CAE         1.0000   1.0000   1.0000    0.0000
+S7comm   validacion           paquete     envelope    0.9962   1.0000   0.9924    0.0076
+S7comm   validacion           paquete     iforest     0.9216   0.9930   0.8502    0.1498
+S7comm   validacion           paquete     OCSVM       0.5000   0.0000   1.0000    0.0000
+S7comm   validacion           paquete     CAE         0.7602   1.0000   0.5204    0.4796
+S7comm   validacion           3 paquetes  envelope    0.9809   0.9722   0.9896    0.0104
+S7comm   validacion           3 paquetes  iforest     0.9684   0.9688   0.9680    0.0320
+S7comm   validacion           3 paquetes  OCSVM       0.9347   0.8716   0.9978    0.0022
+S7comm   validacion           3 paquetes  CAE         0.9736   0.9955   0.9517    0.0483
+
+Las 60 celdas dan una PFA dentro de [0,1].
+
+## 14.4 Cierre independiente con la tabla 5
+
+Segunda via, sin usar vacc: con las muestras normales y anomalas del
+conjunto de validacion (tabla 5) y el par (precision, recall) de la
+tabla 13 se reconstruye TP = recall*N_anom, FP = TP*(1-prec)/prec y
+TNR' = 1 - FP/N_norm. Si la derivacion y la hipotesis de particion
+comun son correctas, (TNR' + recall)/2 tiene que dar el vacc
+publicado.
+
+conjunto perspectiva algoritmo  FP estim. PFA (via 1) PFA (via 2) vacc recon.   dif. vacc
+Lemay    flujo       envelope         6.0    0.00260    0.00246     0.8488     0.00007
+Lemay    flujo       iforest         10.0    0.00420    0.00411     0.9479     0.00005
+Lemay    flujo       OCSVM           11.0    0.00460    0.00452     0.8477     0.00004
+Lemay    flujo       CAE             11.0    0.00460    0.00452     0.8227     0.00004
+Lemay    paquete     envelope        21.0    0.00100    0.00096     0.5401     0.00002
+Lemay    paquete     iforest          2.0    0.00010    0.00009     0.5405     0.00000
+Lemay    paquete     OCSVM          107.1    0.00490    0.00488     0.9454     0.00001
+Lemay    paquete     CAE            117.8    0.00560    0.00537     0.9375     0.00012
+Lemay    3 paquetes  envelope       161.3    0.00750    0.00740     0.9325     0.00005
+Lemay    3 paquetes  iforest        138.3    0.00650    0.00634     0.9695     0.00008
+Lemay    3 paquetes  OCSVM          203.0    0.00930    0.00931     0.9348    -0.00000
+Lemay    3 paquetes  CAE            660.6    0.03030    0.03030     0.9795     0.00000
+WDT      flujo       envelope        16.2    0.00080    0.00071     0.8467     0.00004
+WDT      flujo       iforest        117.6    0.00520    0.00514     0.8544     0.00003
+WDT      flujo       OCSVM            6.5    0.00040    0.00028     0.8469     0.00006
+WDT      flujo       CAE           1350.4    0.05910    0.05905     0.8258     0.00002
+WDT      paquete     envelope     91053.4    0.00930    0.00924     0.7572     0.00003
+WDT      paquete     iforest     284901.2    0.02900    0.02892     0.7524     0.00004
+WDT      paquete     OCSVM       219590.6    0.02230    0.02229     0.7541     0.00000
+WDT      paquete     CAE         290490.4    0.02950    0.02949     0.7523     0.00001
+WDT      3 paquetes  envelope     46936.8    0.00480    0.00476     0.7595     0.00002
+WDT      3 paquetes  iforest     174419.1    0.01790    0.01771     0.7569     0.00010
+WDT      3 paquetes  OCSVM        23604.2    0.00250    0.00240     0.7201     0.00005
+WDT      3 paquetes  CAE            295.5    0.00020    0.00003     0.7205     0.00009
+DNP3     flujo       envelope        67.0    0.11160    0.11148     0.8791     0.00006
+DNP3     flujo       iforest        117.0    0.19480    0.19466     0.9027     0.00007
+DNP3     flujo       OCSVM           57.0    0.09490    0.09484     0.8004     0.00003
+DNP3     flujo       CAE             60.0    0.09990    0.09986     0.7979     0.00002
+DNP3     paquete     envelope     49800.4    0.03220    0.03200     0.9396     0.00010
+DNP3     paquete     iforest      41187.4    0.02660    0.02647     0.7511     0.00007
+DNP3     paquete     OCSVM         9265.6    0.00610    0.00595     0.5442     0.00007
+DNP3     paquete     CAE        1253851.5    0.80790    0.80576     0.5679     0.00107
+DNP3     3 paquetes  envelope     12071.9    0.00790    0.00781     0.9566     0.00004
+DNP3     3 paquetes  iforest      19001.2    0.01250    0.01230     0.8540     0.00010
+DNP3     3 paquetes  OCSVM        59035.6    0.03830    0.03821     0.8139     0.00004
+DNP3     3 paquetes  CAE        1178261.3    0.76220    0.76269     0.5875    -0.00024
+S7comm   flujo       envelope         2.0    0.00800    0.00797     0.9960     0.00001
+S7comm   flujo       iforest          4.0    0.01600    0.01594     0.9920     0.00003
+S7comm   flujo       OCSVM            0.0    0.00000    0.00000     1.0000     0.00000
+S7comm   flujo       CAE              0.0    0.00000    0.00000     1.0000     0.00000
+S7comm   paquete     envelope      8423.6    0.00760    0.00741     0.9963     0.00010
+S7comm   paquete     iforest     170291.7    0.14980    0.14973     0.9216     0.00003
+S7comm   paquete     CAE         545350.3    0.47960    0.47952     0.7602     0.00004
+S7comm   3 paquetes  envelope      4526.5    0.01040    0.01033     0.9809     0.00003
+S7comm   3 paquetes  iforest      13895.0    0.03200    0.03172     0.9685     0.00014
+S7comm   3 paquetes  OCSVM          952.4    0.00220    0.00217     0.9347     0.00001
+S7comm   3 paquetes  CAE          21109.6    0.04830    0.04819     0.9737     0.00005
+
+Diferencia maxima entre el vacc reconstruido y el publicado:
+   0.001070  (el redondeo a cuatro decimales de precision, recall y
+   vacc ya justifica por si solo unas pocas unidades en el cuarto
+   decimal; los conjuntos con pocas muestras anomalas amplifican
+   ese redondeo, porque FP se estima a partir de TP.)
+   Celdas con diferencia menor a 0,001: 46 de 47
+   Celdas con diferencia menor a 0,01 : 47 de 47
+
+No se aplica a la particion corregida de WDT (vacc_f / recallf):
+la tabla 5 publica el desglose del conjunto de validacion original,
+no el del corregido, de modo que no hay denominador con el que
+hacer el cierre. Para esas 12 celdas solo queda la via 1.
+
+## 14.5 Tercera via: la tasa horaria de falsas alarmas
+
+**Si, el articulo la publica.** Es la tabla 8, `False-alarm rates per
+hour for the best model per dataset (highlighted in Tables 6 and 14)
+and sample type when using an aggregation period of 30 seconds`.
+
+No es la misma cantidad que la PFA por muestra, por dos razones que
+el propio articulo deja escritas: esta agregada a ventanas de 30 s
+--- varias falsas alarmas dentro de la misma ventana cuentan como
+una --- y solo cubre el mejor modelo de cada conjunto y perspectiva,
+no los 48 montajes. Para las muestras de flujo el articulo aclara que
+`the false-alarm rates on flow samples could not be reduced by
+aggregation`, de modo que ahi la cifra agregada es la cruda.
+
+Contraste contra la via 2, que es la unica que da falsas alarmas
+absolutas. Se compara el mejor modelo de cada bloque (maximo vacc),
+que es el que la tabla 8 usa:
+
+conjunto perspectiva algoritmo    FP estim.  FA/h estimada   FA/h tabla 8
+Lemay    flujo       iforest           10.0           27.7             10
+Lemay    paquete     OCSVM            107.1          296.5            100
+Lemay    3 paquetes  CAE              660.6         1829.3            688
+WDT      flujo       iforest          117.6           73.5             52
+WDT      paquete     envelope       91053.4        56868.9            404
+WDT      3 paquetes  envelope       46936.8        29315.2           9682
+DNP3     flujo       iforest          117.0            4.9              5
+DNP3     paquete     envelope       49800.4         2075.0           1506
+DNP3     3 paquetes  envelope       12071.9          503.0            502
+S7comm   flujo       OCSVM              0.0            0.0              0
+S7comm   paquete     envelope        8423.6          935.2            312
+S7comm   3 paquetes  envelope        4526.5          502.6            492
+
+La columna estimada es cruda y la publicada esta agregada a 30 s, de
+modo que la igualdad no es exigible: la agregada tiene que ser menor
+o igual.
+   coinciden dentro del 10 %: DNP3/flujo, DNP3/3 paquetes, S7comm/flujo, S7comm/3 paquetes
+   difieren mas del 10 %:     Lemay/flujo, Lemay/paquete, Lemay/3 paquetes, WDT/flujo, WDT/paquete, WDT/3 paquetes, DNP3/paquete, S7comm/paquete
+   casos donde la tabla 8 supera la estimacion cruda: 1 de 12
+   el mayor exceso es DNP3/flujo, con 0.1 alarmas por hora de diferencia;
+   si fuese grande habria que revisar la lectura, pero a esta
+   escala lo explica el redondeo de la propia tabla 8 a enteros.
+
+Lo que se puede afirmar sobre la tasa horaria sin estimar nada es lo
+que dice la tabla 8, con su denominador: falsas alarmas por hora con
+agregacion de 30 s, del mejor modelo por conjunto y perspectiva.
+
+## 14.6 Resumen: el par PD/PFA por conjunto
+
+Mejor modelo por conjunto y perspectiva, con el par completo:
+
+conjunto perspectiva algoritmo       PD      PFA PFA (via 2) FA/h tabla 8
+Lemay    flujo       iforest     0.9000   0.0042    0.00411           10
+Lemay    paquete     OCSVM       0.8957   0.0049    0.00488          100
+Lemay    3 paquetes  CAE         0.9893   0.0303    0.03030          688
+WDT      flujo       iforest     0.7140   0.0052    0.00514           52
+WDT      paquete     envelope    0.5237   0.0093    0.00924          404
+WDT      3 paquetes  envelope    0.5238   0.0048    0.00476         9682
+DNP3     flujo       iforest     1.0000   0.1948    0.19466            5
+DNP3     paquete     envelope    0.9112   0.0322    0.03200         1506
+DNP3     3 paquetes  envelope    0.9211   0.0079    0.00781          502
+S7comm   flujo       OCSVM       1.0000   0.0000    0.00000            0
+S7comm   paquete     envelope    1.0000   0.0076    0.00741          312
+S7comm   3 paquetes  envelope    0.9722   0.0104    0.01033          492
+
+Denominadores, para que ningun porcentaje quede sin el suyo:
+   Lemay    validacion de   1300 s; muestras normales/anomalas: flujo 2435/20, paquete 21939/8124, 3 paquetes 21802/8259
+   WDT      validacion de   5764 s; muestras normales/anomalas: flujo 22867/23367, paquete 9851133/6698292, 3 paquetes 9850523/6698900
+   DNP3     validacion de  86399 s; muestras normales/anomalas: flujo 601/23, paquete 1556112/11417, 3 paquetes 1544883/22644
+   S7comm   validacion de  32425 s; muestras normales/anomalas: flujo 251/21, paquete 1137294/665463, 3 paquetes 438013/1364742
+
+## 14.7 Que conjuntos son, y sobre que archivos
+
+Importa porque dos de los cuatro son conjuntos de la tabla de
+comparabilidad del proyecto, y uno es el propio conjunto de QUT que el
+proyecto usa. Las identidades salen de la seccion 4.1 y del apendice
+A.3 del articulo:
+
+   Lemay   = capturas de Lemay y Fernandez, Modbus/TCP. Entrena con
+             `Run1_6RTU`; valida con las cinco partes restantes.
+   WDT     = Water distribution testbed, Modbus/TCP. Entrena con
+             `normal.pcap`; valida con el resto de las capturas.
+   DNP3    = **QUT DNP3** (`github.com/qut-infosec/2017QUT_DNP3`), el
+             mismo conjunto que el proyecto usa. Entrena con
+             `control/testing/frequent/slave.pcap` y valida con
+             `attacks/testing/frequent/slave.pcap`.
+   S7comm  = **QUT S7comm** (`2017QUT_S7comm`), tambien de QUT, pero
+             NO es el `QUT S7 (Myers)`, que el articulo descarta por
+             desvios de marca de tiempo (nota al pie 16).
+
+Dos consecuencias para el proyecto:
+
+1. Las cifras de DNP3 estan medidas sobre las carpetas `testing/` de
+   QUT, que son justamente las que el EDA dejo sin abrir. De modo que
+   el par PD/PFA de Schuster se puede usar como referencia externa
+   sin abrir nada; pero al reves tambien vale: si se ajusta algo
+   contra ese numero, se esta ajustando contra el tramo de prueba.
+2. El articulo usa `slave.pcap` y el EDA del proyecto midio sobre
+   `master.pcap`. El hallazgo 1.1 del EDA --- que los dos archivos
+   contienen la misma conversacion, 20.000 de 20.000 tramas
+   coincidentes --- es lo que permite comparar las dos mediciones.
+
+La PD no se estima: es el recall publicado. La PFA de la via 1 sale
+de una identidad algebraica entre dos cifras publicadas, con el
+redondeo como unica incertidumbre. La via 2 es independiente y
+coincide. Lo que NO se puede obtener de estas tablas es la PFA por
+tipo de anomalia ni la curva PD-PFA completa: el articulo publica un
+solo punto de operacion por modelo.

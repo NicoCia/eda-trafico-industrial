@@ -1,0 +1,611 @@
+# Se puede armar un conjunto de datos integrado?
+
+Generado por `eda/scripts/11_integracion_esquemas.py`.
+
+Responde la pregunta de fondo del proyecto. Mide la interseccion de
+los esquemas, si las definiciones coinciden de verdad y no solo de
+nombre, si las distribuciones son compatibles, la granularidad temporal
+de cada conjunto y si los esquemas de etiquetado son traducibles.
+
+Particiones: solo tramo de entrenamiento, con los cortes de
+`eda/INSTRUCCIONES.md`. Ninguna fila de ningun archivo de prueba.
+
+---
+
+## 1. Que esquemas tabulares publica cada conjunto
+
+**QUT DNP3 no aparece en esta tabla porque no publica ningun esquema
+tabular de caracteristicas.** Lo que publica es PCAP, etiquetas por
+paquete sin cabecera y recuentos por segundo; esta medido en
+`eda/salidas/p10_inventario.txt`, seccion E. Para integrarlo hay que
+calcularle las caracteristicas primero, y entonces el esquema es el que
+elija el proyecto, no el que trae el conjunto.
+
+esquema publicado            campos
+Westermo flujos                  64
+ICS-Flow flujos                  64
+ICS-Flow proceso PLC1            12
+ICS-Flow proceso PLC2             9
+Morris ARFF                      20
+HAI hai-20.07                    64
+HAI hai-21.03                    84
+HAI hai-22.04                    88
+HAI hai-23.05                    87
+HAI haiend-23.05                226
+
+### 1.1 Matriz de campos con el mismo nombre
+
+                                 1       2       3       4       5       6       7       8       9      10
+Westermo flujos          1      64      64       0       0       0       0       0       0       0       0
+ICS-Flow flujos          2      64      64       0       0       0       0       0       0       0       0
+ICS-Flow proceso PLC1    3       0       0      12       4       1       1       1       0       0       0
+ICS-Flow proceso PLC2    4       0       0       4       9       1       1       1       0       0       0
+Morris ARFF              5       0       0       1       1      20       1       1       0       0       0
+HAI hai-20.07            6       0       0       1       1       1      64      58      46      38       0
+HAI hai-21.03            7       0       0       1       1       1      58      84      67      59       0
+HAI hai-22.04            8       0       0       0       0       0      46      67      88      79       0
+HAI hai-23.05            9       0       0       0       0       0      38      59      79      87       0
+HAI haiend-23.05        10       0       0       0       0       0       0       0       0       0     226
+
+### 1.2 Campos comunes a los cuatro conjuntos con esquema tabular
+
+Interseccion de Westermo, ICS-Flow, Morris y HAI: **0 campos**.
+
+Si se cuenta tambien QUT, que no publica esquema, la interseccion es **0**
+por construccion.
+
+### 1.3 Campos comunes a algun par de conjuntos
+
+conjunto A             conjunto B              comunes cuales
+Westermo               ICS-Flow                     64 IT_B_Label, IT_M_Label, NST_B_Label, NST_M_Label, duration, end, ... (64 en total)
+Westermo               Morris                        0 ---
+Westermo               HAI                           0 ---
+ICS-Flow               Morris                        1 time
+ICS-Flow               HAI                           1 time
+Morris                 HAI                           1 time
+
+### 1.4 Campos exclusivos de un solo conjunto
+
+conjunto                 campos exclusivos % del conjunto
+Westermo                     64        0           0.0 %
+ICS-Flow                     81       16          19.8 %
+Morris                       20       19          95.0 %
+HAI                         345      344          99.7 %
+
+Lectura: casi todo el contenido de cada conjunto es exclusivo suyo. Las
+unicas dos excepciones son el par Westermo / ICS-Flow en el nivel de
+flujo, que se trata en la seccion 2, y las coincidencias entre versiones
+de HAI, que no son conjuntos distintos sino versiones del mismo banco.
+
+---
+
+## 2. Westermo e ICS-Flow: la misma variable, o solo el mismo nombre?
+
+### 2.1 La cabecera es la misma, byte a byte
+
+archivo                  md5 de la linea de cabecera          campos
+Westermo flujos          07c955361952c03311785688b4610c7c         64
+ICS-Flow flujos          07c955361952c03311785688b4610c7c         64
+
+Identicas: **SI**. No es solo que coincidan los nombres: coincide la
+linea completa, con el mismo orden y la misma puntuacion. Los seis CSV de
+Westermo tienen esa misma cabecera (medido en la seccion A.1 de
+`p10_inventario.txt`).
+
+La explicacion documental, que no se mide aqui y queda como tal: los dos
+conjuntos comparten autor. Alireza Dehlaghi-Ghadim firma el `README` de
+Westermo y es el autor de la pagina de Kaggle de la que se bajo
+ICS-Flow. Las caracteristicas de flujo de los dos salen de la misma
+herramienta de extraccion.
+
+### 2.2 La precision publicada de cada campo es la misma
+
+Es la prueba mas fina de que no son dos definiciones parecidas sino la
+misma implementacion: con cuantos decimales publica cada archivo cada
+campo. Dos herramientas distintas no coinciden en eso. Medido sobre los
+dos archivos **completos**, no sobre una muestra.
+
+campo                    Westermo   ICS-Flow coincide distintos W distintos I
+duration                        6          6       SI       16768       28099
+sBytesAvg                       3          3       SI         227         684
+rBytesAvg                       3          3       SI         415        1358
+sLoad                           3          3       SI       21601       40397
+rLoad                           3          3       SI       24619       41459
+sPayloadAvg                     3          3       SI         168         659
+rPayloadAvg                     3          3       SI         330        1353
+sInterPacketAvg                20         20       SI       21829       39505
+rInterPacketAvg                20         20       SI       24323       40487
+sttl                            1          3       NO           2         167
+rttl                            3          3       SI         336         426
+sAckRate                        3          1       NO          60           3
+rAckRate                        3          3       SI          72          67
+sUrgRate                        1          1       SI           2           2
+rUrgRate                        1          1       SI           2           2
+sFinRate                        3          3       SI          69          24
+rFinRate                        3          3       SI          43          25
+sPshRate                        3          3       SI          87         296
+rPshRate                        3          3       SI         125         427
+sSynRate                        3          3       SI          58          68
+rSynRate                        3          3       SI         125          62
+sRstRate                        3          1       NO          66           3
+rRstRate                        3          3       SI          56          38
+sWinTCP                         3          3       SI         133         285
+rWinTCP                         3          3       SI         184         195
+sFragmentRate                   1          1       SI           2           2
+rFragmentRate                   1          1       SI           2           2
+sAckDelayMax                    3          3       SI         128         451
+rAckDelayMax                    3          3       SI         220         486
+sAckDelayMin                    3          3       SI          10          87
+rAckDelayMin                    3          3       SI          51          78
+sAckDelayAvg                    6          6       SI        2112        8828
+rAckDelayAvg                    6          6       SI        8747       17587
+
+Coinciden **30 de 33** campos con parte decimal.
+
+Los 3 que no coinciden son todos campos **degenerados en uno de los
+dos conjuntos**: toman tan pocos valores distintos que nunca llegan a
+mostrar el tope de decimales. No son politicas de redondeo distintas.
+
+campo                      dec. W     dec. I distintos W distintos I
+sttl                            1          3           2         167
+sAckRate                        3          1          60           3
+sRstRate                        3          1          66           3
+
+El caso mas claro es `sttl`: en Westermo vale **siempre** 64, un solo
+valor, de modo que se publica como `64.0` y el maximo de decimales
+observable es 1; en ICS-Flow toma 167 valores y llega a 3.
+
+Los casos que mas pesan en la comparacion son los que coinciden en una
+eleccion arbitraria: `*AckDelayMin` y `*AckDelayMax` a 3 decimales
+mientras `*AckDelayAvg` va a 6, y `*InterPacketAvg` sin redondear, con
+20 decimales. Esa asimetria repetida campo por campo en los dos
+conjuntos no sale de dos implementaciones independientes.
+
+### 2.3 El vocabulario del campo `protocol`
+
+Westermo (entrenamiento) ARP, IPV4-2, IPV4-TCP, IPV4-UDP, LLDP
+ICS-Flow (entrenamiento) ARP, IPV4-ICMP, IPV4-TCP, IPV4-UDP, IPV6
+
+Comunes: ARP, IPV4-TCP, IPV4-UDP
+Solo en Westermo: IPV4-2, LLDP
+Solo en ICS-Flow: IPV4-ICMP, IPV6
+
+Misma convencion de nombres (`IPV4-` seguido del protocolo de
+transporte), distinto repertorio: los dos bancos no corren los mismos
+protocolos. Para concatenar filas, este campo es categorico y su
+dominio es la union, no la interseccion.
+
+### 2.4 La definicion coincide; la distribucion, no
+
+Las identidades numericas de la seccion A.4 y B.3 de `p10_inventario.txt`
+se cumplen en los dos conjuntos con las mismas tolerancias, y la ventana
+de flujo es 0,5 s en los dos. Queda la pregunta de si los valores son
+comparables, que es distinta.
+
+Se compara **solo el trafico normal** de los dos tramos de entrenamiento,
+con la etiqueta `NST_M_Label == Normal`, y se usa un **nivel de
+referencia interno**: el mismo estadistico KS entre la primera y la
+segunda mitad del propio tramo de cada conjunto. Una diferencia entre
+conjuntos solo significa algo si supera ese nivel.
+
+Flujos normales comparados: 17456 de Westermo y 22856 de ICS-Flow.
+
+campo                  ref. West. ref. ICS-F    cruzado    razon
+rBytesSum                   0.013      0.013      0.538    40.7x
+rPackets                    0.012      0.013      0.538    42.7x
+sPayloadSum                 0.010      0.009      0.534    56.2x
+rInterPacketAvg             0.240      0.038      0.515     2.1x
+rPayloadSum                 0.011      0.009      0.505    45.9x
+sInterPacketAvg             0.158      0.029      0.442     2.8x
+rLoad                       0.194      0.043      0.383     2.0x
+sLoad                       0.152      0.028      0.373     2.5x
+rAckDelayAvg                0.022      0.028      0.349    12.5x
+sBytesSum                   0.013      0.012      0.339    25.3x
+sAckDelayAvg                0.022      0.081      0.318     3.9x
+sPackets                    0.013      0.012      0.309    23.4x
+rAckDelayMax                0.023      0.021      0.284    12.1x
+duration                    0.200      0.031      0.250     1.3x
+sAckDelayMax                0.018      0.058      0.215     3.7x
+sPayloadAvg                 0.013      0.009      0.160    11.9x
+sPayloadMax                 0.003      0.001      0.140    53.3x
+sAckDelayMin                0.005      0.001      0.134    24.8x
+sBytesMax                   0.003      0.001      0.124    36.1x
+sBytesAvg                   0.010      0.009      0.100    10.4x
+rPshRate                    0.008      0.016      0.080     4.8x
+sWinTCP                     0.008      0.006      0.069     8.8x
+sPshRate                    0.013      0.008      0.067     5.1x
+rBytesAvg                   0.009      0.017      0.066     3.9x
+rPayloadAvg                 0.009      0.017      0.066     3.9x
+sPayloadMin                 0.003      0.007      0.066     9.9x
+rWinTCP                     0.007      0.002      0.059     8.2x
+sBytesMin                   0.003      0.007      0.050     7.5x
+rBytesMax                   0.002      0.002      0.038    16.0x
+rPayloadMax                 0.002      0.002      0.038    16.0x
+rBytesMin                   0.001      0.001      0.006     5.2x
+rAckDelayMin                0.002      0.001      0.006     2.5x
+rPayloadMin                 0.001      0.000      0.000     0.7x
+sSynRate                    0.000      0.000      0.000     0.5x
+rSynRate                    0.000      0.000      0.000     0.5x
+rAckRate                    0.000      0.000      0.000     0.5x
+rttl                        0.000      0.000      0.000     0.5x
+sttl                        0.000      0.000      0.000      inf
+sAckRate                    0.000      0.000      0.000      inf
+sUrgRate                    0.000      0.000      0.000      inf
+rUrgRate                    0.000      0.000      0.000      inf
+sFinRate                    0.000      0.000      0.000      inf
+rFinRate                    0.000      0.000      0.000      inf
+sRstRate                    0.000      0.000      0.000      inf
+rRstRate                    0.000      0.000      0.000      inf
+sFragmentRate               0.000      0.000      0.000      inf
+rFragmentRate               0.000      0.000      0.000      inf
+
+Mediana del KS cruzado: **0.066** sobre 47 campos con al menos 50
+observaciones en los dos conjuntos.
+Mediana del nivel de referencia interno: **0.007**.
+Campos con KS cruzado por encima de 0,5: **5 de 47**.
+Campos con KS cruzado igual a 1,00 (distribuciones disjuntas): **0**.
+Campos constantes en los dos conjuntos, que no aportan nada a ninguno de
+los dos por separado: **10 de 47**.
+  sttl, sAckRate, sUrgRate, rUrgRate, sFinRate, rFinRate, sRstRate, rRstRate, sFragmentRate, rFragmentRate
+
+### 2.5 Donde esta la diferencia, en magnitudes
+
+Los 5 campos con KS cruzado por encima de 0,5, con sus cuantiles en cada
+conjunto, para que la diferencia se lea en unidades y no en estadisticos:
+
+campo                conjunto           p05      mediana          p95
+rBytesSum            Westermo             0         1496         2112
+                     ICS-Flow           348          933         1648
+rPackets             Westermo             0           26           36
+                     ICS-Flow             6           15           28
+sPayloadSum          Westermo             0          208          294
+                     ICS-Flow            39          130          208
+rInterPacketAvg      Westermo     0.0002665      0.01615      0.02936
+                     ICS-Flow     0.0002546       0.0287      0.04545
+rPayloadSum          Westermo             0          192          306
+                     ICS-Flow            36          120          192
+
+**Conclusion de las secciones 2.1 a 2.5.** Los dos conjuntos comparten la
+definicion de las caracteristicas: la cabecera es la misma byte a byte,
+las identidades numericas se cumplen en los dos con las mismas
+tolerancias, la ventana es 0,5 s en los dos y la precision publicada
+coincide en 30 de los 33 campos con parte decimal, con las 3 excepciones
+explicadas por campos degenerados. **Como esquema, son el mismo
+conjunto.**
+
+Como poblacion, no. La diferencia no es dramatica --- ninguna
+distribucion es disjunta y la mediana del KS cruzado es 0.066 ---, pero
+supera el nivel de referencia interno por un factor mediano de 4 y se
+concentra justo donde duele: los 5 campos que mas difieren son de
+**volumen y de temporizado**, que son las caracteristicas que la
+pregunta 2 de INFORME.md identifico como discriminantes. Entrenar
+sobre la union de las filas ensancha la envolvente del 'normal' en
+exactamente las variables que llevan la senal.
+
+Hay una asimetria que conviene registrar: el nivel de referencia interno
+de Westermo en los campos de temporizado (`duration` 0.200,
+`sInterPacketAvg` 0.158, `rLoad` 0.194) es entre cinco y diez veces el de
+ICS-Flow. El propio tramo de entrenamiento de Westermo es mas
+heterogeneo en el tiempo que el de ICS-Flow, de modo que parte de lo que
+se mediria como diferencia entre conjuntos es variabilidad interna de
+Westermo.
+
+---
+
+## 3. Granularidad temporal de cada conjunto
+
+Es lo que decide si dos conjuntos se pueden alinear en el tiempo o solo
+apilar. Todo lo de esta tabla esta medido sobre el tramo de
+entrenamiento, salvo la duracion total, que sale del rango de la columna
+de tiempo del archivo completo.
+
+archivo                    nivel          granularidad                                         cobertura (s)
+Westermo flujos            flujo          ventana de 0,5 s                                             5442
+ICS-Flow flujos            flujo          ventana de 0,5 s                                             8383
+ICS-Flow PLC1              proceso        muestreo de 0.200 s (mediana)                                8419
+ICS-Flow PLC2              proceso        muestreo de 0.200 s (mediana)                                8419
+Morris ARFF                transaccion    epoch de microsegundo; 1.43 s entre filas (mediana)        275691
+HAI hai-20.07              proceso        muestreo de 1 s (medido: min 1, max 1)                     550800
+HAI hai-21.03              proceso        muestreo de 1 s (medido: min 1, max 1)                     921603
+HAI hai-22.04              proceso        muestreo de 1 s (medido: min 1, max 1)                    1004402
+HAI hai-23.05              proceso        muestreo de 1 s (medido: min 1, max 1)                     896400
+HAI haiend-23.05           proceso        muestreo de 1 s (medido: min 1, max 1)                     896400
+QUT tshark/*.csv           ventana        ventana de 1 s                                              86397
+QUT PCAP                   paquete        marca de tiempo de microsegundo                             86397
+Westermo PCAP              paquete        marca de tiempo de microsegundo                              5442
+ICS-Flow traffic.pcap      paquete        marca de tiempo de microsegundo                              8383
+
+La columna de cobertura es el rango de la columna de tiempo, salvo en
+HAI, donde es la suma de los tramos de los `train*.csv`: esos archivos
+**no son continuos** y los separan huecos de entre 1 y 47 dias, medidos
+en la pregunta 5 de INFORME.md.
+
+Cuando se tomo cada captura:
+
+conjunto               primera marca de tiempo
+Westermo               2023-03-10 10:29:34.085540
+ICS-Flow               2022-09-16 11:14:39.510337
+Morris                 2014-12-15 22:22:43.170387983
+HAI hai-20.07          2019-09-11 20:00:00
+HAI hai-21.03          2020-07-11 00:00:00
+HAI hai-22.04          2021-07-11 10:00:00
+HAI hai-23.05          2022-08-04 18:00:01
+HAI haiend-23.05       2022-08-04 18:00:00
+QUT                    2016-08-21 08:00:54.840051889
+
+Son 9 campanas de adquisicion repartidas entre 2014 y 2023, y ningun par de
+conjuntos distintos se solapa en el tiempo. **No hay ningun par que se
+pueda alinear por marca de tiempo absoluta**: solo por desplazamiento
+relativo al inicio de cada captura, que es lo que hace `startOffset`.
+
+Las unicas dos series que **si** son simultaneas son `hai-23.05` y
+`haiend-23.05`, que el propio conjunto declara tomadas a la vez sobre el
+mismo banco, y lo confirma la coincidencia de su primera marca de tiempo
+al segundo. Son el unico caso de este material donde dos tablas se
+pueden unir por marca de tiempo sin suposiciones.
+
+**Cuatro niveles distintos y ninguno comun a los cinco conjuntos.**
+
+  - Al nivel de **paquete** hay tres conjuntos: Westermo, QUT e
+    ICS-Flow. Morris y HAI no publican capturas, de modo que ese nivel
+    les esta cerrado para siempre.
+  - Al nivel de **flujo con ventana de 0,5 s** hay dos: Westermo e
+    ICS-Flow, y ademas con la misma definicion. QUT se podria sumar
+    calculandolo; Morris y HAI, no.
+  - Al nivel de **registro de proceso** hay dos: HAI a 1 s y los
+    snapshots de ICS-Flow a 0,2 s. Son cinco veces mas rapidos, de modo
+    que para alinearlos hay que remuestrear uno de los dos y el
+    remuestreo no es neutro: promediar 0,2 s a 1 s borra justo la
+    variabilidad de ciclo que el detector busca.
+  - Al nivel de **transaccion de protocolo** hay uno solo: Morris. Su
+    marca de tiempo tiene resolucion de microsegundo y es unica por
+    fila, de modo que el orden es inequivoco; el problema no es la
+    resolucion sino que no hay con que alinearlo.
+
+---
+
+## 4. Los esquemas de etiquetado
+
+### 4.1 Vocabulario de etiquetas medido, por conjunto
+
+**Westermo** --- 8 valores distintos, 21080 registros etiquetados
+
+  Normal                                              17456  (82.81 % de 21080)
+  BAD-MISCONF-DUPLICATION                              1494  (7.09 % de 21080)
+  BAD-MISCONF                                          1413  (6.70 % de 21080)
+  BAD-MITM                                              310  (1.47 % de 21080)
+  BAD-SSH                                               229  (1.09 % de 21080)
+  BAD-PORTSCAN2                                         145  (0.69 % de 21080)
+  BAD-PORTSCAN1                                          26  (0.12 % de 21080)
+  GOOD-SSH                                                7  (0.03 % de 21080)
+
+**ICS-Flow** --- 6 valores distintos, 25620 registros etiquetados
+
+  Normal                                              22856  (89.21 % de 25620)
+  replay                                               1051  (4.10 % de 25620)
+  mitm                                                  807  (3.15 % de 25620)
+  port-scan                                             574  (2.24 % de 25620)
+  ddos                                                  244  (0.95 % de 25620)
+  ip-scan                                                88  (0.34 % de 25620)
+
+**Morris** --- 8 valores distintos, 163823 registros etiquetados
+
+  Normal                                             128457  (78.41 % de 163823)
+  MPCI                                                12260  (7.48 % de 163823)
+  CMRI                                                 7666  (4.68 % de 163823)
+  MSCI                                                 5046  (3.08 % de 163823)
+  NMRI                                                 4427  (2.70 % de 163823)
+  MFCI                                                 2714  (1.66 % de 163823)
+  Reconnaissance                                       2209  (1.35 % de 163823)
+  DoS                                                  1044  (0.64 % de 163823)
+
+**QUT (por paquete)** --- 32 valores distintos, 94377 registros etiquetados
+
+  slave_masquerading_flooding                         29856  (31.63 % de 94377)
+  master_flooding_freeze                              13142  (13.93 % de 94377)
+  master_replay_flooding                              12426  (13.17 % de 94377)
+  nmap_reconnaissance                                  9418  (9.98 % de 94377)
+  MITM_forwarding_from_attacker                        6371  (6.75 % de 94377)
+  slave_masquerading                                   5265  (5.58 % de 94377)
+  ARP_poisoning                                        4826  (5.11 % de 94377)
+  MITM_forwarding_to_attacker                          4463  (4.73 % de 94377)
+  master_flooding_time                                 2196  (2.33 % de 94377)
+  master_replay                                        1477  (1.56 % de 94377)
+  master_masquerading                                  1426  (1.51 % de 94377)
+  MITM_hijack_injection                                1126  (1.19 % de 94377)
+  slave_masquerading_router                             819  (0.87 % de 94377)
+  MITM_from_attacker                                    326  (0.35 % de 94377)
+  MITM_to_attacker                                      271  (0.29 % de 94377)
+  slave_masquerading_router_igmp                        182  (0.19 % de 94377)
+  injection_replay                                      172  (0.18 % de 94377)
+  hijacking                                              93  (0.10 % de 94377)
+  DNP3_reconnaissance                                    85  (0.09 % de 94377)
+  injection_FreezeObj                                    60  (0.06 % de 94377)
+  slave_masquerading_ObjectSpoofBinary                   59  (0.06 % de 94377)
+  injection_push                                         57  (0.06 % de 94377)
+  MITM_modification_ImmedFreezeNR                        54  (0.06 % de 94377)
+  slave_masquerading_ObjectSpoofBinaryfuzz               52  (0.06 % de 94377)
+  injection_WarmRestart                                  45  (0.05 % de 94377)
+  injection_ColdRestart                                  39  (0.04 % de 94377)
+  slave_masquerading_ObjectSpoofCounter                  36  (0.04 % de 94377)
+  MITM_modification_BinaryInputPointInsert               10  (0.01 % de 94377)
+  MITM_modification_BinaryStatus                          9  (0.01 % de 94377)
+  MITM_modification_CounterStatus                         7  (0.01 % de 94377)
+  MITM_modification_BinaryInputPointDelete                6  (0.01 % de 94377)
+  MITM_modification_BinaryInputDataDelete                 3  (0.00 % de 94377)
+
+**QUT (por carpeta)** --- 7 valores: Attacks, Control, Flooding, Injection, MITM, Masqurading, Replay
+
+**HAI** --- no tiene vocabulario: las etiquetas son binarias.
+
+  hai-20.07        {'separador': ';', 'columna_tiempo': 'time', 'columnas_train': 64, 'columnas_test': 64, 'n_train': 2, 'n_test': 2, 'etiquetas_en_train': ['attack', 'attack_P1', 'attack_P2', 'attack_P3'], 'etiquetas_en_test': ['attack', 'attack_P1', 'attack_P2', 'attack_P3'], 'archivos_label_aparte': [], 'declarado_LEEME': ['attack', 'attack_P1', 'attack_P2', 'attack_P3']}
+  hai-21.03        {'separador': ',', 'columna_tiempo': 'time', 'columnas_train': 84, 'columnas_test': 84, 'n_train': 3, 'n_test': 5, 'etiquetas_en_train': ['attack', 'attack_P1', 'attack_P2', 'attack_P3'], 'etiquetas_en_test': ['attack', 'attack_P1', 'attack_P2', 'attack_P3'], 'archivos_label_aparte': [], 'declarado_LEEME': ['attack', 'attack_P1', 'attack_P2', 'attack_P3']}
+  hai-22.04        {'separador': ',', 'columna_tiempo': 'timestamp', 'columnas_train': 88, 'columnas_test': 88, 'n_train': 6, 'n_test': 4, 'etiquetas_en_train': ['Attack'], 'etiquetas_en_test': ['Attack'], 'archivos_label_aparte': [], 'declarado_LEEME': ['Attack']}
+  hai-23.05        {'separador': ',', 'columna_tiempo': 'timestamp', 'columnas_train': 87, 'columnas_test': 87, 'n_train': 4, 'n_test': 2, 'etiquetas_en_train': [], 'etiquetas_en_test': [], 'archivos_label_aparte': ['label-test1.csv', 'label-test2.csv'], 'declarado_LEEME': []}
+  haiend-23.05     {'separador': ',', 'columna_tiempo': 'Timestamp', 'columnas_train': 226, 'columnas_test': 226, 'n_train': 4, 'n_test': 2, 'etiquetas_en_train': [], 'etiquetas_en_test': [], 'archivos_label_aparte': ['label-test1.csv', 'label-test2.csv'], 'declarado_LEEME': []}
+
+Las versiones 20.07 y 21.03 agregan `attack_P1`, `attack_P2` y
+`attack_P3`, que dicen **que proceso** fue atacado, no de que tipo fue el
+ataque. A partir de 22.04 queda una sola columna binaria.
+
+El PDF tecnico del conjunto publica, aparte, una tabla por ataque con
+identificador, codigo de escenario, controlador y **punto de proceso
+atacado**. Esta medida en la seccion D.4 de `p10_inventario.txt`: 52, 57,
+50 y 38 ataques segun la version, con 37, 35, 25 y 14 codigos de
+escenario distintos. Esa informacion **no esta en los CSV**, de modo que
+una etiqueta por tipo para HAI habria que construirla cruzando esa tabla
+con las marcas de tiempo, y los codigos de escenario nombran el punto
+atacado, no una familia de anomalia comparable con la de Morris.
+
+### 4.2 Hay dos esquemas de etiquetado distintos, no cinco
+
+conjunto               nivel            columnas de etiqueta         estrategias
+Westermo               flujo            IT_B, IT_M, NST_B, NST_M     dos (IT y NST)
+ICS-Flow               flujo            IT_B, IT_M, NST_B, NST_M     dos (IT y NST)
+Morris                 transaccion      binary/categorized/specific  una
+QUT                    paquete y carpeta sin cabecera, tercer campo   una
+HAI                    registro de proceso attack / Attack / label      una
+
+Westermo e ICS-Flow comparten **las cuatro columnas de etiqueta y las dos
+estrategias**: binaria y multiclase por cada una de IT (marca todo el
+trafico mientras el ataque esta activo) y NST (marca solo el trafico que
+involucra al atacante). Es el mismo esquema, igual que el de
+caracteristicas. Los otros tres tienen cada uno el suyo.
+
+### 4.3 Son traducibles los vocabularios?
+
+Se normaliza cada etiqueta --- minusculas, sin prefijo `BAD-` o `GOOD-`,
+sin guiones ni sufijo numerico --- y se buscan coincidencias exactas
+entre los vocabularios normalizados.
+
+conjunto A             conjunto B              comunes cuales
+Westermo               ICS-Flow                      3 BAD-MITM=mitm, Normal=Normal, BAD-PORTSCAN1=port-scan
+Westermo               Morris                        1 Normal=Normal
+Westermo               QUT (por paquete)             0 ---
+Westermo               QUT (por carpeta)             1 BAD-MITM=MITM
+ICS-Flow               Morris                        1 Normal=Normal
+ICS-Flow               QUT (por paquete)             0 ---
+ICS-Flow               QUT (por carpeta)             2 mitm=MITM, replay=Replay
+Morris                 QUT (por paquete)             0 ---
+Morris                 QUT (por carpeta)             0 ---
+QUT (por paquete)      QUT (por carpeta)             0 ---
+
+Fuera de `Normal`, hay coincidencia automatica en **3 de los 10 pares**
+de vocabularios, y las familias que coinciden son solo **3**: `mitm`, `portscan`, `replay`.
+
+  ICS-Flow               / QUT (por carpeta)      mitm = MITM, replay = Replay
+  Westermo               / ICS-Flow               BAD-MITM = mitm, BAD-PORTSCAN1 = port-scan
+  Westermo               / QUT (por carpeta)      BAD-MITM = MITM
+
+Dos advertencias sobre esa cuenta, que la hacen mas generosa de lo que
+el dato aguanta:
+
+  - La normalizacion **colapsa distinciones que los conjuntos hacen**.
+    `BAD-PORTSCAN1` y `BAD-PORTSCAN2` de Westermo, que son el escaneo
+    contra un dispositivo y contra varios, quedan los dos en `portscan`
+    y coinciden con el `port-scan` de ICS-Flow, que es un escaneo con
+    `nmap`. Son tres cosas distintas con un nombre parecido.
+  - Las coincidencias con `QUT (por carpeta)` son con el nombre del
+    directorio, no con una etiqueta de los datos. El vocabulario real de
+    QUT, el de sus 32 etiquetas por paquete, **no coincide en nada con
+    ningun otro conjunto**: todas sus etiquetas son compuestas
+    (`MITM_forwarding_from_attacker`) y ninguna normaliza a un nombre
+    simple.
+
+Todo el resto exige un diccionario escrito a mano, y dos de las familias
+no tienen contraparte en ningun otro conjunto:
+
+  - Las **malas configuraciones** de Westermo (`BAD-MISCONF` y
+    `BAD-MISCONF-DUPLICATION`, los dos eventos que son error humano y no
+    ataque, y los que mas le interesan a este proyecto) no existen en
+    ningun
+    otro de los cinco.
+  - La **taxonomia contextual** de Morris (MPCI, CMRI, MSCI, MFCI) nombra
+    manipulaciones de la semantica del proceso. Westermo, que es un
+    conjunto de anomalias de red, no tiene ninguna; HAI tampoco, porque
+    no distingue tipo.
+
+Un diccionario escrito a mano puede unificar a un nivel grueso ---
+escaneo, intermediario, denegacion de servicio, repeticion ---, y esa
+union es **una interpretacion de las taxonomias publicadas, no una
+medicion**. Con un detalle que la hace cara: lo que cada conjunto llama
+igual se midio sobre unidades distintas. Un `mitm` de Westermo es un
+flujo de 0,5 s marcado por NST; un `mitm` de ICS-Flow tambien, y hasta
+ahi la traduccion es limpia. Un `MITM_modification_BinaryStatus` de QUT
+es un paquete. Un `MPCI` de Morris es una transaccion Modbus. La etiqueta
+traducida no significa lo mismo si la unidad etiquetada no es la misma.
+
+---
+
+## 5. Que sobrevive a cada forma de integrar
+
+Hay tres formas de armar un conjunto integrado y no son equivalentes. Se
+evalua cada una con lo medido en las secciones anteriores.
+
+### 5.1 Concatenar filas con un esquema comun minimo
+
+Entre los cuatro conjuntos con esquema tabular, los campos con el mismo
+nombre son **0**.
+Sumando QUT, que no publica esquema, son **0**.
+
+Y hay una razon anterior a los nombres: los registros no son la misma
+cosa. Una fila de Westermo es un flujo de 0,5 s; una de Morris, una
+transaccion Modbus; una de HAI, una muestra de proceso de 1 s. Apilarlas
+en una tabla produce filas que no son observaciones de la misma
+poblacion, y ninguna transformacion de columnas lo arregla.
+
+**No es viable con los cinco.** Entre Westermo e ICS-Flow, que si
+comparten esquema, es tecnicamente posible --- y se trata en 5.2 ---,
+pero con la salvedad medida en 2.5: la union ensancha la envolvente del
+'normal' justo en las caracteristicas de volumen y temporizado, que son
+las que llevan la senal.
+
+### 5.2 Union al nivel de caracteristicas de flujo
+
+Esta forma es la que la evidencia sostiene, y con un alcance preciso.
+
+Westermo e ICS-Flow publican los mismos **64 campos**, de los cuales 47
+son caracteristicas y 17 son identificadores, marcas de tiempo o
+etiquetas. Las 47 caracteristicas tienen el mismo nombre, la misma
+definicion verificada por identidad numerica, la misma ventana de 0,5 s y
+la misma precision publicada campo por campo; las etiquetas, las mismas
+cuatro columnas con las mismas dos estrategias.
+
+A ellos **se puede sumar QUT** calculandole las mismas 47
+caracteristicas desde sus PCAP, que es trabajo del proyecto y no un dato
+del conjunto. Tiene la ventaja de que el flujo de extraccion queda bajo
+control del proyecto, que es justo lo que pide el requerimiento 2.3.
+
+Y tiene un limite que conviene fijar ahora: de las 47 caracteristicas,
+**10 son constantes en los dos conjuntos a la vez** (seccion 2.4), de
+modo que la union util es menor que el numero de columnas.
+
+**Morris y HAI quedan afuera de esta union, y no por una limitacion
+salvable.** Morris no publica captura --- el archivo con el hexadecimal
+de las tramas no esta archivado --- y HAI no publica ni una sola
+caracteristica de red: sus 64 a 226 columnas son todas variables de
+proceso, y las unidades que declara su PDF tecnico son bar, mm, l/h, %,
+grados, RPM, MW y Hz. No hay nada que convertir.
+
+### 5.3 Un conjunto por dominio, con evaluacion separada
+
+Es lo que la medicion sostiene para los cinco a la vez. Cada conjunto
+conserva su esquema, su nivel de agregacion y su etiquetado, y lo que se
+integra es **el protocolo de evaluacion**: la misma particion temporal
+60 / 20 / 20, la misma definicion de PD y PFA, el mismo criterio de no
+mirar el tramo de prueba, y una tabla de resultados por conjunto y por
+familia de anomalia.
+
+Lo que se pierde: no hay una cifra agregada unica, y no se puede afirmar
+que el detector generaliza entre dominios, porque nunca se lo entrena
+sobre mas de uno. Lo que se gana: cada cifra es interpretable y cada
+caracteristica tiene una unidad y una ventana declaradas.
+
+### 5.4 Resumen de lo que habilita cada conjunto
+
+conjunto   nivel del reg.   captura  esquema        etiqueta       entra en la union de flujo
+Westermo   flujo 0,5 s      si       64 campos      4 columnas     si, es la base
+ICS-Flow   flujo 0,5 s      si       64 campos      4 columnas     si, mismo esquema
+QUT        paquete          si       ninguno        por paquete    si, calculandola
+Morris     transaccion      no       20 atributos   3 columnas     no, falta la captura
+HAI        proceso 1 s      no       64 a 226 cols  binaria        no, no publica red

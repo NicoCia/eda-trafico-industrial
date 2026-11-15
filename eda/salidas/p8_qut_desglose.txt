@@ -1,0 +1,125 @@
+# Pregunta 8 - cierra el desglose de protocolos de QUT?
+
+Archivo: datasets/qut-dnp3/Control/control/training/frequent/master.pcap
+
+Es el mismo archivo que caracteriza `05_determinismo.py` en su seccion
+2.2, leido completo (sin corte temporal). Medido de nuevo desde el PCAP,
+sin reusar ningun conteo anterior.
+
+## 8.1 El total esta bien medido?
+
+conteo                                                   paquetes
+registros del PCAP, sin interpretarlos                     419803
+registros recorridos por la clasificacion                  419803
+tramas que no se pudieron parsear                               0
+total que se venia citando                                 419803
+
+El total de 419.803 esta bien medido: SI
+
+No hay tramas descartadas. El `except: continue` de
+`05_determinismo.py` no pierde ningun paquete en este archivo, de
+modo que el faltante de 6.058 no viene de ahi.
+
+## 8.2 Desglose completo
+
+Todas las categorias, sin tope. Las cuatro que se venian citando van
+marcadas con `*`; las que no cita, con `+`.
+
+    categoria              que es                   paquetes % del total
+*   ETH-0x88b8             GOOSE (IEC 61850)          262511   62.532 %
+*   TCP                    TCP (DNP3, ver 8.4)         97277   23.172 %
+*   UDP                    UDP                         32375    7.712 %
+*   ETH-0x88f7             PTP (IEEE 1588)             21582    5.141 %
++   ARP                    ARP                          6052    1.442 %
++   ETH-0x86dd             IPv6                            6    0.001 %
+
+    SUMA DEL DESGLOSE                                 419803  100.000 %
+    total del archivo                                 419803  100.000 %
+    diferencia                                             0
+
+*   suma de las cuatro categorias citadas             413745
++   suma de las categorias no citadas                   6058
+
+**El faltante de 6.058 son las dos categorias que no se citaban**:
+6052 paquetes ARP y 6 de EtherType 0x86dd (IPv6). El total y el desglose
+estan bien medidos; lo que falla es la redaccion, que presenta cuatro de
+las 6 categorias como si fueran todas.
+
+Categorias distintas: 6.
+`05_determinismo.py:290` guarda la mezcla con `most_common(6)`, es decir
+que **publica como maximo seis categorias**. Aca hay exactamente seis,
+de modo que en este archivo el tope no oculto nada, pero es un tope que
+no avisa cuando corta: la igualdad entre la suma del desglose y el total
+hay que verificarla, no suponerla.
+
+## 8.3 Se solapan las categorias?
+
+La clasificacion es una cadena `if/elif`, de modo que cada paquete cae
+en una sola rama por construccion. Para no depender de ese argumento se
+cuenta el desglose por una via independiente, el EtherType de la trama,
+y se cruzan los dos conteos.
+
+EtherType                    paquetes     cadena   coincide
+0x88b8  GOOSE (IEC 61850)      262511     262511         SI
+0x0800  IPv4                   129652     129652         SI
+0x88f7  PTP (IEEE 1588)         21582      21582         SI
+0x0806  ARP                      6052       6052         SI
+0x86dd  IPv6                        6          6         SI
+
+Suma por EtherType: 419803. Total: 419803. Coincide: True.
+Las 5 comparaciones cruzan: SI.
+
+Dentro de IPv4, reparto por protocolo:
+
+protocolo IP                 paquetes
+6  TCP                          97277
+17  UDP                         32375
+
+No hay solapamiento: cada paquete esta contado una sola vez, y las dos
+vias de conteo dan el mismo desglose.
+
+## 8.4 Hay cruce entre la captura completa y la de solo DNP3?
+
+La sospecha es razonable: en la tabla de `eda/INFORME.md:295` la columna
+«QUT solo DNP3» tiene 97.277 paquetes, exactamente el mismo numero que
+el TCP de la captura completa. Medido, la explicacion es que no son dos
+capturas distintas.
+
+conteo sobre el mismo archivo                            paquetes
+TCP, total                                                  97277
+TCP con puerto 20000 en algun extremo (DNP3)                97277
+TCP sin puerto 20000 (no DNP3)                                  0
+
+`05_determinismo.py:456` construye la vista «solo DNP3» como
+`(sport == 20000) | (dport == 20000)` **sobre el mismo DataFrame** de la
+captura completa: es un subconjunto por filtrado, no otro archivo. Y en
+este archivo todo el TCP va a DNP3 (97277 de 97277, el 100.00 %), asi que el
+subconjunto coincide con el total de TCP.
+
+**No hay cruce de capturas.** La igualdad de los dos 97.277 es la
+consecuencia esperada de que el unico trafico TCP del escenario sea el
+dialogo DNP3 entre 192.168.10.221 y 192.168.10.222. Lo que si conviene
+corregir es la lectura de la tabla: «QUT solo DNP3» no es una captura
+aparte sino un subconjunto de «QUT Control», de modo que las dos
+columnas no son muestras independientes.
+
+## 8.5 Conclusion
+
+El total **no** esta mal medido: el PCAP tiene 419803 registros y los 419803
+se clasifican, sin descartes. El desglose que suma exacto es:
+
+  ETH-0x88b8         262511
+  TCP                 97277
+  UDP                 32375
+  ETH-0x88f7          21582
+  ARP                  6052
+  ETH-0x86dd              6
+  TOTAL              419803
+
+Los 6.058 que faltaban son 6052 ARP mas 6 IPv6 (EtherType 0x86dd), dos
+categorias que no se mencionaban. No hay paquetes perdidos, ni
+solapamiento entre criterios, ni cruce entre la captura completa y la
+de solo DNP3.
+
+Reproducible con:
+  eda/.venv/bin/python -I eda/scripts/08_qut_desglose_paquetes.py

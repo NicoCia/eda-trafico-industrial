@@ -1,0 +1,406 @@
+"""Pregunta 9 --- los cuatro intervalos de PD, con un solo estadistico.
+
+Los informes presentan como comparables cuatro cifras de precision que no
+estan calculadas con el mismo estadistico:
+
+  conjunto                              n eventos   publicado   estadistico
+  Morris, DoS (prueba)                        281   +-0,03      error estandar
+  Morris, MPCI (prueba)                     1.808   +-0,023     IC 95 % (Wald)
+  ICS-Flow, escrituras bajo MITM (prueba)      51   +-0,137     IC 95 % (Wald)
+  Westermo, tipo con 3 eventos (prueba)         3   +-0,55      IC 95 % (Wald)
+
+El error estandar y el IC 95 % difieren en un factor 1,96, de modo que la
+primera fila no es comparable con las otras tres.
+
+Este script recalcula las cuatro con **un solo estadistico** y deja la salida
+citable. El estadistico elegido y el motivo estan en la seccion 9.1.
+
+Los `n` se leen de las salidas ya medidas del propio EDA, no se escriben a
+mano, salvo el de Westermo, que se recalcula desde `events.txt` reusando el
+lector de `02_westermo_etiquetas.py`.
+
+Uso:  eda/.venv/bin/python -I eda/scripts/09_intervalos_pd.py
+"""
+
+import collections
+import importlib
+import json
+import math
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import comun  # noqa: E402
+
+_west = importlib.import_module("02_westermo_etiquetas")
+
+Z95 = 1.959963984540054  # cuantil 0,975 de la normal estandar
+ALFA = 0.05
+
+# Premisa de los informes: la PD que se quiere acotar esta cerca de 0,5, que es
+# donde la varianza de una proporcion es maxima y el intervalo mas ancho.
+P_PREMISA = 0.5
+
+
+def wald(n, p=P_PREMISA, z=Z95):
+    """Error estandar y semiancho de Wald. Se incluye solo para reproducir las
+    cifras publicadas y mostrar donde falla."""
+    se = math.sqrt(p * (1.0 - p) / n)
+    return se, z * se, p - z * se, p + z * se
+
+
+def wilson(k, n, z=Z95):
+    """Intervalo de Wilson (score) para una proporcion.
+
+    Devuelve (centro, inferior, superior, semiancho). El intervalo es
+    asimetrico respecto de k/n en general, pero con k/n = 0,5 queda centrado en
+    0,5 y el semiancho es un `+-` legitimo.
+    """
+    den = n + z * z
+    centro = (k + z * z / 2.0) / den
+    semi = (z / den) * math.sqrt(k * (n - k) / float(n) + z * z / 4.0)
+    return centro, max(0.0, centro - semi), min(1.0, centro + semi), semi
+
+
+def clopper_pearson(k, n, alfa=ALFA):
+    """Intervalo exacto de Clopper-Pearson. Requiere k entero."""
+    from scipy.stats import beta
+    inf = 0.0 if k == 0 else float(beta.ppf(alfa / 2.0, k, n - k + 1))
+    sup = 1.0 if k == n else float(beta.ppf(1.0 - alfa / 2.0, k + 1, n - k))
+    return inf, sup
+
+
+def k_cercanos(n, p=P_PREMISA):
+    """Los k enteros alcanzables mas cercanos a p*n, y si p*n es alcanzable."""
+    exacto = p * n
+    if abs(exacto - round(exacto)) < 1e-12:
+        return [int(round(exacto))], True
+    return sorted({math.floor(exacto), math.ceil(exacto)}), False
+
+
+def peor_wilson(n, z=Z95):
+    """Semiancho de Wilson mas grande entre todos los k alcanzables (0..n).
+
+    No supone ningun valor de PD: es una cota que vale cualquiera sea el
+    resultado del experimento.
+    """
+    peor = (-1.0, None)
+    for k in range(n + 1):
+        _c, _i, _s, semi = wilson(k, n, z)
+        if semi > peor[0]:
+            peor = (semi, k)
+    return peor
+
+
+def eventos_westermo():
+    """Eventos de Westermo por tipo y particion, recalculados desde events.txt."""
+    ruta = os.path.join(comun.WESTERMO, "events.txt")
+    if not os.path.exists(ruta):
+        return None, None, ruta
+    eventos, _sin_cerrar, _otras = _west.leer_eventos(ruta)
+    tabla = collections.defaultdict(collections.Counter)
+    for e in eventos:
+        tabla[e["tipo"]][_west.particion(e["inicio"])] += 1
+    return tabla, len(eventos), ruta
+
+
+def main():
+    comun.preparar()
+    L = []
+    w = L.append
+    J = {}
+
+    w("# Pregunta 9 - los cuatro intervalos de PD, con un solo estadistico")
+    w("")
+    w("Nivel de confianza: 95 %%. Cuantil normal z = %.6f." % Z95)
+    w("Premisa de los informes: la PD a acotar esta cerca de %.1f, que es donde"
+      % P_PREMISA)
+    w("la varianza de una proporcion es maxima y el intervalo mas ancho.")
+    w("")
+
+    # ---- 9.0 de donde sale cada n -----------------------------------
+    w("## 9.0 De donde sale cada n")
+    w("")
+    casos = []
+
+    pm = os.path.join(comun.SALIDAS, "p3_p4_morris.json")
+    pi = os.path.join(comun.SALIDAS, "p6_icsflow.json")
+    faltan = [p for p in (pm, pi) if not os.path.exists(p)]
+    if faltan:
+        w("Faltan salidas previas: %s"
+          % ", ".join(comun.rel(p) for p in faltan))
+        w("Correr antes `make -C eda morris` y `make -C eda icsflow`.")
+        comun.escribir("p9_intervalos_pd.txt", "\n".join(L))
+        return 1
+
+    with open(pm) as fh:
+        morris = json.load(fh)
+    with open(pi) as fh:
+        icsflow = json.load(fh)
+
+    n_dos = int(morris["por_categoria"]["6"]["por_particion"]["prueba"])
+    n_mpci = int(morris["por_categoria"]["4"]["por_particion"]["prueba"])
+    n_ics = int(icsflow["conteo_por_particion"]["prueba"]["escrituras_en_mitm"])
+    n_ics_ev = int(icsflow["eventos_por_particion"]["prueba"]["mitm"])
+
+    tabla_w, total_w, ruta_w = eventos_westermo()
+    if tabla_w is None:
+        w("No esta %s: el caso de Westermo no se puede recalcular."
+          % comun.rel(ruta_w))
+        n_west = None
+        n_west_min = None
+        tipo_min = None
+    else:
+        prueba = {t: c.get("prueba", 0) for t, c in tabla_w.items()}
+        tipo_min = min(prueba, key=lambda t: prueba[t])
+        n_west_min = prueba[tipo_min]
+        # El caso que citan los informes es un tipo con 3 eventos en prueba.
+        con_tres = sorted(t for t, v in prueba.items() if v == 3)
+        n_west = 3 if con_tres else None
+
+    w("%-44s %7s  %s" % ("caso", "n", "fuente"))
+    w("%-44s %7d  %s" % ("Morris, DoS (prueba)", n_dos,
+                         "salidas/p3_p4_morris.json"))
+    w("%-44s %7d  %s" % ("Morris, MPCI (prueba)", n_mpci,
+                         "salidas/p3_p4_morris.json"))
+    w("%-44s %7d  %s" % ("ICS-Flow, escrituras bajo MITM (prueba)", n_ics,
+                         "salidas/p6_icsflow.json"))
+    if n_west is not None:
+        w("%-44s %7d  %s" % ("Westermo, tipo con 3 eventos (prueba)", n_west,
+                             "datasets/westermo/data/events.txt"))
+    w("")
+    if tabla_w is not None:
+        w("Eventos de Westermo en el tramo de prueba, recalculados desde")
+        w("`events.txt` (%d eventos en total):" % total_w)
+        w("")
+        w("%-28s %8s" % ("tipo", "prueba"))
+        for t in sorted(prueba, key=lambda x: (prueba[x], x)):
+            w("%-28s %8d" % (t, prueba[t]))
+        w("")
+        w("Los tipos con 3 eventos en prueba son: %s." % ", ".join(con_tres))
+        w("")
+        w("**Correccion al caso citado.** El peor caso de Westermo no es 3 sino")
+        w("%d evento(s), en %s. El intervalo de +-0,55 que publican los"
+          % (n_west_min, tipo_min))
+        w("informes corresponde al tipo con 3, que no es el tipo mas pobre.")
+        w("")
+
+    casos.append(("Morris, DoS (prueba)", n_dos, "+-0,03 (error estandar)"))
+    casos.append(("Morris, MPCI (prueba)", n_mpci, "+-0,023 (IC 95 %)"))
+    casos.append(("ICS-Flow, escrituras bajo MITM (prueba)", n_ics,
+                  "+-0,137 (IC 95 %)"))
+    if n_west is not None:
+        casos.append(("Westermo, tipo con 3 eventos (prueba)", n_west,
+                      "+-0,55 (IC 95 %)"))
+    if n_west_min is not None and n_west_min != n_west:
+        casos.append(("Westermo, peor tipo: %s (prueba)" % tipo_min,
+                      n_west_min, "no publicado"))
+    casos.append(("ICS-Flow, eventos de MITM (prueba)", n_ics_ev,
+                  "+-0,438 (IC 95 %)"))
+
+    # ---- 9.1 que estadistico ----------------------------------------
+    w("## 9.1 Que estadistico corresponde, y por que")
+    w("")
+    w("**Se propone el intervalo de Wilson (score) al 95 % como el estadistico")
+    w("unico para las cuatro cifras.** Motivos:")
+    w("")
+    w("- La aproximacion normal (Wald), que es la que usan tres de las cuatro")
+    w("  cifras publicadas, **no sirve con n chico**. Con n = 3 y PD = 0,5 el")
+    w("  intervalo de Wald es [%.3f, %.3f], que se sale del [0, 1]: no es un"
+      % (wald(3)[2], wald(3)[3]))
+    w("  intervalo de una proporcion.")
+    w("- Wilson no se sale nunca de [0, 1], tiene mejor cobertura que Wald en")
+    w("  n chico y no se degrada en n grande, de modo que sirve para las cuatro")
+    w("  filas sin cambiar de criterio a mitad de tabla.")
+    w("- Se agrega Clopper-Pearson como control conservador. Es exacto en el")
+    w("  sentido de que su cobertura nunca baja del 95 %, a costa de ser mas")
+    w("  ancho. Si una conclusion se sostiene con Wilson y con Clopper-Pearson,")
+    w("  no depende del estadistico.")
+    w("")
+    w("El error estandar **no** es un intervalo y no se usa aca. Se lo deja en")
+    w("la tabla de 9.3 solo para mostrar el factor 1,96 que separa la fila de")
+    w("Morris/DoS de las otras tres.")
+    w("")
+    w("Con PD = 0,5 el intervalo de Wilson queda centrado en 0,5 y es simetrico,")
+    w("asi que el `+-` es legitimo. Fuera de 0,5 Wilson es asimetrico y hay que")
+    w("citar los dos extremos, no un `+-`.")
+    w("")
+
+    # ---- 9.2 el calculo ---------------------------------------------
+    w("## 9.2 Las cuatro cifras con el mismo estadistico")
+    w("")
+    w("Wilson al 95 %, con PD = 0,5 en las cuatro filas, de modo que son")
+    w("comparables entre si. La formula de Wilson no necesita que k sea entero")
+    w("--- solo entra por k(n-k)/n ---, asi que se evalua en k = 0,5 n y el")
+    w("intervalo queda centrado en 0,5 y simetrico. Clopper-Pearson si necesita")
+    w("k entero, y se trata en la columna correspondiente de 9.5.")
+    w("")
+    w("%-44s %6s %10s %22s %9s"
+      % ("caso", "n", "semiancho", "intervalo Wilson 95 %", "1/n"))
+    J["casos"] = []
+    for nombre, n, publicado in casos:
+        k_cont = P_PREMISA * n
+        c, i, s, semi = wilson(k_cont, n)
+        w("%-44s %6d %10.4f %22s %9.4f"
+          % (nombre, n, semi, "[%.4f, %.4f]" % (i, s), 1.0 / n))
+        wil = {"k_continuo": k_cont, "centro": c, "inferior": i,
+               "superior": s, "semiancho": semi}
+
+        se, semi_wald, inf_wald, sup_wald = wald(n)
+        peor_semi, peor_k = peor_wilson(n)
+
+        # Clopper-Pearson exige k entero. Si 0,5 n no lo es, se informan los
+        # dos enteros vecinos, que son los resultados realmente alcanzables.
+        ks, exacto = k_cercanos(n)
+        cp = []
+        for k in ks:
+            inf, sup = clopper_pearson(k, n)
+            cp.append({"k": k, "p_estimada": k / float(n), "inferior": inf,
+                       "superior": sup,
+                       "semiancho_equivalente": (sup - inf) / 2.0})
+        cp_semi = max(d["semiancho_equivalente"] for d in cp)
+
+        J["casos"].append({
+            "caso": nombre, "n": n, "publicado": publicado,
+            "wilson_95": wil,
+            "clopper_pearson_95": {"k_exacto_alcanzable": exacto,
+                                   "por_k": cp,
+                                   "semiancho_equivalente": cp_semi},
+            "wald": {"error_estandar": se, "semiancho_95": semi_wald,
+                     "inferior": inf_wald, "superior": sup_wald,
+                     "se_sale_de_0_1": bool(inf_wald < 0.0 or sup_wald > 1.0)},
+            "wilson_peor_caso": {"semiancho": peor_semi, "k": peor_k},
+            "granularidad_1_sobre_n": 1.0 / n})
+    w("")
+
+    # ---- 9.3 contra lo publicado ------------------------------------
+    w("## 9.3 Contra las cifras publicadas")
+    w("")
+    w("Las dos ultimas columnas muestran por que las cuatro no eran")
+    w("comparables: el error estandar y el semiancho de Wald difieren en el")
+    w("factor %.2f." % Z95)
+    w("")
+    w("%-44s %6s %12s %10s %10s %10s"
+      % ("caso", "n", "publicado", "err.est.", "Wald 95%", "Wilson 95%"))
+    for d in J["casos"]:
+        w("%-44s %6d %12s %10.4f %10.4f %10.4f"
+          % (d["caso"], d["n"], d["publicado"].split(" ")[0],
+             d["wald"]["error_estandar"], d["wald"]["semiancho_95"],
+             d["wilson_95"]["semiancho"]))
+    w("")
+    w("Lectura fila por fila:")
+    w("")
+    for d in J["casos"]:
+        if d["publicado"] == "no publicado":
+            continue
+        w("- **%s**, n = %d. Lo publicado, %s, reproduce"
+          % (d["caso"], d["n"], d["publicado"]))
+        if "error estandar" in d["publicado"]:
+            w("  el error estandar (%.4f), no un intervalo. Con el mismo"
+              % d["wald"]["error_estandar"])
+            w("  criterio que las otras tres filas la cifra es %.4f, y con"
+              % d["wald"]["semiancho_95"])
+            w("  Wilson %.4f." % d["wilson_95"]["semiancho"])
+        else:
+            w("  el semiancho de Wald (%.4f). Con Wilson es %.4f."
+              % (d["wald"]["semiancho_95"], d["wilson_95"]["semiancho"]))
+        if d["wald"]["se_sale_de_0_1"]:
+            w("  El intervalo de Wald es [%.3f, %.3f]: **se sale de [0, 1]**."
+              % (d["wald"]["inferior"], d["wald"]["superior"]))
+    w("")
+    tres = [d for d in J["casos"] if d["n"] == 3]
+    if tres:
+        d = tres[0]
+        w("Una nota sobre el +-0,55 de Westermo: no reproduce exactamente con")
+        w("ninguno de los tres estadisticos. Wald da %.4f, Wilson %.4f y"
+          % (d["wald"]["semiancho_95"], d["wilson_95"]["semiancho"]))
+        w("Clopper-Pearson %.4f. El %.4f de Wald es el mas cercano, de modo que"
+          % (d["clopper_pearson_95"]["semiancho_equivalente"],
+             d["wald"]["semiancho_95"]))
+        w("la cifra publicada parece un Wald redondeado hacia abajo.")
+        w("")
+
+    # ---- 9.4 la granularidad ----------------------------------------
+    w("## 9.4 El limite que el intervalo no muestra")
+    w("")
+    w("Con n chico el intervalo no es la unica limitacion: el estimador solo")
+    w("puede tomar n + 1 valores, espaciados 1/n. Conviene decirlo porque")
+    w("cambia la lectura del caso de Westermo.")
+    w("")
+    w("%-44s %6s %10s %11s  %s"
+      % ("caso", "n", "1/n", "PD = 0,5?", "valores alcanzables de PD"))
+    for d in J["casos"]:
+        n = d["n"]
+        alcanzable = "SI" if n % 2 == 0 else "NO"
+        if n <= 6:
+            vals = ", ".join("%.3f" % (k / float(n)) for k in range(n + 1))
+        else:
+            vals = "0, 1/%d, 2/%d, ... , 1" % (n, n)
+        w("%-44s %6d %10.4f %11s  %s" % (d["caso"], n, 1.0 / n, alcanzable,
+                                         vals))
+    w("")
+    w("**Con 3 eventos la PD solo puede valer 0; 0,333; 0,667 o 1.** El 0,5 que")
+    w("suponen los informes para calcular el +-0,55 no es un resultado posible")
+    w("del experimento. Citar un intervalo alrededor de un valor inalcanzable")
+    w("sugiere una precision que no existe: con n = 3 lo correcto es decir que")
+    w("la PD de ese tipo **no es estimable**, no acotarla.")
+    w("")
+    w("Cota que no supone ningun valor de PD. Es el semiancho de Wilson mas")
+    w("ancho entre todos los k posibles, de modo que vale cualquiera sea el")
+    w("resultado:")
+    w("")
+    w("%-44s %6s %12s %10s" % ("caso", "n", "peor k", "semiancho"))
+    for d in J["casos"]:
+        w("%-44s %6d %12d %10.4f"
+          % (d["caso"], d["n"], d["wilson_peor_caso"]["k"],
+             d["wilson_peor_caso"]["semiancho"]))
+    w("")
+
+    # ---- 9.5 tabla citable ------------------------------------------
+    w("## 9.5 Tabla citable")
+    w("")
+    w("Las cuatro cifras con un solo estadistico --- Wilson al 95 %, PD = 0,5")
+    w("--- y el control conservador al lado. Es la tabla que hay que citar en")
+    w("lugar de convertir ningun numero a mano.")
+    w("")
+    w("%-44s %6s %12s %14s %10s"
+      % ("caso", "n", "Wilson 95%", "Clopper-P. 95%", "k entero"))
+    for d in J["casos"]:
+        w("%-44s %6d %11.3f %13.3f %10s"
+          % (d["caso"], d["n"], d["wilson_95"]["semiancho"],
+             d["clopper_pearson_95"]["semiancho_equivalente"],
+             "si" if d["clopper_pearson_95"]["k_exacto_alcanzable"] else "no"))
+    w("")
+    w("Los semianchos de Clopper-Pearson son equivalentes: la mitad del ancho")
+    w("del intervalo exacto, que en general es asimetrico. Cuando `k entero` es")
+    w("`no`, PD = 0,5 no es alcanzable con ese n y el valor de la columna es el")
+    w("mas ancho de los dos k vecinos. Los extremos de cada intervalo, k por k,")
+    w("estan en `salidas/p9_intervalos_pd.json`.")
+    w("")
+    w("Conclusion: el orden de magnitud de las tres filas con n >= 51 no cambia")
+    w("al unificar el estadistico --- Morris sigue sosteniendo el compromiso y")
+    w("ICS-Flow sigue siendo grueso pero utilizable --- pero la fila de Morris")
+    w("DoS pasa de +-0,03 a +-%.3f, que es la cifra comparable con las otras,"
+      % J["casos"][0]["wilson_95"]["semiancho"])
+    w("y la de Westermo no deberia presentarse como un intervalo.")
+    w("")
+    w("Reproducible con:")
+    w("  eda/.venv/bin/python -I eda/scripts/09_intervalos_pd.py")
+    w("")
+
+    J["estadistico"] = {
+        "elegido": "Wilson score, 95 %",
+        "control": "Clopper-Pearson, 95 %",
+        "z": Z95, "alfa": ALFA, "pd_premisa": P_PREMISA,
+        "motivo": ("Wald no sirve con n chico: con n = 3 su intervalo se sale "
+                   "de [0, 1]. Wilson no se sale nunca, tiene mejor cobertura "
+                   "en n chico y no se degrada en n grande.")}
+
+    comun.escribir("p9_intervalos_pd.txt", "\n".join(L))
+    with open(os.path.join(comun.SALIDAS, "p9_intervalos_pd.json"), "w") as fh:
+        json.dump(J, fh, indent=1, ensure_ascii=False)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

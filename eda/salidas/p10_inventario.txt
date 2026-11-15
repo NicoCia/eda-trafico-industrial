@@ -1,0 +1,1508 @@
+# Inventario de las caracteristicas publicadas por cada conjunto
+
+Generado por `eda/scripts/10_inventario_caracteristicas.py`.
+
+Responde la pregunta por las caracteristicas publicadas de
+cada conjunto. Para cada archivo publicado se enumera campo por campo el
+nombre, el tipo medido, la unidad **con su procedencia**, el nivel de
+agregacion, la cobertura, la cardinalidad y el rango.
+
+Codigos de la columna `proc` (procedencia de la unidad):
+
+  ID   la fija una identidad numerica verificada en este analisis
+  ID*  se deduce de una identidad verificada sobre un campo hermano
+  PDF  esta declarada en un documento publicado del conjunto
+  DOC  esta declarada en la pagina del conjunto, transcripta en el repo
+  RNG  **no esta declarada en ninguna parte**: solo hay rango medido
+  CAT  campo categorico o de identidad, sin unidad
+
+Particiones: solo tramo de entrenamiento, con los cortes de
+`eda/INSTRUCCIONES.md`. De los archivos de prueba se lee solo la
+cabecera.
+
+---
+
+## A. Westermo
+
+Lo que publica: 6 PCAP y 6 CSV de flujos, en dos variantes (`reduced` y
+`extended`) por cada uno de los tres puntos de captura, mas
+`data/events.txt` con el registro de eventos.
+
+### A.1 Las seis cabeceras de flujos
+
+Campos por archivo y coincidencia con `reduced/bottom`:
+
+archivo                  campos     identica
+reduced/bottom               64           SI
+reduced/left                 64           SI
+reduced/right                64           SI
+extended/bottom              64           SI
+extended/left                64           SI
+extended/right               64           SI
+
+Los seis archivos publican **64 campos** con los mismos nombres y en el
+mismo orden. El `README` del conjunto declara 54 columnas (50
+caracteristicas y 4 etiquetas); el archivo trae 64.
+
+### A.2 Inventario de los 64 campos de flujo
+
+Medido sobre datasets/westermo/data/reduced/flows/output_bottom.csv, tramo de entrenamiento
+(`startOffset` < 3265 s): 21080 flujos de los 35404 del archivo.
+
+campo                      tipo    unidad    proc cobert. distintos rango medido            
+sAddress                   texto   ---       CAT   100.0%        27 27 valores              
+rAddress                   texto   ---       CAT   100.0%        12 12 valores              
+sMACs                      texto   ---       CAT   100.0%        18 18 valores              
+rMACs                      texto   ---       CAT   100.0%        12 12 valores              
+sIPs                       texto   ---       CAT    89.9%        15 15 valores              
+rIPs                       texto   ---       CAT    89.9%         7 7 valores               
+protocol                   texto   ---       CAT   100.0%         5 5 valores               
+startDate                  texto   ---       ID    100.0%    >=2000 21079 valores           
+endDate                    texto   ---       ID    100.0%    >=2000 21080 valores           
+start                      real    s         ID    100.0%    >=2000 1.678e+09 .. 1.678e+09  
+end                        real    s         ID    100.0%    >=2000 1.678e+09 .. 1.678e+09  
+startOffset                real    s         ID    100.0%    >=2000 0 .. 3265               
+endOffset                  real    s         ID    100.0%    >=2000 4e-06 .. 3265           
+duration                   real    s         ID    100.0%    >=2000 1e-06 .. 0.5            
+sPackets                   entero  paquete   ID*   100.0%        39 0 .. 68                 
+rPackets                   entero  paquete   ID*   100.0%        97 0 .. 181                
+sBytesSum                  entero  byte      ID    100.0%       159 0 .. 8436               
+rBytesSum                  entero  byte      ID    100.0%       340 0 .. 7960               
+sBytesMax                  entero  byte      ID*    99.5%        17 36 .. 1500              
+rBytesMax                  entero  byte      ID*    84.6%        13 36 .. 1412              
+sBytesMin                  entero  byte      ID*    99.5%        12 36 .. 328               
+rBytesMin                  entero  byte      ID*    84.6%         8 36 .. 233               
+sBytesAvg                  real    byte      ID     99.5%       117 36 .. 421.8             
+rBytesAvg                  real    byte      ID     84.6%       234 36 .. 294.8             
+sLoad                      real    bit/s     ID    100.0%    >=2000 0 .. 7.872e+09          
+rLoad                      real    bit/s     ID    100.0%    >=2000 0 .. 4.037e+09          
+sPayloadSum                entero  byte      ID    100.0%        63 0 .. 7396               
+rPayloadSum                entero  byte      ID    100.0%       108 0 .. 3688               
+sPayloadMax                entero  byte      ID*    99.5%        12 0 .. 1448               
+rPayloadMax                entero  byte      ID*    84.6%        11 0 .. 1360               
+sPayloadMin                entero  byte      ID*    99.5%         7 0 .. 300                
+rPayloadMin                entero  byte      ID*    84.6%         5 0 .. 205                
+sPayloadAvg                real    byte      ID     99.5%        90 0 .. 369.8              
+rPayloadAvg                real    byte      ID     84.6%       184 0 .. 241.5              
+sInterPacketAvg            real    s         ID     94.9%    >=2000 0 .. 0.4985             
+rInterPacketAvg            real    s         ID     84.5%    >=2000 0 .. 0.1665             
+sttl                       entero  salto     RNG    83.8%         1 64 .. 64                
+rttl                       real    salto     RNG    84.2%       140 41 .. 64                
+sAckRate                   real    fraccion  ID     83.8%        36 0.667 .. 1              
+rAckRate                   real    fraccion  ID     84.2%        52 0 .. 1                  
+sUrgRate                   entero  fraccion  ID     83.8%         1 0 .. 0                  
+rUrgRate                   entero  fraccion  ID     84.2%         1 0 .. 0                  
+sFinRate                   real    fraccion  ID     83.8%        38 0 .. 0.5                
+rFinRate                   real    fraccion  ID     84.2%        27 0 .. 0.5                
+sPshRate                   real    fraccion  ID     83.8%        55 0 .. 1                  
+rPshRate                   real    fraccion  ID     84.2%       104 0 .. 1                  
+sSynRate                   real    fraccion  ID     83.8%        40 0 .. 1                  
+rSynRate                   real    fraccion  ID     84.2%        88 0 .. 1                  
+sRstRate                   real    fraccion  ID     83.8%        34 0 .. 0.4                
+rRstRate                   real    fraccion  ID     84.2%        38 0 .. 0.5                
+sWinTCP                    real    ---       RNG    83.8%        68 502.7 .. 1.46e+04       
+rWinTCP                    real    ---       RNG    84.2%       110 500.5 .. 6.424e+04      
+sFragmentRate              entero  fraccion  ID     89.5%         1 0 .. 0                  
+rFragmentRate              entero  fraccion  ID     84.2%         1 0 .. 0                  
+sAckDelayMax               real    s         ID     83.4%        71 0 .. 0.413              
+rAckDelayMax               real    s         ID     83.8%       183 0 .. 0.499              
+sAckDelayMin               real    s         ID     83.4%         6 0 .. 0.039              
+rAckDelayMin               real    s         ID     83.8%        43 0 .. 0.146              
+sAckDelayAvg               real    s         ID     83.4%      1560 0.000272 .. 0.09055     
+rAckDelayAvg               real    s         ID     83.8%    >=2000 0.000134 .. 0.2499      
+IT_B_Label                 entero  ---       CAT   100.0%         2 0 .. 1                  
+IT_M_Label                 texto   ---       CAT   100.0%         8 8 valores               
+NST_B_Label                entero  ---       CAT   100.0%         2 0 .. 1                  
+NST_M_Label                texto   ---       CAT   100.0%         8 8 valores               
+
+Nivel de agregacion de todos los campos de este archivo: flujo: una conversacion dentro de una ventana de duracion acotada
+
+### A.3 La ventana de flujo, medida
+
+                                        min      mediana          max
+duration (s)                       0.000001     0.472438     0.500000
+
+Flujos con duration > 0,5 s: **0 de 21080**. La ventana de agregacion es
+de **0,5 s como tope**: un 'flujo' de este conjunto no es una conexion
+TCP completa sino el tramo de una conversacion dentro de medio segundo.
+
+Reparto por familia de protocolo:
+
+  IPV4-TCP        17750  (84.2 % de 21080)
+  ARP              1804  (8.6 % de 21080)
+  IPV4-2           1009  (4.8 % de 21080)
+  LLDP              324  (1.5 % de 21080)
+  IPV4-UDP          193  (0.9 % de 21080)
+
+### A.4 Identidades que fijan las unidades
+
+identidad                                       se cumple   evaluadas fraccion
+start == epoch(startDate)                           21080       21080  100.00%
+end == epoch(endDate)                               21080       21080  100.00%
+duration == end - start                             21080       21080  100.00%
+startOffset == start - min(start)                   21080       21080  100.00%
+endOffset == end - min(start)                       21080       21080  100.00%
+sBytesAvg == sBytesSum / sPackets                   20974       20974  100.00%
+rBytesAvg == rBytesSum / rPackets                   17834       17834  100.00%
+sPayloadAvg == sPayloadSum / sPackets               20974       20974  100.00%
+rPayloadAvg == rPayloadSum / rPackets               17834       17834  100.00%
+sLoad == 8 * sBytesSum / duration                   20961       20974   99.94%
+rLoad == 8 * rBytesSum / duration                   17833       17834   99.99%
+sBytesMin <= sBytesAvg <= sBytesMax                 20974       20974  100.00%
+sPayloadMin <= sPayloadAvg <= sPayloadMax           20974       20974  100.00%
+sAckDelayMin <= sAckDelayAvg <= sAckDelayMax        17589       17589  100.00%
+sAckDelayMax <= duration                            17589       17589  100.00%
+las 14 columnas *Rate caen en [0, 1]                21080       21080  100.00%
+sInterPacketAvg ~ duration / (sPackets - 1)         12725       20001   63.62%
+
+Notas:
+  - duration == end - start: tolerancia 2e-6 s: el archivo guarda 6 decimales
+  - sBytesAvg == sBytesSum / sPackets: tolerancia 1e-3: el archivo redondea a 3 decimales
+  - sLoad == 8 * sBytesSum / duration: tolerancia relativa 5 %: `duration` se publica con 6 decimales y en los flujos de pocos microsegundos esa cuantizacion domina el cociente. El factor 8 es lo que fija la unidad en bit/s y no en byte/s
+  - sAckDelayMin <= sAckDelayAvg <= sAckDelayMax: holgura de 5e-4 s: `sAckDelayMin` y `sAckDelayMax` se publican con 3 decimales y `sAckDelayAvg` con 6, de modo que sin holgura el promedio supera al maximo por redondeo
+  - sAckDelayMax <= duration: fija la unidad de los retardos de ACK en segundos
+  - las 14 columnas *Rate caen en [0, 1]: fija que son fracciones de paquetes y no recuentos
+  - sInterPacketAvg ~ duration / (sPackets - 1): tolerancia relativa 2 %; la ventana de flujo recorta el ultimo intervalo
+
+### A.5 `data/events.txt`
+
+**No es un CSV: es un registro de texto libre**, 192 lineas no vacias, sin
+cabecera y sin esquema fijo. Primeras tres lineas:
+
+  [1678444174.081 -- 2023-03-10 10:29:34 -- 0.00] [INFO] data collection starts
+  [1678444183.321 -- 2023-03-10 10:29:43 -- 9.24] [INFO] Run netcat
+  [1678444199.621 -- 2023-03-10 10:29:59 -- 25.54] [INFO] Run netcat
+
+Nivel: evento: un episodio con inicio y fin
+
+Los campos que se pueden extraer de la cabecera de cada linea, que
+respeta el patron `[epoch -- fecha y hora -- offset] [NIVEL] mensaje` en
+4 de las 192 lineas:
+
+campo (sin nombre)         tipo    unidad    proc contenido
+1  epoch                   real    s         ID   epoch Unix del evento
+2  fecha y hora            texto   ---       ID   la misma marca, legible
+3  offset                  real    s         ID   segundos desde el inicio de la captura
+4  nivel                   texto   ---       CAT  {'INFO': 4}
+5  mensaje                 texto   ---       CAT  texto libre; los eventos llevan START o END
+
+Lineas con START: 0. Lineas con END: 0. El recuento de eventos que sale
+de emparejarlos esta en `eda/salidas/p3_p4_westermo.txt` (94 eventos).
+
+Que el inventario de eventos sea texto libre y no una tabla importa para
+la integracion: **la etiqueta por evento de Westermo hay que parsearla**,
+mientras que ICS-Flow la publica como CSV con cabecera.
+
+### A.6 Los PCAP
+
+Los 6 PCAP son el nivel de paquete y **no publican ningun campo**: son
+tramas Ethernet crudas. Toda caracteristica a ese nivel hay que
+calcularla. Tamanos en disco:
+
+  reduced/bottom.pcap         137.9 MB
+  reduced/left.pcap            28.7 MB
+  reduced/right.pcap            3.4 MB
+  extended/bottom.pcap        434.7 MB
+  extended/left.pcap           28.7 MB
+  extended/right.pcap           3.4 MB
+
+---
+
+## B. ICS-Flow
+
+Lo que publica: `Dataset.csv` (flujos etiquetados), `snapshots_PLC1.csv`
+y `snapshots_PLC2.csv` (variables de proceso), `attacker_summary.csv` y
+`attacker_machine_summary.csv` (inventario de eventos) y `traffic.pcap`.
+
+### B.1 `Dataset.csv`: el esquema es el de Westermo
+
+La cabecera de `Dataset.csv` tiene **64 campos** y es **identica a la de
+los seis CSV de Westermo**, nombre por nombre y en el mismo orden:
+coinciden 64 de 64. Es el hecho que mas pesa en la pregunta de
+integracion y se trata aparte en `11_integracion_esquemas.py`.
+
+Medido sobre el tramo de entrenamiento (`start` < 1663324709.058, el 60 % del
+tramo segun la misma regla de `06_icsflow_escrituras.py`): 25620 flujos de
+los 45718 del archivo.
+
+campo                      tipo    unidad    proc cobert. distintos rango medido            
+sAddress                   texto   ---       CAT   100.0%        14 14 valores              
+rAddress                   texto   ---       CAT   100.0%        11 11 valores              
+sMACs                      texto   ---       CAT   100.0%        10 10 valores              
+rMACs                      texto   ---       CAT   100.0%        12 12 valores              
+sIPs                       texto   ---       CAT    97.5%         7 7 valores               
+rIPs                       texto   ---       CAT    97.5%         6 6 valores               
+protocol                   texto   ---       CAT   100.0%         5 5 valores               
+startDate                  texto   ---       ID    100.0%    >=2000 25620 valores           
+endDate                    texto   ---       ID    100.0%    >=2000 25617 valores           
+start                      real    s         ID    100.0%    >=2000 1.663e+09 .. 1.663e+09  
+end                        real    s         ID    100.0%    >=2000 1.663e+09 .. 1.663e+09  
+startOffset                real    s         ID    100.0%    >=2000 0 .. 5030               
+endOffset                  real    s         ID    100.0%    >=2000 0.5 .. 5030             
+duration                   real    s         ID    100.0%    >=2000 1e-06 .. 0.5            
+sPackets                   entero  paquete   ID*   100.0%       605 0 .. 8287               
+rPackets                   entero  paquete   ID*   100.0%       618 0 .. 8287               
+sBytesSum                  entero  byte      ID    100.0%       779 0 .. 364584             
+rBytesSum                  entero  byte      ID    100.0%       918 0 .. 364628             
+sBytesMax                  entero  byte      ID*    98.9%         8 40 .. 107               
+rBytesMax                  entero  byte      ID*    99.0%        11 40 .. 97                
+sBytesMin                  entero  byte      ID*    98.9%         9 40 .. 107               
+rBytesMin                  entero  byte      ID*    99.0%        10 40 .. 97                
+sBytesAvg                  real    byte      ID     98.9%       168 40 .. 107               
+rBytesAvg                  real    byte      ID     99.0%       371 40 .. 97                
+sLoad                      real    bit/s     ID    100.0%    >=2000 0 .. 8.56e+08           
+rLoad                      real    bit/s     ID    100.0%    >=2000 0 .. 7.76e+08           
+sPayloadSum                entero  byte      ID    100.0%       286 0 .. 33072              
+rPayloadSum                entero  byte      ID    100.0%       293 0 .. 30540              
+sPayloadMax                entero  byte      ID*    98.9%         5 0 .. 71                 
+rPayloadMax                entero  byte      ID*    99.0%         8 0 .. 69                 
+sPayloadMin                entero  byte      ID*    98.9%         5 0 .. 71                 
+rPayloadMin                entero  byte      ID*    99.0%         7 0 .. 69                 
+sPayloadAvg                real    byte      ID     98.9%       158 0 .. 71                 
+rPayloadAvg                real    byte      ID     99.0%       357 0 .. 69                 
+sInterPacketAvg            real    s         ID     95.5%    >=2000 1.001e-05 .. 0.5        
+rInterPacketAvg            real    s         ID     97.9%    >=2000 9.537e-07 .. 0.4999     
+sttl                       real    salto     RNG    97.0%        65 47.7 .. 64              
+rttl                       real    salto     RNG    97.1%       262 47.71 .. 64             
+sAckRate                   entero  fraccion  ID     97.0%         2 0 .. 1                  
+rAckRate                   real    fraccion  ID     97.1%        21 0 .. 1                  
+sUrgRate                   entero  fraccion  ID     97.0%         1 0 .. 0                  
+rUrgRate                   entero  fraccion  ID     97.1%         1 0 .. 0                  
+sFinRate                   real    fraccion  ID     97.0%        12 0 .. 1                  
+rFinRate                   real    fraccion  ID     97.1%        13 0 .. 0.5                
+sPshRate                   real    fraccion  ID     97.0%        89 0 .. 1                  
+rPshRate                   real    fraccion  ID     97.1%       169 0 .. 1                  
+sSynRate                   real    fraccion  ID     97.0%        19 0 .. 1                  
+rSynRate                   real    fraccion  ID     97.1%        18 0 .. 1                  
+sRstRate                   entero  fraccion  ID     97.0%         2 0 .. 1                  
+rRstRate                   real    fraccion  ID     97.1%        15 0 .. 1                  
+sWinTCP                    real    ---       RNG    97.0%        69 0 .. 2.206e+04          
+rWinTCP                    real    ---       RNG    97.1%        66 0 .. 1.644e+04          
+sFragmentRate              entero  fraccion  ID     97.0%         1 0 .. 0                  
+rFragmentRate              entero  fraccion  ID     97.4%         1 0 .. 0                  
+sAckDelayMax               real    s         ID     96.4%       260 0 .. 0.487              
+rAckDelayMax               real    s         ID     95.3%       366 0 .. 0.5                
+sAckDelayMin               real    s         ID     96.4%        38 0 .. 0.327              
+rAckDelayMin               real    s         ID     95.3%        39 0 .. 0.325              
+sAckDelayAvg               real    s         ID     96.4%    >=2000 3e-06 .. 0.3299         
+rAckDelayAvg               real    s         ID     95.3%    >=2000 5e-06 .. 0.3759         
+IT_B_Label                 entero  ---       CAT   100.0%         2 0 .. 1                  
+IT_M_Label                 texto   ---       CAT   100.0%         6 6 valores               
+NST_B_Label                entero  ---       CAT   100.0%         2 0 .. 1                  
+NST_M_Label                texto   ---       CAT   100.0%         6 6 valores               
+
+Nivel de agregacion de todos los campos de este archivo: flujo: una conversacion dentro de una ventana de duracion acotada
+
+### B.2 La ventana de flujo, medida
+
+duration (s): min/med/max          0.000001     0.416918     0.500000
+Flujos con duration > 0,5 s: **0 de 25620**. **La misma ventana de 0,5 s**
+que Westermo.
+
+Reparto por familia de protocolo:
+
+  IPV4-TCP        24878  (97.1 % de 25620)
+  ARP               643  (2.5 % de 25620)
+  IPV4-ICMP          81  (0.3 % de 25620)
+  IPV4-UDP            9  (0.0 % de 25620)
+  IPV6                9  (0.0 % de 25620)
+
+### B.3 Identidades que fijan las unidades
+
+identidad                                       se cumple   evaluadas fraccion
+start == epoch(startDate)                           25620       25620  100.00%
+end == epoch(endDate)                               25620       25620  100.00%
+duration == end - start                             25620       25620  100.00%
+startOffset == start - min(start)                   25620       25620  100.00%
+endOffset == end - min(start)                       25620       25620  100.00%
+sBytesAvg == sBytesSum / sPackets                   25332       25332  100.00%
+rBytesAvg == rBytesSum / rPackets                   25356       25356  100.00%
+sPayloadAvg == sPayloadSum / sPackets               25332       25332  100.00%
+rPayloadAvg == rPayloadSum / rPackets               25356       25356  100.00%
+sLoad == 8 * sBytesSum / duration                   25332       25332  100.00%
+rLoad == 8 * rBytesSum / duration                   25356       25356  100.00%
+sBytesMin <= sBytesAvg <= sBytesMax                 25332       25332  100.00%
+sPayloadMin <= sPayloadAvg <= sPayloadMax           25332       25332  100.00%
+sAckDelayMin <= sAckDelayAvg <= sAckDelayMax        24693       24693  100.00%
+sAckDelayMax <= duration                            24529       24693   99.34%
+las 14 columnas *Rate caen en [0, 1]                25620       25620  100.00%
+sInterPacketAvg ~ duration / (sPackets - 1)         18410       24463   75.26%
+
+Notas:
+  - duration == end - start: tolerancia 2e-6 s: el archivo guarda 6 decimales
+  - sBytesAvg == sBytesSum / sPackets: tolerancia 1e-3: el archivo redondea a 3 decimales
+  - sLoad == 8 * sBytesSum / duration: tolerancia relativa 5 %: `duration` se publica con 6 decimales y en los flujos de pocos microsegundos esa cuantizacion domina el cociente. El factor 8 es lo que fija la unidad en bit/s y no en byte/s
+  - sAckDelayMin <= sAckDelayAvg <= sAckDelayMax: holgura de 5e-4 s: `sAckDelayMin` y `sAckDelayMax` se publican con 3 decimales y `sAckDelayAvg` con 6, de modo que sin holgura el promedio supera al maximo por redondeo
+  - sAckDelayMax <= duration: fija la unidad de los retardos de ACK en segundos
+  - las 14 columnas *Rate caen en [0, 1]: fija que son fracciones de paquetes y no recuentos
+  - sInterPacketAvg ~ duration / (sPackets - 1): tolerancia relativa 2 %; la ventana de flujo recorta el ultimo intervalo
+
+### B.4 Los dos `snapshots_PLC*.csv`
+
+**Una trampa de formato que hay que resolver antes de usarlos.** La
+columna `time` de estos archivos es hora local **sin marca de zona**,
+mientras que la columna `start` de `Dataset.csv` y las marcas del PCAP
+son epoch Unix. Cortar los snapshots por `time` leido como UTC deja el
+tramo de entrenamiento vacio.
+
+Lo que resuelve el problema es `current_loop`, que **no es un contador de
+ciclo sino el epoch en milisegundos**. Se verifica por identidad:
+
+archivo                                   columnas comparadas      desfase (s)
+snapshots_PLC1.csv                   time - current_loop/1000         7200.030
+snapshots_PLC2.csv                   time - current_loop/1000         7200.020
+Dataset.csv                                 startDate - start         7200.000
+
+El desfase entre `time` y `current_loop` es de **7200 s** en los dos
+snapshots, y **el mismo 7200 s** separa `startDate` de `start` en
+`Dataset.csv`. Son dos horas: la zona horaria del banco. De modo que
+`current_loop / 1000` es el epoch, es la unica columna que alinea los
+snapshots con los flujos y con la captura, y es por esa columna que se
+corta aqui el tramo de entrenamiento.
+
+#### snapshots_PLC1.csv
+
+39302 filas, 12 campos. Rango de `current_loop`: 1663319677.600 a 1663328096.600
+(hora local 2022-09-16 11:14:37.646518 a 2022-09-16 13:34:56.641295).
+Intervalo entre muestras: mediana 0.2000 s, p05 0.2000 s, p95 0.2000 s.
+Tramo de entrenamiento (`current_loop`/1000 < 1663324709.1): 24452 filas de 39302.
+
+campo                      tipo    unidad    proc cobert. distintos rango medido            
+time                       texto   ---       ID    100.0%    >=2000 24452 valores           
+current_loop               entero  ms        ID    100.0%    >=2000 1.663e+12 .. 1.663e+12  
+loop_latency               entero  ---       RNG   100.0%       166 0 .. 3320               
+logic_execution_time       entero  ---       RNG   100.0%       197 0 .. 3517               
+tank_input_valve_status(0) entero  ---       RNG   100.0%         2 0 .. 1                  
+tank_input_valve_mode(1)   entero  ---       RNG   100.0%         1 3 .. 3                  
+tank_level_value(2)        real    ---       RNG   100.0%    >=2000 1.897 .. 8.823          
+tank_level_min(3)          real    ---       RNG   100.0%       143 1.003 .. 4.667          
+tank_level_max(4)          real    ---       RNG   100.0%       109 5.526 .. 9.571          
+tank_output_valve_status(5 entero  ---       RNG   100.0%         2 0 .. 1                  
+tank_output_valve_mode(6)  entero  ---       RNG   100.0%         1 3 .. 3                  
+tank_output_flow_value(7)  real    ---       RNG   100.0%         2 0 .. 0.0001             
+
+Nivel de agregacion de todos los campos de este archivo: registro de proceso: una muestra de todas las variables a la vez
+
+#### snapshots_PLC2.csv
+
+40633 filas, 9 campos. Rango de `current_loop`: 1663319677.600 a 1663328096.600
+(hora local 2022-09-16 11:14:37.618725 a 2022-09-16 13:34:56.622369).
+Intervalo entre muestras: mediana 0.2000 s, p05 0.2000 s, p95 0.2000 s.
+Tramo de entrenamiento (`current_loop`/1000 < 1663324709.1): 24737 filas de 40633.
+
+campo                      tipo    unidad    proc cobert. distintos rango medido            
+time                       texto   ---       ID    100.0%    >=2000 24737 valores           
+current_loop               entero  ms        ID    100.0%    >=2000 1.663e+12 .. 1.663e+12  
+loop_latency               entero  ---       RNG   100.0%       258 0 .. 1754               
+logic_execution_time       entero  ---       RNG   100.0%       291 0 .. 1950               
+conveyor_belt_engine_statu entero  ---       RNG   100.0%         2 0 .. 1                  
+conveyor_belt_engine_mode( entero  ---       RNG   100.0%         1 3 .. 3                  
+bottle_level_value(10)     real    ---       RNG   100.0%       149 0 .. 2                  
+bottle_level_max(11)       real    ---       RNG   100.0%       148 1.004 .. 1.887          
+bottle_distance_to_filler_ real    ---       RNG   100.0%        40 0 .. 19.5               
+
+Nivel de agregacion de todos los campos de este archivo: registro de proceso: una muestra de todas las variables a la vez
+
+**Las unidades de las variables de proceso no estan declaradas en
+ninguna parte**: ni en la cabecera, ni en un archivo del conjunto. Lo
+unico que se sabe de ellas es el rango medido de la tabla y la
+correspondencia con los registros Modbus del parrafo siguiente. Es la
+diferencia con HAI, que publica un PDF con la unidad de cada punto.
+
+El numero entre parentesis del nombre de cada variable es el **indice de
+registro Modbus dividido por dos**: la direccion 6 corresponde a
+`tank_level_min(3)`. Esa correspondencia esta medida en la seccion 4 de
+INFORME.md y es lo que permite ligar una escritura de la captura con
+la variable de proceso que modifica.
+
+### B.5 El inventario de eventos
+
+#### attacker_summary.csv --- 0 filas, 8 campos
+
+**Esta vacio: trae la cabecera y ninguna fila** (80 bytes en
+disco). El inventario de eventos utilizable es el otro archivo.
+
+campo                      tipo    unidad    proc cobert. distintos rango medido            
+attack                     texto   ---       CAT     nan%         0 0 valores               
+startStamp                 texto   s         RNG     nan%         0 0 valores               
+endStamp                   texto   s         RNG     nan%         0 0 valores               
+startTime                  texto   ---       CAT     nan%         0 0 valores               
+endTime                    texto   ---       CAT     nan%         0 0 valores               
+attackerMAC                texto   ---       CAT     nan%         0 0 valores               
+attackerIP                 texto   ---       CAT     nan%         0 0 valores               
+description                texto   ---       CAT     nan%         0 0 valores               
+
+Nivel de agregacion de todos los campos de este archivo: evento: un episodio con inicio y fin
+
+Tipos de evento: 
+
+#### attacker_machine_summary.csv --- 74 filas, 8 campos
+
+campo                      tipo    unidad    proc cobert. distintos rango medido            
+attack                     texto   ---       CAT   100.0%         5 5 valores               
+startStamp                 real    s         RNG   100.0%        74 1.663e+09 .. 1.663e+09  
+endStamp                   real    s         RNG   100.0%        74 1.663e+09 .. 1.663e+09  
+startTime                  texto   ---       CAT   100.0%        74 74 valores              
+endTime                    texto   ---       CAT   100.0%        74 74 valores              
+attackerMAC                texto   ---       CAT   100.0%         1 1 valores               
+attackerIP                 texto   ---       CAT   100.0%         1 1 valores               
+description                texto   ---       CAT   100.0%         5 5 valores               
+
+Nivel de agregacion de todos los campos de este archivo: evento: un episodio con inicio y fin
+
+Tipos de evento: ip-scan (24), port-scan (18), mitm (16), replay (8), ddos (8)
+
+### B.6 `traffic.pcap`
+
+Nivel de paquete, 1971.6 MB en disco. No publica campos: hay que
+calcularlos. La seccion 4 de INFORME.md documenta lo que se
+recupera de su carga util Modbus.
+
+---
+
+## C. Morris / Turnipseed
+
+Lo que publica: **un solo archivo ARFF** con las caracteristicas ya
+extraidas. No hay captura: el archivo con el hexadecimal de las tramas
+no esta archivado (ver `datasets/morris-turnipseed/PROCEDENCIA.md`).
+
+### C.1 Inventario de los 20 atributos
+
+Medido sobre datasets/morris-turnipseed/IanArffDataset.arff, tramo de entrenamiento
+(`time` < 1418847578): 163823 filas de las 274628 del archivo.
+
+campo                      tipo    unidad    proc cobert. distintos rango medido            
+address                    entero  ---       DOC   100.0%        20 0 .. 19                 
+function                   entero  ---       DOC   100.0%        28 0 .. 171                
+length                     entero  byte      DOC   100.0%         6 10 .. 90                
+setpoint                   real    ---       DOC    23.4%       475 0 .. 49                 
+gain                       entero  ---       DOC    23.4%        16 0 .. 119                
+reset rate                 real    ---       DOC    23.4%      1280 0.001616 .. 0.9985      
+deadband                   real    ---       DOC    23.4%       428 0.002027 .. 0.9986      
+cycle time                 real    ---       DOC    23.4%       144 0 .. 4.434              
+rate                       real    ---       DOC    23.4%       528 0 .. 0.999              
+system mode                entero  ---       DOC    23.4%         3 0 .. 2                  
+control scheme             entero  ---       DOC    23.4%         2 0 .. 1                  
+pump                       entero  ---       DOC    23.4%         2 0 .. 1                  
+solenoid                   entero  ---       DOC    23.4%         2 0 .. 1                  
+pressure measurement       real    ---       DOC    25.1%    >=2000 -0 .. 3.36e+38          
+crc rate                   entero  ---       RNG   100.0%       772 21 .. 65492             
+command response           entero  ---       DOC   100.0%         2 0 .. 1                  
+time                       real    s         DOC   100.0%    >=2000 1.419e+09 .. 1.419e+09  
+binary result              entero  ---       CAT   100.0%         2 0 .. 1                  
+categorized result         entero  ---       CAT   100.0%         8 0 .. 7                  
+specific result            entero  ---       CAT   100.0%        36 0 .. 35                 
+
+Nivel de agregacion de todos los campos de este archivo: transaccion: una ADU de protocolo (un comando o una respuesta)
+
+Tipo declarado en el propio ARFF (`@attribute`), que no es lo mismo que
+el tipo medido:
+
+atributo                   declarado en el ARFF               medido  
+address                    real                               entero  
+function                   real                               entero  
+length                     real                               entero  
+setpoint                   real                               real    
+gain                       real                               entero  
+reset rate                 real                               real    
+deadband                   real                               real    
+cycle time                 real                               real    
+rate                       real                               real    
+system mode                real                               entero  
+control scheme             real                               entero  
+pump                       real                               entero  
+solenoid                   real                               entero  
+pressure measurement       real                               real    
+crc rate                   real                               entero  
+command response           {0,1}                              entero  
+time                       real                               real    
+binary result              {'0','1'}                          entero  
+categorized result         {'0','1','2','3','4','5','6','7'}  entero  
+specific result            {'0','1','2','3','4','5','6','7',' entero  
+
+Los 15 atributos que **no** son etiqueta estan declarados `real`,
+incluidos los que son categoricos (`function`, `system mode`,
+`control scheme`, `pump`, `solenoid`): el ARFF no distingue. El tipo
+medido tampoco lo resuelve, porque un codigo de funcion es un entero.
+
+### C.2 Granularidad y nivel de agregacion
+
+Nivel: transaccion: una ADU de protocolo (un comando o una respuesta)
+Una fila es un comando **o** una respuesta, no el par: el atributo
+`command response` dice cual (1 = comando, 0 = respuesta, verificado en
+la seccion 1.4 de INFORME.md).
+
+`time` es epoch Unix y **tiene 6 decimales**, es decir resolucion de
+microsegundo, no de segundo entero. Reparto de decimales sobre el
+archivo completo: 6 decimales en 274628 filas.
+
+Intervalo entre filas sucesivas del tramo de entrenamiento:
+  mediana 1.4270 s | p05 0.0780 s | p95 1.7636 s | min 0.0307 s | max 10.3699 s
+  filas con intervalo 0 (misma marca de tiempo): 0 de 163822
+
+Hay **163823 marcas de tiempo distintas** en 163823 filas del tramo, es decir
+1.00 filas por marca: **cada fila tiene su propia marca** y el orden
+temporal es inequivoco. Es mas resolucion de la que el conjunto
+aparenta, y mas de la que sirve: no hay ningun otro conjunto con el que
+alinearlo, porque la captura es de 2014-12 y los demas bancos son otros.
+
+### C.3 Cobertura de los atributos semanticos
+
+Es el dato que decide que se puede usar: la mayoria de los atributos
+vienen vacios en la mayoria de las filas, porque dependen del sentido
+del dialogo y del codigo de funcion.
+
+atributo                    cobertura en comando   en resp.
+address                        100.0%      82081      81742
+function                       100.0%      82081      81742
+length                         100.0%      82081      81742
+setpoint                        23.4%      38398          0
+gain                            23.4%      38398          0
+reset rate                      23.4%      38398          0
+deadband                        23.4%      38398          0
+cycle time                      23.4%      38398          0
+rate                            23.4%      38398          0
+system mode                     23.4%      38398          0
+control scheme                  23.4%      38398          0
+pump                            23.4%      38398          0
+solenoid                        23.4%      38398          0
+pressure measurement            25.1%         22      41063
+crc rate                       100.0%      82081      81742
+command response               100.0%      82081      81742
+
+Denominadores del tramo: 163823 filas, de ellas 82081 comandos y 81742 respuestas.
+
+---
+
+## D. HAI
+
+Lo que publica: cinco versiones de CSV de variables de proceso, mas
+`hai_dataset_technical_details.pdf`, que es el **unico** lugar donde
+estan declaradas las unidades: ni los CSV ni el `README` las traen.
+
+### D.1 La tabla de puntos del PDF tecnico
+
+Se leyeron **312 puntos de datos** de las tablas 'HAI DATA POINTS' y
+'HAIEND DATA POINTS' del PDF: 87 filas de la primera y 225 de la
+segunda. Cada fila trae nombre, minimo, maximo, unidad, descripcion y
+en que versiones aparece el punto.
+
+Unidades declaradas, con su recuento:
+
+  -             174 puntos   <-- sin unidad declarada
+  Boolean        46 puntos
+  %              29 puntos
+  ℃              12 puntos
+  bar             9 puntos
+  l/h             8 puntos
+  ㎛               8 puntos
+  MW              7 puntos
+  mmH2O           6 puntos
+  RPM             5 puntos
+  mm              3 puntos
+  Hz              2 puntos
+  Voltage         1 puntos
+  rad/s           1 puntos
+  mHz             1 puntos
+
+**Ninguna es una unidad de red.** Las 15 entradas distintas son todas
+magnitudes de proceso, estados binarios o el guion que indica que el
+punto no declara unidad. HAI no publica una sola caracteristica de
+trafico.
+
+Los **174 puntos sin unidad ni rango declarados** son, casi todos, los
+de logica interna del DCS de `haiend-23.05` (`1001.02-OUT` y
+similares), que el PDF describe solo como 'Output of 1001.02'. De esa
+version se publican 226 columnas y la mayor parte no tiene
+documentacion de contenido.
+
+### D.2 Los nombres alternativos que declara el PDF
+
+El PDF declara, en una linea de continuacion y entre parentesis, otro
+nombre para el mismo punto de datos. Se leyeron **39**, y cada uno se
+valida contra las cabeceras reales de los `train*.csv`: los dos
+nombres tienen que ser columnas de alguna version. Hay dos clases, y
+conviene no confundirlas.
+
+#### D.2.a `haiend-23.05` contra el resto: 34 pares validados
+
+punto de HAIEnd        punto de HAI           el de HAI esta en    regla
+1001.15-OUT            P1_B2016               hai-20.07,hai-21.03,hai-22.04 exacto
+DM-FCV01-D             P1_FCV01D              hai-20.07,hai-21.03,hai-22.04,hai-23.05 exacto
+DM-FCV01-Z             P1_FCV01Z              hai-20.07,hai-21.03,hai-22.04,hai-23.05 exacto
+DM-FCV02-D             P1_FCV02D              hai-20.07,hai-21.03,hai-22.04,hai-23.05 exacto
+DM-FCV02-Z             P1_FCV02Z              hai-20.07,hai-21.03,hai-22.04,hai-23.05 exacto
+DM-FCV03-D             P1_FCV03D              hai-20.07,hai-21.03,hai-22.04,hai-23.05 exacto
+DM-FCV03-Z             P1_FCV03Z              hai-20.07,hai-21.03,hai-22.04,hai-23.05 exacto
+DM-FT01                P1_FT01                hai-20.07,hai-21.03,hai-22.04,hai-23.05 exacto
+DM-FT01Z               P1_FT01Z               hai-20.07,hai-21.03,hai-22.04,hai-23.05 exacto
+DM-FT02                P1_FT02                hai-20.07,hai-21.03,hai-22.04,hai-23.05 exacto
+DM-FT02Z               P1_FT02Z               hai-20.07,hai-21.03,hai-22.04,hai-23.05 exacto
+DM-FT03                P1_FT03                hai-20.07,hai-21.03,hai-22.04,hai-23.05 exacto
+DM-FT03Z               P1_FT03Z               hai-20.07,hai-21.03,hai-22.04,hai-23.05 exacto
+DM-LCV01-D             P1_LCV01D              hai-20.07,hai-21.03,hai-22.04,hai-23.05 exacto
+DM-LCV01-Z             P1_LCV01Z              hai-20.07,hai-21.03,hai-22.04,hai-23.05 exacto
+DM-LIT01               P1_LIT01               hai-20.07,hai-21.03,hai-22.04,hai-23.05 exacto
+DM-PCV01-D             P1_PCV01D              hai-20.07,hai-21.03,hai-22.04,hai-23.05 exacto
+DM-PCV01-Z             P1_PCV01Z              hai-20.07,hai-21.03,hai-22.04,hai-23.05 exacto
+DM-PCV02-D             P1_PCV02D              hai-20.07,hai-21.03,hai-22.04,hai-23.05 exacto
+DM-PCV02-Z             P1_PCV02Z              hai-20.07,hai-21.03,hai-22.04,hai-23.05 exacto
+DM-PIT01               P1_PIT01               hai-20.07,hai-21.03,hai-22.04,hai-23.05 exacto
+DM-PIT01-HH            P1_PIT01_HH            hai-22.04,hai-23.05  exacto
+DM-PIT02               P1_PIT02               hai-20.07,hai-21.03,hai-22.04,hai-23.05 exacto
+DM-PP01A-D             P1_PP01AD              hai-21.03,hai-22.04,hai-23.05 exacto
+DM-PP01A-R             P1_PP01AR              hai-21.03,hai-22.04,hai-23.05 exacto
+DM-PP01B-D             P1_PP01BD              hai-21.03,hai-22.04,hai-23.05 exacto
+DM-PP01B-R             P1_PP01BR              hai-21.03,hai-22.04,hai-23.05 exacto
+DM-PP02-D              P1_PP02D               hai-21.03,hai-22.04,hai-23.05 exacto
+DM-PP02-R              P1_PP02R               hai-21.03,hai-22.04,hai-23.05 exacto
+DM-SOL03-D             P1_SOL03D              hai-22.04,hai-23.05  exacto
+DM-ST-SP               P1_STSP                hai-21.03,hai-22.04,hai-23.05 exacto
+DM-TIT01               P1_TIT01               hai-20.07,hai-21.03,hai-22.04,hai-23.05 exacto
+DM-TIT02               P1_TIT03               hai-22.04,hai-23.05  exacto
+GATEOPEN               P4_ST_GOV              hai-21.03,hai-22.04,hai-23.05 exacto
+
+Importa porque la matriz de columnas comunes de INFORME.md da
+**cero** columnas compartidas entre `haiend-23.05` y las otras cuatro
+versiones. Eso es cierto **por nombre**: por contenido, el PDF declara
+34 pares que son la misma variable con otro nombre, sobre 226 columnas
+de esa version. El 85.0 % restante sigue sin contraparte.
+
+Una salvedad de transcripcion: el PDF declara `DM-TIT02 -> P1_TIT03`
+aunque describe `DM-TIT02` como la temperatura del tanque de agua
+caliente, que es lo que describe `P1_TIT02`. Se transcribe lo que dice
+el documento y se deja asentada la discrepancia, sin corregirla: no
+hay fuente para decidir cual de los dos nombres es el correcto.
+
+#### D.2.b Cambios de nombre entre versiones de HAI: 5 pares
+
+Estos salen de la tabla de HAI, no de la de HAIEnd, y el parentesis
+da el nombre que el **mismo punto** llevaba en una version anterior.
+El PDF los escribe sin el prefijo de proceso (`Auto` por `P2_Auto`),
+de modo que la columna `regla` dice como se resolvio cada uno contra
+las cabeceras reales.
+
+nombre                 nombre anterior        el nuevo esta en         el anterior esta en      regla
+P2_AutoGO              P2_Auto                hai-21.03,hai-22.04,hai-23.05 hai-20.07                prefijo
+P2_AutoSD              P2_SD01                hai-22.04,hai-23.05      hai-20.07                prefijo
+P2_Emerg               P2_Emgy                hai-21.03,hai-22.04,hai-23.05 hai-20.07                prefijo
+P2_OnOff               P2_On                  hai-21.03,hai-22.04,hai-23.05 hai-20.07                prefijo
+P3_LIT01               P3_LT01                hai-21.03,hai-22.04,hai-23.05 hai-20.07                prefijo
+
+**Es una correccion a la matriz de columnas comunes de
+INFORME.md**, que cuenta coincidencias por nombre exacto y por lo tanto
+subestima en estos 5 puntos la continuidad entre versiones de HAI.
+No cambia la conclusion --- entre 20.07 y 23.05 siguen faltando
+decenas de columnas --- pero si el numero. Correccion por par de
+versiones, contando los renombres que afectan a cada uno:
+
+par de versiones                renombres matriz del EDA
+hai-20.07 / hai-21.03                   4      58 -> 62  
+hai-20.07 / hai-22.04                   5      46 -> 51  
+hai-20.07 / hai-23.05                   5      38 -> 43  
+hai-21.03 / hai-22.04                   0      67 -> 67  
+hai-21.03 / hai-23.05                   0      59 -> 59  
+hai-22.04 / hai-23.05                   0      79 -> 79  
+
+Los valores de la columna `matriz del EDA` se transcriben de la tabla
+de la pregunta 5 de `eda/INFORME.md`; los renombres salen de este
+analisis.
+
+### D.3 Inventario por version
+
+#### hai-20.07 --- 2 archivos de entrenamiento
+
+550800 filas, 64 columnas. Columna de tiempo: `time`.
+Rango: 2019-09-11 20:00:00 a 2019-11-04 14:59:59.
+Intervalo entre filas: moda 1.0 s, min 1.0 s, max 1.0 s.
+Columnas de etiqueta: `attack`, `attack_P1`, `attack_P2`, `attack_P3`.
+Columnas de proceso: 59.
+
+campo                    tipo    unidad    proc cobert. distintos rango medido           rango declarado
+P1_B2004                 real    bar       PDF   100.0%       209 0.0293 .. 0.1019       0 .. 10
+P1_B2016                 real    bar       PDF   100.0%    >=2000 0.1002 .. 2.112        0 .. 10
+P1_B3004                 real    mm        PDF   100.0%       492 392.3 .. 467.3         0 .. 720
+P1_B3005                 real    l/h       PDF   100.0%       497 983.1 .. 1121          0 .. 2500
+P1_B4002                 real    ℃         PDF   100.0%        74 29.41 .. 32.37         0 .. 100
+P1_B4005                 real    %         PDF   100.0%    >=2000 0 .. 100               0 .. 100
+P1_B400B                 real    l/h       PDF   100.0%    >=2000 19.07 .. 2895          0 .. 2500
+P1_B4022                 real    ℃         PDF   100.0%    >=2000 32.33 .. 36.89         0 .. 40
+P1_FCV01D                real    %         PDF   100.0%    >=2000 0 .. 100               0 .. 100
+P1_FCV01Z                real    %         PDF   100.0%    >=2000 0.2533 .. 101          0 .. 100
+P1_FCV02D                real    %         PDF   100.0%    >=2000 0 .. 100               0 .. 100
+P1_FCV02Z                real    %         PDF   100.0%    >=2000 -1.913 .. 96.63        0 .. 100
+P1_FCV03D                real    %         PDF   100.0%    >=2000 47.72 .. 60.49         0 .. 100
+P1_FCV03Z                real    %         PDF   100.0%    >=2000 48.39 .. 61.36         0 .. 100
+P1_FT01                  real    mmH2O     PDF   100.0%    >=2000 -15.6 .. 343.9         0 .. 2500
+P1_FT01Z                 real    l/h       PDF   100.0%    >=2000 0 .. 1166              0 .. 3190
+P1_FT02                  real    mmH2O     PDF   100.0%    >=2000 3.662 .. 2061          0 .. 2500
+P1_FT02Z                 real    l/h       PDF   100.0%    >=2000 19.07 .. 2895          0 .. 3190
+P1_FT03                  real    mmH2O     PDF   100.0%    >=2000 227.8 .. 325.6         0 .. 2500
+P1_FT03Z                 real    l/h       PDF   100.0%    >=2000 958.3 .. 1135          0 .. 3190
+P1_LCV01D                real    %         PDF   100.0%    >=2000 2.526 .. 32.35         0 .. 100
+P1_LCV01Z                real    %         PDF   100.0%    >=2000 0.2914 .. 32.24        0 .. 100
+P1_LIT01                 real    mm        PDF   100.0%    >=2000 363.2 .. 489.3         0 .. 720
+P1_PCV01D                real    %         PDF   100.0%    >=2000 22.32 .. 100           0 .. 100
+P1_PCV01Z                real    %         PDF   100.0%    >=2000 22.69 .. 101.4         0 .. 100
+P1_PCV02D                entero  %         PDF   100.0%         1 12 .. 12               0 .. 100
+P1_PCV02Z                real    %         PDF   100.0%        60 11.98 .. 12.24         0 .. 100
+P1_PIT01                 real    bar       PDF   100.0%    >=2000 0.5678 .. 2.433        0 .. 10
+P1_PIT02                 real    bar       PDF   100.0%    >=2000 0.1718 .. 2.459        0 .. 10
+P1_TIT01                 real    ℃         PDF   100.0%       991 34.57 .. 37.1          -50 .. 150
+P1_TIT02                 real    ℃         PDF   100.0%      1838 34.98 .. 40.9          -50 .. 150
+P2_24Vdc                 real    Voltage   PDF   100.0%       272 28.01 .. 28.04         0 .. 30
+P2_Auto                  entero  ---       RNG   100.0%         1 1 .. 1                 no declarado
+P2_Emgy                  entero  ---       RNG   100.0%         1 0 .. 0                 no declarado
+P2_On                    entero  ---       RNG   100.0%         1 1 .. 1                 no declarado
+P2_SD01                  entero  ---       RNG   100.0%         2 0 .. 20                no declarado
+P2_SIT01                 real    RPM       PDF   100.0%        75 779 .. 827             0 .. 3200
+P2_TripEx                entero  Boolean   PDF   100.0%         1 0 .. 0                 0 .. 1
+P2_VT01e                 real    ---       RNG   100.0%    >=2000 11.62 .. 11.93         no declarado
+P2_VXT02                 real    ---       RNG   100.0%    >=2000 -5.144 .. -2.954       no declarado
+P2_VXT03                 real    ---       RNG   100.0%    >=2000 -2.475 .. -0.7381      no declarado
+P2_VYT02                 real    ---       RNG   100.0%    >=2000 -0.671 .. 1.472        no declarado
+P2_VYT03                 real    ---       RNG   100.0%    >=2000 1.001 .. 2.869         no declarado
+P3_LCP01D                real    -         PDF   100.0%    >=2000 0 .. 1.382e+04         0 .. 27648
+P3_LCV01D                real    -         PDF   100.0%    >=2000 -272 .. 1.818e+04      0 .. 27648
+P3_LH                    entero  ---       RNG   100.0%         1 70 .. 70               no declarado
+P3_LL                    entero  ---       RNG   100.0%         1 10 .. 10               no declarado
+P3_LT01                  real    ---       RNG   100.0%    >=2000 10.05 .. 71.18         no declarado
+P4_HT_FD                 real    mHz       PDF   100.0%       730 -0.027 .. 0.0269       -0.02 .. 0.02
+P4_HT_LD                 real    MW        PDF   100.0%    >=2000 -0.0072 .. 83.25       0 .. 100
+P4_HT_PO                 real    MW        PDF   100.0%    >=2000 0.0542 .. 83.22        0 .. 100
+P4_HT_PS                 entero  MW        PDF   100.0%         1 0 .. 0                 0 .. 100
+P4_LD                    real    MW        PDF   100.0%    >=2000 230.3 .. 499.8         0 .. 500
+P4_ST_FD                 real    Hz        PDF   100.0%       594 -0.0513 .. 0.0542      -0.02 .. 0.02
+P4_ST_LD                 real    MW        PDF   100.0%    >=2000 229.8 .. 426.5         0 .. 500
+P4_ST_PO                 real    MW        PDF   100.0%    >=2000 233.7 .. 420.2         0 .. 500
+P4_ST_PS                 real    MW        PDF   100.0%         8 0 .. 51.47             0 .. 500
+P4_ST_PT01               real    -         PDF   100.0%       637 9833 .. 1.033e+04      0 .. 27648
+P4_ST_TT01               real    -         PDF   100.0%       353 1.52e+04 .. 2.763e+04  0 .. 27648
+attack                   entero  ---       CAT   100.0%         2 0 .. 1                 no declarado
+attack_P1                entero  ---       CAT   100.0%         2 0 .. 1                 no declarado
+attack_P2                entero  ---       CAT   100.0%         1 0 .. 0                 no declarado
+attack_P3                entero  ---       CAT   100.0%         1 0 .. 0                 no declarado
+time                     texto   ---       ID    100.0%    >=2000 ---                    no declarado
+
+Nivel de agregacion: registro de proceso: una muestra de todas las variables a la vez
+
+Columnas de proceso **sin unidad declarada en el PDF**: 12 de 59.
+  P2_Auto, P2_Emgy, P2_On, P2_SD01, P2_VT01e, P2_VXT02, P2_VXT03, P2_VYT02, P2_VYT03, P3_LH, P3_LL, P3_LT01
+
+#### hai-21.03 --- 3 archivos de entrenamiento
+
+921603 filas, 84 columnas. Columna de tiempo: `time`.
+Rango: 2020-07-11 00:00:00 a 2020-08-10 11:00:00.
+Intervalo entre filas: moda 1.0 s, min 1.0 s, max 1.0 s.
+Columnas de etiqueta: `attack`, `attack_P1`, `attack_P2`, `attack_P3`.
+Columnas de proceso: 79.
+
+campo                    tipo    unidad    proc cobert. distintos rango medido           rango declarado
+P1_B2004                 real    bar       PDF   100.0%       779 0.02978 .. 0.102       0 .. 10
+P1_B2016                 real    bar       PDF   100.0%    >=2000 0.9473 .. 2.052        0 .. 10
+P1_B3004                 real    mm        PDF   100.0%      1405 369.8 .. 447.8         0 .. 720
+P1_B3005                 real    l/h       PDF   100.0%      1406 890.1 .. 1122          0 .. 2500
+P1_B4002                 real    ℃         PDF   100.0%       828 31.41 .. 33.66         0 .. 100
+P1_B4005                 real    %         PDF   100.0%    >=2000 0 .. 100               0 .. 100
+P1_B400B                 real    l/h       PDF   100.0%    >=2000 25.03 .. 2858          0 .. 2500
+P1_B4022                 real    ℃         PDF   100.0%    >=2000 34.2 .. 38.65          0 .. 40
+P1_FCV01D                real    %         PDF   100.0%    >=2000 0 .. 100               0 .. 100
+P1_FCV01Z                real    %         PDF   100.0%    >=2000 0.2609 .. 100          0 .. 100
+P1_FCV02D                real    %         PDF   100.0%    >=2000 0 .. 100               0 .. 100
+P1_FCV02Z                real    %         PDF   100.0%    >=2000 -1.898 .. 97.38        0 .. 100
+P1_FCV03D                real    %         PDF   100.0%    >=2000 45.71 .. 74.19         0 .. 100
+P1_FCV03Z                real    %         PDF   100.0%    >=2000 46.17 .. 75.37         0 .. 100
+P1_FT01                  real    mmH2O     PDF   100.0%    >=2000 -15.6 .. 473.1         0 .. 2500
+P1_FT01Z                 real    l/h       PDF   100.0%    >=2000 0 .. 1382              0 .. 3190
+P1_FT02                  real    mmH2O     PDF   100.0%    >=2000 4.807 .. 2007          0 .. 2500
+P1_FT02Z                 real    l/h       PDF   100.0%    >=2000 25.03 .. 2858          0 .. 3190
+P1_FT03                  real    mmH2O     PDF   100.0%    >=2000 187.1 .. 332.9         0 .. 2500
+P1_FT03Z                 real    l/h       PDF   100.0%    >=2000 865.7 .. 1148          0 .. 3190
+P1_LCV01D                real    %         PDF   100.0%    >=2000 2.123 .. 28.34         0 .. 100
+P1_LCV01Z                real    %         PDF   100.0%    >=2000 0.2838 .. 28.54        0 .. 100
+P1_LIT01                 real    mm        PDF   100.0%    >=2000 356 .. 459.4           0 .. 720
+P1_PCV01D                real    %         PDF   100.0%    >=2000 24.9 .. 100            0 .. 100
+P1_PCV01Z                real    %         PDF   100.0%    >=2000 25.54 .. 100           0 .. 100
+P1_PCV02D                entero  %         PDF   100.0%         1 12 .. 12               0 .. 100
+P1_PCV02Z                real    %         PDF   100.0%        98 11.77 .. 12.04         0 .. 100
+P1_PIT01                 real    bar       PDF   100.0%    >=2000 0.8691 .. 2.396        0 .. 10
+P1_PIT02                 real    bar       PDF   100.0%    >=2000 0.1703 .. 2.347        0 .. 10
+P1_PP01AD                entero  Boolean   PDF   100.0%         1 5.408e+05 .. 5.408e+05 0 .. 1
+P1_PP01AR                entero  Boolean   PDF   100.0%         1 5.408e+05 .. 5.408e+05 0 .. 1
+P1_PP01BD                entero  Boolean   PDF   100.0%         1 0 .. 0                 0 .. 1
+P1_PP01BR                entero  Boolean   PDF   100.0%         1 0 .. 0                 0 .. 1
+P1_PP02D                 entero  Boolean   PDF   100.0%         1 1 .. 1                 0 .. 1
+P1_PP02R                 entero  Boolean   PDF   100.0%         1 1 .. 1                 0 .. 1
+P1_STSP                  entero  Boolean   PDF   100.0%         1 1 .. 1                 0 .. 1
+P1_TIT01                 real    ℃         PDF   100.0%       904 34.69 .. 36.95         -50 .. 150
+P1_TIT02                 real    ℃         PDF   100.0%      1677 34.98 .. 40.44         -50 .. 150
+P2_24Vdc                 real    Voltage   PDF   100.0%       509 28.01 .. 28.05         0 .. 30
+P2_ASD                   entero  ---       RNG   100.0%         1 0 .. 0                 no declarado
+P2_AutoGO                entero  ---       RNG   100.0%         1 1 .. 1                 no declarado
+P2_CO_rpm                real    ---       RNG   100.0%       353 5.395e+04 .. 5.422e+04 no declarado
+P2_Emerg                 entero  Boolean   PDF   100.0%         1 0 .. 0                 0 .. 1
+P2_HILout                real    ---       RNG   100.0%    >=2000 653.8 .. 775.2         no declarado
+P2_MSD                   real    ---       RNG   100.0%         1 763.2 .. 763.2         no declarado
+P2_ManualGO              entero  Boolean   PDF   100.0%         1 0 .. 0                 0 .. 1
+P2_OnOff                 entero  Boolean   PDF   100.0%         1 1 .. 1                 0 .. 1
+P2_RTR                   entero  RPM       PDF   100.0%         1 2880 .. 2880           0 .. 2880
+P2_SIT01                 real    RPM       PDF   100.0%       134 749 .. 828             0 .. 3200
+P2_SIT02                 real    ---       RNG   100.0%    >=2000 748.9 .. 828.2         no declarado
+P2_TripEx                entero  Boolean   PDF   100.0%         1 1 .. 1                 0 .. 1
+P2_VT01                  real    rad/s     PDF   100.0%    >=2000 11.76 .. 12.06         11 .. 12
+P2_VTR01                 entero  ㎛         PDF   100.0%         1 10 .. 10               -10 .. 10
+P2_VTR02                 entero  ㎛         PDF   100.0%         1 10 .. 10               -10 .. 10
+P2_VTR03                 entero  ㎛         PDF   100.0%         1 10 .. 10               -10 .. 10
+P2_VTR04                 entero  ㎛         PDF   100.0%         1 10 .. 10               -10 .. 10
+P2_VXT02                 real    ---       RNG   100.0%    >=2000 -4.401 .. -1.773       no declarado
+P2_VXT03                 real    ---       RNG   100.0%    >=2000 -2.16 .. 0.2445        no declarado
+P2_VYT02                 real    ---       RNG   100.0%    >=2000 2.416 .. 5.156         no declarado
+P2_VYT03                 real    ---       RNG   100.0%    >=2000 4.515 .. 7.301         no declarado
+P3_FIT01                 real    -         PDF   100.0%    >=2000 -27 .. 5443            0 .. 27648
+P3_LCP01D                real    -         PDF   100.0%    >=2000 -8 .. 1.382e+04        0 .. 27648
+P3_LCV01D                real    -         PDF   100.0%      1531 -288 .. 1.842e+04      0 .. 27648
+P3_LH                    entero  ---       RNG   100.0%         1 70 .. 70               no declarado
+P3_LIT01                 real    %         PDF   100.0%    >=2000 5047 .. 1.973e+04      0 .. 90
+P3_LL                    entero  ---       RNG   100.0%         1 20 .. 20               no declarado
+P3_PIT01                 real    -         PDF   100.0%    >=2000 -24 .. 3871            0 .. 27648
+P4_HT_FD                 real    mHz       PDF   100.0%       751 -0.04962 .. 0.03552    -0.02 .. 0.02
+P4_HT_LD                 real    MW        PDF   100.0%    >=2000 -0.00723 .. 83.1       0 .. 100
+P4_HT_PO                 real    MW        PDF   100.0%    >=2000 0.05423 .. 86.72       0 .. 100
+P4_HT_PS                 entero  MW        PDF   100.0%         2 0 .. 10                0 .. 100
+P4_LD                    real    MW        PDF   100.0%    >=2000 231.1 .. 499.8         0 .. 500
+P4_ST_FD                 real    Hz        PDF   100.0%       447 -0.05244 .. 0.05035    -0.02 .. 0.02
+P4_ST_GOV                real    -         PDF   100.0%    >=2000 1.262e+04 .. 2.693e+04 0 .. 27648
+P4_ST_LD                 real    MW        PDF   100.0%    >=2000 229.9 .. 499.6         0 .. 500
+P4_ST_PO                 real    MW        PDF   100.0%    >=2000 233.6 .. 498.9         0 .. 500
+P4_ST_PS                 entero  MW        PDF   100.0%         2 0 .. 50                0 .. 500
+P4_ST_PT01               real    -         PDF   100.0%       362 9914 .. 1.033e+04      0 .. 27648
+P4_ST_TT01               real    -         PDF   100.0%       211 2.753e+04 .. 2.763e+04 0 .. 27648
+attack                   entero  ---       CAT   100.0%         1 0 .. 0                 no declarado
+attack_P1                entero  ---       CAT   100.0%         1 0 .. 0                 no declarado
+attack_P2                entero  ---       CAT   100.0%         1 0 .. 0                 no declarado
+attack_P3                entero  ---       CAT   100.0%         1 0 .. 0                 no declarado
+time                     texto   ---       ID    100.0%    >=2000 ---                    no declarado
+
+Nivel de agregacion: registro de proceso: una muestra de todas las variables a la vez
+
+Columnas de proceso **sin unidad declarada en el PDF**: 12 de 79.
+  P2_ASD, P2_AutoGO, P2_CO_rpm, P2_HILout, P2_MSD, P2_SIT02, P2_VXT02, P2_VXT03, P2_VYT02, P2_VYT03, P3_LH, P3_LL
+
+#### hai-22.04 --- 6 archivos de entrenamiento
+
+1004402 filas, 88 columnas. Columna de tiempo: `timestamp`.
+Rango: 2021-07-11 10:00:00 a 2021-08-09 09:00:00.
+Intervalo entre filas: moda 1.0 s, min 1.0 s, max 1.0 s.
+Columnas de etiqueta: `Attack`.
+Columnas de proceso: 86.
+
+campo                    tipo    unidad    proc cobert. distintos rango medido           rango declarado
+Attack                   entero  ---       CAT   100.0%         1 0 .. 0                 no declarado
+P1_B2004                 real    bar       PDF   100.0%      1328 0.05498 .. 0.1997      0 .. 10
+P1_B2016                 real    bar       PDF   100.0%    >=2000 0.7719 .. 1.627        0 .. 10
+P1_B3004                 real    mm        PDF   100.0%      1802 392.2 .. 498.1         0 .. 720
+P1_B3005                 real    l/h       PDF   100.0%      1550 890 .. 1122            0 .. 2500
+P1_B4002                 real    ℃         PDF   100.0%       480 25.18 .. 33.48         0 .. 100
+P1_B4005                 real    %         PDF   100.0%    >=2000 0 .. 100               0 .. 100
+P1_B400B                 real    l/h       PDF   100.0%    >=2000 11.12 .. 3190          0 .. 2500
+P1_B4022                 real    ℃         PDF   100.0%    >=2000 28.16 .. 38.05         0 .. 40
+P1_FCV01D                real    %         PDF   100.0%    >=2000 0 .. 100               0 .. 100
+P1_FCV01Z                real    %         PDF   100.0%    >=2000 0.2686 .. 100.9        0 .. 100
+P1_FCV02D                real    %         PDF   100.0%    >=2000 15 .. 100              0 .. 100
+P1_FCV02Z                real    %         PDF   100.0%    >=2000 12.34 .. 97.81         0 .. 100
+P1_FCV03D                real    %         PDF   100.0%    >=2000 43.3 .. 65.98          0 .. 100
+P1_FCV03Z                real    %         PDF   100.0%    >=2000 43.7 .. 66.71          0 .. 100
+P1_FT01                  real    mmH2O     PDF   100.0%       905 0.4196 .. 222.8        0 .. 2500
+P1_FT01Z                 real    l/h       PDF   100.0%       905 2.185 .. 947           0 .. 3190
+P1_FT02                  real    mmH2O     PDF   100.0%    >=2000 2.136 .. 2537          0 .. 2500
+P1_FT02Z                 real    l/h       PDF   100.0%    >=2000 11.12 .. 3190          0 .. 3190
+P1_FT03                  real    mmH2O     PDF   100.0%       722 186.4 .. 332.5         0 .. 2500
+P1_FT03Z                 real    l/h       PDF   100.0%       722 864 .. 1147            0 .. 3190
+P1_LCV01D                real    %         PDF   100.0%    >=2000 0 .. 34.59             0 .. 100
+P1_LCV01Z                real    %         PDF   100.0%    >=2000 0.2609 .. 34.83        0 .. 100
+P1_LIT01                 real    mm        PDF   100.0%    >=2000 373.3 .. 535.9         0 .. 720
+P1_PCV01D                real    %         PDF   100.0%    >=2000 12.08 .. 81.01         0 .. 100
+P1_PCV01Z                real    %         PDF   100.0%    >=2000 12.82 .. 82.48         0 .. 100
+P1_PCV02D                real    %         PDF   100.0%        56 12 .. 17.15            0 .. 100
+P1_PCV02Z                real    %         PDF   100.0%        62 11.99 .. 16.86         0 .. 100
+P1_PIT01                 real    bar       PDF   100.0%      1457 0.5533 .. 2.088        0 .. 10
+P1_PIT01_HH              entero  bar       PDF   100.0%         1 0 .. 0                 0 .. 10
+P1_PIT02                 real    bar       PDF   100.0%      1612 0.3076 .. 1.537        0 .. 10
+P1_PP01AD                entero  Boolean   PDF   100.0%         1 1 .. 1                 0 .. 1
+P1_PP01AR                entero  Boolean   PDF   100.0%         1 1 .. 1                 0 .. 1
+P1_PP01BD                entero  Boolean   PDF   100.0%         1 0 .. 0                 0 .. 1
+P1_PP01BR                entero  Boolean   PDF   100.0%         1 0 .. 0                 0 .. 1
+P1_PP02D                 entero  Boolean   PDF   100.0%         1 1 .. 1                 0 .. 1
+P1_PP02R                 entero  Boolean   PDF   100.0%         1 1 .. 1                 0 .. 1
+P1_PP04                  real    %         PDF   100.0%    >=2000 0 .. 35                0 .. 100
+P1_PP04SP                real    ℃         PDF   100.0%       363 27 .. 27.94            0 .. 100
+P1_SOL01D                entero  Boolean   PDF   100.0%         1 0 .. 0                 0 .. 1
+P1_SOL03D                entero  Boolean   PDF   100.0%         1 0 .. 0                 0 .. 1
+P1_STSP                  entero  Boolean   PDF   100.0%         1 1 .. 1                 0 .. 1
+P1_TIT01                 real    ℃         PDF   100.0%       454 27.9 .. 34.81          -50 .. 150
+P1_TIT02                 real    ℃         PDF   100.0%      1023 34.46 .. 50.05         -50 .. 150
+P1_TIT03                 real    ℃         PDF   100.0%    >=2000 26.15 .. 30.47         -50 .. 150
+P2_24Vdc                 real    Voltage   PDF   100.0%       486 28.02 .. 28.06         0 .. 30
+P2_ATSW_Lamp             entero  Boolean   PDF   100.0%         2 0 .. 1                 0 .. 1
+P2_AutoGO                entero  ---       RNG   100.0%         2 0 .. 1                 no declarado
+P2_AutoSD                real    RPM       PDF   100.0%        65 100.1 .. 129.9         0 .. 3200
+P2_Emerg                 entero  Boolean   PDF   100.0%         1 0 .. 0                 0 .. 1
+P2_MASW                  entero  Boolean   PDF   100.0%         2 0 .. 1                 0 .. 1
+P2_MASW_Lamp             entero  Boolean   PDF   100.0%         2 0 .. 1                 0 .. 1
+P2_ManualGO              entero  Boolean   PDF   100.0%         2 0 .. 1                 0 .. 1
+P2_ManualSD              real    RPM       PDF   100.0%        12 12.04 .. 12.81         0 .. 3200
+P2_OnOff                 entero  Boolean   PDF   100.0%         1 1 .. 1                 0 .. 1
+P2_RTR                   entero  RPM       PDF   100.0%         1 2880 .. 2880           0 .. 2880
+P2_SCO                   entero  -         PDF   100.0%       175 5.416e+04 .. 5.483e+04 0 .. 100000
+P2_SCST                  real    RPM       PDF   100.0%    >=2000 719.5 .. 720.5         -100 .. 100
+P2_SIT01                 entero  RPM       PDF   100.0%       113 792 .. 936             0 .. 3200
+P2_TripEx                entero  Boolean   PDF   100.0%         1 1 .. 1                 0 .. 1
+P2_VIBTR01               real    ㎛         PDF   100.0%    >=2000 3.423 .. 9.133         -10 .. 10
+P2_VIBTR02               real    ㎛         PDF   100.0%    >=2000 -4.627 .. 0.8286       -10 .. 10
+P2_VIBTR03               real    ㎛         PDF   100.0%    >=2000 6.322 .. 11.14         -10 .. 10
+P2_VIBTR04               real    ㎛         PDF   100.0%    >=2000 -2.147 .. 3.149        -10 .. 10
+P2_VT01                  real    rad/s     PDF   100.0%    >=2000 11.71 .. 12.29         11 .. 12
+P2_VTR01                 entero  ㎛         PDF   100.0%         1 50 .. 50               -10 .. 10
+P2_VTR02                 entero  ㎛         PDF   100.0%         1 50 .. 50               -10 .. 10
+P2_VTR03                 entero  ㎛         PDF   100.0%         1 50 .. 50               -10 .. 10
+P2_VTR04                 entero  ㎛         PDF   100.0%         1 50 .. 50               -10 .. 10
+P3_FIT01                 entero  -         PDF   100.0%    >=2000 -112 .. 1.299e+04      0 .. 27648
+P3_LCP01D                entero  -         PDF   100.0%      1731 -8 .. 1.383e+04        0 .. 27648
+P3_LCV01D                entero  -         PDF   100.0%      1137 -128 .. 1.954e+04      0 .. 27648
+P3_LH01                  entero  %         PDF   100.0%         2 70 .. 80               0 .. 70
+P3_LIT01                 entero  %         PDF   100.0%    >=2000 4705 .. 2.264e+04      0 .. 90
+P3_LL01                  entero  %         PDF   100.0%         2 20 .. 25               0 .. 70
+P3_PIT01                 entero  -         PDF   100.0%    >=2000 -38 .. 6193            0 .. 27648
+P4_HT_FD                 real    mHz       PDF   100.0%       678 -0.03986 .. 0.03631    -0.02 .. 0.02
+P4_HT_PO                 real    MW        PDF   100.0%    >=2000 0.09042 .. 94.35       0 .. 100
+P4_HT_PS                 real    MW        PDF   100.0%        20 0 .. 10                0 .. 100
+P4_LD                    real    MW        PDF   100.0%    >=2000 231 .. 499.8           0 .. 500
+P4_ST_FD                 real    Hz        PDF   100.0%       273 -0.04253 .. 0.04051    -0.02 .. 0.02
+P4_ST_GOV                entero  -         PDF   100.0%    >=2000 1.285e+04 .. 2.683e+04 0 .. 27648
+P4_ST_LD                 real    MW        PDF   100.0%    >=2000 230.4 .. 496.9         0 .. 500
+P4_ST_PO                 real    MW        PDF   100.0%    >=2000 233.1 .. 494.3         0 .. 500
+P4_ST_PS                 real    MW        PDF   100.0%        49 0 .. 50                0 .. 500
+P4_ST_PT01               entero  -         PDF   100.0%       256 9826 .. 1.025e+04      0 .. 27648
+P4_ST_TT01               entero  -         PDF   100.0%       522 2.687e+04 .. 2.754e+04 0 .. 27648
+timestamp                texto   ---       ID    100.0%    >=2000 ---                    no declarado
+
+Nivel de agregacion: registro de proceso: una muestra de todas las variables a la vez
+
+Columnas de proceso **sin unidad declarada en el PDF**: 1 de 86.
+  P2_AutoGO
+
+#### hai-23.05 --- 4 archivos de entrenamiento
+
+896400 filas, 87 columnas. Columna de tiempo: `timestamp`.
+Rango: 2022-08-04 18:00:01 a 2022-08-25 00:00:00.
+Intervalo entre filas: moda 1.0 s, min 1.0 s, max 1.0 s.
+Columnas de etiqueta: **ninguna** (las etiquetas vienen en `label-test*.csv`).
+Columnas de proceso: 86.
+
+campo                    tipo    unidad    proc cobert. distintos rango medido           rango declarado
+P1_FCV01D                real    %         PDF   100.0%    >=2000 0 .. 92.24             0 .. 100
+P1_FCV01Z                real    %         PDF   100.0%    >=2000 0.3143 .. 92.2         0 .. 100
+P1_FCV02D                real    %         PDF   100.0%    >=2000 15 .. 100              0 .. 100
+P1_FCV02Z                real    %         PDF   100.0%    >=2000 12.29 .. 97.73         0 .. 100
+P1_FCV03D                real    %         PDF   100.0%    >=2000 47.69 .. 68.65         0 .. 100
+P1_FCV03Z                real    %         PDF   100.0%    >=2000 48.33 .. 69.71         0 .. 100
+P1_FT01                  real    mmH2O     PDF   100.0%       862 0.801 .. 198.8         0 .. 2500
+P1_FT01Z                 real    l/h       PDF   100.0%       861 4.171 .. 892.2         0 .. 3190
+P1_FT02                  real    mmH2O     PDF   100.0%    >=2000 1.183 .. 2507          0 .. 2500
+P1_FT02Z                 real    l/h       PDF   100.0%    >=2000 6.157 .. 3190          0 .. 3190
+P1_FT03                  real    mmH2O     PDF   100.0%       364 217.1 .. 287.5         0 .. 2500
+P1_FT03Z                 real    l/h       PDF   100.0%       364 934 .. 1072            0 .. 3190
+P1_LCV01D                real    %         PDF   100.0%    >=2000 0.5966 .. 34.83        0 .. 100
+P1_LCV01Z                real    %         PDF   100.0%    >=2000 0.2991 .. 35.02        0 .. 100
+P1_LIT01                 real    mm        PDF   100.0%    >=2000 280.3 .. 426.5         0 .. 720
+P1_PCV01D                real    %         PDF   100.0%    >=2000 12.04 .. 44.96         0 .. 100
+P1_PCV01Z                real    %         PDF   100.0%    >=2000 12.74 .. 45.74         0 .. 100
+P1_PCV02D                real    %         PDF   100.0%       338 12 .. 17.17            0 .. 100
+P1_PCV02Z                real    %         PDF   100.0%       115 11.67 .. 16.3          0 .. 100
+P1_PIT01                 real    bar       PDF   100.0%      1460 0.4701 .. 2.049        0 .. 10
+P1_PIT01_HH              entero  bar       PDF   100.0%         1 5.243e+05 .. 5.243e+05 0 .. 10
+P1_PIT02                 real    bar       PDF   100.0%      1614 0.3114 .. 1.543        0 .. 10
+P1_PP01AD                entero  Boolean   PDF   100.0%         1 0 .. 0                 0 .. 1
+P1_PP01AR                entero  Boolean   PDF   100.0%         1 0 .. 0                 0 .. 1
+P1_PP01BD                entero  Boolean   PDF   100.0%         1 1 .. 1                 0 .. 1
+P1_PP01BR                entero  Boolean   PDF   100.0%         1 1 .. 1                 0 .. 1
+P1_PP02D                 entero  Boolean   PDF   100.0%         1 1 .. 1                 0 .. 1
+P1_PP02R                 entero  Boolean   PDF   100.0%         1 1 .. 1                 0 .. 1
+P1_PP04                  real    %         PDF   100.0%    >=2000 0 .. 45                0 .. 100
+P1_PP04D                 entero  ---       RNG   100.0%         2 0 .. 1                 no declarado
+P1_PP04SP                real    ℃         PDF   100.0%       148 27.05 .. 27.98         0 .. 100
+P1_SOL01D                entero  Boolean   PDF   100.0%         1 5.243e+05 .. 5.243e+05 0 .. 1
+P1_SOL03D                entero  Boolean   PDF   100.0%         1 5.243e+05 .. 5.243e+05 0 .. 1
+P1_STSP                  entero  Boolean   PDF   100.0%         1 1 .. 1                 0 .. 1
+P1_TIT01                 real    ℃         PDF   100.0%       424 27.67 .. 34.12         -50 .. 150
+P1_TIT02                 real    ℃         PDF   100.0%       468 32.49 .. 39.62         -50 .. 150
+P1_TIT03                 real    ℃         PDF   100.0%    >=2000 25.52 .. 30.6          -50 .. 150
+P2_24Vdc                 real    Voltage   PDF   100.0%       280 28.01 .. 28.05         0 .. 30
+P2_ATSW_Lamp             entero  Boolean   PDF   100.0%         2 0 .. 1                 0 .. 1
+P2_AutoGO                entero  ---       RNG   100.0%         2 0 .. 1                 no declarado
+P2_AutoSD                real    RPM       PDF   100.0%        72 100.7 .. 129.4         0 .. 3200
+P2_Emerg                 entero  Boolean   PDF   100.0%         1 0 .. 0                 0 .. 1
+P2_MASW                  entero  Boolean   PDF   100.0%         2 0 .. 1                 0 .. 1
+P2_MASW_Lamp             entero  Boolean   PDF   100.0%         2 0 .. 1                 0 .. 1
+P2_ManualGO              entero  Boolean   PDF   100.0%         2 0 .. 1                 0 .. 1
+P2_ManualSD              real    RPM       PDF   100.0%        13 0 .. 12.93             0 .. 3200
+P2_OnOff                 entero  Boolean   PDF   100.0%         1 1 .. 1                 0 .. 1
+P2_RTR                   entero  RPM       PDF   100.0%         1 2880 .. 2880           0 .. 2880
+P2_SCO                   entero  -         PDF   100.0%       209 5.415e+04 .. 5.483e+04 0 .. 100000
+P2_SCST                  real    RPM       PDF   100.0%    >=2000 719.4 .. 721.2         -100 .. 100
+P2_SIT01                 entero  RPM       PDF   100.0%       203 746 .. 967             0 .. 3200
+P2_TripEx                entero  Boolean   PDF   100.0%         1 1 .. 1                 0 .. 1
+P2_VIBTR01               real    ㎛         PDF   100.0%    >=2000 5.123 .. 7.862         -10 .. 10
+P2_VIBTR02               real    ㎛         PDF   100.0%    >=2000 -4.054 .. -1.848       -10 .. 10
+P2_VIBTR03               real    ㎛         PDF   100.0%    >=2000 7.989 .. 10.6          -10 .. 10
+P2_VIBTR04               real    ㎛         PDF   100.0%    >=2000 -1.91 .. 0.3069        -10 .. 10
+P2_VT01                  real    rad/s     PDF   100.0%    >=2000 11.79 .. 12.07         11 .. 12
+P2_VTR01                 entero  ㎛         PDF   100.0%         1 50 .. 50               -10 .. 10
+P2_VTR02                 entero  ㎛         PDF   100.0%         1 50 .. 50               -10 .. 10
+P2_VTR03                 entero  ㎛         PDF   100.0%         1 50 .. 50               -10 .. 10
+P2_VTR04                 entero  ㎛         PDF   100.0%         1 50 .. 50               -10 .. 10
+P3_FIT01                 entero  -         PDF   100.0%    >=2000 20 .. 5478             0 .. 27648
+P3_LCP01D                entero  -         PDF   100.0%      1731 -16 .. 1.382e+04       0 .. 27648
+P3_LCV01D                entero  -         PDF   100.0%      1140 -176 .. 1.941e+04      0 .. 27648
+P3_LH01                  entero  %         PDF   100.0%         1 70 .. 70               0 .. 70
+P3_LIT01                 entero  %         PDF   100.0%    >=2000 7969 .. 1.976e+04      0 .. 90
+P3_LL01                  entero  %         PDF   100.0%         1 30 .. 30               0 .. 70
+P3_PIT01                 entero  -         PDF   100.0%    >=2000 16 .. 4724             0 .. 27648
+P4_HT_FD                 real    mHz       PDF   100.0%       668 -0.02713 .. 0.03262    -0.02 .. 0.02
+P4_HT_PO                 real    MW        PDF   100.0%    >=2000 0 .. 90.57             0 .. 100
+P4_HT_PS                 real    MW        PDF   100.0%        21 0.07477 .. 7.799       0 .. 100
+P4_LD                    real    MW        PDF   100.0%    >=2000 228.4 .. 499.1         0 .. 500
+P4_ST_FD                 real    Hz        PDF   100.0%       263 -0.02185 .. 0.01006    -0.02 .. 0.02
+P4_ST_GOV                entero  -         PDF   100.0%    >=2000 1.276e+04 .. 2.681e+04 0 .. 27648
+P4_ST_LD                 real    MW        PDF   100.0%    >=2000 229.7 .. 497.5         0 .. 500
+P4_ST_PO                 real    MW        PDF   100.0%    >=2000 231.6 .. 494.6         0 .. 500
+P4_ST_PS                 real    MW        PDF   100.0%        38 1.133 .. 29.28         0 .. 500
+P4_ST_PT01               entero  -         PDF   100.0%       246 9804 .. 1.023e+04      0 .. 27648
+P4_ST_TT01               entero  -         PDF   100.0%       488 2.684e+04 .. 2.747e+04 0 .. 27648
+timestamp                texto   ---       ID    100.0%    >=2000 ---                    no declarado
+x1001_05_SETPOINT_OUT    real    ---       RNG   100.0%      1049 0.05086 .. 0.1999      no declarado
+x1001_15_ASSIGN_OUT      real    ---       RNG   100.0%    >=2000 0.7784 .. 1.598        no declarado
+x1002_07_SETPOINT_OUT    real    ---       RNG   100.0%      1274 302.4 .. 398.5         no declarado
+x1002_08_SETPOINT_OUT    real    ---       RNG   100.0%      1074 950.6 .. 1049          no declarado
+x1003_10_SETPOINT_OUT    real    ---       RNG   100.0%    >=2000 6.157 .. 3190          no declarado
+x1003_18_SETPOINT_OUT    real    ---       RNG   100.0%       280 25.14 .. 28            no declarado
+x1003_24_SUM_OUT         real    ---       RNG   100.0%    >=2000 27.96 .. 33.09         no declarado
+
+Nivel de agregacion: registro de proceso: una muestra de todas las variables a la vez
+
+Columnas de proceso **sin unidad declarada en el PDF**: 9 de 86.
+  P1_PP04D, P2_AutoGO, x1001_05_SETPOINT_OUT, x1001_15_ASSIGN_OUT, x1002_07_SETPOINT_OUT, x1002_08_SETPOINT_OUT, x1003_10_SETPOINT_OUT, x1003_18_SETPOINT_OUT, x1003_24_SUM_OUT
+
+#### haiend-23.05 --- 4 archivos de entrenamiento
+
+896400 filas, 226 columnas. Columna de tiempo: `Timestamp`.
+Rango: 2022-08-04 18:00:00 a 2022-08-24 23:59:59.
+Intervalo entre filas: moda 1.0 s, min 1.0 s, max 1.0 s.
+Columnas de etiqueta: **ninguna** (las etiquetas vienen en `label-test*.csv`).
+Columnas de proceso: 225.
+
+campo                    tipo    unidad    proc cobert. distintos rango medido           rango declarado
+1001.13-OUT              real    -         PDF   100.0%    >=2000 4.633 .. 9.718         - .. -
+1001.14-OUT              real    -         PDF   100.0%    >=2000 0.7784 .. 1.598        - .. -
+1001.15-OUT              real    -         PDF   100.0%    >=2000 0.7784 .. 1.598        - .. -
+1001.16-OUT              real    -         PDF   100.0%    >=2000 12.04 .. 44.96         - .. -
+1001.17-OUT              real    -         PDF   100.0%    >=2000 12.04 .. 44.96         - .. -
+1001.2-OUT               entero  ---       RNG   100.0%         1 0 .. 0                 no declarado
+1001.20-OUT              real    -         PDF   100.0%    >=2000 12.04 .. 44.96         - .. -
+1001.5-OUT               real    ---       RNG   100.0%      1106 0.05086 .. 0.2         no declarado
+1001.7-OUT1              entero  ---       RNG   100.0%         1 0 .. 0                 no declarado
+1001.7-OUT2              entero  ---       RNG   100.0%         1 0 .. 0                 no declarado
+1001.8-OUT               entero  ---       RNG   100.0%         1 0 .. 0                 no declarado
+1001.9-OUT               entero  ---       RNG   100.0%         1 40 .. 40               no declarado
+1002.11-OUT1             entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1002.11-OUT2             entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1002.12-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1002.14-OUT              entero  -         PDF   100.0%         1 30 .. 30               - .. -
+1002.15-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1002.16-OUT1             entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1002.16-OUT2             entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1002.19-OUT              entero  -         PDF   100.0%         1 1 .. 1                 - .. -
+1002.2-OUT               entero  ---       RNG   100.0%         1 0 .. 0                 no declarado
+1002.20-OUT              real    -         PDF   100.0%    >=2000 47.69 .. 68.65         - .. -
+1002.21-OUT              real    -         PDF   100.0%    >=2000 0.6151 .. 35.91        - .. -
+1002.29-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1002.30-OUT              real    -         PDF   100.0%    >=2000 0.6151 .. 35.91        - .. -
+1002.31-OUT              real    -         PDF   100.0%    >=2000 0.5966 .. 34.83        - .. -
+1002.34-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1002.6-OUT               entero  ---       RNG   100.0%         1 0 .. 0                 no declarado
+1002.7-OUT               real    ---       RNG   100.0%      1312 302.4 .. 398.5         no declarado
+1002.8-OUT               real    ---       RNG   100.0%      1107 950.6 .. 1049          no declarado
+1002.9-OUT               real    ---       RNG   100.0%    >=2000 47.69 .. 68.65         no declarado
+1003.10-OUT              real    -         PDF   100.0%    >=2000 6.157 .. 3190          - .. -
+1003.11-OUT              real    -         PDF   100.0%    >=2000 0 .. 92.24             - .. -
+1003.12-OUT1             entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1003.12-OUT2             entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1003.13-OUT              entero  -         PDF   100.0%         1 1 .. 1                 - .. -
+1003.17-OUT              real    -         PDF   100.0%    >=2000 0 .. 92.24             - .. -
+1003.18-OUT              real    -         PDF   100.0%       286 25.14 .. 28            - .. -
+1003.23-OUT              real    -         PDF   100.0%    >=2000 4.633 .. 9.718         - .. -
+1003.24-OUT              real    -         PDF   100.0%    >=2000 27.96 .. 33.09         - .. -
+1003.25-OUT              real    -         PDF   100.0%    >=2000 0 .. 100               - .. -
+1003.26-OUT              real    -         PDF   100.0%    >=2000 0 .. 92.24             - .. -
+1003.27-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1003.29-OUT              real    -         PDF   100.0%    >=2000 0 .. 92.24             - .. -
+1003.30-OUT              real    -         PDF   100.0%    >=2000 0 .. 92.24             - .. -
+1003.5-OUT               real    ---       RNG   100.0%    >=2000 0.1931 .. 100          no declarado
+1003.7-OUT               entero  ---       RNG   100.0%         1 0 .. 0                 no declarado
+1004.11-OUT1             entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1004.11-OUT2             entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1004.12-OUT1             entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1004.12-OUT2             entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1004.13-OUT              entero  -         PDF   100.0%         1 1 .. 1                 - .. -
+1004.15-OUT1             entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1004.15-OUT2             entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1004.18-OUT1             entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1004.18-OUT2             entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1004.21-OUT              entero  -         PDF   100.0%         2 0 .. 1                 - .. -
+1004.24-OUT              entero  -         PDF   100.0%         2 0 .. 1                 - .. -
+1004.29-OUT              entero  -         PDF   100.0%         1 1 .. 1                 - .. -
+1004.36-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1004.37-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1004.38-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1004.39-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1004.41-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1004.44-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1004.52-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1004.53-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1004.62-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1004.76-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1004.78-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1004.79-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1004.80-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1010.10-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1010.11-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1010.12-OUT1             entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1010.12-OUT2             entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1010.16-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1010.17-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1010.19-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1010.2-OUT               entero  ---       RNG   100.0%         1 0 .. 0                 no declarado
+1010.23-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1010.3-OUT               entero  ---       RNG   100.0%         1 1 .. 1                 no declarado
+1010.30-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1010.31-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1010.33-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1010.35-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1010.38-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1010.39-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1010.4-OUT               entero  ---       RNG   100.0%         1 1 .. 1                 no declarado
+1010.41-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1010.42-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1010.44-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1010.46-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1010.47-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1010.5-OUT1              entero  ---       RNG   100.0%         1 0 .. 0                 no declarado
+1010.5-OUT2              entero  ---       RNG   100.0%         1 0 .. 0                 no declarado
+1010.5-OUT3              entero  ---       RNG   100.0%         1 0 .. 0                 no declarado
+1010.5-OUT4              entero  ---       RNG   100.0%         1 0 .. 0                 no declarado
+1010.50-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1010.54-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1010.56-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1010.7-OUT               entero  ---       RNG   100.0%         1 0 .. 0                 no declarado
+1010.8-OUT               entero  ---       RNG   100.0%         1 0 .. 0                 no declarado
+1010.9-OUT               entero  ---       RNG   100.0%         1 1 .. 1                 no declarado
+1011.10-OUT              entero  -         PDF   100.0%         1 1 .. 1                 - .. -
+1011.11-OUT              entero  -         PDF   100.0%         1 1 .. 1                 - .. -
+1011.12-OUT1             entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1011.12-OUT2             entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1011.16-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1011.17-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1011.19-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1011.2-OUT               entero  ---       RNG   100.0%         1 0 .. 0                 no declarado
+1011.23-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1011.3-OUT               entero  ---       RNG   100.0%         1 1 .. 1                 no declarado
+1011.30-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1011.31-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1011.33-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1011.35-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1011.38-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1011.39-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1011.4-OUT               entero  ---       RNG   100.0%         1 1 .. 1                 no declarado
+1011.41-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1011.42-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1011.44-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1011.46-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1011.47-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1011.5-OUT1              entero  ---       RNG   100.0%         1 0 .. 0                 no declarado
+1011.5-OUT2              entero  ---       RNG   100.0%         1 0 .. 0                 no declarado
+1011.5-OUT3              entero  ---       RNG   100.0%         1 0 .. 0                 no declarado
+1011.5-OUT4              entero  ---       RNG   100.0%         1 0 .. 0                 no declarado
+1011.50-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1011.54-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1011.56-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1011.7-OUT               entero  ---       RNG   100.0%         1 1 .. 1                 no declarado
+1011.8-OUT               entero  ---       RNG   100.0%         1 1 .. 1                 no declarado
+1011.9-OUT               entero  ---       RNG   100.0%         1 0 .. 0                 no declarado
+1020.10-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1020.11-OUT              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+1020.13-OUT              real    -         PDF   100.0%    >=2000 0 .. 100               - .. -
+1020.14-OUT              real    -         PDF   100.0%    >=2000 0 .. 100               - .. -
+1020.15-OUT              real    -         PDF   100.0%    >=2000 0 .. 40                - .. -
+1020.18-OUT              entero  -         PDF   100.0%         2 0 .. 1                 - .. -
+1020.2-OUT               entero  ---       RNG   100.0%         1 0 .. 0                 no declarado
+1020.20-OUT              entero  -         PDF   100.0%         2 0 .. 1                 - .. -
+1020.21-OUT              entero  -         PDF   100.0%         2 0 .. 1                 - .. -
+1020.3-OUT               entero  ---       RNG   100.0%         1 0 .. 0                 no declarado
+1020.4-OUT               entero  ---       RNG   100.0%         1 0 .. 0                 no declarado
+1020.5-OUT1              entero  ---       RNG   100.0%         1 0 .. 0                 no declarado
+1020.5-OUT2              entero  ---       RNG   100.0%         1 0 .. 0                 no declarado
+1020.9-OUT               entero  ---       RNG   100.0%         1 0 .. 0                 no declarado
+DM-AIT-DO                real    -         PDF   100.0%        14 0.0766 .. 0.09644      - .. -
+DM-AIT-PH                real    -         PDF   100.0%       395 3.449 .. 3.87          - .. -
+DM-CIP-1ST               entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+DM-CIP-2ND               entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+DM-CIP-START             entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+DM-CIP-STEP1             entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+DM-CIP-STEP11            entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+DM-CIPH-1ST              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+DM-CIPH-2ND              entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+DM-CIPH-START            entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+DM-CIPH-STEP1            entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+DM-CIPH-STEP11           entero  -         PDF   100.0%         1 0 .. 0                 - .. -
+DM-COOL-ON               entero  -         PDF   100.0%         1 1 .. 1                 - .. -
+DM-COOL-R                entero  -         PDF   100.0%         1 1 .. 1                 - .. -
+DM-FCV01-D               real    %         PDF   100.0%    >=2000 0 .. 92.24             0 .. 100
+DM-FCV01-Z               real    %         PDF   100.0%    >=2000 0.3143 .. 92.2         0 .. 100
+DM-FCV02-D               real    %         PDF   100.0%    >=2000 15 .. 100              0 .. 100
+DM-FCV02-Z               real    %         PDF   100.0%    >=2000 12.29 .. 97.73         0 .. 100
+DM-FCV03-D               real    %         PDF   100.0%    >=2000 47.69 .. 68.65         0 .. 100
+DM-FCV03-Z               real    %         PDF   100.0%    >=2000 48.33 .. 69.71         0 .. 100
+DM-FT01                  real    mmH2O     PDF   100.0%       864 0.801 .. 198.8         0 .. 2500
+DM-FT01Z                 real    l/h       PDF   100.0%       864 4.171 .. 892.2         0 .. 3190
+DM-FT02                  real    mmH2O     PDF   100.0%    >=2000 1.183 .. 2507          0 .. 2500
+DM-FT02Z                 real    l/h       PDF   100.0%    >=2000 6.157 .. 3190          0 .. 3190
+DM-FT03                  real    mmH2O     PDF   100.0%       364 217.1 .. 287.5         0 .. 2500
+DM-FT03Z                 real    l/h       PDF   100.0%       364 934 .. 1072            0 .. 3190
+DM-HT01-D                entero  Boolean   PDF   100.0%         2 0 .. 1                 0 .. 1
+DM-LCV01-D               real    %         PDF   100.0%    >=2000 0.5966 .. 34.83        0 .. 100
+DM-LCV01-MIS             entero  Boolean   PDF   100.0%         1 0 .. 0                 0 .. 1
+DM-LCV01-Z               real    %         PDF   100.0%    >=2000 0.2991 .. 35.02        0 .. 100
+DM-LIT01                 real    mm        PDF   100.0%    >=2000 280.3 .. 426.5         0 .. 720
+DM-LSH-03                entero  Boolean   PDF   100.0%         1 1 .. 1                 0 .. 1
+DM-LSH-04                entero  Boolean   PDF   100.0%         1 1 .. 1                 0 .. 1
+DM-LSH01                 entero  Boolean   PDF   100.0%         1 1 .. 1                 0 .. 1
+DM-LSH02                 entero  Boolean   PDF   100.0%         1 0 .. 0                 0 .. 1
+DM-LSL-04                entero  Boolean   PDF   100.0%         1 0 .. 0                 0 .. 1
+DM-LSL01                 entero  Boolean   PDF   100.0%         1 0 .. 0                 0 .. 1
+DM-LSL02                 entero  Boolean   PDF   100.0%         1 0 .. 0                 0 .. 1
+DM-PCV01-D               real    %         PDF   100.0%    >=2000 12.04 .. 44.96         0 .. 100
+DM-PCV01-DEV             entero  Boolean   PDF   100.0%         1 0 .. 0                 0 .. 1
+DM-PCV01-Z               real    %         PDF   100.0%    >=2000 12.74 .. 45.74         0 .. 100
+DM-PCV02-D               real    %         PDF   100.0%       341 12 .. 17.17            0 .. 100
+DM-PCV02-Z               real    %         PDF   100.0%       117 11.67 .. 16.3          0 .. 100
+DM-PIT01                 real    bar       PDF   100.0%      1466 0.4701 .. 2.049        0 .. 10
+DM-PIT01-HH              entero  bar       PDF   100.0%         1 0 .. 0                 0 .. 10
+DM-PIT02                 real    bar       PDF   100.0%      1614 0.3114 .. 1.543        0 .. 10
+DM-PP01-R                entero  Boolean   PDF   100.0%         1 0 .. 0                 0 .. 1
+DM-PP01A-D               entero  Boolean   PDF   100.0%         1 0 .. 0                 0 .. 1
+DM-PP01A-R               entero  Boolean   PDF   100.0%         1 0 .. 0                 0 .. 1
+DM-PP01B-D               entero  Boolean   PDF   100.0%         1 1 .. 1                 0 .. 1
+DM-PP01B-R               entero  Boolean   PDF   100.0%         1 1 .. 1                 0 .. 1
+DM-PP02-D                entero  Boolean   PDF   100.0%         1 1 .. 1                 0 .. 1
+DM-PP02-R                entero  Boolean   PDF   100.0%         1 1 .. 1                 0 .. 1
+DM-PP04-AO               real    Hz        PDF   100.0%    >=2000 0 .. 45                0 .. 100
+DM-PP04-D                entero  Boolean   PDF   100.0%         2 0 .. 1                 0 .. 1
+DM-PP04-SV               entero  -         PDF   100.0%         1 19 .. 19               - .. -
+DM-PWIT-03               real    bar       PDF   100.0%      1098 -0.008268 .. 0.01032   0 .. 10
+DM-SOL01-D               entero  Boolean   PDF   100.0%         1 0 .. 0                 0 .. 1
+DM-SOL02-D               entero  Boolean   PDF   100.0%         1 0 .. 0                 0 .. 1
+DM-SOL03-D               entero  Boolean   PDF   100.0%         1 0 .. 0                 0 .. 1
+DM-SOL04-D               entero  Boolean   PDF   100.0%         1 0 .. 0                 0 .. 1
+DM-SS01-RM               entero  Boolean   PDF   100.0%         1 1 .. 1                 0 .. 1
+DM-ST-SP                 entero  Boolean   PDF   100.0%         1 1 .. 1                 0 .. 1
+DM-SW01-ST               entero  Boolean   PDF   100.0%         1 0 .. 0                 0 .. 1
+DM-SW02-SP               entero  Boolean   PDF   100.0%         1 0 .. 0                 0 .. 1
+DM-SW03-EM               entero  Boolean   PDF   100.0%         1 0 .. 0                 0 .. 1
+DM-TIT01                 real    ℃         PDF   100.0%       424 27.67 .. 34.12         -50 .. 150
+DM-TIT02                 real    ℃         PDF   100.0%       468 32.49 .. 39.62         -50 .. 150
+DM-TWIT-03               real    ℃         PDF   100.0%    >=2000 25.52 .. 30.6          -50 .. 150
+DM-TWIT-04               real    ℃         PDF   100.0%    >=2000 27.17 .. 31.98         -50 .. 150
+DM-TWIT-05               real    ℃         PDF   100.0%    >=2000 25.17 .. 28.33         -50 .. 150
+DQ03-LCV01-D             entero  Boolean   PDF   100.0%         1 0 .. 0                 0 .. 1
+DQ04-LCV01-DEV           entero  Boolean   PDF   100.0%         1 0 .. 0                 0 .. 1
+GATEOPEN                 real    -         PDF   100.0%    >=2000 4.633 .. 9.718         0 .. 10
+PP04-SP-OUT              real    ℃         PDF   100.0%       150 27.05 .. 27.98         0 .. 40
+Timestamp                texto   ---       ID    100.0%    >=2000 ---                    no declarado
+
+Nivel de agregacion: registro de proceso: una muestra de todas las variables a la vez
+
+Columnas de proceso **sin unidad declarada en el PDF**: 39 de 225.
+  1001.2-OUT, 1001.5-OUT, 1001.7-OUT1, 1001.7-OUT2, 1001.8-OUT, 1001.9-OUT, 1002.2-OUT, 1002.6-OUT, 1002.7-OUT, 1002.8-OUT, 1002.9-OUT, 1003.5-OUT, 1003.7-OUT, 1010.2-OUT, 1010.3-OUT, 1010.4-OUT, 1010.5-OUT1, 1010.5-OUT2, 1010.5-OUT3, 1010.5-OUT4
+  ... y 19 mas.
+
+### D.4 La tabla de ataques del PDF: la etiqueta de tipo que los CSV no traen
+
+Las secciones 'ATTACK OPERATION' del PDF publican, **por ataque**:
+identificador, codigo de escenario, controlador atacado, punto de
+proceso atacado, hora de inicio y duracion. **Nada de eso esta en los
+CSV**, donde la etiqueta es binaria.
+
+version del PDF       paginas    ataques   escenarios      con punto eventos medidos
+HAI/HAIEnd 23.05        31-32         52           37             50 hai-23.05=52, haiend-23.05=52
+HAI 22.04               33-35         57           35             53 hai-22.04=58
+HAI 21.03               36-38         50           25             50 hai-21.03=50
+HAI 20.07               39-41         38           14             20 hai-20.07=38
+
+El recuento del PDF y el que `04_hai.py` midio contando rachas de
+etiqueta sobre los archivos de prueba **coinciden en tres de las
+cuatro versiones**. Es un control cruzado util: la tabla del documento
+describe los mismos ataques que estan etiquetados en los datos.
+
+Lo que esto habilita, y conviene no exagerarlo: se **podria**
+construir una etiqueta por tipo para HAI cruzando la hora de inicio y
+la duracion de esta tabla con las marcas de tiempo de los archivos de
+prueba. No se hace aqui --- seria tocar el tramo de prueba mas alla
+del conteo que el brief admite --- y tiene dos obstaculos: la tabla da
+la hora sin la fecha completa en varias filas, y los codigos de
+escenario (`AP01`, `AE03`) nombran el punto atacado, no una familia de
+anomalia comparable con la taxonomia de Morris.
+
+### D.5 Cabeceras de los archivos de prueba
+
+De los archivos de prueba se lee **solo la cabecera**: es formato, no
+distribucion. Ninguna fila se abrio.
+
+archivo                                    campos
+hai-20.07/test1.csv                            64
+hai-20.07/test2.csv                            64
+hai-21.03/test1.csv                            84
+hai-21.03/test2.csv                            84
+hai-21.03/test3.csv                            84
+hai-21.03/test4.csv                            84
+hai-21.03/test5.csv                            84
+hai-22.04/test1.csv                            88
+hai-22.04/test2.csv                            88
+hai-22.04/test3.csv                            88
+hai-22.04/test4.csv                            88
+hai-23.05/hai-test1.csv                        87
+hai-23.05/hai-test2.csv                        87
+hai-23.05/label-test1.csv                       2
+hai-23.05/label-test2.csv                       2
+haiend-23.05/end-test1.csv                    226
+haiend-23.05/end-test2.csv                    226
+haiend-23.05/label-test1.csv                    2
+haiend-23.05/label-test2.csv                    2
+
+---
+
+## E. QUT DNP3
+
+Lo que publica, por escenario y por particion: tres PCAP (`master`,
+`slave`, `attacker`), un `master.csv` y un `slave.csv` con etiquetas por
+paquete, y un directorio `tshark/` con recuentos por segundo y por
+protocolo. Es el unico de los cinco que **no publica ninguna tabla de
+caracteristicas de flujo**.
+
+### E.1 Archivos del tramo de entrenamiento
+
+tipo de archivo                    archivos  MB en disco
+PCAP                                     42       3713.4
+master.csv / slave.csv                   24          9.5
+tshark/*.csv                            180        115.2
+
+### E.2 Los PCAP: cero campos publicados
+
+Nivel: paquete: una trama de la captura
+No traen cabecera ni esquema. Todo lo que el proyecto usa de ellos lo
+calcula su propio lector (`eda/scripts/dnp3.py`). Los campos que ese
+lector recupera estan documentados en la pregunta 1 de INFORME.md
+y en `eda/salidas/p1_qut_payload.txt`; **no se vuelven a medir aqui**,
+porque no son campos publicados sino calculados por el proyecto.
+
+### E.3 `master.csv` y `slave.csv`: etiquetas por paquete
+
+Son CSV **sin cabecera**, de tres campos. Medido sobre los 24 archivos
+del tramo de entrenamiento:
+
+campo (posicion)           tipo    unidad    proc contenido
+1  (sin nombre)            entero  indice    RNG  numero de paquete dentro del PCAP, 3762 .. 3108480
+2  (sin nombre)            texto   ---       CAT  resumen de la trama en notacion de Scapy
+3  (sin nombre)            texto   ---       CAT  nombre del ataque; 32 valores distintos
+
+Nivel: paquete: una trama de la captura
+Pero **solo de los paquetes de ataque**: 94377 filas en total, frente a los
+millones de paquetes de los PCAP. El escenario `Control`, que es la linea
+base sin ataque, **no tiene estos archivos**.
+
+Numero de campos por fila: 3 campos en 94377 filas.
+
+Las 32 etiquetas distintas del tramo de entrenamiento:
+
+  slave_masquerading_flooding                     29856
+  master_flooding_freeze                          13142
+  master_replay_flooding                          12426
+  nmap_reconnaissance                              9418
+  MITM_forwarding_from_attacker                    6371
+  slave_masquerading                               5265
+  ARP_poisoning                                    4826
+  MITM_forwarding_to_attacker                      4463
+  master_flooding_time                             2196
+  master_replay                                    1477
+  master_masquerading                              1426
+  MITM_hijack_injection                            1126
+  slave_masquerading_router                         819
+  MITM_from_attacker                                326
+  MITM_to_attacker                                  271
+  slave_masquerading_router_igmp                    182
+  injection_replay                                  172
+  hijacking                                          93
+  DNP3_reconnaissance                                85
+  injection_FreezeObj                                60
+  slave_masquerading_ObjectSpoofBinary               59
+  injection_push                                     57
+  MITM_modification_ImmedFreezeNR                    54
+  slave_masquerading_ObjectSpoofBinaryfuzz           52
+  injection_WarmRestart                              45
+  injection_ColdRestart                              39
+  slave_masquerading_ObjectSpoofCounter              36
+  MITM_modification_BinaryInputPointInsert           10
+  MITM_modification_BinaryStatus                      9
+  MITM_modification_CounterStatus                     7
+  MITM_modification_BinaryInputPointDelete            6
+  MITM_modification_BinaryInputDataDelete             3
+
+Es un vocabulario **mucho mas fino** que el de las siete carpetas de
+escenario: nombra el mecanismo (`MITM_modification_BinaryStatus`,
+`injection_WarmRestart`) y no solo la familia.
+
+### E.4 `tshark/*.csv`: recuentos por ventana de 1 s
+
+180 archivos, 15 nombres distintos:
+
+  attacker.pcap.00:10:18:cb:8c:13.csv  12 archivos
+  attacker.pcap.ARP.csv               12 archivos
+  attacker.pcap.DNP 3.0.csv           12 archivos
+  attacker.pcap.GOOSE.csv             12 archivos
+  attacker.pcap.TCP.csv               12 archivos
+  master.pcap.00:10:18:cb:8c:13.csv   12 archivos
+  master.pcap.ARP.csv                 12 archivos
+  master.pcap.DNP 3.0.csv             12 archivos
+  master.pcap.GOOSE.csv               12 archivos
+  master.pcap.TCP.csv                 12 archivos
+  slave.pcap.00:10:18:cb:8c:13.csv    12 archivos
+  slave.pcap.ARP.csv                  12 archivos
+  slave.pcap.DNP 3.0.csv              12 archivos
+  slave.pcap.GOOSE.csv                12 archivos
+  slave.pcap.TCP.csv                  12 archivos
+
+Medido sobre datasets/qut-dnp3/Attacks/attacks/training/frequent/tshark/master.pcap.DNP 3.0.csv:
+
+campo (posicion)           tipo    unidad    proc contenido
+1  (sin nombre)            entero  s         ID   segundo desde el inicio, 0 .. 86396
+2  (sin nombre)            entero  paquete   ID   paquetes de ese protocolo en ese segundo; suma 70970
+
+Sin cabecera, separados por espacio. 86397 lineas = **86397 ventanas de 1 s**,
+es decir 24.00 horas, que es lo que dura el escenario.
+
+Nivel: ventana: un recuento agregado sobre un intervalo fijo
+
+**Es la unica caracteristica agregada que QUT publica**: una tasa de
+paquetes por segundo, separada por protocolo. La genera `plot_data.sh`
+del propio repositorio para dibujar graficos con gnuplot, de modo que
+es un subproducto, no un conjunto de caracteristicas pensado para
+aprendizaje automatico.

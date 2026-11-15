@@ -1,0 +1,269 @@
+{
+ "casos": [
+  {
+   "caso": "Morris, DoS (prueba)",
+   "n": 281,
+   "publicado": "+-0,03 (error estandar)",
+   "wilson_95": {
+    "k_continuo": 140.5,
+    "centro": 0.5,
+    "inferior": 0.4419347240024158,
+    "superior": 0.5580652759975843,
+    "semiancho": 0.05806527599758423
+   },
+   "clopper_pearson_95": {
+    "k_exacto_alcanzable": false,
+    "por_k": [
+     {
+      "k": 140,
+      "p_estimada": 0.498220640569395,
+      "inferior": 0.4382691174967824,
+      "superior": 0.5582100760756403,
+      "semiancho_equivalente": 0.059970479289428974
+     },
+     {
+      "k": 141,
+      "p_estimada": 0.501779359430605,
+      "inferior": 0.4417899239243596,
+      "superior": 0.5617308825032179,
+      "semiancho_equivalente": 0.05997047928942914
+     }
+    ],
+    "semiancho_equivalente": 0.05997047928942914
+   },
+   "wald": {
+    "error_estandar": 0.02982749931359468,
+    "semiancho_95": 0.05846082440353875,
+    "inferior": 0.4415391755964613,
+    "superior": 0.5584608244035387,
+    "se_sale_de_0_1": false
+   },
+   "wilson_peor_caso": {
+    "semiancho": 0.05806491327187859,
+    "k": 140
+   },
+   "granularidad_1_sobre_n": 0.0035587188612099642
+  },
+  {
+   "caso": "Morris, MPCI (prueba)",
+   "n": 1808,
+   "publicado": "+-0,023 (IC 95 %)",
+   "wilson_95": {
+    "k_continuo": 904.0,
+    "centro": 0.5,
+    "inferior": 0.4769772075243019,
+    "superior": 0.5230227924756982,
+    "semiancho": 0.023022792475698124
+   },
+   "clopper_pearson_95": {
+    "k_exacto_alcanzable": true,
+    "por_k": [
+     {
+      "k": 904,
+      "p_estimada": 0.5,
+      "inferior": 0.4766920782050152,
+      "superior": 0.5233079217949848,
+      "semiancho_equivalente": 0.02330792179498478
+     }
+    ],
+    "semiancho_equivalente": 0.02330792179498478
+   },
+   "wald": {
+    "error_estandar": 0.011759010854794966,
+    "semiancho_95": 0.023047237769213687,
+    "inferior": 0.4769527622307863,
+    "superior": 0.5230472377692137,
+    "se_sale_de_0_1": false
+   },
+   "wilson_peor_caso": {
+    "semiancho": 0.023022792475698124,
+    "k": 904
+   },
+   "granularidad_1_sobre_n": 0.0005530973451327434
+  },
+  {
+   "caso": "ICS-Flow, escrituras bajo MITM (prueba)",
+   "n": 51,
+   "publicado": "+-0,137 (IC 95 %)",
+   "wilson_95": {
+    "k_continuo": 25.5,
+    "centro": 0.5,
+    "inferior": 0.36766839011546465,
+    "superior": 0.6323316098845353,
+    "semiancho": 0.13233160988453535
+   },
+   "clopper_pearson_95": {
+    "k_exacto_alcanzable": false,
+    "por_k": [
+     {
+      "k": 25,
+      "p_estimada": 0.49019607843137253,
+      "inferior": 0.3475279629951143,
+      "superior": 0.634042860329036,
+      "semiancho_equivalente": 0.14325744866696086
+     },
+     {
+      "k": 26,
+      "p_estimada": 0.5098039215686274,
+      "inferior": 0.36595713967096405,
+      "superior": 0.6524720370048858,
+      "semiancho_equivalente": 0.14325744866696086
+     }
+    ],
+    "semiancho_equivalente": 0.14325744866696086
+   },
+   "wald": {
+    "error_estandar": 0.07001400420140048,
+    "semiancho_95": 0.13722492664818098,
+    "inferior": 0.362775073351819,
+    "superior": 0.637224926648181,
+    "se_sale_de_0_1": false
+   },
+   "wilson_peor_caso": {
+    "semiancho": 0.13230795105529775,
+    "k": 25
+   },
+   "granularidad_1_sobre_n": 0.0196078431372549
+  },
+  {
+   "caso": "Westermo, tipo con 3 eventos (prueba)",
+   "n": 3,
+   "publicado": "+-0,55 (IC 95 %)",
+   "wilson_95": {
+    "k_continuo": 1.5,
+    "centro": 0.5,
+    "inferior": 0.1253344719102632,
+    "superior": 0.8746655280897369,
+    "semiancho": 0.3746655280897368
+   },
+   "clopper_pearson_95": {
+    "k_exacto_alcanzable": false,
+    "por_k": [
+     {
+      "k": 1,
+      "p_estimada": 0.3333333333333333,
+      "inferior": 0.008403758659612636,
+      "superior": 0.9057006759497539,
+      "semiancho_equivalente": 0.44864845864507064
+     },
+     {
+      "k": 2,
+      "p_estimada": 0.6666666666666666,
+      "inferior": 0.09429932405024609,
+      "superior": 0.9915962413403874,
+      "semiancho_equivalente": 0.44864845864507064
+     }
+    ],
+    "semiancho_equivalente": 0.44864845864507064
+   },
+   "wald": {
+    "error_estandar": 0.28867513459481287,
+    "semiancho_95": 0.5657928670380858,
+    "inferior": -0.06579286703808584,
+    "superior": 1.0657928670380858,
+    "se_sale_de_0_1": true
+   },
+   "wilson_peor_caso": {
+    "semiancho": 0.365424227238778,
+    "k": 1
+   },
+   "granularidad_1_sobre_n": 0.3333333333333333
+  },
+  {
+   "caso": "Westermo, peor tipo: BAD-PORTSCAN1 (prueba)",
+   "n": 1,
+   "publicado": "no publicado",
+   "wilson_95": {
+    "k_continuo": 0.5,
+    "centro": 0.5,
+    "inferior": 0.05462075552885198,
+    "superior": 0.945379244471148,
+    "semiancho": 0.445379244471148
+   },
+   "clopper_pearson_95": {
+    "k_exacto_alcanzable": false,
+    "por_k": [
+     {
+      "k": 0,
+      "p_estimada": 0.0,
+      "inferior": 0.0,
+      "superior": 0.975,
+      "semiancho_equivalente": 0.4875
+     },
+     {
+      "k": 1,
+      "p_estimada": 1.0,
+      "inferior": 0.025,
+      "superior": 1.0,
+      "semiancho_equivalente": 0.4875
+     }
+    ],
+    "semiancho_equivalente": 0.4875
+   },
+   "wald": {
+    "error_estandar": 0.5,
+    "semiancho_95": 0.979981992270027,
+    "inferior": -0.479981992270027,
+    "superior": 1.479981992270027,
+    "se_sale_de_0_1": true
+   },
+   "wilson_peor_caso": {
+    "semiancho": 0.3967253428113813,
+    "k": 0
+   },
+   "granularidad_1_sobre_n": 1.0
+  },
+  {
+   "caso": "ICS-Flow, eventos de MITM (prueba)",
+   "n": 5,
+   "publicado": "+-0,438 (IC 95 %)",
+   "wilson_95": {
+    "k_continuo": 2.5,
+    "centro": 0.5,
+    "inferior": 0.1704235806435878,
+    "superior": 0.8295764193564121,
+    "semiancho": 0.3295764193564122
+   },
+   "clopper_pearson_95": {
+    "k_exacto_alcanzable": false,
+    "por_k": [
+     {
+      "k": 2,
+      "p_estimada": 0.4,
+      "inferior": 0.052744950526316906,
+      "superior": 0.8533672003653268,
+      "semiancho_equivalente": 0.40031112491950493
+     },
+     {
+      "k": 3,
+      "p_estimada": 0.6,
+      "inferior": 0.14663279963467313,
+      "superior": 0.9472550494736831,
+      "semiancho_equivalente": 0.400311124919505
+     }
+    ],
+    "semiancho_equivalente": 0.400311124919505
+   },
+   "wald": {
+    "error_estandar": 0.22360679774997896,
+    "semiancho_95": 0.43826127028829076,
+    "inferior": 0.06173872971170924,
+    "superior": 0.9382612702882908,
+    "se_sale_de_0_1": false
+   },
+   "wilson_peor_caso": {
+    "semiancho": 0.32582747224566955,
+    "k": 2
+   },
+   "granularidad_1_sobre_n": 0.2
+  }
+ ],
+ "estadistico": {
+  "elegido": "Wilson score, 95 %",
+  "control": "Clopper-Pearson, 95 %",
+  "z": 1.959963984540054,
+  "alfa": 0.05,
+  "pd_premisa": 0.5,
+  "motivo": "Wald no sirve con n chico: con n = 3 su intervalo se sale de [0, 1]. Wilson no se sale nunca, tiene mejor cobertura en n chico y no se degrada en n grande."
+ }
+}

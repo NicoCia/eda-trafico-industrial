@@ -1,0 +1,167 @@
+# Preguntas 3 y 4 - Morris / Turnipseed
+
+Archivo: datasets/morris-turnipseed/IanArffDataset.arff
+
+## P3.a Control de las cifras que se daban por verificadas
+
+comprobacion                                      declarado       medido coincide
+filas                                                274628       274628       SI
+atributos                                                20           20       SI
+normales (categorized result = 0)                    214580       214580       SI
+ataques (total)                                       60048        60048       SI
+categoria 1  NMRI  (inyeccion simple de r              7753         7753       SI
+categoria 2  CMRI  (inyeccion compleja de             13035        13035       SI
+categoria 3  MSCI  (inyeccion de estado m              7900         7900       SI
+categoria 4  MPCI  (inyeccion de parametr             20412        20412       SI
+categoria 5  MFCI  (inyeccion de codigo d              4898         4898       SI
+categoria 6  DoS   (denegacion de servici              2176         2176       SI
+categoria 7  Reconnaissance (reconocimien              3874         3874       SI
+command response = 0                                 137013       137013       SI
+command response = 1                                 137615       137615       SI
+
+Comprobaciones correctas: 13 de 13
+
+Etiqueta `binary result`: {'0': np.int64(214580), '1': np.int64(60048)}
+Etiqueta `specific result`: 36 clases distintas
+
+## P3.b Que valor de `command response` es el comando
+
+`datasets/morris-turnipseed/PROCEDENCIA.md` dice: 0 = comando,
+1 = respuesta. Se contrasta contra el contenido de las filas.
+
+Tabla cruzada con el codigo de funcion Modbus:
+
+function           cr=0         cr=1
+0                     0           40
+1                    40           40
+2                    40           40
+3                 68848        68848
+4                     0           40
+5                     0           40
+6                    40           40
+7                    40           40
+8                     0         3123
+9                     0           40
+10                    0           40
+11                    0           40
+12                    0           40
+13                    0           40
+14                    0           40
+16                64100        64100
+43                    0         1024
+128                  40            0
+132                  40            0
+133                  40            0
+136                2521            0
+137                  40            0
+138                  40            0
+139                  40            0
+140                  40            0
+141                  40            0
+142                  40            0
+171                1024            0
+
+Longitud de trama (`length`) segun el valor:
+
+function   cr              n length med length max
+0          1              40         16         16
+1          0              40         14         14
+1          1              40         16         16
+2          0              40         14         14
+2          1              40         16         16
+3          0           68848         46         46
+3          1           68848         16         16
+4          1              40         16         16
+5          1              40         16         16
+6          0              40         16         16
+6          1              40         16         16
+7          0              40         10         10
+7          1              40         16         16
+8          1            3123         12         16
+9          1              40         16         16
+10         1              40         16         16
+11         1              40         16         16
+12         1              40         16         16
+13         1              40         16         16
+14         1              40         16         16
+16         0           64100         16         16
+16         1           64100         90         90
+43         1            1024         14         14
+128        0              40         10         10
+132        0              40         10         10
+133        0              40         10         10
+136        0            2521         10         10
+137        0              40         10         10
+138        0              40         10         10
+139        0              40         10         10
+140        0              40         10         10
+141        0              40         10         10
+142        0              40         10         10
+171        0            1024         10         10
+
+Codigos de excepcion Modbus (`function` >= 128), que por definicion solo
+pueden aparecer en una respuesta:
+
+  filas con function >= 128 : 3905
+  de ellas con cr=0         : 3905
+  de ellas con cr=1         : 0
+  codigos presentes         : [128, 132, 133, 136, 137, 138, 139, 140, 141, 142, 171]
+
+Presencia de campos que solo puede traer uno de los dos sentidos:
+
+campo                        criterio         cr=0         cr=1
+setpoint                    con valor            0        64100
+                              no nulo            0        63963
+gain                        con valor            0        64100
+                              no nulo            0        64089
+pressure measurement        con valor        68848           40
+                              no nulo        63314            0
+
+Lectura: en Modbus la peticion de funcion 16 (escribir registros) es la
+que lleva los parametros del lazo (`setpoint`, `gain`), y la respuesta
+es un acuse corto. La peticion de funcion 3 (leer registros) es corta y
+la respuesta es la que trae la medicion (`pressure measurement`).
+
+## P4 Instancias y eventos distintos por categoria
+
+Rango de `time`: 1418682163.170 a 1418957854.165  (275691 s = 76.6 h)
+Monotona creciente tras ordenar: True | ya venia ordenada: True
+Cortes de la particion (brief): 1418847578 y 1418902716
+
+Un 'evento' es una racha contigua de filas de la misma categoria en
+orden temporal.
+
+categoria                                      instancias  eventos    med/ev    max/ev
+Normal                                             214580    32558         2      1416
+NMRI  (inyeccion simple de respuesta maliciosa)       7753     7753         1         1
+CMRI  (inyeccion compleja de respuesta maliciosa)      13035    13035         1         1
+MSCI  (inyeccion de estado malicioso)                7900     3950         2         2
+MPCI  (inyeccion de parametros de comando)          20412    10206         2         2
+MFCI  (inyeccion de codigo de funcion malicioso)       4898     2449         2         2
+DoS   (denegacion de servicio)                       2176     1088         2         2
+Reconnaissance (reconocimiento)                      3874     2258         2         2
+
+Reparto por particion (solo conteos; es la excepcion admitida por el
+brief para dimensionar el experimento):
+
+categoria                                       entrenamiento  calibracion     prueba
+Normal                                                 128457        43664      42459
+NMRI  (inyeccion simple de respuesta maliciosa)           4427         1687       1639
+CMRI  (inyeccion compleja de respuesta maliciosa)           7666         2788       2581
+MSCI  (inyeccion de estado malicioso)                    5046         1502       1352
+MPCI  (inyeccion de parametros de comando)              12260         4536       3616
+MFCI  (inyeccion de codigo de funcion malicioso)           2714          892       1292
+DoS   (denegacion de servicio)                           1044          570        562
+Reconnaissance (reconocimiento)                          2209          843        822
+
+Eventos por particion (rachas contadas dentro de cada tramo):
+
+categoria                                       entrenamiento  calibracion     prueba
+Normal                                                  19024         6945       6589
+NMRI  (inyeccion simple de respuesta maliciosa)           4427         1687       1639
+CMRI  (inyeccion compleja de respuesta maliciosa)           7666         2788       2581
+MSCI  (inyeccion de estado malicioso)                    2523          751        676
+MPCI  (inyeccion de parametros de comando)               6130         2268       1808
+MFCI  (inyeccion de codigo de funcion malicioso)           1357          446        646
+DoS   (denegacion de servicio)                            522          285        281
+Reconnaissance (reconocimiento)                          1285          496        477

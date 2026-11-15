@@ -1,0 +1,6440 @@
+{
+ "Attacks": {
+  "frequent": {
+   "firma_master_vs_slave": {
+    "comparados": 20000,
+    "iguales": 1381,
+    "fraccion": 0.06905
+   },
+   "roles": {
+    "master": {
+     "bytes": 122884838,
+     "n_tramas": 72142,
+     "n_app": 72098,
+     "n_solo_enlace": 44,
+     "func_app": {
+      "READ": 28941,
+      "RESPONSE": 28999,
+      "UNSOLICITED_RESPONSE": 6283,
+      "CONFIRM": 7683,
+      "RECORD_CURRENT_TIME": 71,
+      "WRITE": 63,
+      "ENABLE_UNSOLICITED": 58
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 72098,
+      "REQUEST_LINK_STATUS": 35,
+      "LINK_STATUS": 9
+     },
+     "objetos": {
+      "g60v4": 14064,
+      "g60v2": 15241,
+      "g60v3": 14626,
+      "g60v1": 6169,
+      "g1v2": 8994,
+      "g20v2": 6142,
+      "g2v1": 5859,
+      "g50v3": 58,
+      "g80v1": 5
+     },
+     "obj_completos": 71158,
+     "obj_incompletos": 0,
+     "bloques_ok": 78289,
+     "bloques_total": 78289,
+     "n_valores": 35306,
+     "contadores": {
+      "paquetes": 1191113,
+      "tcp": 866241,
+      "con_carga": 70977,
+      "puerto_dnp3": 70977,
+      "crc_ok": 72142,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 36816,
+      "respuestas": 28999,
+      "emparejadas": 28914,
+      "tasa": 0.7853650586701434,
+      "latencia_mediana_ms": 8.104085922241211,
+      "latencia_p95_ms": 10.432958602905273
+     },
+     "parametros": [
+      {
+       "ts": 1476089758.616315,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "b8e918b25701"
+       }
+      },
+      {
+       "ts": 1476089796.813127,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "9e6f19b25701"
+       }
+      },
+      {
+       "ts": 1476090772.77899,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "456328b25701"
+       }
+      },
+      {
+       "ts": 1476091912.762596,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 0
+       }
+      },
+      {
+       "ts": 1476091912.79457,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "74c839b25701"
+       }
+      },
+      {
+       "ts": 1476094626.709891,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "ad3163b25701"
+       }
+      },
+      {
+       "ts": 1476094639.908764,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "386563b25701"
+       }
+      },
+      {
+       "ts": 1476095540.726101,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "052471b25701"
+       }
+      },
+      {
+       "ts": 1476096919.308881,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "1c2d86b25701"
+       }
+      },
+      {
+       "ts": 1476098705.258644,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "7c6da1b25701"
+       }
+      }
+     ],
+     "pares_ip": {
+      "192.168.10.221>192.168.10.222": 36821,
+      "192.168.10.222>192.168.10.221": 35321
+     },
+     "dir_enlace": {
+      "0>1": 37762,
+      "1>0": 34371,
+      "0>0": 9
+     }
+    },
+    "slave": {
+     "bytes": 124699908,
+     "n_tramas": 126809,
+     "n_app": 126754,
+     "n_solo_enlace": 55,
+     "func_app": {
+      "READ": 29028,
+      "RESPONSE": 33476,
+      "UNSOLICITED_RESPONSE": 3412,
+      "CONFIRM": 5777,
+      "IMMED_FREEZE": 24226,
+      "RECORD_CURRENT_TIME": 52,
+      "WRITE": 30713,
+      "ENABLE_UNSOLICITED": 49,
+      "WARM_RESTART": 9,
+      "IMMED_FREEZE_NR": 6,
+      "COLD_RESTART": 6
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 126754,
+      "REQUEST_LINK_STATUS": 42,
+      "LINK_STATUS": 13
+     },
+     "objetos": {
+      "g60v4": 14132,
+      "g60v2": 15318,
+      "g60v3": 14663,
+      "g60v1": 6224,
+      "g1v2": 6113,
+      "g20v2": 6113,
+      "g2v1": 5810,
+      "g20v0": 24232,
+      "g50v3": 7912,
+      "g52v2": 5,
+      "g80v1": 22801
+     },
+     "obj_completos": 123323,
+     "obj_incompletos": 0,
+     "bloques_ok": 132904,
+     "bloques_total": 132904,
+     "n_valores": 62795,
+     "contadores": {
+      "paquetes": 1198799,
+      "tcp": 873886,
+      "con_carga": 77339,
+      "puerto_dnp3": 77277,
+      "crc_ok": 126809,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 89866,
+      "respuestas": 33476,
+      "emparejadas": 33434,
+      "tasa": 0.3720428193087486,
+      "latencia_mediana_ms": 8.032083511352539,
+      "latencia_p95_ms": 568.011999130249
+     },
+     "parametros": [
+      {
+       "ts": 1476089796.813177,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "9e6f19b25701"
+       }
+      },
+      {
+       "ts": 1476090772.778966,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "456328b25701"
+       }
+      },
+      {
+       "ts": 1476091912.762547,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 0
+       }
+      },
+      {
+       "ts": 1476091912.794541,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "74c839b25701"
+       }
+      },
+      {
+       "ts": 1476094639.908635,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "386563b25701"
+       }
+      },
+      {
+       "ts": 1476095540.726026,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "052471b25701"
+       }
+      },
+      {
+       "ts": 1476096919.308802,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "1c2d86b25701"
+       }
+      },
+      {
+       "ts": 1476098758.470812,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "553da2b25701"
+       }
+      },
+      {
+       "ts": 1476099908.378415,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "2bc9b3b25701"
+       }
+      },
+      {
+       "ts": 1476101073.827247,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 0
+       }
+      }
+     ],
+     "pares_ip": {
+      "192.168.10.221>192.168.10.222": 34714,
+      "192.168.10.222>192.168.10.221": 32207,
+      "192.168.10.66>192.168.10.222": 55165,
+      "192.168.10.222>192.168.10.66": 4723
+     },
+     "dir_enlace": {
+      "0>1": 39507,
+      "1>0": 87268,
+      "0>0": 1,
+      "2>0": 1,
+      "3>0": 1,
+      "4>0": 1,
+      "5>0": 1,
+      "6>0": 1,
+      "7>0": 1,
+      "8>0": 1,
+      "9>0": 1,
+      "10>0": 1,
+      "1>1": 1,
+      "2>1": 1,
+      "3>1": 1,
+      "4>1": 1,
+      "5>1": 1,
+      "6>1": 1,
+      "7>1": 1,
+      "8>1": 1,
+      "9>1": 1,
+      "10>1": 1,
+      "0>2": 1,
+      "1>2": 1,
+      "2>2": 1,
+      "3>2": 1,
+      "4>2": 1,
+      "5>2": 1,
+      "6>2": 1,
+      "7>2": 1,
+      "8>2": 1,
+      "9>2": 1,
+      "10>2": 1,
+      "0>3": 1,
+      "1>3": 1,
+      "2>3": 1
+     }
+    },
+    "attacker": {
+     "bytes": 57188272,
+     "n_tramas": 66929,
+     "n_app": 66918,
+     "n_solo_enlace": 11,
+     "func_app": {
+      "READ": 1215,
+      "RESPONSE": 5589,
+      "IMMED_FREEZE": 24226,
+      "UNSOLICITED_RESPONSE": 3011,
+      "CONFIRM": 2140,
+      "RECORD_CURRENT_TIME": 27,
+      "WRITE": 30674,
+      "ENABLE_UNSOLICITED": 15,
+      "WARM_RESTART": 9,
+      "IMMED_FREEZE_NR": 6,
+      "COLD_RESTART": 6
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 66918,
+      "REQUEST_LINK_STATUS": 7,
+      "LINK_STATUS": 4
+     },
+     "objetos": {
+      "g60v2": 661,
+      "g60v3": 669,
+      "g60v4": 624,
+      "g60v1": 301,
+      "g1v2": 3061,
+      "g20v2": 209,
+      "g20v0": 24232,
+      "g2v1": 259,
+      "g50v3": 7878,
+      "g52v2": 5,
+      "g80v1": 22796
+     },
+     "obj_completos": 60695,
+     "obj_incompletos": 0,
+     "bloques_ok": 67145,
+     "bloques_total": 67145,
+     "n_valores": 34877,
+     "contadores": {
+      "paquetes": 324548,
+      "tcp": 21308,
+      "con_carga": 16670,
+      "puerto_dnp3": 16670,
+      "crc_ok": 66929,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 58318,
+      "respuestas": 5589,
+      "emparejadas": 5578,
+      "tasa": 0.09564799890256867,
+      "latencia_mediana_ms": 183.2599639892578,
+      "latencia_p95_ms": 1226.3529300689697
+     },
+     "parametros": [
+      {
+       "ts": 1476089758.616097,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "b8e918b25701"
+       }
+      },
+      {
+       "ts": 1476094626.709688,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "ad3163b25701"
+       }
+      },
+      {
+       "ts": 1476098705.258433,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "7c6da1b25701"
+       }
+      },
+      {
+       "ts": 1476104989.746265,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "1f9aedae5701"
+       }
+      },
+      {
+       "ts": 1476104989.746265,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "239aedae5701"
+       }
+      },
+      {
+       "ts": 1476104989.746265,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "249aedae5701"
+       }
+      },
+      {
+       "ts": 1476104989.746265,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "269aedae5701"
+       }
+      },
+      {
+       "ts": 1476104989.746265,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "289aedae5701"
+       }
+      },
+      {
+       "ts": 1476104989.746265,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "2b9aedae5701"
+       }
+      },
+      {
+       "ts": 1476104989.746265,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "2f9aedae5701"
+       }
+      }
+     ],
+     "pares_ip": {
+      "192.168.10.66>192.168.10.222": 55165,
+      "192.168.10.222>192.168.10.66": 4723,
+      "192.168.10.221>192.168.10.222": 3153,
+      "192.168.10.222>192.168.10.221": 3888
+     },
+     "dir_enlace": {
+      "0>0": 10,
+      "1>0": 57999,
+      "2>0": 1,
+      "3>0": 1,
+      "4>0": 1,
+      "5>0": 1,
+      "6>0": 1,
+      "7>0": 1,
+      "8>0": 1,
+      "9>0": 1,
+      "10>0": 1,
+      "0>1": 8887,
+      "1>1": 1,
+      "2>1": 1,
+      "3>1": 1,
+      "4>1": 1,
+      "5>1": 1,
+      "6>1": 1,
+      "7>1": 1,
+      "8>1": 1,
+      "9>1": 1,
+      "10>1": 1,
+      "0>2": 1,
+      "1>2": 1,
+      "2>2": 1,
+      "3>2": 1,
+      "4>2": 1,
+      "5>2": 1,
+      "6>2": 1,
+      "7>2": 1,
+      "8>2": 1,
+      "9>2": 1,
+      "10>2": 1,
+      "0>3": 1,
+      "1>3": 1,
+      "2>3": 1
+     }
+    }
+   }
+  },
+  "infrequent": {
+   "firma_master_vs_slave": {
+    "comparados": 20000,
+    "iguales": 4557,
+    "fraccion": 0.22785
+   },
+   "roles": {
+    "master": {
+     "bytes": 66811885,
+     "n_tramas": 68966,
+     "n_app": 68960,
+     "n_solo_enlace": 6,
+     "func_app": {
+      "RECORD_CURRENT_TIME": 17,
+      "RESPONSE": 29082,
+      "UNSOLICITED_RESPONSE": 4191,
+      "WRITE": 10,
+      "CONFIRM": 6580,
+      "READ": 29070,
+      "ENABLE_UNSOLICITED": 10
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 68960,
+      "REQUEST_LINK_STATUS": 5,
+      "LINK_STATUS": 1
+     },
+     "objetos": {
+      "g2v1": 5710,
+      "g50v3": 10,
+      "g60v2": 15287,
+      "g60v3": 14628,
+      "g60v4": 14077,
+      "g60v1": 6156,
+      "g1v2": 7047,
+      "g20v2": 6156
+     },
+     "obj_completos": 69071,
+     "obj_incompletos": 0,
+     "bloques_ok": 75126,
+     "bloques_total": 75126,
+     "n_valores": 32952,
+     "contadores": {
+      "paquetes": 454716,
+      "tcp": 130785,
+      "con_carga": 68835,
+      "puerto_dnp3": 68835,
+      "crc_ok": 68966,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 35687,
+      "respuestas": 29082,
+      "emparejadas": 29073,
+      "tasa": 0.8146664051335221,
+      "latencia_mediana_ms": 8.10384750366211,
+      "latencia_p95_ms": 9.760141372680664
+     },
+     "parametros": [
+      {
+       "ts": 1475562236.932956,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "cf95a7925701"
+       }
+      },
+      {
+       "ts": 1475574807.243456,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "806467935701"
+       }
+      },
+      {
+       "ts": 1475593171.40739,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "629b7f945701"
+       }
+      },
+      {
+       "ts": 1475593225.003678,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "b76c80945701"
+       }
+      },
+      {
+       "ts": 1475608415.649882,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "153768955701"
+       }
+      },
+      {
+       "ts": 1475608481.993116,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "3a3a69955701"
+       }
+      },
+      {
+       "ts": 1475623830.579559,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "876d53965701"
+       }
+      },
+      {
+       "ts": 1475632379.608319,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "1de0d5965701"
+       }
+      },
+      {
+       "ts": 1475632422.801929,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "3c7dd6965701"
+       }
+      },
+      {
+       "ts": 1475641086.623992,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "d0bb5a975701"
+       }
+      }
+     ],
+     "pares_ip": {
+      "192.168.10.221>192.168.10.222": 35688,
+      "192.168.10.222>192.168.10.221": 33278
+     },
+     "dir_enlace": {
+      "0>1": 35688,
+      "1>0": 33278
+     }
+    },
+    "slave": {
+     "bytes": 66631631,
+     "n_tramas": 67145,
+     "n_app": 67137,
+     "n_solo_enlace": 8,
+     "func_app": {
+      "RECORD_CURRENT_TIME": 7,
+      "RESPONSE": 29038,
+      "UNSOLICITED_RESPONSE": 3297,
+      "WRITE": 7,
+      "CONFIRM": 5704,
+      "READ": 29071,
+      "ENABLE_UNSOLICITED": 7,
+      "WARM_RESTART": 3,
+      "IMMED_FREEZE_NR": 3
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 67137,
+      "REQUEST_LINK_STATUS": 6,
+      "LINK_STATUS": 2
+     },
+     "objetos": {
+      "g2v1": 5696,
+      "g50v3": 7,
+      "g60v2": 15292,
+      "g60v3": 14635,
+      "g60v4": 14087,
+      "g60v1": 6170,
+      "g1v2": 6148,
+      "g20v2": 6148,
+      "g20v0": 3
+     },
+     "obj_completos": 68186,
+     "obj_incompletos": 0,
+     "bloques_ok": 73295,
+     "bloques_total": 73295,
+     "n_valores": 31963,
+     "contadores": {
+      "paquetes": 452611,
+      "tcp": 128695,
+      "con_carga": 67039,
+      "puerto_dnp3": 67039,
+      "crc_ok": 67145,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 34802,
+      "respuestas": 29038,
+      "emparejadas": 29036,
+      "tasa": 0.8343198666743291,
+      "latencia_mediana_ms": 7.981061935424805,
+      "latencia_p95_ms": 9.568929672241211
+     },
+     "parametros": [
+      {
+       "ts": 1475562236.932829,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "cf95a7925701"
+       }
+      },
+      {
+       "ts": 1475574807.243309,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "806467935701"
+       }
+      },
+      {
+       "ts": 1475593225.003636,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "b76c80945701"
+       }
+      },
+      {
+       "ts": 1475608481.993091,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "3a3a69955701"
+       }
+      },
+      {
+       "ts": 1475623830.579438,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "876d53965701"
+       }
+      },
+      {
+       "ts": 1475632422.801823,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "3c7dd6965701"
+       }
+      },
+      {
+       "ts": 1475641086.623942,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "d0bb5a975701"
+       }
+      }
+     ],
+     "pares_ip": {
+      "192.168.10.221>192.168.10.222": 34765,
+      "192.168.10.222>192.168.10.221": 32335,
+      "192.168.10.66>192.168.10.222": 39,
+      "192.168.10.222>192.168.10.66": 6
+     },
+     "dir_enlace": {
+      "0>1": 34785,
+      "1>0": 32342,
+      "0>0": 1,
+      "2>0": 1,
+      "3>0": 1,
+      "4>0": 1,
+      "5>0": 1,
+      "6>0": 1,
+      "7>0": 1,
+      "8>0": 1,
+      "9>0": 1,
+      "10>0": 1,
+      "1>1": 1,
+      "2>1": 1,
+      "3>1": 1,
+      "4>1": 1,
+      "5>1": 1,
+      "6>1": 1,
+      "7>1": 1,
+      "8>1": 1
+     }
+    },
+    "attacker": {
+     "bytes": 54227798,
+     "n_tramas": 2171,
+     "n_app": 2169,
+     "n_solo_enlace": 2,
+     "func_app": {
+      "READ": 183,
+      "RESPONSE": 146,
+      "UNSOLICITED_RESPONSE": 910,
+      "CONFIRM": 908,
+      "RECORD_CURRENT_TIME": 10,
+      "WRITE": 3,
+      "ENABLE_UNSOLICITED": 3,
+      "WARM_RESTART": 3,
+      "IMMED_FREEZE_NR": 3
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 2169,
+      "REQUEST_LINK_STATUS": 1,
+      "LINK_STATUS": 1
+     },
+     "objetos": {
+      "g60v2": 107,
+      "g60v3": 103,
+      "g60v4": 104,
+      "g60v1": 50,
+      "g1v2": 919,
+      "g20v2": 28,
+      "g2v1": 38,
+      "g50v3": 3,
+      "g20v0": 3
+     },
+     "obj_completos": 1355,
+     "obj_incompletos": 0,
+     "bloques_ok": 2197,
+     "bloques_total": 2197,
+     "n_valores": 1103,
+     "contadores": {
+      "paquetes": 303606,
+      "tcp": 2471,
+      "con_carga": 2078,
+      "puerto_dnp3": 2078,
+      "crc_ok": 2171,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 1113,
+      "respuestas": 146,
+      "emparejadas": 146,
+      "tasa": 0.13117699910152741,
+      "latencia_mediana_ms": 60.03594398498535,
+      "latencia_p95_ms": 4209.814071655273
+     },
+     "parametros": [
+      {
+       "ts": 1475593171.407191,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "629b7f945701"
+       }
+      },
+      {
+       "ts": 1475608415.649684,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "153768955701"
+       }
+      },
+      {
+       "ts": 1475632379.608105,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "1de0d5965701"
+       }
+      }
+     ],
+     "pares_ip": {
+      "192.168.10.66>192.168.10.222": 39,
+      "192.168.10.222>192.168.10.66": 6,
+      "192.168.10.222>192.168.10.221": 1051,
+      "192.168.10.221>192.168.10.222": 1075
+     },
+     "dir_enlace": {
+      "0>0": 1,
+      "1>0": 1058,
+      "2>0": 1,
+      "3>0": 1,
+      "4>0": 1,
+      "5>0": 1,
+      "6>0": 1,
+      "7>0": 1,
+      "8>0": 1,
+      "9>0": 1,
+      "10>0": 1,
+      "0>1": 1095,
+      "1>1": 1,
+      "2>1": 1,
+      "3>1": 1,
+      "4>1": 1,
+      "5>1": 1,
+      "6>1": 1,
+      "7>1": 1,
+      "8>1": 1
+     }
+    }
+   }
+  }
+ },
+ "Control": {
+  "frequent": {
+   "firma_master_vs_slave": {
+    "comparados": 20000,
+    "iguales": 20000,
+    "fraccion": 1.0
+   },
+   "roles": {
+    "master": {
+     "bytes": 64106270,
+     "n_tramas": 67173,
+     "n_app": 67173,
+     "n_solo_enlace": 0,
+     "func_app": {
+      "READ": 29094,
+      "RESPONSE": 29094,
+      "CONFIRM": 5706,
+      "UNSOLICITED_RESPONSE": 3279
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 67173
+     },
+     "objetos": {
+      "g60v2": 15264,
+      "g60v3": 14611,
+      "g60v4": 14059,
+      "g60v1": 6167,
+      "g1v2": 6167,
+      "g20v2": 6167,
+      "g2v1": 5685
+     },
+     "obj_completos": 68120,
+     "obj_incompletos": 0,
+     "bloques_ok": 73340,
+     "bloques_total": 73340,
+     "n_valores": 31952,
+     "contadores": {
+      "paquetes": 419803,
+      "tcp": 97277,
+      "con_carga": 67126,
+      "puerto_dnp3": 67126,
+      "crc_ok": 67173,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 34800,
+      "respuestas": 29094,
+      "emparejadas": 29094,
+      "tasa": 0.8360344827586207,
+      "latencia_mediana_ms": 8.100032806396484,
+      "latencia_p95_ms": 9.777069091796875
+     },
+     "parametros": [],
+     "pares_ip": {
+      "192.168.10.221>192.168.10.222": 34800,
+      "192.168.10.222>192.168.10.221": 32373
+     },
+     "dir_enlace": {
+      "0>1": 34800,
+      "1>0": 32373
+     }
+    },
+    "slave": {
+     "bytes": 64107392,
+     "n_tramas": 67173,
+     "n_app": 67173,
+     "n_solo_enlace": 0,
+     "func_app": {
+      "READ": 29094,
+      "RESPONSE": 29094,
+      "CONFIRM": 5706,
+      "UNSOLICITED_RESPONSE": 3279
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 67173
+     },
+     "objetos": {
+      "g60v2": 15264,
+      "g60v3": 14611,
+      "g60v4": 14059,
+      "g60v1": 6167,
+      "g1v2": 6167,
+      "g20v2": 6167,
+      "g2v1": 5685
+     },
+     "obj_completos": 68120,
+     "obj_incompletos": 0,
+     "bloques_ok": 73340,
+     "bloques_total": 73340,
+     "n_valores": 31952,
+     "contadores": {
+      "paquetes": 419813,
+      "tcp": 97277,
+      "con_carga": 67126,
+      "puerto_dnp3": 67126,
+      "crc_ok": 67173,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 34800,
+      "respuestas": 29094,
+      "emparejadas": 29094,
+      "tasa": 0.8360344827586207,
+      "latencia_mediana_ms": 7.974147796630859,
+      "latencia_p95_ms": 9.660005569458008
+     },
+     "parametros": [],
+     "pares_ip": {
+      "192.168.10.221>192.168.10.222": 34800,
+      "192.168.10.222>192.168.10.221": 32373
+     },
+     "dir_enlace": {
+      "0>1": 34800,
+      "1>0": 32373
+     }
+    },
+    "attacker": {
+     "bytes": 53861228,
+     "n_tramas": 0,
+     "n_app": 0,
+     "n_solo_enlace": 0,
+     "func_app": {},
+     "func_enlace": {},
+     "objetos": {},
+     "obj_completos": 0,
+     "obj_incompletos": 0,
+     "bloques_ok": 0,
+     "bloques_total": 0,
+     "n_valores": 0,
+     "contadores": {
+      "paquetes": 299329,
+      "tcp": 0,
+      "con_carga": 0,
+      "puerto_dnp3": 0,
+      "crc_ok": 0,
+      "crc_malo": 0
+     },
+     "emparejamiento": null,
+     "parametros": [],
+     "pares_ip": {},
+     "dir_enlace": {}
+    }
+   }
+  },
+  "infrequent": {
+   "firma_master_vs_slave": {
+    "comparados": 20000,
+    "iguales": 20000,
+    "fraccion": 1.0
+   },
+   "roles": {
+    "master": {
+     "bytes": 64144692,
+     "n_tramas": 67273,
+     "n_app": 67273,
+     "n_solo_enlace": 0,
+     "func_app": {
+      "READ": 29121,
+      "RESPONSE": 29122,
+      "UNSOLICITED_RESPONSE": 3282,
+      "CONFIRM": 5748
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 67273
+     },
+     "objetos": {
+      "g60v3": 14639,
+      "g2v1": 5720,
+      "g60v2": 15291,
+      "g60v4": 14087,
+      "g60v1": 6166,
+      "g1v2": 6166,
+      "g20v2": 6166
+     },
+     "obj_completos": 68235,
+     "obj_incompletos": 0,
+     "bloques_ok": 73439,
+     "bloques_total": 73439,
+     "n_valores": 31950,
+     "contadores": {
+      "paquetes": 420050,
+      "tcp": 97338,
+      "con_carga": 67222,
+      "puerto_dnp3": 67222,
+      "crc_ok": 67273,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 34869,
+      "respuestas": 29122,
+      "emparejadas": 29121,
+      "tasa": 0.8351544351716425,
+      "latencia_mediana_ms": 8.093833923339844,
+      "latencia_p95_ms": 9.657144546508789
+     },
+     "parametros": [],
+     "pares_ip": {
+      "192.168.10.221>192.168.10.222": 34869,
+      "192.168.10.222>192.168.10.221": 32404
+     },
+     "dir_enlace": {
+      "0>1": 34869,
+      "1>0": 32404
+     }
+    },
+    "slave": {
+     "bytes": 64144900,
+     "n_tramas": 67273,
+     "n_app": 67273,
+     "n_solo_enlace": 0,
+     "func_app": {
+      "READ": 29121,
+      "RESPONSE": 29122,
+      "UNSOLICITED_RESPONSE": 3282,
+      "CONFIRM": 5748
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 67273
+     },
+     "objetos": {
+      "g60v3": 14639,
+      "g2v1": 5720,
+      "g60v2": 15291,
+      "g60v4": 14087,
+      "g60v1": 6166,
+      "g1v2": 6166,
+      "g20v2": 6166
+     },
+     "obj_completos": 68235,
+     "obj_incompletos": 0,
+     "bloques_ok": 73439,
+     "bloques_total": 73439,
+     "n_valores": 31950,
+     "contadores": {
+      "paquetes": 420053,
+      "tcp": 97338,
+      "con_carga": 67222,
+      "puerto_dnp3": 67222,
+      "crc_ok": 67273,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 34869,
+      "respuestas": 29122,
+      "emparejadas": 29121,
+      "tasa": 0.8351544351716425,
+      "latencia_mediana_ms": 7.971763610839844,
+      "latencia_p95_ms": 9.541988372802734
+     },
+     "parametros": [],
+     "pares_ip": {
+      "192.168.10.221>192.168.10.222": 34869,
+      "192.168.10.222>192.168.10.221": 32404
+     },
+     "dir_enlace": {
+      "0>1": 34869,
+      "1>0": 32404
+     }
+    },
+    "attacker": {
+     "bytes": 53893022,
+     "n_tramas": 0,
+     "n_app": 0,
+     "n_solo_enlace": 0,
+     "func_app": {},
+     "func_enlace": {},
+     "objetos": {},
+     "obj_completos": 0,
+     "obj_incompletos": 0,
+     "bloques_ok": 0,
+     "bloques_total": 0,
+     "n_valores": 0,
+     "contadores": {
+      "paquetes": 299510,
+      "tcp": 0,
+      "con_carga": 0,
+      "puerto_dnp3": 0,
+      "crc_ok": 0,
+      "crc_malo": 0
+     },
+     "emparejamiento": null,
+     "parametros": [],
+     "pares_ip": {},
+     "dir_enlace": {}
+    }
+   }
+  }
+ },
+ "Flooding": {
+  "frequent": {
+   "firma_master_vs_slave": {
+    "comparados": 20000,
+    "iguales": 1389,
+    "fraccion": 0.06945
+   },
+   "roles": {
+    "master": {
+     "bytes": 66571285,
+     "n_tramas": 93137,
+     "n_app": 93082,
+     "n_solo_enlace": 55,
+     "func_app": {
+      "READ": 28891,
+      "RESPONSE": 28949,
+      "CONFIRM": 18723,
+      "UNSOLICITED_RESPONSE": 16412,
+      "RECORD_CURRENT_TIME": 37,
+      "WRITE": 35,
+      "ENABLE_UNSOLICITED": 35
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 93082,
+      "REQUEST_LINK_STATUS": 36,
+      "LINK_STATUS": 19
+     },
+     "objetos": {
+      "g60v3": 14547,
+      "g60v4": 14000,
+      "g60v2": 15233,
+      "g60v1": 6139,
+      "g1v2": 19212,
+      "g20v2": 6140,
+      "g2v1": 5766,
+      "g50v3": 35
+     },
+     "obj_completos": 81072,
+     "obj_incompletos": 0,
+     "bloques_ok": 99241,
+     "bloques_total": 99241,
+     "n_valores": 45084,
+     "contadores": {
+      "paquetes": 447200,
+      "tcp": 124761,
+      "con_carga": 91782,
+      "puerto_dnp3": 91782,
+      "crc_ok": 93137,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 47721,
+      "respuestas": 28949,
+      "emparejadas": 28943,
+      "tasa": 0.6065044739213344,
+      "latencia_mediana_ms": 8.094072341918945,
+      "latencia_p95_ms": 9.884119033813477
+     },
+     "parametros": [
+      {
+       "ts": 1472534076.309648,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "a52c2bde5601"
+       }
+      },
+      {
+       "ts": 1472534122.520529,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "3be12bde5601"
+       }
+      },
+      {
+       "ts": 1472540655.515387,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "71918fde5601"
+       }
+      },
+      {
+       "ts": 1472540704.857885,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "3f5290de5601"
+       }
+      },
+      {
+       "ts": 1472548431.09582,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "ab3706df5601"
+       }
+      },
+      {
+       "ts": 1472548439.962756,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "df4e06df5601"
+       }
+      },
+      {
+       "ts": 1472556631.730163,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "465a83df5601"
+       }
+      },
+      {
+       "ts": 1472556681.178213,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "9d1b84df5601"
+       }
+      },
+      {
+       "ts": 1472559444.053586,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "6744aedf5601"
+       }
+      },
+      {
+       "ts": 1472559481.464868,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "8fd6aedf5601"
+       }
+      }
+     ],
+     "pares_ip": {
+      "192.168.10.221>192.168.10.222": 47740,
+      "192.168.10.222>192.168.10.221": 45397
+     },
+     "dir_enlace": {
+      "0>1": 47740,
+      "1>0": 45397
+     }
+    },
+    "slave": {
+     "bytes": 69322726,
+     "n_tramas": 177919,
+     "n_app": 177848,
+     "n_solo_enlace": 71,
+     "func_app": {
+      "READ": 29011,
+      "RESPONSE": 37906,
+      "CONFIRM": 5725,
+      "UNSOLICITED_RESPONSE": 3351,
+      "WRITE": 64538,
+      "RECORD_CURRENT_TIME": 25,
+      "ENABLE_UNSOLICITED": 20,
+      "IMMED_FREEZE": 37272
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 177850,
+      "REQUEST_LINK_STATUS": 49,
+      "LINK_STATUS": 20
+     },
+     "objetos": {
+      "g60v3": 14619,
+      "g60v4": 14068,
+      "g60v2": 15268,
+      "g60v1": 6189,
+      "g1v2": 6134,
+      "g20v2": 6134,
+      "g2v1": 5762,
+      "g80v1": 50597,
+      "g50v3": 13941,
+      "g20v0": 37272
+     },
+     "obj_completos": 169984,
+     "obj_incompletos": 0,
+     "bloques_ok": 184016,
+     "bloques_total": 184016,
+     "n_valores": 96545,
+     "contadores": {
+      "paquetes": 455503,
+      "tcp": 132874,
+      "con_carga": 92574,
+      "puerto_dnp3": 92544,
+      "crc_ok": 177919,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 136591,
+      "respuestas": 37906,
+      "emparejadas": 37900,
+      "tasa": 0.27747069719088374,
+      "latencia_mediana_ms": 7.966041564941406,
+      "latencia_p95_ms": 627.4960041046143
+     },
+     "parametros": [
+      {
+       "ts": 1472532270.531932,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 1
+       }
+      },
+      {
+       "ts": 1472532270.641903,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 1
+       }
+      },
+      {
+       "ts": 1472532270.641903,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 1
+       }
+      },
+      {
+       "ts": 1472532270.641903,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 1
+       }
+      },
+      {
+       "ts": 1472532270.641903,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 1
+       }
+      },
+      {
+       "ts": 1472532270.641903,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 1
+       }
+      },
+      {
+       "ts": 1472532270.641903,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 1
+       }
+      },
+      {
+       "ts": 1472532270.641903,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 1
+       }
+      },
+      {
+       "ts": 1472532270.641903,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 1
+       }
+      },
+      {
+       "ts": 1472532270.641903,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 1
+       }
+      }
+     ],
+     "pares_ip": {
+      "192.168.10.221>192.168.10.222": 34596,
+      "192.168.10.222>192.168.10.221": 32250,
+      "192.168.10.66>192.168.10.222": 102017,
+      "192.168.10.222>192.168.10.66": 9056
+     },
+     "dir_enlace": {
+      "0>1": 43792,
+      "1>0": 131173,
+      "0>0": 2920,
+      "2>0": 1,
+      "3>0": 1,
+      "4>0": 1,
+      "5>0": 1,
+      "6>0": 1,
+      "7>0": 1,
+      "8>0": 1,
+      "9>0": 1,
+      "10>0": 1,
+      "1>1": 1,
+      "2>1": 1,
+      "3>1": 1,
+      "4>1": 1,
+      "5>1": 1,
+      "6>1": 1,
+      "7>1": 1,
+      "8>1": 1,
+      "9>1": 1,
+      "10>1": 1,
+      "0>2": 1,
+      "1>2": 1,
+      "2>2": 1,
+      "3>2": 1,
+      "4>2": 1,
+      "5>2": 1,
+      "6>2": 1,
+      "7>2": 1,
+      "8>2": 1,
+      "9>2": 1,
+      "10>2": 1,
+      "0>3": 1,
+      "1>3": 1,
+      "2>3": 1,
+      "3>3": 1
+     }
+    },
+    "attacker": {
+     "bytes": 61568659,
+     "n_tramas": 137364,
+     "n_app": 137348,
+     "n_solo_enlace": 16,
+     "func_app": {
+      "READ": 256,
+      "RESPONSE": 9077,
+      "WRITE": 64533,
+      "RECORD_CURRENT_TIME": 22,
+      "ENABLE_UNSOLICITED": 15,
+      "UNSOLICITED_RESPONSE": 13113,
+      "CONFIRM": 13060,
+      "IMMED_FREEZE": 37272
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 137350,
+      "REQUEST_LINK_STATUS": 13,
+      "LINK_STATUS": 1
+     },
+     "objetos": {
+      "g60v2": 185,
+      "g60v3": 144,
+      "g60v4": 140,
+      "g60v1": 84,
+      "g1v2": 13096,
+      "g20v2": 24,
+      "g80v1": 50597,
+      "g50v3": 13936,
+      "g2v1": 56,
+      "g20v0": 37272
+     },
+     "obj_completos": 115534,
+     "obj_incompletos": 0,
+     "bloques_ok": 137387,
+     "bloques_total": 137387,
+     "n_valores": 77815,
+     "contadores": {
+      "paquetes": 363680,
+      "tcp": 64003,
+      "con_carga": 50812,
+      "puerto_dnp3": 50812,
+      "crc_ok": 137364,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 115158,
+      "respuestas": 9077,
+      "emparejadas": 9077,
+      "tasa": 0.0788221400163254,
+      "latencia_mediana_ms": 7.8029632568359375,
+      "latencia_p95_ms": 681.2951564788818
+     },
+     "parametros": [
+      {
+       "ts": 1472532270.531777,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 1
+       }
+      },
+      {
+       "ts": 1472532270.641586,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 1
+       }
+      },
+      {
+       "ts": 1472532270.641586,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 1
+       }
+      },
+      {
+       "ts": 1472532270.641586,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 1
+       }
+      },
+      {
+       "ts": 1472532270.641586,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 1
+       }
+      },
+      {
+       "ts": 1472532270.641586,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 1
+       }
+      },
+      {
+       "ts": 1472532270.641586,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 1
+       }
+      },
+      {
+       "ts": 1472532270.641586,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 1
+       }
+      },
+      {
+       "ts": 1472532270.641586,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 1
+       }
+      },
+      {
+       "ts": 1472532270.641586,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 1
+       }
+      }
+     ],
+     "pares_ip": {
+      "192.168.10.66>192.168.10.222": 102017,
+      "192.168.10.222>192.168.10.66": 9056,
+      "192.168.10.221>192.168.10.222": 13144,
+      "192.168.10.222>192.168.10.221": 13147
+     },
+     "dir_enlace": {
+      "0>0": 2920,
+      "1>0": 112070,
+      "2>0": 1,
+      "3>0": 1,
+      "4>0": 1,
+      "5>0": 1,
+      "6>0": 1,
+      "7>0": 1,
+      "8>0": 1,
+      "9>0": 1,
+      "10>0": 1,
+      "0>1": 22340,
+      "1>1": 1,
+      "2>1": 1,
+      "3>1": 1,
+      "4>1": 1,
+      "5>1": 1,
+      "6>1": 1,
+      "7>1": 1,
+      "8>1": 1,
+      "9>1": 1,
+      "10>1": 1,
+      "0>2": 1,
+      "1>2": 1,
+      "2>2": 1,
+      "3>2": 1,
+      "4>2": 1,
+      "5>2": 1,
+      "6>2": 1,
+      "7>2": 1,
+      "8>2": 1,
+      "9>2": 1,
+      "10>2": 1,
+      "0>3": 1,
+      "1>3": 1,
+      "2>3": 1,
+      "3>3": 1
+     }
+    }
+   }
+  },
+  "infrequent": {
+   "firma_master_vs_slave": {
+    "comparados": 20000,
+    "iguales": 8914,
+    "fraccion": 0.4457
+   },
+   "roles": {
+    "master": {
+     "bytes": 64529735,
+     "n_tramas": 72931,
+     "n_app": 72929,
+     "n_solo_enlace": 2,
+     "func_app": {
+      "READ": 29080,
+      "RESPONSE": 29093,
+      "CONFIRM": 8574,
+      "UNSOLICITED_RESPONSE": 6152,
+      "RECORD_CURRENT_TIME": 14,
+      "WRITE": 8,
+      "ENABLE_UNSOLICITED": 8
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 72929,
+      "REQUEST_LINK_STATUS": 1,
+      "LINK_STATUS": 1
+     },
+     "objetos": {
+      "g60v2": 15286,
+      "g60v3": 14626,
+      "g60v4": 14074,
+      "g60v1": 6161,
+      "g1v2": 9023,
+      "g20v2": 6161,
+      "g2v1": 5722,
+      "g50v3": 8
+     },
+     "obj_completos": 71061,
+     "obj_incompletos": 0,
+     "bloques_ok": 79091,
+     "bloques_total": 79091,
+     "n_valores": 34807,
+     "contadores": {
+      "paquetes": 424849,
+      "tcp": 103367,
+      "con_carga": 72620,
+      "puerto_dnp3": 72620,
+      "crc_ok": 72931,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 37684,
+      "respuestas": 29093,
+      "emparejadas": 29092,
+      "tasa": 0.7719987262498673,
+      "latencia_mediana_ms": 8.095026016235352,
+      "latencia_p95_ms": 9.672880172729492
+     },
+     "parametros": [
+      {
+       "ts": 1472467823.769317,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "fa3538da5601"
+       }
+      },
+      {
+       "ts": 1472467865.292037,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "3bd838da5601"
+       }
+      },
+      {
+       "ts": 1472471971.288047,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "c17f77da5601"
+       }
+      },
+      {
+       "ts": 1472493525.158682,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "0265c0db5601"
+       }
+      },
+      {
+       "ts": 1472493562.59209,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "4bf7c0db5601"
+       }
+      },
+      {
+       "ts": 1472497276.425359,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "d8a2f9db5601"
+       }
+      },
+      {
+       "ts": 1472497326.105718,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "da63fadb5601"
+       }
+      },
+      {
+       "ts": 1472509364.666862,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "fc17b2dc5601"
+       }
+      }
+     ],
+     "pares_ip": {
+      "192.168.10.221>192.168.10.222": 37685,
+      "192.168.10.222>192.168.10.221": 35246
+     },
+     "dir_enlace": {
+      "0>1": 37685,
+      "1>0": 35246
+     }
+    },
+    "slave": {
+     "bytes": 64609992,
+     "n_tramas": 77177,
+     "n_app": 77169,
+     "n_solo_enlace": 8,
+     "func_app": {
+      "READ": 29141,
+      "RESPONSE": 30704,
+      "CONFIRM": 5739,
+      "UNSOLICITED_RESPONSE": 3295,
+      "RECORD_CURRENT_TIME": 7,
+      "WRITE": 8278,
+      "ENABLE_UNSOLICITED": 5
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 77170,
+      "REQUEST_LINK_STATUS": 5,
+      "LINK_STATUS": 2
+     },
+     "objetos": {
+      "g60v2": 15321,
+      "g60v3": 14667,
+      "g60v4": 14116,
+      "g60v1": 6194,
+      "g1v2": 6165,
+      "g20v2": 6165,
+      "g2v1": 5725,
+      "g50v3": 5250,
+      "g80v1": 3028
+     },
+     "obj_completos": 76631,
+     "obj_incompletos": 0,
+     "bloques_ok": 83340,
+     "bloques_total": 83340,
+     "n_valores": 40251,
+     "contadores": {
+      "paquetes": 423566,
+      "tcp": 102054,
+      "con_carga": 70935,
+      "puerto_dnp3": 70935,
+      "crc_ok": 77177,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 43170,
+      "respuestas": 30704,
+      "emparejadas": 30703,
+      "tasa": 0.7112114894602733,
+      "latencia_mediana_ms": 7.967948913574219,
+      "latencia_p95_ms": 10.567903518676758
+     },
+     "parametros": [
+      {
+       "ts": 1472467865.29189,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "3bd838da5601"
+       }
+      },
+      {
+       "ts": 1472471971.287902,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "c17f77da5601"
+       }
+      },
+      {
+       "ts": 1472477195.537333,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 1
+       }
+      },
+      {
+       "ts": 1472477195.556863,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 1
+       }
+      },
+      {
+       "ts": 1472477195.592293,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 1
+       }
+      },
+      {
+       "ts": 1472477195.629738,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 1
+       }
+      },
+      {
+       "ts": 1472477195.647781,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 1
+       }
+      },
+      {
+       "ts": 1472477195.656348,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 1
+       }
+      },
+      {
+       "ts": 1472477195.685236,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 1
+       }
+      },
+      {
+       "ts": 1472477195.723425,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 1
+       }
+      }
+     ],
+     "pares_ip": {
+      "192.168.10.221>192.168.10.222": 34808,
+      "192.168.10.222>192.168.10.221": 32366,
+      "192.168.10.66>192.168.10.222": 8365,
+      "192.168.10.222>192.168.10.66": 1638
+     },
+     "dir_enlace": {
+      "0>1": 36467,
+      "1>0": 39252,
+      "0>0": 1435,
+      "2>0": 1,
+      "3>0": 1,
+      "4>0": 1,
+      "5>0": 1,
+      "6>0": 1,
+      "7>0": 1,
+      "8>0": 1,
+      "9>0": 1,
+      "10>0": 1,
+      "1>1": 1,
+      "2>1": 1,
+      "3>1": 1,
+      "4>1": 1,
+      "5>1": 1,
+      "6>1": 1,
+      "7>1": 1,
+      "8>1": 1,
+      "9>1": 1,
+      "10>1": 1,
+      "0>2": 1,
+      "1>2": 1,
+      "2>2": 1,
+      "3>2": 1
+     }
+    },
+    "attacker": {
+     "bytes": 54913496,
+     "n_tramas": 15760,
+     "n_app": 15754,
+     "n_solo_enlace": 6,
+     "func_app": {
+      "READ": 91,
+      "RESPONSE": 1635,
+      "UNSOLICITED_RESPONSE": 2879,
+      "RECORD_CURRENT_TIME": 11,
+      "WRITE": 8276,
+      "ENABLE_UNSOLICITED": 3,
+      "CONFIRM": 2859
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 15755,
+      "REQUEST_LINK_STATUS": 4,
+      "LINK_STATUS": 1
+     },
+     "objetos": {
+      "g60v2": 65,
+      "g60v3": 57,
+      "g60v4": 56,
+      "g60v1": 39,
+      "g1v2": 2872,
+      "g20v2": 10,
+      "g2v1": 21,
+      "g50v3": 5248,
+      "g80v1": 3028
+     },
+     "obj_completos": 11396,
+     "obj_incompletos": 0,
+     "bloques_ok": 15769,
+     "bloques_total": 15769,
+     "n_valores": 11216,
+     "contadores": {
+      "paquetes": 309488,
+      "tcp": 11009,
+      "con_carga": 9297,
+      "puerto_dnp3": 9297,
+      "crc_ok": 15760,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 11240,
+      "respuestas": 1635,
+      "emparejadas": 1635,
+      "tasa": 0.14546263345195729,
+      "latencia_mediana_ms": 7.534027099609375,
+      "latencia_p95_ms": 413.7139320373535
+     },
+     "parametros": [
+      {
+       "ts": 1472467823.769096,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "fa3538da5601"
+       }
+      },
+      {
+       "ts": 1472477195.537176,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 1
+       }
+      },
+      {
+       "ts": 1472477195.556715,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 1
+       }
+      },
+      {
+       "ts": 1472477195.592145,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 1
+       }
+      },
+      {
+       "ts": 1472477195.629585,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 1
+       }
+      },
+      {
+       "ts": 1472477195.647626,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 1
+       }
+      },
+      {
+       "ts": 1472477195.656208,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 1
+       }
+      },
+      {
+       "ts": 1472477195.685088,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 1
+       }
+      },
+      {
+       "ts": 1472477195.72327,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 1
+       }
+      },
+      {
+       "ts": 1472477195.735805,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 1
+       }
+      }
+     ],
+     "pares_ip": {
+      "192.168.10.66>192.168.10.222": 8365,
+      "192.168.10.222>192.168.10.66": 1638,
+      "192.168.10.221>192.168.10.222": 2877,
+      "192.168.10.222>192.168.10.221": 2880
+     },
+     "dir_enlace": {
+      "0>0": 1435,
+      "1>0": 9766,
+      "2>0": 1,
+      "3>0": 1,
+      "4>0": 1,
+      "5>0": 1,
+      "6>0": 1,
+      "7>0": 1,
+      "8>0": 1,
+      "9>0": 1,
+      "10>0": 1,
+      "0>1": 4536,
+      "1>1": 1,
+      "2>1": 1,
+      "3>1": 1,
+      "4>1": 1,
+      "5>1": 1,
+      "6>1": 1,
+      "7>1": 1,
+      "8>1": 1,
+      "9>1": 1,
+      "10>1": 1,
+      "0>2": 1,
+      "1>2": 1,
+      "2>2": 1,
+      "3>2": 1
+     }
+    }
+   }
+  }
+ },
+ "Injection": {
+  "frequent": {
+   "firma_master_vs_slave": {
+    "comparados": 20000,
+    "iguales": 902,
+    "fraccion": 0.0451
+   },
+   "roles": {
+    "master": {
+     "bytes": 276441891,
+     "n_tramas": 67951,
+     "n_app": 67945,
+     "n_solo_enlace": 6,
+     "func_app": {
+      "READ": 29011,
+      "RESPONSE": 29162,
+      "CONFIRM": 6075,
+      "UNSOLICITED_RESPONSE": 3466,
+      "RECORD_CURRENT_TIME": 75,
+      "WRITE": 91,
+      "ENABLE_UNSOLICITED": 65
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 67945,
+      "REQUEST_LINK_STATUS": 5,
+      "LINK_STATUS": 1
+     },
+     "objetos": {
+      "g60v3": 14675,
+      "g60v2": 15326,
+      "g60v4": 14109,
+      "g60v1": 6203,
+      "g1v2": 6144,
+      "g20v2": 6144,
+      "g2v1": 5874,
+      "g50v3": 72,
+      "g80v1": 19
+     },
+     "obj_completos": 68566,
+     "obj_incompletos": 0,
+     "bloques_ok": 74186,
+     "bloques_total": 74186,
+     "n_valores": 32771,
+     "contadores": {
+      "paquetes": 3214259,
+      "tcp": 2892534,
+      "con_carga": 67386,
+      "puerto_dnp3": 67386,
+      "crc_ok": 67951,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 35317,
+      "respuestas": 29162,
+      "emparejadas": 28961,
+      "tasa": 0.8200300138743382,
+      "latencia_mediana_ms": 8.080005645751953,
+      "latencia_p95_ms": 9.78398323059082
+     },
+     "parametros": [
+      {
+       "ts": 1471047945.352025,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "b9f295855601"
+       }
+      },
+      {
+       "ts": 1471047975.08407,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "e06696855601"
+       }
+      },
+      {
+       "ts": 1471049506.080214,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "86c3ad855601"
+       }
+      },
+      {
+       "ts": 1471050758.136496,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "80dec0855601"
+       }
+      },
+      {
+       "ts": 1471052135.23294,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "f5e1d5855601"
+       }
+      },
+      {
+       "ts": 1471053887.48469,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "e19ef0855601"
+       }
+      },
+      {
+       "ts": 1471054552.391709,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "41c4fa855601"
+       }
+      },
+      {
+       "ts": 1471056058.323563,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "f7be11865601"
+       }
+      },
+      {
+       "ts": 1471057427.257346,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 0
+       }
+      },
+      {
+       "ts": 1471057427.287255,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "a6a226865601"
+       }
+      }
+     ],
+     "pares_ip": {
+      "192.168.10.221>192.168.10.222": 35318,
+      "192.168.10.222>192.168.10.221": 32631,
+      "127.0.0.1>127.0.0.1": 2
+     },
+     "dir_enlace": {
+      "0>1": 35318,
+      "1>0": 32633
+     }
+    },
+    "slave": {
+     "bytes": 276494177,
+     "n_tramas": 67888,
+     "n_app": 67882,
+     "n_solo_enlace": 6,
+     "func_app": {
+      "READ": 28983,
+      "RESPONSE": 29253,
+      "CONFIRM": 5909,
+      "UNSOLICITED_RESPONSE": 3402,
+      "RECORD_CURRENT_TIME": 74,
+      "WRITE": 91,
+      "ENABLE_UNSOLICITED": 65,
+      "IMMED_FREEZE": 48,
+      "WARM_RESTART": 24,
+      "COLD_RESTART": 33
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 67882,
+      "REQUEST_LINK_STATUS": 5,
+      "LINK_STATUS": 1
+     },
+     "objetos": {
+      "g60v3": 14679,
+      "g60v2": 15316,
+      "g60v4": 14105,
+      "g60v1": 6212,
+      "g1v2": 6144,
+      "g20v2": 6144,
+      "g2v1": 5803,
+      "g50v3": 72,
+      "g20v0": 48,
+      "g52v2": 19,
+      "g80v1": 19
+     },
+     "obj_completos": 68561,
+     "obj_incompletos": 0,
+     "bloques_ok": 74123,
+     "bloques_total": 74123,
+     "n_valores": 32719,
+     "contadores": {
+      "paquetes": 3214701,
+      "tcp": 2892579,
+      "con_carga": 67383,
+      "puerto_dnp3": 67343,
+      "crc_ok": 67888,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 35227,
+      "respuestas": 29253,
+      "emparejadas": 29024,
+      "tasa": 0.8239134754591648,
+      "latencia_mediana_ms": 7.96198844909668,
+      "latencia_p95_ms": 9.676933288574219
+     },
+     "parametros": [
+      {
+       "ts": 1471047945.351891,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "b9f295855601"
+       }
+      },
+      {
+       "ts": 1471047975.083925,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "e06696855601"
+       }
+      },
+      {
+       "ts": 1471049506.080081,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "86c3ad855601"
+       }
+      },
+      {
+       "ts": 1471050758.136351,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "80dec0855601"
+       }
+      },
+      {
+       "ts": 1471052135.232806,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "f5e1d5855601"
+       }
+      },
+      {
+       "ts": 1471053887.484554,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "e19ef0855601"
+       }
+      },
+      {
+       "ts": 1471054552.391556,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "41c4fa855601"
+       }
+      },
+      {
+       "ts": 1471056058.323415,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "f7be11865601"
+       }
+      },
+      {
+       "ts": 1471057427.257216,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 0
+       }
+      },
+      {
+       "ts": 1471057427.287108,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "a6a226865601"
+       }
+      }
+     ],
+     "pares_ip": {
+      "192.168.10.221>192.168.10.222": 35193,
+      "192.168.10.222>192.168.10.221": 32657,
+      "192.168.10.66>192.168.10.222": 35,
+      "192.168.10.222>192.168.10.66": 1,
+      "127.0.0.1>127.0.0.1": 2
+     },
+     "dir_enlace": {
+      "0>1": 35194,
+      "1>0": 32661,
+      "0>0": 1,
+      "2>0": 1,
+      "3>0": 1,
+      "4>0": 1,
+      "5>0": 1,
+      "6>0": 1,
+      "7>0": 1,
+      "8>0": 1,
+      "9>0": 1,
+      "10>0": 1,
+      "1>1": 1,
+      "2>1": 1,
+      "3>1": 1,
+      "4>1": 1,
+      "5>1": 1,
+      "6>1": 1,
+      "7>1": 1,
+      "8>1": 1,
+      "9>1": 1,
+      "10>1": 1,
+      "0>2": 1,
+      "1>2": 1,
+      "2>2": 1,
+      "3>2": 1,
+      "4>2": 1,
+      "5>2": 1,
+      "6>2": 1,
+      "7>2": 1,
+      "8>2": 1,
+      "9>2": 1,
+      "10>2": 1,
+      "0>3": 1,
+      "1>3": 1
+     }
+    },
+    "attacker": {
+     "bytes": 53800628,
+     "n_tramas": 541,
+     "n_app": 541,
+     "n_solo_enlace": 0,
+     "func_app": {
+      "READ": 97,
+      "RESPONSE": 92,
+      "UNSOLICITED_RESPONSE": 80,
+      "CONFIRM": 166,
+      "IMMED_FREEZE": 48,
+      "WARM_RESTART": 24,
+      "COLD_RESTART": 33,
+      "RECORD_CURRENT_TIME": 1
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 541
+     },
+     "objetos": {
+      "g60v2": 79,
+      "g60v3": 65,
+      "g60v4": 73,
+      "g60v1": 60,
+      "g1v2": 1,
+      "g20v2": 1,
+      "g2v1": 73,
+      "g20v0": 48,
+      "g52v2": 19
+     },
+     "obj_completos": 419,
+     "obj_incompletos": 0,
+     "bloques_ok": 542,
+     "bloques_total": 542,
+     "n_valores": 96,
+     "contadores": {
+      "paquetes": 299301,
+      "tcp": 583,
+      "con_carga": 423,
+      "puerto_dnp3": 417,
+      "crc_ok": 541,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 369,
+      "respuestas": 92,
+      "emparejadas": 61,
+      "tasa": 0.16531165311653118,
+      "latencia_mediana_ms": 7.670879364013672,
+      "latencia_p95_ms": 57.64198303222656
+     },
+     "parametros": [],
+     "pares_ip": {
+      "192.168.10.66>192.168.10.222": 35,
+      "192.168.10.222>192.168.10.66": 1,
+      "192.168.10.222>192.168.10.221": 169,
+      "192.168.10.221>192.168.10.222": 334,
+      "127.0.0.1>127.0.0.1": 2
+     },
+     "dir_enlace": {
+      "0>0": 1,
+      "1>0": 173,
+      "2>0": 1,
+      "3>0": 1,
+      "4>0": 1,
+      "5>0": 1,
+      "6>0": 1,
+      "7>0": 1,
+      "8>0": 1,
+      "9>0": 1,
+      "10>0": 1,
+      "0>1": 335,
+      "1>1": 1,
+      "2>1": 1,
+      "3>1": 1,
+      "4>1": 1,
+      "5>1": 1,
+      "6>1": 1,
+      "7>1": 1,
+      "8>1": 1,
+      "9>1": 1,
+      "10>1": 1,
+      "0>2": 1,
+      "1>2": 1,
+      "2>2": 1,
+      "3>2": 1,
+      "4>2": 1,
+      "5>2": 1,
+      "6>2": 1,
+      "7>2": 1,
+      "8>2": 1,
+      "9>2": 1,
+      "10>2": 1,
+      "0>3": 1,
+      "1>3": 1
+     }
+    }
+   }
+  },
+  "infrequent": {
+   "firma_master_vs_slave": {
+    "comparados": 20000,
+    "iguales": 4232,
+    "fraccion": 0.2116
+   },
+   "roles": {
+    "master": {
+     "bytes": 86697983,
+     "n_tramas": 67361,
+     "n_app": 67361,
+     "n_solo_enlace": 0,
+     "func_app": {
+      "READ": 29111,
+      "RESPONSE": 29147,
+      "UNSOLICITED_RESPONSE": 3294,
+      "CONFIRM": 5776,
+      "RECORD_CURRENT_TIME": 11,
+      "WRITE": 14,
+      "ENABLE_UNSOLICITED": 8
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 67361
+     },
+     "objetos": {
+      "g60v3": 14656,
+      "g60v4": 14080,
+      "g60v2": 15289,
+      "g2v1": 5737,
+      "g60v1": 6169,
+      "g1v2": 6163,
+      "g20v2": 6163,
+      "g50v3": 11,
+      "g80v1": 3
+     },
+     "obj_completos": 68271,
+     "obj_incompletos": 0,
+     "bloques_ok": 73531,
+     "bloques_total": 73531,
+     "n_valores": 32006,
+     "contadores": {
+      "paquetes": 717036,
+      "tcp": 394164,
+      "con_carga": 67240,
+      "puerto_dnp3": 67240,
+      "crc_ok": 67361,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 34920,
+      "respuestas": 29147,
+      "emparejadas": 29127,
+      "tasa": 0.834106529209622,
+      "latencia_mediana_ms": 8.087873458862305,
+      "latencia_p95_ms": 9.671926498413086
+     },
+     "parametros": [
+      {
+       "ts": 1470974852.61839,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "be9b3a815601"
+       }
+      },
+      {
+       "ts": 1470979874.364505,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "fd3187815601"
+       }
+      },
+      {
+       "ts": 1470979874.381454,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 0
+       }
+      },
+      {
+       "ts": 1470979874.413321,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "b83c87815601"
+       }
+      },
+      {
+       "ts": 1470990741.079486,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "e10d2d825601"
+       }
+      },
+      {
+       "ts": 1470998387.387862,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "2dbba1825601"
+       }
+      },
+      {
+       "ts": 1471015784.401691,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "0227ab835601"
+       }
+      },
+      {
+       "ts": 1471015784.417618,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 0
+       }
+      },
+      {
+       "ts": 1471015784.447613,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "7932ab835601"
+       }
+      },
+      {
+       "ts": 1471020576.534896,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "1c52f4835601"
+       }
+      }
+     ],
+     "pares_ip": {
+      "192.168.10.221>192.168.10.222": 34920,
+      "192.168.10.222>192.168.10.221": 32440,
+      "127.0.0.1>127.0.0.1": 1
+     },
+     "dir_enlace": {
+      "0>1": 34920,
+      "1>0": 32441
+     }
+    },
+    "slave": {
+     "bytes": 86704685,
+     "n_tramas": 67418,
+     "n_app": 67418,
+     "n_solo_enlace": 0,
+     "func_app": {
+      "READ": 29136,
+      "RESPONSE": 29172,
+      "UNSOLICITED_RESPONSE": 3293,
+      "CONFIRM": 5766,
+      "RECORD_CURRENT_TIME": 11,
+      "WRITE": 14,
+      "ENABLE_UNSOLICITED": 8,
+      "WARM_RESTART": 9,
+      "IMMED_FREEZE": 9
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 67418
+     },
+     "objetos": {
+      "g60v3": 14681,
+      "g60v4": 14105,
+      "g60v2": 15314,
+      "g2v1": 5733,
+      "g60v1": 6194,
+      "g1v2": 6164,
+      "g20v2": 6164,
+      "g50v3": 11,
+      "g52v2": 3,
+      "g80v1": 3,
+      "g20v0": 9
+     },
+     "obj_completos": 68381,
+     "obj_incompletos": 0,
+     "bloques_ok": 73589,
+     "bloques_total": 73589,
+     "n_valores": 32009,
+     "contadores": {
+      "paquetes": 717105,
+      "tcp": 394208,
+      "con_carga": 67268,
+      "puerto_dnp3": 67268,
+      "crc_ok": 67418,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 34953,
+      "respuestas": 29172,
+      "emparejadas": 29140,
+      "tasa": 0.8336909564272023,
+      "latencia_mediana_ms": 7.966041564941406,
+      "latencia_p95_ms": 9.551048278808594
+     },
+     "parametros": [
+      {
+       "ts": 1470974852.618239,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "be9b3a815601"
+       }
+      },
+      {
+       "ts": 1470979874.364387,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "fd3187815601"
+       }
+      },
+      {
+       "ts": 1470979874.381304,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 0
+       }
+      },
+      {
+       "ts": 1470979874.413174,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "b83c87815601"
+       }
+      },
+      {
+       "ts": 1470990741.079354,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "e10d2d825601"
+       }
+      },
+      {
+       "ts": 1470998387.387711,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "2dbba1825601"
+       }
+      },
+      {
+       "ts": 1471015784.401559,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "0227ab835601"
+       }
+      },
+      {
+       "ts": 1471015784.417466,
+       "funcion": "WRITE",
+       "grupo": 80,
+       "variacion": 1,
+       "valor": {
+        "punto": 7,
+        "tipo": "g80v1_bit",
+        "valor": 0
+       }
+      },
+      {
+       "ts": 1471015784.447467,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "7932ab835601"
+       }
+      },
+      {
+       "ts": 1471020576.534766,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "1c52f4835601"
+       }
+      }
+     ],
+     "pares_ip": {
+      "192.168.10.221>192.168.10.222": 34925,
+      "192.168.10.222>192.168.10.221": 32463,
+      "192.168.10.66>192.168.10.222": 28,
+      "192.168.10.222>192.168.10.66": 1,
+      "127.0.0.1>127.0.0.1": 1
+     },
+     "dir_enlace": {
+      "0>1": 34926,
+      "1>0": 32466,
+      "0>0": 1,
+      "2>0": 1,
+      "3>0": 1,
+      "4>0": 1,
+      "5>0": 1,
+      "6>0": 1,
+      "7>0": 1,
+      "8>0": 1,
+      "9>0": 1,
+      "10>0": 1,
+      "1>1": 1,
+      "2>1": 1,
+      "3>1": 1,
+      "4>1": 1,
+      "5>1": 1,
+      "6>1": 1,
+      "7>1": 1,
+      "8>1": 1,
+      "9>1": 1,
+      "10>1": 1,
+      "0>2": 1,
+      "1>2": 1,
+      "2>2": 1,
+      "3>2": 1,
+      "4>2": 1,
+      "5>2": 1
+     }
+    },
+    "attacker": {
+     "bytes": 53894901,
+     "n_tramas": 92,
+     "n_app": 92,
+     "n_solo_enlace": 0,
+     "func_app": {
+      "READ": 31,
+      "RESPONSE": 25,
+      "UNSOLICITED_RESPONSE": 8,
+      "CONFIRM": 10,
+      "WARM_RESTART": 9,
+      "IMMED_FREEZE": 9
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 92
+     },
+     "objetos": {
+      "g60v2": 31,
+      "g60v3": 31,
+      "g60v4": 31,
+      "g60v1": 31,
+      "g1v2": 1,
+      "g20v2": 1,
+      "g2v1": 5,
+      "g52v2": 3,
+      "g20v0": 9
+     },
+     "obj_completos": 143,
+     "obj_incompletos": 0,
+     "bloques_ok": 93,
+     "bloques_total": 93,
+     "n_valores": 12,
+     "contadores": {
+      "paquetes": 299889,
+      "tcp": 85,
+      "con_carga": 57,
+      "puerto_dnp3": 57,
+      "crc_ok": 92,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 59,
+      "respuestas": 25,
+      "emparejadas": 13,
+      "tasa": 0.22033898305084745,
+      "latencia_mediana_ms": 7.705926895141602,
+      "latencia_p95_ms": 11.892080307006836
+     },
+     "parametros": [],
+     "pares_ip": {
+      "192.168.10.66>192.168.10.222": 28,
+      "192.168.10.222>192.168.10.66": 1,
+      "192.168.10.222>192.168.10.221": 31,
+      "192.168.10.221>192.168.10.222": 31,
+      "127.0.0.1>127.0.0.1": 1
+     },
+     "dir_enlace": {
+      "0>0": 1,
+      "1>0": 34,
+      "2>0": 1,
+      "3>0": 1,
+      "4>0": 1,
+      "5>0": 1,
+      "6>0": 1,
+      "7>0": 1,
+      "8>0": 1,
+      "9>0": 1,
+      "10>0": 1,
+      "0>1": 32,
+      "1>1": 1,
+      "2>1": 1,
+      "3>1": 1,
+      "4>1": 1,
+      "5>1": 1,
+      "6>1": 1,
+      "7>1": 1,
+      "8>1": 1,
+      "9>1": 1,
+      "10>1": 1,
+      "0>2": 1,
+      "1>2": 1,
+      "2>2": 1,
+      "3>2": 1,
+      "4>2": 1,
+      "5>2": 1
+     }
+    }
+   }
+  }
+ },
+ "MITM": {
+  "frequent": {
+   "firma_master_vs_slave": {
+    "comparados": 20000,
+    "iguales": 800,
+    "fraccion": 0.04
+   },
+   "roles": {
+    "master": {
+     "bytes": 142992371,
+     "n_tramas": 67412,
+     "n_app": 67389,
+     "n_solo_enlace": 23,
+     "func_app": {
+      "READ": 29034,
+      "RESPONSE": 29147,
+      "CONFIRM": 5686,
+      "UNSOLICITED_RESPONSE": 3369,
+      "RECORD_CURRENT_TIME": 51,
+      "WRITE": 51,
+      "ENABLE_UNSOLICITED": 51
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 67389,
+      "REQUEST_LINK_STATUS": 21,
+      "LINK_STATUS": 2
+     },
+     "objetos": {
+      "g60v2": 15328,
+      "g60v3": 14690,
+      "g60v4": 14085,
+      "g60v1": 6192,
+      "g1v2": 6142,
+      "g20v2": 6156,
+      "g2v1": 5804,
+      "g50v3": 51
+     },
+     "obj_completos": 68448,
+     "obj_incompletos": 0,
+     "bloques_ok": 73583,
+     "bloques_total": 73583,
+     "n_valores": 32405,
+     "contadores": {
+      "paquetes": 1458350,
+      "tcp": 1133522,
+      "con_carga": 67235,
+      "puerto_dnp3": 67235,
+      "crc_ok": 67412,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 34873,
+      "respuestas": 29147,
+      "emparejadas": 28893,
+      "tasa": 0.8285206320075703,
+      "latencia_mediana_ms": 8.121013641357422,
+      "latencia_p95_ms": 13.568878173828125
+     },
+     "parametros": [
+      {
+       "ts": 1474614606.759332,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "38eb2b5a5701"
+       }
+      },
+      {
+       "ts": 1474615862.118286,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "f5123f5a5701"
+       }
+      },
+      {
+       "ts": 1474619332.888408,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "a308745a5701"
+       }
+      },
+      {
+       "ts": 1474620520.461343,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "9827865a5701"
+       }
+      },
+      {
+       "ts": 1474621200.682822,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "a788905a5701"
+       }
+      },
+      {
+       "ts": 1474622781.734365,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "a1a8a85a5701"
+       }
+      },
+      {
+       "ts": 1474623640.20079,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "09c2b55a5701"
+       }
+      },
+      {
+       "ts": 1474624519.040293,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "022bc35a5701"
+       }
+      },
+      {
+       "ts": 1474625772.911237,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "eb4cd65a5701"
+       }
+      },
+      {
+       "ts": 1474628663.845977,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "9e69025b5701"
+       }
+      }
+     ],
+     "pares_ip": {
+      "192.168.10.221>192.168.10.222": 34873,
+      "192.168.10.222>192.168.10.221": 32539
+     },
+     "dir_enlace": {
+      "0>1": 34875,
+      "1>0": 32537
+     }
+    },
+    "slave": {
+     "bytes": 143006465,
+     "n_tramas": 67811,
+     "n_app": 67788,
+     "n_solo_enlace": 23,
+     "func_app": {
+      "READ": 29376,
+      "RESPONSE": 29088,
+      "CONFIRM": 5737,
+      "UNSOLICITED_RESPONSE": 3398,
+      "RECORD_CURRENT_TIME": 51,
+      "WRITE": 51,
+      "ENABLE_UNSOLICITED": 51,
+      "IMMED_FREEZE_NR": 36
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 67788,
+      "REQUEST_LINK_STATUS": 21,
+      "LINK_STATUS": 2
+     },
+     "objetos": {
+      "g60v2": 15519,
+      "g60v3": 14893,
+      "g60v4": 14301,
+      "g60v1": 6317,
+      "g1v2": 6183,
+      "g20v2": 6183,
+      "g2v1": 5838,
+      "g50v3": 51,
+      "g20v0": 36
+     },
+     "obj_completos": 69321,
+     "obj_incompletos": 0,
+     "bloques_ok": 74026,
+     "bloques_total": 74026,
+     "n_valores": 32599,
+     "contadores": {
+      "paquetes": 1458433,
+      "tcp": 1133523,
+      "con_carga": 67597,
+      "puerto_dnp3": 67597,
+      "crc_ok": 67811,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 35302,
+      "respuestas": 29088,
+      "emparejadas": 28989,
+      "tasa": 0.8211716050082148,
+      "latencia_mediana_ms": 7.978916168212891,
+      "latencia_p95_ms": 9.75489616394043
+     },
+     "parametros": [
+      {
+       "ts": 1474614606.759264,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "38eb2b5a5701"
+       }
+      },
+      {
+       "ts": 1474615862.11826,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "f5123f5a5701"
+       }
+      },
+      {
+       "ts": 1474619332.888377,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "a308745a5701"
+       }
+      },
+      {
+       "ts": 1474620520.461269,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "9827865a5701"
+       }
+      },
+      {
+       "ts": 1474621200.682794,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "a788905a5701"
+       }
+      },
+      {
+       "ts": 1474622781.734348,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "a1a8a85a5701"
+       }
+      },
+      {
+       "ts": 1474623640.200773,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "09c2b55a5701"
+       }
+      },
+      {
+       "ts": 1474624519.040274,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "022bc35a5701"
+       }
+      },
+      {
+       "ts": 1474625772.911144,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "eb4cd65a5701"
+       }
+      },
+      {
+       "ts": 1474628663.845945,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "9e69025b5701"
+       }
+      }
+     ],
+     "pares_ip": {
+      "192.168.10.221>192.168.10.222": 35258,
+      "192.168.10.222>192.168.10.221": 32506,
+      "192.168.10.66>192.168.10.222": 46,
+      "192.168.10.222>192.168.10.66": 1
+     },
+     "dir_enlace": {
+      "0>1": 35121,
+      "1>0": 32646,
+      "0>0": 1,
+      "2>0": 1,
+      "3>0": 1,
+      "4>0": 1,
+      "5>0": 1,
+      "6>0": 1,
+      "7>0": 1,
+      "8>0": 1,
+      "9>0": 1,
+      "10>0": 1,
+      "1>1": 1,
+      "2>1": 1,
+      "3>1": 1,
+      "4>1": 1,
+      "5>1": 1,
+      "6>1": 1,
+      "7>1": 1,
+      "8>1": 1,
+      "9>1": 1,
+      "10>1": 1,
+      "0>2": 1,
+      "1>2": 1,
+      "2>2": 1,
+      "3>2": 1,
+      "4>2": 1,
+      "5>2": 1,
+      "6>2": 1,
+      "7>2": 1,
+      "8>2": 1,
+      "9>2": 1,
+      "10>2": 1,
+      "0>3": 1,
+      "1>3": 1,
+      "2>3": 1,
+      "3>3": 1,
+      "4>3": 1,
+      "5>3": 1,
+      "6>3": 1,
+      "7>3": 1,
+      "8>3": 1,
+      "9>3": 1,
+      "10>3": 1,
+      "0>4": 1,
+      "1>4": 1
+     }
+    },
+    "attacker": {
+     "bytes": 54834780,
+     "n_tramas": 5033,
+     "n_app": 5033,
+     "n_solo_enlace": 0,
+     "func_app": {
+      "READ": 2306,
+      "RESPONSE": 2075,
+      "UNSOLICITED_RESPONSE": 219,
+      "CONFIRM": 397,
+      "IMMED_FREEZE_NR": 36
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 5033
+     },
+     "objetos": {
+      "g60v2": 1249,
+      "g60v3": 1201,
+      "g60v4": 1144,
+      "g60v1": 515,
+      "g1v2": 389,
+      "g20v2": 403,
+      "g2v1": 410,
+      "g20v0": 36
+     },
+     "obj_completos": 5347,
+     "obj_incompletos": 0,
+     "bloques_ok": 5427,
+     "bloques_total": 5427,
+     "n_valores": 2160,
+     "contadores": {
+      "paquetes": 313391,
+      "tcp": 8845,
+      "con_carga": 4980,
+      "puerto_dnp3": 4980,
+      "crc_ok": 5033,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 2739,
+      "respuestas": 2075,
+      "emparejadas": 2006,
+      "tasa": 0.7323840817816721,
+      "latencia_mediana_ms": 55.718183517456055,
+      "latencia_p95_ms": 248.1667995452881
+     },
+     "parametros": [],
+     "pares_ip": {
+      "192.168.10.66>192.168.10.222": 46,
+      "192.168.10.222>192.168.10.66": 1,
+      "192.168.10.221>192.168.10.222": 2691,
+      "192.168.10.222>192.168.10.221": 2295
+     },
+     "dir_enlace": {
+      "0>0": 1,
+      "1>0": 2433,
+      "2>0": 1,
+      "3>0": 1,
+      "4>0": 1,
+      "5>0": 1,
+      "6>0": 1,
+      "7>0": 1,
+      "8>0": 1,
+      "9>0": 1,
+      "10>0": 1,
+      "0>1": 2556,
+      "1>1": 1,
+      "2>1": 1,
+      "3>1": 1,
+      "4>1": 1,
+      "5>1": 1,
+      "6>1": 1,
+      "7>1": 1,
+      "8>1": 1,
+      "9>1": 1,
+      "10>1": 1,
+      "0>2": 1,
+      "1>2": 1,
+      "2>2": 1,
+      "3>2": 1,
+      "4>2": 1,
+      "5>2": 1,
+      "6>2": 1,
+      "7>2": 1,
+      "8>2": 1,
+      "9>2": 1,
+      "10>2": 1,
+      "0>3": 1,
+      "1>3": 1,
+      "2>3": 1,
+      "3>3": 1,
+      "4>3": 1,
+      "5>3": 1,
+      "6>3": 1,
+      "7>3": 1,
+      "8>3": 1,
+      "9>3": 1,
+      "10>3": 1,
+      "0>4": 1,
+      "1>4": 1
+     }
+    }
+   }
+  },
+  "infrequent": {
+   "firma_master_vs_slave": {
+    "comparados": 20000,
+    "iguales": 5240,
+    "fraccion": 0.262
+   },
+   "roles": {
+    "master": {
+     "bytes": 73823081,
+     "n_tramas": 67209,
+     "n_app": 67207,
+     "n_solo_enlace": 2,
+     "func_app": {
+      "READ": 29080,
+      "RESPONSE": 29075,
+      "CONFIRM": 5724,
+      "UNSOLICITED_RESPONSE": 3292,
+      "RECORD_CURRENT_TIME": 12,
+      "WRITE": 12,
+      "ENABLE_UNSOLICITED": 12
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 67207,
+      "REQUEST_LINK_STATUS": 2
+     },
+     "objetos": {
+      "g60v2": 15299,
+      "g60v3": 14620,
+      "g60v4": 14069,
+      "g60v1": 6163,
+      "g1v2": 6149,
+      "g20v2": 6152,
+      "g2v1": 5721,
+      "g50v3": 12
+     },
+     "obj_completos": 68185,
+     "obj_incompletos": 0,
+     "bloques_ok": 73364,
+     "bloques_total": 73364,
+     "n_valores": 31958,
+     "contadores": {
+      "paquetes": 548675,
+      "tcp": 227000,
+      "con_carga": 67129,
+      "puerto_dnp3": 67129,
+      "crc_ok": 67209,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 34840,
+      "respuestas": 29075,
+      "emparejadas": 29042,
+      "tasa": 0.8335820895522388,
+      "latencia_mediana_ms": 8.11004638671875,
+      "latencia_p95_ms": 10.01286506652832
+     },
+     "parametros": [
+      {
+       "ts": 1474535939.952363,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "928f7b555701"
+       }
+      },
+      {
+       "ts": 1474540078.41416,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "65b5ba555701"
+       }
+      },
+      {
+       "ts": 1474550791.248686,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "572c5e565701"
+       }
+      },
+      {
+       "ts": 1474559164.320637,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "92efdd565701"
+       }
+      },
+      {
+       "ts": 1474563957.315415,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "321227575701"
+       }
+      },
+      {
+       "ts": 1474574341.553735,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "8e85c5575701"
+       }
+      },
+      {
+       "ts": 1474582091.237877,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "b5c53b585701"
+       }
+      },
+      {
+       "ts": 1474586786.234164,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "806983585701"
+       }
+      },
+      {
+       "ts": 1474591192.815998,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "ada6c6585701"
+       }
+      },
+      {
+       "ts": 1474597430.188088,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "5ed325595701"
+       }
+      }
+     ],
+     "pares_ip": {
+      "192.168.10.221>192.168.10.222": 34840,
+      "192.168.10.222>192.168.10.221": 32369
+     },
+     "dir_enlace": {
+      "0>1": 34840,
+      "1>0": 32369
+     }
+    },
+    "slave": {
+     "bytes": 73828271,
+     "n_tramas": 67322,
+     "n_app": 67320,
+     "n_solo_enlace": 2,
+     "func_app": {
+      "READ": 29157,
+      "RESPONSE": 29085,
+      "CONFIRM": 5733,
+      "UNSOLICITED_RESPONSE": 3300,
+      "IMMED_FREEZE_NR": 9,
+      "RECORD_CURRENT_TIME": 12,
+      "WRITE": 12,
+      "ENABLE_UNSOLICITED": 12
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 67320,
+      "REQUEST_LINK_STATUS": 2
+     },
+     "objetos": {
+      "g60v2": 15348,
+      "g60v3": 14683,
+      "g60v4": 14130,
+      "g60v1": 6209,
+      "g1v2": 6160,
+      "g20v2": 6160,
+      "g2v1": 5728,
+      "g20v0": 9,
+      "g50v3": 12
+     },
+     "obj_completos": 68439,
+     "obj_incompletos": 0,
+     "bloques_ok": 73487,
+     "bloques_total": 73487,
+     "n_valores": 32006,
+     "contadores": {
+      "paquetes": 548712,
+      "tcp": 227035,
+      "con_carga": 67213,
+      "puerto_dnp3": 67213,
+      "crc_ok": 67322,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 34935,
+      "respuestas": 29085,
+      "emparejadas": 29073,
+      "tasa": 0.8322026620867325,
+      "latencia_mediana_ms": 7.981061935424805,
+      "latencia_p95_ms": 9.660959243774414
+     },
+     "parametros": [
+      {
+       "ts": 1474535939.952304,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "928f7b555701"
+       }
+      },
+      {
+       "ts": 1474540078.414057,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "65b5ba555701"
+       }
+      },
+      {
+       "ts": 1474550791.248607,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "572c5e565701"
+       }
+      },
+      {
+       "ts": 1474559164.320627,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "92efdd565701"
+       }
+      },
+      {
+       "ts": 1474563957.315386,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "321227575701"
+       }
+      },
+      {
+       "ts": 1474574341.553607,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "8e85c5575701"
+       }
+      },
+      {
+       "ts": 1474582091.237852,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "b5c53b585701"
+       }
+      },
+      {
+       "ts": 1474586786.234153,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "806983585701"
+       }
+      },
+      {
+       "ts": 1474591192.815975,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "ada6c6585701"
+       }
+      },
+      {
+       "ts": 1474597430.188056,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "5ed325595701"
+       }
+      }
+     ],
+     "pares_ip": {
+      "192.168.10.221>192.168.10.222": 34901,
+      "192.168.10.222>192.168.10.221": 32386,
+      "192.168.10.66>192.168.10.222": 34,
+      "192.168.10.222>192.168.10.66": 1
+     },
+     "dir_enlace": {
+      "0>1": 34902,
+      "1>0": 32388,
+      "0>0": 1,
+      "2>0": 1,
+      "3>0": 1,
+      "4>0": 1,
+      "5>0": 1,
+      "6>0": 1,
+      "7>0": 1,
+      "8>0": 1,
+      "9>0": 1,
+      "10>0": 1,
+      "1>1": 1,
+      "2>1": 1,
+      "3>1": 1,
+      "4>1": 1,
+      "5>1": 1,
+      "6>1": 1,
+      "7>1": 1,
+      "8>1": 1,
+      "9>1": 1,
+      "10>1": 1,
+      "0>2": 1,
+      "1>2": 1,
+      "2>2": 1,
+      "3>2": 1,
+      "4>2": 1,
+      "5>2": 1,
+      "6>2": 1,
+      "7>2": 1,
+      "8>2": 1,
+      "9>2": 1,
+      "10>2": 1,
+      "0>3": 1
+     }
+    },
+    "attacker": {
+     "bytes": 53870816,
+     "n_tramas": 925,
+     "n_app": 925,
+     "n_solo_enlace": 0,
+     "func_app": {
+      "READ": 429,
+      "RESPONSE": 362,
+      "IMMED_FREEZE_NR": 9,
+      "UNSOLICITED_RESPONSE": 44,
+      "CONFIRM": 81
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 925
+     },
+     "objetos": {
+      "g60v2": 251,
+      "g60v3": 227,
+      "g60v4": 219,
+      "g60v1": 122,
+      "g1v2": 77,
+      "g20v2": 80,
+      "g20v0": 9,
+      "g2v1": 81
+     },
+     "obj_completos": 1066,
+     "obj_incompletos": 0,
+     "bloques_ok": 1003,
+     "bloques_total": 1003,
+     "n_valores": 414,
+     "contadores": {
+      "paquetes": 300694,
+      "tcp": 1578,
+      "con_carga": 888,
+      "puerto_dnp3": 888,
+      "crc_ok": 925,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 519,
+      "respuestas": 362,
+      "emparejadas": 358,
+      "tasa": 0.6897880539499036,
+      "latencia_mediana_ms": 57.6939582824707,
+      "latencia_p95_ms": 167.95706748962402
+     },
+     "parametros": [],
+     "pares_ip": {
+      "192.168.10.66>192.168.10.222": 34,
+      "192.168.10.222>192.168.10.66": 1,
+      "192.168.10.221>192.168.10.222": 485,
+      "192.168.10.222>192.168.10.221": 405
+     },
+     "dir_enlace": {
+      "0>0": 1,
+      "1>0": 407,
+      "2>0": 1,
+      "3>0": 1,
+      "4>0": 1,
+      "5>0": 1,
+      "6>0": 1,
+      "7>0": 1,
+      "8>0": 1,
+      "9>0": 1,
+      "10>0": 1,
+      "0>1": 486,
+      "1>1": 1,
+      "2>1": 1,
+      "3>1": 1,
+      "4>1": 1,
+      "5>1": 1,
+      "6>1": 1,
+      "7>1": 1,
+      "8>1": 1,
+      "9>1": 1,
+      "10>1": 1,
+      "0>2": 1,
+      "1>2": 1,
+      "2>2": 1,
+      "3>2": 1,
+      "4>2": 1,
+      "5>2": 1,
+      "6>2": 1,
+      "7>2": 1,
+      "8>2": 1,
+      "9>2": 1,
+      "10>2": 1,
+      "0>3": 1
+     }
+    }
+   }
+  }
+ },
+ "Masqurading": {
+  "frequent": {
+   "firma_master_vs_slave": {
+    "comparados": 20000,
+    "iguales": 1846,
+    "fraccion": 0.0923
+   },
+   "roles": {
+    "master": {
+     "bytes": 65795623,
+     "n_tramas": 81811,
+     "n_app": 81757,
+     "n_solo_enlace": 54,
+     "func_app": {
+      "READ": 28885,
+      "RESPONSE": 28944,
+      "UNSOLICITED_RESPONSE": 10792,
+      "CONFIRM": 12808,
+      "RECORD_CURRENT_TIME": 122,
+      "WRITE": 103,
+      "ENABLE_UNSOLICITED": 103
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 81757,
+      "REQUEST_LINK_STATUS": 47,
+      "LINK_STATUS": 7
+     },
+     "objetos": {
+      "g60v4": 14010,
+      "g60v3": 14735,
+      "g60v2": 15229,
+      "g60v1": 6154,
+      "g1v2": 13499,
+      "g20v2": 6147,
+      "g2v1": 5923,
+      "g50v3": 103
+     },
+     "obj_completos": 75800,
+     "obj_incompletos": 0,
+     "bloques_ok": 88019,
+     "bloques_total": 88019,
+     "n_valores": 40566,
+     "contadores": {
+      "paquetes": 436786,
+      "tcp": 113926,
+      "con_carga": 81007,
+      "puerto_dnp3": 81007,
+      "crc_ok": 81811,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 42021,
+      "respuestas": 28944,
+      "emparejadas": 28930,
+      "tasa": 0.6884652911639418,
+      "latencia_mediana_ms": 8.101940155029297,
+      "latencia_p95_ms": 11.020183563232422
+     },
+     "parametros": [
+      {
+       "ts": 1472181492.629066,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "c30327c95601"
+       }
+      },
+      {
+       "ts": 1472181529.927087,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "859527c95601"
+       }
+      },
+      {
+       "ts": 1472182655.859137,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "a6c338c95601"
+       }
+      },
+      {
+       "ts": 1472182696.057209,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "7b5539c95601"
+       }
+      },
+      {
+       "ts": 1472183866.791219,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "2b3e4bc95601"
+       }
+      },
+      {
+       "ts": 1472186569.46988,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "ba7b74c95601"
+       }
+      },
+      {
+       "ts": 1472186667.620413,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "3bfb75c95601"
+       }
+      },
+      {
+       "ts": 1472188286.791859,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "4fb08ec95601"
+       }
+      },
+      {
+       "ts": 1472189830.283543,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "ba3da6c95601"
+       }
+      },
+      {
+       "ts": 1472189867.606289,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "b9c3a6c95601"
+       }
+      }
+     ],
+     "pares_ip": {
+      "192.168.10.221>192.168.10.222": 42028,
+      "192.168.10.222>192.168.10.221": 39783
+     },
+     "dir_enlace": {
+      "0>1": 42040,
+      "1>0": 39771
+     }
+    },
+    "slave": {
+     "bytes": 64338458,
+     "n_tramas": 67032,
+     "n_app": 66946,
+     "n_solo_enlace": 86,
+     "func_app": {
+      "READ": 28845,
+      "RESPONSE": 28796,
+      "UNSOLICITED_RESPONSE": 3482,
+      "CONFIRM": 5618,
+      "RECORD_CURRENT_TIME": 76,
+      "WRITE": 56,
+      "ENABLE_UNSOLICITED": 73
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 66946,
+      "REQUEST_LINK_STATUS": 63,
+      "LINK_STATUS": 23
+     },
+     "objetos": {
+      "g60v4": 14073,
+      "g60v3": 14621,
+      "g60v2": 15238,
+      "g60v1": 6198,
+      "g1v2": 6119,
+      "g20v2": 6119,
+      "g2v1": 5834,
+      "g50v3": 56
+     },
+     "obj_completos": 68258,
+     "obj_incompletos": 0,
+     "bloques_ok": 73125,
+     "bloques_total": 73125,
+     "n_valores": 32341,
+     "contadores": {
+      "paquetes": 419602,
+      "tcp": 97136,
+      "con_carga": 66907,
+      "puerto_dnp3": 66847,
+      "crc_ok": 67032,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 34668,
+      "respuestas": 28796,
+      "emparejadas": 28785,
+      "tasa": 0.8303046036690896,
+      "latencia_mediana_ms": 7.972002029418945,
+      "latencia_p95_ms": 9.72294807434082
+     },
+     "parametros": [
+      {
+       "ts": 1472181529.926957,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "859527c95601"
+       }
+      },
+      {
+       "ts": 1472182696.057064,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "7b5539c95601"
+       }
+      },
+      {
+       "ts": 1472183866.791074,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "2b3e4bc95601"
+       }
+      },
+      {
+       "ts": 1472186667.620267,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "3bfb75c95601"
+       }
+      },
+      {
+       "ts": 1472188286.791724,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "4fb08ec95601"
+       }
+      },
+      {
+       "ts": 1472189867.606161,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "b9c3a6c95601"
+       }
+      },
+      {
+       "ts": 1472191116.587556,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "84deb9c95601"
+       }
+      },
+      {
+       "ts": 1472192475.431072,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "a89acec95601"
+       }
+      },
+      {
+       "ts": 1472193737.665743,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "b4d1e1c95601"
+       }
+      },
+      {
+       "ts": 1472195072.716741,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "9e3cf6c95601"
+       }
+      }
+     ],
+     "pares_ip": {
+      "192.168.10.221>192.168.10.222": 33829,
+      "192.168.10.222>192.168.10.221": 31736,
+      "192.168.10.66>192.168.10.222": 862,
+      "192.168.10.222>192.168.10.66": 605
+     },
+     "dir_enlace": {
+      "0>1": 34450,
+      "1>0": 32559,
+      "0>0": 1,
+      "2>0": 1,
+      "3>0": 1,
+      "4>0": 1,
+      "5>0": 1,
+      "6>0": 1,
+      "7>0": 1,
+      "8>0": 1,
+      "9>0": 1,
+      "10>0": 1,
+      "1>1": 1,
+      "2>1": 1,
+      "3>1": 1,
+      "4>1": 1,
+      "5>1": 1,
+      "6>1": 1,
+      "7>1": 1,
+      "8>1": 1,
+      "9>1": 1,
+      "10>1": 1,
+      "0>2": 1,
+      "1>2": 1,
+      "2>2": 1
+     }
+    },
+    "attacker": {
+     "bytes": 56063281,
+     "n_tramas": 17713,
+     "n_app": 17681,
+     "n_solo_enlace": 32,
+     "func_app": {
+      "READ": 1496,
+      "RESPONSE": 1188,
+      "UNSOLICITED_RESPONSE": 7448,
+      "CONFIRM": 7358,
+      "RECORD_CURRENT_TIME": 80,
+      "WRITE": 47,
+      "ENABLE_UNSOLICITED": 64
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 17681,
+      "REQUEST_LINK_STATUS": 16,
+      "LINK_STATUS": 16
+     },
+     "objetos": {
+      "g60v2": 795,
+      "g60v3": 918,
+      "g60v4": 727,
+      "g60v1": 376,
+      "g1v2": 7638,
+      "g20v2": 286,
+      "g50v3": 47,
+      "g2v1": 279
+     },
+     "obj_completos": 11066,
+     "obj_incompletos": 0,
+     "bloques_ok": 18024,
+     "bloques_total": 18024,
+     "n_valores": 9557,
+     "contadores": {
+      "paquetes": 322591,
+      "tcp": 21892,
+      "con_carga": 17050,
+      "puerto_dnp3": 17050,
+      "crc_ok": 17713,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 9045,
+      "respuestas": 1188,
+      "emparejadas": 1185,
+      "tasa": 0.1310116086235489,
+      "latencia_mediana_ms": 15.511035919189453,
+      "latencia_p95_ms": 1291.137933731079
+     },
+     "parametros": [
+      {
+       "ts": 1472181492.628848,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "c30327c95601"
+       }
+      },
+      {
+       "ts": 1472182655.858925,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "a6c338c95601"
+       }
+      },
+      {
+       "ts": 1472186569.469667,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "ba7b74c95601"
+       }
+      },
+      {
+       "ts": 1472189830.283329,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "ba3da6c95601"
+       }
+      },
+      {
+       "ts": 1472191067.221822,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "9e1db9c95601"
+       }
+      },
+      {
+       "ts": 1472192404.819752,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "8b86cdc95601"
+       }
+      },
+      {
+       "ts": 1472193722.350989,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "92a1e1c95601"
+       }
+      },
+      {
+       "ts": 1472194996.229887,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "cc11f5c95601"
+       }
+      },
+      {
+       "ts": 1472196187.477522,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "2e3f07ca5601"
+       }
+      },
+      {
+       "ts": 1472196940.766315,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "c3bd12ca5601"
+       }
+      }
+     ],
+     "pares_ip": {
+      "192.168.10.66>192.168.10.222": 862,
+      "192.168.10.222>192.168.10.66": 605,
+      "192.168.10.221>192.168.10.222": 8199,
+      "192.168.10.222>192.168.10.221": 8047
+     },
+     "dir_enlace": {
+      "0>0": 1,
+      "1>0": 8858,
+      "2>0": 1,
+      "3>0": 1,
+      "4>0": 1,
+      "5>0": 1,
+      "6>0": 1,
+      "7>0": 1,
+      "8>0": 1,
+      "9>0": 1,
+      "10>0": 1,
+      "0>1": 8832,
+      "1>1": 1,
+      "2>1": 1,
+      "3>1": 1,
+      "4>1": 1,
+      "5>1": 1,
+      "6>1": 1,
+      "7>1": 1,
+      "8>1": 1,
+      "9>1": 1,
+      "10>1": 1,
+      "0>2": 1,
+      "1>2": 1,
+      "2>2": 1
+     }
+    }
+   }
+  },
+  "infrequent": {
+   "firma_master_vs_slave": {
+    "comparados": 20000,
+    "iguales": 5082,
+    "fraccion": 0.2541
+   },
+   "roles": {
+    "master": {
+     "bytes": 64661821,
+     "n_tramas": 69874,
+     "n_app": 69867,
+     "n_solo_enlace": 7,
+     "func_app": {
+      "READ": 29059,
+      "RESPONSE": 29059,
+      "CONFIRM": 7059,
+      "UNSOLICITED_RESPONSE": 4647,
+      "RECORD_CURRENT_TIME": 15,
+      "WRITE": 14,
+      "ENABLE_UNSOLICITED": 14
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 69867,
+      "REQUEST_LINK_STATUS": 5,
+      "LINK_STATUS": 2
+     },
+     "objetos": {
+      "g60v4": 14059,
+      "g60v2": 15263,
+      "g60v3": 14643,
+      "g60v1": 6155,
+      "g1v2": 7517,
+      "g20v2": 6154,
+      "g2v1": 5724,
+      "g50v3": 14
+     },
+     "obj_completos": 69529,
+     "obj_incompletos": 0,
+     "bloques_ok": 76040,
+     "bloques_total": 76040,
+     "n_valores": 33437,
+     "contadores": {
+      "paquetes": 425454,
+      "tcp": 100307,
+      "con_carga": 69689,
+      "puerto_dnp3": 69689,
+      "crc_ok": 69874,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 36161,
+      "respuestas": 29059,
+      "emparejadas": 29056,
+      "tasa": 0.8035176018362324,
+      "latencia_mediana_ms": 8.093118667602539,
+      "latencia_p95_ms": 9.746074676513672
+     },
+     "parametros": [
+      {
+       "ts": 1472107735.530986,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "9389c1c45601"
+       }
+      },
+      {
+       "ts": 1472107785.007361,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "d14ac2c45601"
+       }
+      },
+      {
+       "ts": 1472113674.174335,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "f5271cc55601"
+       }
+      },
+      {
+       "ts": 1472113772.093684,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "95a61dc55601"
+       }
+      },
+      {
+       "ts": 1472118608.206062,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "297267c55601"
+       }
+      },
+      {
+       "ts": 1472118706.198272,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "fdf068c55601"
+       }
+      },
+      {
+       "ts": 1472126093.756617,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "6cabd9c55601"
+       }
+      },
+      {
+       "ts": 1472126137.367044,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "104adac55601"
+       }
+      },
+      {
+       "ts": 1472129867.032091,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "533f13c65601"
+       }
+      },
+      {
+       "ts": 1472139604.920479,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "10d7a7c65601"
+       }
+      }
+     ],
+     "pares_ip": {
+      "192.168.10.221>192.168.10.222": 36163,
+      "192.168.10.222>192.168.10.221": 33711
+     },
+     "dir_enlace": {
+      "0>1": 36165,
+      "1>0": 33709
+     }
+    },
+    "slave": {
+     "bytes": 64405980,
+     "n_tramas": 67229,
+     "n_app": 67218,
+     "n_solo_enlace": 11,
+     "func_app": {
+      "READ": 29098,
+      "RESPONSE": 29078,
+      "CONFIRM": 5719,
+      "UNSOLICITED_RESPONSE": 3293,
+      "RECORD_CURRENT_TIME": 11,
+      "WRITE": 8,
+      "ENABLE_UNSOLICITED": 11
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 67218,
+      "REQUEST_LINK_STATUS": 7,
+      "LINK_STATUS": 4
+     },
+     "objetos": {
+      "g60v4": 14106,
+      "g60v2": 15303,
+      "g60v3": 14656,
+      "g60v1": 6190,
+      "g1v2": 6161,
+      "g20v2": 6161,
+      "g2v1": 5715,
+      "g50v3": 8
+     },
+     "obj_completos": 68300,
+     "obj_incompletos": 0,
+     "bloques_ok": 73383,
+     "bloques_total": 73383,
+     "n_valores": 31983,
+     "contadores": {
+      "paquetes": 422372,
+      "tcp": 97284,
+      "con_carga": 67168,
+      "puerto_dnp3": 67148,
+      "crc_ok": 67229,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 34847,
+      "respuestas": 29078,
+      "emparejadas": 29076,
+      "tasa": 0.8343903348925302,
+      "latencia_mediana_ms": 7.972002029418945,
+      "latencia_p95_ms": 9.523153305053711
+     },
+     "parametros": [
+      {
+       "ts": 1472107785.007243,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "d14ac2c45601"
+       }
+      },
+      {
+       "ts": 1472113772.093545,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "95a61dc55601"
+       }
+      },
+      {
+       "ts": 1472118706.198133,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "fdf068c55601"
+       }
+      },
+      {
+       "ts": 1472126137.366899,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "104adac55601"
+       }
+      },
+      {
+       "ts": 1472129867.031944,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "533f13c65601"
+       }
+      },
+      {
+       "ts": 1472139702.891028,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "c955a9c65601"
+       }
+      },
+      {
+       "ts": 1472149670.645848,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "7c6f41c75601"
+       }
+      },
+      {
+       "ts": 1472169066.40928,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "746669c85601"
+       }
+      }
+     ],
+     "pares_ip": {
+      "192.168.10.221>192.168.10.222": 34655,
+      "192.168.10.222>192.168.10.221": 32238,
+      "192.168.10.66>192.168.10.222": 196,
+      "192.168.10.222>192.168.10.66": 140
+     },
+     "dir_enlace": {
+      "0>1": 34799,
+      "1>0": 32410,
+      "0>0": 1,
+      "2>0": 1,
+      "3>0": 1,
+      "4>0": 1,
+      "5>0": 1,
+      "6>0": 1,
+      "7>0": 1,
+      "8>0": 1,
+      "9>0": 1,
+      "10>0": 1,
+      "1>1": 1,
+      "2>1": 1,
+      "3>1": 1,
+      "4>1": 1,
+      "5>1": 1,
+      "6>1": 1,
+      "7>1": 1,
+      "8>1": 1,
+      "9>1": 1,
+      "10>1": 1
+     }
+    },
+    "attacker": {
+     "bytes": 54524008,
+     "n_tramas": 3317,
+     "n_app": 3313,
+     "n_solo_enlace": 4,
+     "func_app": {
+      "READ": 299,
+      "RESPONSE": 227,
+      "RECORD_CURRENT_TIME": 10,
+      "WRITE": 6,
+      "ENABLE_UNSOLICITED": 9,
+      "UNSOLICITED_RESPONSE": 1384,
+      "CONFIRM": 1378
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 3313,
+      "REQUEST_LINK_STATUS": 2,
+      "LINK_STATUS": 2
+     },
+     "objetos": {
+      "g60v2": 160,
+      "g60v3": 187,
+      "g60v4": 149,
+      "g60v1": 85,
+      "g1v2": 1418,
+      "g20v2": 55,
+      "g50v3": 6,
+      "g2v1": 51
+     },
+     "obj_completos": 2111,
+     "obj_incompletos": 0,
+     "bloques_ok": 3383,
+     "bloques_total": 3383,
+     "n_valores": 1766,
+     "contadores": {
+      "paquetes": 306378,
+      "tcp": 4135,
+      "con_carga": 3177,
+      "puerto_dnp3": 3177,
+      "crc_ok": 3317,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 1702,
+      "respuestas": 227,
+      "emparejadas": 226,
+      "tasa": 0.13278495887191538,
+      "latencia_mediana_ms": 9.155035018920898,
+      "latencia_p95_ms": 1659.1088771820068
+     },
+     "parametros": [
+      {
+       "ts": 1472107735.530773,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "9389c1c45601"
+       }
+      },
+      {
+       "ts": 1472113674.174122,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "f5271cc55601"
+       }
+      },
+      {
+       "ts": 1472118608.205853,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "297267c55601"
+       }
+      },
+      {
+       "ts": 1472126093.756399,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "6cabd9c55601"
+       }
+      },
+      {
+       "ts": 1472139604.920257,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "10d7a7c65601"
+       }
+      },
+      {
+       "ts": 1472149591.545292,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "523a40c75601"
+       }
+      }
+     ],
+     "pares_ip": {
+      "192.168.10.66>192.168.10.222": 196,
+      "192.168.10.222>192.168.10.66": 140,
+      "192.168.10.221>192.168.10.222": 1508,
+      "192.168.10.222>192.168.10.221": 1473
+     },
+     "dir_enlace": {
+      "0>0": 1,
+      "1>0": 1643,
+      "2>0": 1,
+      "3>0": 1,
+      "4>0": 1,
+      "5>0": 1,
+      "6>0": 1,
+      "7>0": 1,
+      "8>0": 1,
+      "9>0": 1,
+      "10>0": 1,
+      "0>1": 1654,
+      "1>1": 1,
+      "2>1": 1,
+      "3>1": 1,
+      "4>1": 1,
+      "5>1": 1,
+      "6>1": 1,
+      "7>1": 1,
+      "8>1": 1,
+      "9>1": 1,
+      "10>1": 1
+     }
+    }
+   }
+  }
+ },
+ "Replay": {
+  "frequent": {
+   "firma_master_vs_slave": {
+    "comparados": 20000,
+    "iguales": 2794,
+    "fraccion": 0.1397
+   },
+   "roles": {
+    "master": {
+     "bytes": 223921810,
+     "n_tramas": 67382,
+     "n_app": 67327,
+     "n_solo_enlace": 55,
+     "func_app": {
+      "READ": 29057,
+      "RESPONSE": 28997,
+      "UNSOLICITED_RESPONSE": 3359,
+      "CONFIRM": 5803,
+      "RECORD_CURRENT_TIME": 37,
+      "WRITE": 37,
+      "ENABLE_UNSOLICITED": 37
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 67327,
+      "REQUEST_LINK_STATUS": 31,
+      "LINK_STATUS": 24
+     },
+     "objetos": {
+      "g60v2": 15320,
+      "g60v3": 14655,
+      "g60v4": 14149,
+      "g60v1": 6197,
+      "g1v2": 6144,
+      "g20v2": 6144,
+      "g2v1": 5790,
+      "g50v3": 37
+     },
+     "obj_completos": 68436,
+     "obj_incompletos": 0,
+     "bloques_ok": 73520,
+     "bloques_total": 73520,
+     "n_valores": 32277,
+     "contadores": {
+      "paquetes": 2521607,
+      "tcp": 2195606,
+      "con_carga": 67221,
+      "puerto_dnp3": 67221,
+      "crc_ok": 67382,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 34971,
+      "respuestas": 28997,
+      "emparejadas": 28906,
+      "tasa": 0.8265705870578479,
+      "latencia_mediana_ms": 8.059024810791016,
+      "latencia_p95_ms": 9.536027908325195
+     },
+     "parametros": [
+      {
+       "ts": 1469687778.53826,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "e6d682345601"
+       }
+      },
+      {
+       "ts": 1469694786.498127,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "7fc6ed345601"
+       }
+      },
+      {
+       "ts": 1469696050.745478,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "1f1101355601"
+       }
+      },
+      {
+       "ts": 1469696099.519872,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "a4cf01355601"
+       }
+      },
+      {
+       "ts": 1469697736.885757,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "d0cb1a355601"
+       }
+      },
+      {
+       "ts": 1469698721.026291,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "33d029355601"
+       }
+      },
+      {
+       "ts": 1469703359.346608,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "299770355601"
+       }
+      },
+      {
+       "ts": 1469705987.608581,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "18b298355601"
+       }
+      },
+      {
+       "ts": 1469707624.864685,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "cbadb1355601"
+       }
+      },
+      {
+       "ts": 1469708230.114764,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "21eaba355601"
+       }
+      }
+     ],
+     "pares_ip": {
+      "192.168.10.221>192.168.10.222": 34995,
+      "192.168.10.222>192.168.10.221": 32384,
+      "127.0.0.1>127.0.0.1": 3
+     },
+     "dir_enlace": {
+      "0>1": 34995,
+      "1>0": 32387
+     }
+    },
+    "slave": {
+     "bytes": 224121367,
+     "n_tramas": 68226,
+     "n_app": 68159,
+     "n_solo_enlace": 67,
+     "func_app": {
+      "READ": 29477,
+      "RESPONSE": 29323,
+      "UNSOLICITED_RESPONSE": 3372,
+      "CONFIRM": 5876,
+      "RECORD_CURRENT_TIME": 37,
+      "WRITE": 37,
+      "ENABLE_UNSOLICITED": 37
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 68159,
+      "REQUEST_LINK_STATUS": 37,
+      "LINK_STATUS": 30
+     },
+     "objetos": {
+      "g60v2": 15540,
+      "g60v3": 14881,
+      "g60v4": 14347,
+      "g60v1": 6309,
+      "g1v2": 6216,
+      "g20v2": 6216,
+      "g2v1": 5813,
+      "g50v3": 37
+     },
+     "obj_completos": 69359,
+     "obj_incompletos": 0,
+     "bloques_ok": 74425,
+     "bloques_total": 74425,
+     "n_valores": 32646,
+     "contadores": {
+      "paquetes": 2523417,
+      "tcp": 2197151,
+      "con_carga": 67922,
+      "puerto_dnp3": 67865,
+      "crc_ok": 68226,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 35464,
+      "respuestas": 29323,
+      "emparejadas": 29231,
+      "tasa": 0.8242443040830137,
+      "latencia_mediana_ms": 7.956027984619141,
+      "latencia_p95_ms": 9.543895721435547
+     },
+     "parametros": [
+      {
+       "ts": 1469687778.538225,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "e6d682345601"
+       }
+      },
+      {
+       "ts": 1469694786.49811,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "7fc6ed345601"
+       }
+      },
+      {
+       "ts": 1469696050.745414,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "1f1101355601"
+       }
+      },
+      {
+       "ts": 1469696099.519785,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "a4cf01355601"
+       }
+      },
+      {
+       "ts": 1469697736.885657,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "d0cb1a355601"
+       }
+      },
+      {
+       "ts": 1469698721.026174,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "33d029355601"
+       }
+      },
+      {
+       "ts": 1469703359.346587,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "299770355601"
+       }
+      },
+      {
+       "ts": 1469705987.608533,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "18b298355601"
+       }
+      },
+      {
+       "ts": 1469707624.864589,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "cbadb1355601"
+       }
+      },
+      {
+       "ts": 1469708230.114714,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "21eaba355601"
+       }
+      }
+     ],
+     "pares_ip": {
+      "192.168.10.221>192.168.10.222": 34888,
+      "192.168.10.222>192.168.10.221": 32321,
+      "192.168.10.66>192.168.10.222": 606,
+      "192.168.10.222>192.168.10.66": 408,
+      "127.0.0.1>127.0.0.1": 3
+     },
+     "dir_enlace": {
+      "0>1": 35459,
+      "1>0": 32733,
+      "0>0": 1,
+      "2>0": 1,
+      "3>0": 1,
+      "4>0": 1,
+      "5>0": 1,
+      "6>0": 1,
+      "7>0": 1,
+      "8>0": 1,
+      "9>0": 1,
+      "10>0": 1,
+      "1>1": 1,
+      "2>1": 1,
+      "3>1": 1,
+      "4>1": 1,
+      "5>1": 1,
+      "6>1": 1,
+      "7>1": 1,
+      "8>1": 1,
+      "9>1": 1,
+      "10>1": 1,
+      "0>2": 1,
+      "1>2": 1,
+      "2>2": 1,
+      "3>2": 1,
+      "4>2": 1,
+      "5>2": 1,
+      "6>2": 1,
+      "7>2": 1,
+      "8>2": 1,
+      "9>2": 1,
+      "10>2": 1,
+      "0>3": 1,
+      "1>3": 1,
+      "2>3": 1
+     }
+    },
+    "attacker": {
+     "bytes": 54375270,
+     "n_tramas": 1187,
+     "n_app": 1175,
+     "n_solo_enlace": 12,
+     "func_app": {
+      "READ": 502,
+      "RESPONSE": 326,
+      "CONFIRM": 205,
+      "UNSOLICITED_RESPONSE": 142
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 1175,
+      "REQUEST_LINK_STATUS": 6,
+      "LINK_STATUS": 6
+     },
+     "objetos": {
+      "g60v2": 270,
+      "g60v3": 264,
+      "g60v4": 248,
+      "g60v1": 140,
+      "g1v2": 72,
+      "g20v2": 72,
+      "g2v1": 152
+     },
+     "obj_completos": 1218,
+     "obj_incompletos": 0,
+     "bloques_ok": 1248,
+     "bloques_total": 1248,
+     "n_valores": 498,
+     "contadores": {
+      "paquetes": 304803,
+      "tcp": 1854,
+      "con_carga": 960,
+      "puerto_dnp3": 951,
+      "crc_ok": 1187,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 707,
+      "respuestas": 326,
+      "emparejadas": 326,
+      "tasa": 0.4611032531824611,
+      "latencia_mediana_ms": 8.280038833618164,
+      "latencia_p95_ms": 81.27093315124512
+     },
+     "parametros": [],
+     "pares_ip": {
+      "192.168.10.66>192.168.10.222": 606,
+      "192.168.10.222>192.168.10.66": 408,
+      "192.168.10.222>192.168.10.221": 63,
+      "192.168.10.221>192.168.10.222": 107,
+      "127.0.0.1>127.0.0.1": 3
+     },
+     "dir_enlace": {
+      "0>0": 1,
+      "1>0": 475,
+      "2>0": 1,
+      "3>0": 1,
+      "4>0": 1,
+      "5>0": 1,
+      "6>0": 1,
+      "7>0": 1,
+      "8>0": 1,
+      "9>0": 1,
+      "10>0": 1,
+      "0>1": 678,
+      "1>1": 1,
+      "2>1": 1,
+      "3>1": 1,
+      "4>1": 1,
+      "5>1": 1,
+      "6>1": 1,
+      "7>1": 1,
+      "8>1": 1,
+      "9>1": 1,
+      "10>1": 1,
+      "0>2": 1,
+      "1>2": 1,
+      "2>2": 1,
+      "3>2": 1,
+      "4>2": 1,
+      "5>2": 1,
+      "6>2": 1,
+      "7>2": 1,
+      "8>2": 1,
+      "9>2": 1,
+      "10>2": 1,
+      "0>3": 1,
+      "1>3": 1,
+      "2>3": 1
+     }
+    }
+   }
+  },
+  "infrequent": {
+   "firma_master_vs_slave": {
+    "comparados": 20000,
+    "iguales": 8212,
+    "fraccion": 0.4106
+   },
+   "roles": {
+    "master": {
+     "bytes": 86247367,
+     "n_tramas": 67178,
+     "n_app": 67178,
+     "n_solo_enlace": 0,
+     "func_app": {
+      "READ": 29061,
+      "RESPONSE": 29056,
+      "CONFIRM": 5728,
+      "UNSOLICITED_RESPONSE": 3309,
+      "RECORD_CURRENT_TIME": 8,
+      "WRITE": 8,
+      "ENABLE_UNSOLICITED": 8
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 67178
+     },
+     "objetos": {
+      "g60v2": 15271,
+      "g60v4": 14067,
+      "g60v3": 14605,
+      "g2v1": 5729,
+      "g60v1": 6168,
+      "g1v2": 6160,
+      "g20v2": 6160,
+      "g50v3": 8
+     },
+     "obj_completos": 68168,
+     "obj_incompletos": 0,
+     "bloques_ok": 73348,
+     "bloques_total": 73348,
+     "n_valores": 32003,
+     "contadores": {
+      "paquetes": 710654,
+      "tcp": 386201,
+      "con_carga": 67083,
+      "puerto_dnp3": 67083,
+      "crc_ok": 67178,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 34813,
+      "respuestas": 29056,
+      "emparejadas": 29047,
+      "tasa": 0.8343722172751559,
+      "latencia_mediana_ms": 8.072137832641602,
+      "latencia_p95_ms": 9.696006774902344
+     },
+     "parametros": [
+      {
+       "ts": 1469616719.725069,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "908946305601"
+       }
+      },
+      {
+       "ts": 1469625914.800865,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "d6d8d2305601"
+       }
+      },
+      {
+       "ts": 1469630600.940784,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "985a1a315601"
+       }
+      },
+      {
+       "ts": 1469630628.23066,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "32c51a315601"
+       }
+      },
+      {
+       "ts": 1469637647.169352,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "b7df85315601"
+       }
+      },
+      {
+       "ts": 1469659788.748653,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "b4bcd7325601"
+       }
+      },
+      {
+       "ts": 1469670562.847821,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "34247c335601"
+       }
+      },
+      {
+       "ts": 1469678660.028208,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "b6b2f7335601"
+       }
+      }
+     ],
+     "pares_ip": {
+      "192.168.10.221>192.168.10.222": 34813,
+      "192.168.10.222>192.168.10.221": 32365
+     },
+     "dir_enlace": {
+      "0>1": 34813,
+      "1>0": 32365
+     }
+    },
+    "slave": {
+     "bytes": 86269396,
+     "n_tramas": 67323,
+     "n_app": 67317,
+     "n_solo_enlace": 6,
+     "func_app": {
+      "READ": 29154,
+      "RESPONSE": 29100,
+      "CONFIRM": 5739,
+      "UNSOLICITED_RESPONSE": 3300,
+      "RECORD_CURRENT_TIME": 8,
+      "WRITE": 8,
+      "ENABLE_UNSOLICITED": 8
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 67317,
+      "REQUEST_LINK_STATUS": 3,
+      "LINK_STATUS": 3
+     },
+     "objetos": {
+      "g60v2": 15328,
+      "g60v4": 14120,
+      "g60v3": 14662,
+      "g2v1": 5723,
+      "g60v1": 6205,
+      "g1v2": 6170,
+      "g20v2": 6170,
+      "g50v3": 8
+     },
+     "obj_completos": 68386,
+     "obj_incompletos": 0,
+     "bloques_ok": 73497,
+     "bloques_total": 73497,
+     "n_valores": 32047,
+     "contadores": {
+      "paquetes": 710865,
+      "tcp": 386392,
+      "con_carga": 67166,
+      "puerto_dnp3": 67166,
+      "crc_ok": 67323,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 34917,
+      "respuestas": 29100,
+      "emparejadas": 29091,
+      "tasa": 0.8331471775925767,
+      "latencia_mediana_ms": 7.956981658935547,
+      "latencia_p95_ms": 9.608983993530273
+     },
+     "parametros": [
+      {
+       "ts": 1469616719.724939,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "908946305601"
+       }
+      },
+      {
+       "ts": 1469625914.800833,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "d6d8d2305601"
+       }
+      },
+      {
+       "ts": 1469630600.940712,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "985a1a315601"
+       }
+      },
+      {
+       "ts": 1469630628.230595,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "32c51a315601"
+       }
+      },
+      {
+       "ts": 1469637647.169225,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "b7df85315601"
+       }
+      },
+      {
+       "ts": 1469659788.748502,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "b4bcd7325601"
+       }
+      },
+      {
+       "ts": 1469670562.847703,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "34247c335601"
+       }
+      },
+      {
+       "ts": 1469678660.028188,
+       "funcion": "WRITE",
+       "grupo": 50,
+       "variacion": 3,
+       "valor": {
+        "punto": null,
+        "tipo": "g50v3",
+        "crudo": "b6b2f7335601"
+       }
+      }
+     ],
+     "pares_ip": {
+      "192.168.10.221>192.168.10.222": 34794,
+      "192.168.10.222>192.168.10.221": 32348,
+      "192.168.10.66>192.168.10.222": 126,
+      "192.168.10.222>192.168.10.66": 55
+     },
+     "dir_enlace": {
+      "0>1": 34890,
+      "1>0": 32404,
+      "0>0": 1,
+      "2>0": 1,
+      "3>0": 1,
+      "4>0": 1,
+      "5>0": 1,
+      "6>0": 1,
+      "7>0": 1,
+      "8>0": 1,
+      "9>0": 1,
+      "10>0": 1,
+      "1>1": 1,
+      "2>1": 1,
+      "3>1": 1,
+      "4>1": 1,
+      "5>1": 1,
+      "6>1": 1,
+      "7>1": 1,
+      "8>1": 1,
+      "9>1": 1,
+      "10>1": 1,
+      "0>2": 1,
+      "1>2": 1,
+      "2>2": 1,
+      "3>2": 1,
+      "4>2": 1,
+      "5>2": 1,
+      "6>2": 1,
+      "7>2": 1,
+      "8>2": 1
+     }
+    },
+    "attacker": {
+     "bytes": 54071483,
+     "n_tramas": 217,
+     "n_app": 211,
+     "n_solo_enlace": 6,
+     "func_app": {
+      "READ": 111,
+      "RESPONSE": 44,
+      "UNSOLICITED_RESPONSE": 25,
+      "CONFIRM": 31
+     },
+     "func_enlace": {
+      "UNCONFIRMED_USER_DATA": 211,
+      "REQUEST_LINK_STATUS": 3,
+      "LINK_STATUS": 3
+     },
+     "objetos": {
+      "g60v2": 75,
+      "g60v3": 75,
+      "g60v4": 71,
+      "g60v1": 55,
+      "g1v2": 10,
+      "g20v2": 10,
+      "g2v1": 28
+     },
+     "obj_completos": 324,
+     "obj_incompletos": 0,
+     "bloques_ok": 221,
+     "bloques_total": 221,
+     "n_valores": 78,
+     "contadores": {
+      "paquetes": 301680,
+      "tcp": 293,
+      "con_carga": 145,
+      "puerto_dnp3": 145,
+      "crc_ok": 217,
+      "crc_malo": 0
+     },
+     "emparejamiento": {
+      "peticiones": 142,
+      "respuestas": 44,
+      "emparejadas": 44,
+      "tasa": 0.30985915492957744,
+      "latencia_mediana_ms": 8.828878402709961,
+      "latencia_p95_ms": 247.77507781982422
+     },
+     "parametros": [],
+     "pares_ip": {
+      "192.168.10.66>192.168.10.222": 126,
+      "192.168.10.222>192.168.10.66": 55,
+      "192.168.10.222>192.168.10.221": 17,
+      "192.168.10.221>192.168.10.222": 19
+     },
+     "dir_enlace": {
+      "0>0": 1,
+      "1>0": 73,
+      "2>0": 1,
+      "3>0": 1,
+      "4>0": 1,
+      "5>0": 1,
+      "6>0": 1,
+      "7>0": 1,
+      "8>0": 1,
+      "9>0": 1,
+      "10>0": 1,
+      "0>1": 115,
+      "1>1": 1,
+      "2>1": 1,
+      "3>1": 1,
+      "4>1": 1,
+      "5>1": 1,
+      "6>1": 1,
+      "7>1": 1,
+      "8>1": 1,
+      "9>1": 1,
+      "10>1": 1,
+      "0>2": 1,
+      "1>2": 1,
+      "2>2": 1,
+      "3>2": 1,
+      "4>2": 1,
+      "5>2": 1,
+      "6>2": 1,
+      "7>2": 1,
+      "8>2": 1
+     }
+    }
+   }
+  }
+ }
+}

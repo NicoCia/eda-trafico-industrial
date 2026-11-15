@@ -1,0 +1,108 @@
+{
+ "Morris": {
+  "filas": 163823,
+  "de": 274628,
+  "nulos": {
+   "setpoint": 76.56128870793478,
+   "gain": 76.56128870793478,
+   "reset rate": 76.56128870793478,
+   "deadband": 76.56128870793478,
+   "cycle time": 76.56128870793478,
+   "rate": 76.56128870793478,
+   "system mode": 76.56128870793478,
+   "control scheme": 76.56128870793478,
+   "pump": 76.56128870793478,
+   "solenoid": 76.56128870793478,
+   "pressure measurement": 74.92110387430337
+  },
+  "constantes": [],
+  "pares_fuertes": 0,
+  "asimetria": {
+   "simetrica": 3,
+   "moderada": 4,
+   "alta": 9
+  },
+  "discriminante": {
+   "mejor": "pressure measurement",
+   "auc": 0.6839518616252513,
+   "evaluados": 16
+  },
+  "autocorrelacion": {
+   "rho_lag1": 0.8628630018629851,
+   "n": 163823,
+   "n_efectivo": 12060.035774682581
+  },
+  "filas_completas": 0,
+  "balance": {
+   "normal": 128457,
+   "ataque": 35366,
+   "por_categoria": {
+    "0": 128457,
+    "1": 4427,
+    "2": 7666,
+    "3": 5046,
+    "4": 12260,
+    "5": 2714,
+    "6": 1044,
+    "7": 2209
+   }
+  }
+ },
+ "HAI": {
+  "versiones": {
+   "hai-20.07": {
+    "archivos": 2,
+    "columnas": 64,
+    "filas": 550800,
+    "horas": 153
+   },
+   "hai-21.03": {
+    "archivos": 3,
+    "columnas": 84,
+    "filas": 921603,
+    "horas": 256
+   },
+   "hai-22.04": {
+    "archivos": 6,
+    "columnas": 88,
+    "filas": 1004402,
+    "horas": 279
+   },
+   "hai-23.05": {
+    "archivos": 4,
+    "columnas": 87,
+    "filas": 896400,
+    "horas": 249
+   },
+   "haiend-23.05": {
+    "archivos": 4,
+    "columnas": 226,
+    "filas": 896400,
+    "horas": 249
+   }
+  },
+  "nulos_max": 0.0,
+  "columnas": 59,
+  "constantes": 8,
+  "casi_constantes": 0,
+  "pares_fuertes": 74,
+  "asimetria": {
+   "simetrica": 30,
+   "moderada": 10,
+   "alta": 11
+  },
+  "positivos_en_train": 776,
+  "autocorrelacion": {
+   "rho_lag1": 0.9991834065477436,
+   "n": 550800,
+   "tau_decorrelacion_s": 1800.0,
+   "independientes": 306.0
+  },
+  "pca": {
+   "no_constantes": 51,
+   "n_90": 13,
+   "n_95": 17,
+   "primera": 0.24786331709385442
+  }
+ }
+}

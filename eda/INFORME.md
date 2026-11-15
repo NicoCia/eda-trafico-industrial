@@ -1,0 +1,1249 @@
+# Análisis exploratorio de los conjuntos de datos
+
+Trabajo Final — Carrera de Especialización en Inteligencia Artificial, FIUBA.
+Tarea 3 del plan de trabajo, requerimiento 2.8.
+
+24 de octubre de 2026.
+
+Todas las cifras de este informe salen de correr los scripts de `eda/scripts/`
+sobre los archivos de `datasets/`. Las salidas completas quedan en
+`eda/salidas/` y las figuras en `eda/figuras/`. Donde un dato **no** se pudo
+verificar contra los archivos, se deja dicho.
+
+**Este es el segundo de los dos documentos del análisis exploratorio.** El
+primero es [`EXPLORATORIO.md`](EXPLORATORIO.md), que describe qué contiene
+cada conjunto —variables, tipos, faltantes, redundancia, poder discriminante,
+estructura temporal y balance— con una sección por conjunto. Conviene leerlo
+antes que este, que no describe los datos sino que responde preguntas sobre
+ellos y sobre la selección de conjuntos que el proyecto traía propuesta.
+
+**Qué es «la selección previa» en estas páginas.** El relevamiento del estado
+del arte de este Trabajo Final dejó elegidos cinco conjuntos y una tabla de
+criterios de comparabilidad, D1 a D7, con un símbolo por conjunto y criterio.
+Esa selección se escribió a partir de la documentación publicada de cada
+conjunto, antes de abrir un solo archivo. Este análisis la contrasta contra
+los datos: cuando una medición la contradice, el texto lo dice y da el número.
+Esos documentos previos no forman parte de este repositorio; todo lo que de
+ellos se contrasta está transcrito acá, al lado de la medición.
+
+---
+
+## 1. Seis hallazgos que cambian cómo se usan estos conjuntos
+
+Van primero porque son el resultado más importante del análisis, y porque
+cuatro de ellos contradicen lo que la documentación de los propios conjuntos
+o la literatura dan por sentado. Cada uno está medido sobre los archivos.
+
+### 1.1 `master.pcap` y `slave.pcap` no separan comando de respuesta
+
+QUT DNP3 publica cada escenario en dos capturas, `master.pcap` y
+`slave.pcap`, y `datasets/LEEME.md` lo describía como que esa separación
+entrega la distinción entre comando y respuesta sin necesidad de emparejar
+nada. **No es así.**
+
+Medido sobre los 14 escenarios de entrenamiento, cada uno de los dos archivos
+contiene las dos direcciones del diálogo, en proporciones casi idénticas:
+
+| Escenario (training) | master: peticiones / respuestas | slave: peticiones / respuestas |
+|---|---|---|
+| Control / frequent | 34.800 / 32.373 (51,8 % pet.) | 34.800 / 32.373 (51,8 %) |
+| Injection / frequent | 35.242 / 32.703 (51,9 %) | 35.048 / 32.834 (51,6 %) |
+| Replay / frequent | 34.934 / 32.393 (51,9 %) | 35.427 / 32.732 (52,0 %) |
+
+En los 28 pares medidos la proporción de peticiones cae siempre entre 51,0 % y
+55,9 %. No hay ningún archivo que contenga solo comandos ni ninguno que
+contenga solo respuestas. En el escenario `Control` las dos capturas registran
+**la misma conversación, tramo por tramo**: la secuencia de pares (código de
+función, número de secuencia) coincide en 20.000 de 20.000 tramas comparadas.
+Son dos puntos de captura del mismo enlace, no una partición por rol.
+
+**Qué hacer con esto.** La separación entre comando y respuesta sí se puede
+obtener, pero del propio código de función DNP3 —1 para `READ` frente a 129
+para `RESPONSE`— y de la dirección de enlace. El emparejamiento por número de
+secuencia funciona y cubre el 100 % de las lecturas (pregunta 1). El conjunto
+sirve; lo que no sirve es confiar en los nombres de archivo.
+
+### 1.2 QUT DNP3 no contiene comandos de control con parámetros
+
+Sobre las 2.318.278 cabeceras de objeto DNP3 extraídas de todo el tramo de
+entrenamiento, **no aparece ni un solo objeto de control**:
+
+| Objeto | Qué es | Apariciones |
+|---|---|---:|
+| g12v1 (CROB) | comando de salida binaria, con código de control, duración y repeticiones | **0** |
+| g41 (Analog Output Block) | consigna analógica | **0** |
+| g40 (estado de salida analógica) | realimentación de consigna | **0** |
+
+Lo que sí aparece es sondeo por clase y telemetría:
+
+| Objeto | Apariciones | Objeto | Apariciones |
+|---|---:|---|---:|
+| g60v2/v3/v4 (clases 1/2/3) | 1.245.413 | g80v1 (indicaciones internas) | 152.896 |
+| g1v2 (entrada binaria) | 230.291 | g20v0/g20v2 (contadores) | 296.759 |
+| g60v1 (clase 0) | 175.161 | g2v1 (evento de entrada binaria) | 162.802 |
+| g50v3 (marca de tiempo) | 54.902 | g52v2 (retardo) | 54 |
+
+Las 207.798 operaciones `WRITE` del conjunto **no escriben consignas de
+proceso**, y conviene ser preciso sobre qué sostiene eso. La salida del script
+01 guarda los códigos de función y las cabeceras de objeto como contadores
+separados, sin ninguna clave que los cruce, de modo que **la atribución
+mensaje por mensaje no se midió**. Lo que sí se midió, y de forma exhaustiva,
+es una pregunta de conteos: de los once grupos de objetos que la captura
+contiene, **el único subconjunto cuyos conteos suman las 207.798 escrituras es
+g80v1 más g50v3**, con 152.896 y 54.902 cabeceras. Único en todo el espacio de
+2047 subconjuntos, de modo que no es la coincidencia de dos números elegidos
+de antemano sino un argumento de conteo, que no se apoya en el protocolo en
+ningún paso. Lo que sí sale del protocolo, y queda atribuido como tal, es qué
+**son** esos dos objetos: el bit de reinicio de las indicaciones internas y la
+hora. Ninguno de los dos es un parámetro de proceso.
+
+La comprobación la hace `eda/scripts/19_qut_escrituras.py`, que además es una
+guarda: termina con código distinto de cero si apareciera un objeto de control
+o si el subconjunto que cierra dejara de ser único.
+
+**Qué hacer con esto.** El requerimiento 2.3 del plan pide características
+semánticas, y sobre QUT se pueden construir las de *código de función, clase
+sondeada, valores de punto y temporizado*, pero **no** las de parámetros de
+comando. La familia de anomalías
+contextuales que manipula parámetros —configuración con valores atípicos para
+el modo de operación vigente— **no se puede ejercitar sobre este conjunto**.
+Para esa familia hace falta otro, y la sección 4 muestra cuál.
+
+### 1.3 Westermo tiene 94 eventos, no 96
+
+El `README` del conjunto declara «96 eventos en 16 tandas». En
+`data/events.txt` hay **94** pares START/END, ninguno sin cerrar. Las tandas
+sí son 16, pero la última está truncada: quince tandas de seis eventos y una
+de cuatro.
+
+| Tipo | Eventos |
+|---|---:|
+| BAD-SSH | 16 |
+| BAD-MITM | 16 |
+| BAD-MISCONF-DUPLICATION | 16 |
+| GOOD-SSH | 15 |
+| BAD-MISCONF | 15 |
+| BAD-PORTSCAN1 + BAD-PORTSCAN2 | 8 + 8 = 16 |
+| **Total** | **94** |
+
+Los «seis tipos de evento» sí se confirman, con una salvedad de forma: en el
+archivo aparecen siete etiquetas, porque el escaneo de puertos está partido en
+`BAD-PORTSCAN1` (un dispositivo) y `BAD-PORTSCAN2` (varios). Si se unifican
+las dos, quedan seis tipos con 16 repeticiones de cada uno, salvo los dos que
+caen en la tanda truncada.
+
+### 1.4 La polaridad de `command response` en Morris está documentada al revés
+
+La ficha de procedencia del conjunto —`datasets/morris-turnipseed/PROCEDENCIA.md`,
+escrita al recuperarlo— decía «`command response` (0 = comando, 1 =
+respuesta)». Los conteos eran correctos (137.013 y 137.615, verificados), pero
+**la polaridad estaba invertida**. Tres evidencias independientes, todas sobre
+el archivo:
+
+1. **Códigos de excepción Modbus.** Las funciones 128, 132, 133, 136, 137–142 y
+   171 son respuestas de excepción por definición (función + 0x80). Aparecen
+   **3905 veces, todas con `command response = 0`**, y ninguna con 1.
+2. **Longitud de trama.** En la función 3 (leer registros) `cr=1` mide 16 y
+   `cr=0` mide 46: la petición es corta y la respuesta trae los datos. En la
+   función 16 (escribir registros) se invierte, `cr=1` mide 90 y `cr=0` mide 16,
+   que es justo lo que corresponde a una escritura larga con acuse corto.
+3. **Campos presentes.** `setpoint` y `gain` tienen valor en 64.100 filas, todas
+   con `cr=1` y ninguna con `cr=0`. `pressure measurement` tiene valor en 68.888
+   filas, de ellas 68.848 con `cr=0` y 40 con `cr=1`; **las 40 traen un cero
+   explícito**, de modo que ninguna fila marcada como comando informa una
+   medición real. Exigiendo valor distinto de cero quedan 63.314 filas y
+   **todas** son `cr=0`.
+
+Conviene registrar las dos trampas de conteo que aparecieron al contrastar estas
+cifras con una medición hecha por separado. La primera: los códigos de excepción
+se cuentan con el criterio `function >= 128`, no con una lista enumerada de
+códigos canónicos; el conjunto incluye 133 y 138 a 142, que una lista escrita de
+memoria omite, y son 240 filas de diferencia. La segunda: «tiene valor» y
+«distinto de cero» no son lo mismo en este archivo, y la diferencia son
+las 40 filas del párrafo anterior. Los conteos de este informe salen de
+correr `eda/scripts/03_morris.py`, que imprime el criterio junto al número.
+
+**`command response = 1` es el comando y `0` es la respuesta.** Importa porque
+ese atributo es el que da la separación semántica en Morris: cualquier
+característica construida sobre la lectura anterior quedaría invertida. La
+ficha ya está corregida.
+
+### 1.5 El determinismo no se cumple por igual en Westermo y en QUT
+
+Los dos conjuntos suelen describirse como tráfico industrial determinista, y
+medidos no lo son en la misma medida (pregunta 2): el tráfico normal limpio de
+Westermo es **más regular que el azar** —índice de dispersión 0,34—, mientras
+que el escenario base de QUT es **a ráfagas**, entre 2,73 y 3,00. Cualquier
+tabla que los califique igual en ese criterio mide la descripción y no los
+datos.
+
+### 1.6 El reparto de clases de Westermo sí se reproduce, al nivel correcto
+
+La bibliografía del conjunto cita un reparto aproximado de 75 % de tráfico
+normal, 18,5 % de malas configuraciones y SSH malicioso y 6,5 % de ataques.
+Sobre `reduced/flows/output_bottom.csv` da 82,4 / 15,0 / 2,6, lo que parece
+una discrepancia. **No lo es: la cifra publicada corresponde a otro nivel de
+agregación.**
+
+| Agregación | Normal | Malas config. y SSH malicioso | Ataques |
+|---|---:|---:|---:|
+| `reduced`, tres puntos, NST | **75,5 %** | **18,0 %** | **6,5 %** |
+| `extended`, tres puntos, NST | 78,7 % | 16,7 % | 4,6 % |
+| solo `reduced/bottom`, NST | 82,4 % | 15,0 % | 2,6 % |
+| `reduced`, tres puntos, IT | 34,5 % | 44,8 % | 20,7 % |
+
+Es la unión de los tres puntos de captura de la variante reducida con
+etiquetado NST. La lección es de método: antes de dar por falsa una cifra
+publicada, conviene probar a qué agregación corresponde.
+
+## 2. Partición usada y qué se exploró
+
+Las particiones vienen fijadas en `eda/INSTRUCCIONES.md`; este análisis las
+respeta y no abrió ningún conjunto de prueba, salvo la excepción de conteo de
+etiquetas que el brief admite para la pregunta 4.
+
+| Conjunto | Tramo explorado | No abierto |
+|---|---|---|
+| Westermo | `startOffset` 0 – 3265 s (60 %) | 3265 – 4354 s (calibración) y 4354 – 5442 s (prueba) |
+| QUT DNP3 | `*/training/` de las siete carpetas | `*/testing/` |
+| HAI | `train*.csv` de las cinco versiones | `test*.csv` y `label-test*.csv` |
+| Morris | `time` < 1418847578, los primeros 165.415 s (60 %) | los dos tramos siguientes |
+
+**Excepción aplicada (pregunta 4).** Se contaron etiquetas de los tramos de
+calibración y prueba de Westermo y Morris, y de los `test*.csv` de HAI. Solo
+conteos de etiqueta: en HAI se leyeron solo las columnas `attack` /
+`Attack` / `label` con `usecols`, y no se tocó ninguna variable de proceso.
+
+**Y un segundo uso de etiquetas fuera del tramo de entrenamiento, que conviene
+declarar.** La verificación del reparto 75 / 18,5 / 6,5 (§1.6) y la comparación
+entre las estrategias IT y NST (pregunta 3) son proporciones sobre los seis CSV
+**completos**, no sobre el tramo de entrenamiento: la cifra publicada se
+refiere al conjunto entero y no se podría contrastar de otro modo. Son conteos
+de las cuatro columnas de etiqueta y nada más; ninguna de las 60 características
+de flujo se miró fuera del tramo de entrenamiento. Todo lo que alimenta
+decisiones de modelado —la pregunta 2 completa, incluido el análisis de flujos
+con `NST_B_Label`— se calculó solo con `startOffset` < 3265 s.
+
+**Una advertencia sobre el tramo de entrenamiento de Westermo.** Los eventos
+están activos durante 2003 s de los 3265 s del tramo, es decir el **61,4 %**,
+repartidos en 57 intervalos. Solo quedan 1262 s limpios, en huecos de 12 a
+47 s (mediana 22 s). No existe un tramo largo de tráfico normal continuo, lo que
+limita cualquier análisis de ciclos de período largo sobre este conjunto.
+
+---
+
+## 3. Las cinco preguntas
+
+### Pregunta 1 — ¿Los PCAP de QUT tienen carga útil DNP3 interpretable?
+
+**Sí, y de forma completa.** Es la respuesta que el proyecto necesitaba antes
+de seguir, y es afirmativa en todo lo que depende del formato. Las reservas son
+de contenido, no de formato, y están en §1.1 y §1.2.
+
+Se leyeron **42 PCAP** (master, slave y attacker de los 14 escenarios de
+entrenamiento), 3,46 GB, con un lector DNP3 propio escrito sobre `dpkt`
+(`eda/scripts/dnp3.py`), sin `tshark`.
+
+**Capa DNP3 y puerto.** Hay capa DNP3 reconocible en los siete escenarios,
+sobre **TCP 20000**. Se encontraron **2.372.794 tramas de enlace** y **0
+errores de CRC de cabecera** en los 42 archivos; los 2.546.545 CRC de bloque de
+datos validan todos, el 100,00 %. El CRC es la prueba: dos octetos `0x0564`
+pueden salir por azar, un CRC-16 de DNP3 que cierra, no.
+
+**Códigos de función.** Extraíbles e interpretables. El reparto sobre todo el
+tramo de entrenamiento:
+
+| Función | Tramas | Función | Tramas |
+|---|---:|---|---:|
+| RESPONSE (129) | 849.947 | IMMED_FREEZE (7) | 123.110 |
+| READ (1) | 821.203 | RECORD_CURRENT_TIME (24) | 1002 |
+| CONFIRM (0) | 216.762 | ENABLE_UNSOLICITED (20) | 864 |
+| WRITE (2) | 207.798 | WARM_RESTART (14) | 90 |
+| UNSOLICITED_RESPONSE (130) | 151.146 | COLD_RESTART (13) | 78 |
+
+El escenario `Control`, que es la línea base sin ataque, contiene **solo**
+READ, RESPONSE, CONFIRM y UNSOLICITED_RESPONSE. Todo lo demás —WRITE,
+IMMED_FREEZE, los reinicios— aparece solo en los escenarios de ataque y,
+en su mayor parte, en `attacker.pcap`. Es un dato útil: el vocabulario de
+funciones es, por sí solo, un discriminante fuerte en este conjunto.
+
+**Parámetros, no solo cabeceras.** El lector recupera grupo, variación,
+calificador, rango y los **valores de punto** de cada objeto. Sobre el total,
+**2.318.278 cabeceras de objeto, el 100,0 % interpretadas por completo** tras
+incorporar la variación g50v3. En `Control` se decodifican 31.952 valores de
+punto por captura sin una sola cabecera incompleta. Dicho esto, los
+«parámetros» que existen son valores de telemetría y clases sondeadas: como se
+explica en §1.2, no hay parámetros de comando de control.
+
+**Emparejamiento de comando y respuesta.** Funciona con el **número de
+secuencia de aplicación** más el orden temporal. En `Control`:
+
+| Captura | Peticiones | Respuestas | Emparejadas | Latencia mediana |
+|---|---:|---:|---:|---:|
+| master / frequent | 34.800 | 29.094 | 29.094 | 8,1 ms |
+| slave / frequent | 34.800 | 29.094 | 29.094 | 8,0 ms |
+
+Las 29.094 respuestas emparejan con las 29.094 lecturas: **el 100 % de los
+READ**. La tasa aparente del 83,6 % sale de contar los 5706 CONFIRM como
+peticiones, y un CONFIRM no lleva respuesta por diseño. En los escenarios de
+ataque la tasa baja hasta el 27,7 % en `Flooding/slave`, y es porque la
+inundación introduce peticiones sin respuesta, que es la anomalía.
+
+**Conclusión de la pregunta 1.** No hay que detener el análisis: la carga útil
+está, es interpretable y el emparejamiento se puede hacer. Pero dos de los
+argumentos con los que se justificó la elección de QUT son incorrectos (§1.1 y
+§1.2) y hay que rehacerlos.
+
+**Un hallazgo lateral que conviene registrar.** El escenario `Control` dura
+**24,02 horas continuas** (86.486 s, sin ningún hueco mayor a 1 s), por
+captura y por partición. La duración de QUT estaba sin medir, y con esto queda
+medida: alcanza para mirar deriva dentro de un día. Lo que no se midió es
+cuántos modos de operación distintos atraviesa ese día, que es la otra mitad
+de lo que hace falta para caracterizar deriva, de modo que la duración queda
+establecida y la cobertura de modos, abierta. Además, por volumen, la captura
+no es en su mayor parte DNP3. El
+desglose completo de los 419.803 paquetes, que suma exacto:
+
+| Protocolo | Paquetes | | Protocolo | Paquetes |
+|---|---:|---|---|---:|
+| GOOSE de IEC 61850 (0x88b8) | 262.511 | | PTP (0x88f7) | 21.582 |
+| TCP de DNP3 | 97.277 | | ARP | 6052 |
+| UDP | 32.375 | | IPv6 (0x86dd) | 6 |
+
+El DNP3 es el 23,2 % de los paquetes; el GOOSE, el 62,5 %.
+
+### Pregunta 2 — ¿El tráfico normal es determinista?
+
+**Depende de qué se mire, y la diferencia entre los dos conjuntos es grande.**
+La respuesta corta: la envolvente del normal es **estrecha en estructura**
+—quién habla con quién, con qué tamaños, a qué volumen— y **ancha en
+temporizado de paquete**. No es el «sí» liso que supone el plan.
+
+![Qué tan estrecha es la envolvente del tráfico normal: volumen por ventana de 1 s y separación entre paquetes](figuras/p2_regularidad.png)
+
+![Autocorrelación de la tasa de paquetes por ventana de 1 s](figuras/p2_autocorrelacion.png)
+
+Y la misma medida, extendida a ICS-Flow por el script 13 con las definiciones
+importadas del script 05, de modo que las barras son comparables celda por
+celda con la tabla de más abajo:
+
+![ICS-Flow frente a Westermo y QUT: índice de dispersión de la tasa y CV del intervalo entre paquetes](figuras/p13_regularidad.png)
+
+Las dos últimas columnas **no son muestras independientes**: «QUT solo DNP3»
+es el subconjunto de «QUT Control» que se queda con el puerto 20000, filtrado
+del mismo archivo. Se ponen juntas para ver cuánto cambia la medida al aislar
+el protocolo de control, no para compararlas entre sí. De hecho todo el TCP
+del escenario es DNP3 —97.277 segmentos TCP y 97.277 en el puerto 20000, cero
+fuera—, así que la segunda columna equivale a quedarse solo con el TCP.
+
+| Medida | Westermo normal limpio | Westermo con eventos | QUT Control | QUT solo DNP3 *(subconjunto)* |
+|---|---:|---:|---:|---:|
+| Paquetes | 344.636 | 898.597 | 419.803 | 97.277 |
+| Tasa media (pps) | 272,9 | 275,2 | 4,9 | 1,1 |
+| CV de la tasa por ventana de 1 s | **0,04** | 0,10 | 0,79 | 1,56 |
+| Índice de dispersión (var/media) | **0,34** | 2,83 | 3,00 | 2,73 |
+| CV del intervalo entre paquetes | 4,49 | 4,40 | 1,26 | 1,98 |
+| Nodos / pares distintos | 31 / 32 | 40 / 51 | 17 / 16 | 2 / 2 |
+| Entropía normalizada IP origen | 0,38 | 0,37 | 0,54 | 0,96 |
+| Jaccard del conjunto de pares (10 s) | 0,81 | 0,82 | 0,80 | **1,00** |
+| Tamaños de paquete distintos | 11 | 36 | 21 | 13 |
+
+El **índice de dispersión** (varianza sobre media del recuento por ventana) es
+la medida que decide, porque vale 1 para llegadas al puro azar y permite
+comparar tasas muy distintas sin que el nivel medio confunda la lectura.
+
+- **Westermo, tráfico normal limpio: 0,34.** Por debajo de 1, es decir **más
+  regular que el azar**. El volumen es 272,9 ± 9,6 paquetes por segundo, con
+  percentiles 5 y 95 en 263 y 282. La envolvente es estrecha de verdad.
+- **Westermo con los eventos incluidos: 2,83.** Los eventos multiplican por
+  ocho la dispersión del volumen. Esto es una buena noticia para el proyecto:
+  significa que los eventos **son visibles en la tasa agregada**, sin mirar
+  contenido.
+- **QUT Control: 2,73 a 3,00.** El escenario base de QUT, que no tiene ningún
+  ataque, es a ráfagas. Su determinismo está en otro lado (ver abajo), no en el
+  volumen.
+
+El **CV del intervalo entre paquetes** está entre 1,26 y 4,49 en los cuatro
+casos: por encima de 1 en todos, es decir más disperso que Poisson. **El
+tráfico normal no es periódico a nivel de paquete en ninguno de los dos
+conjuntos.** Un detector que modele el intervalo entre paquetes agregado va a
+encontrar una envolvente ancha.
+
+Donde sí hay periodicidad estricta es en el **plano de control**, conversación
+por conversación:
+
+| Conjunto | Conversación | Intervalo mediano | CV |
+|---|---|---:|---:|
+| Westermo | BPDU de RSTP (tres puentes) | 2000,0 ms | **0,00** |
+| QUT | GOOSE 0x88b8 (dos grupos) | 999,7 ms | 0,65–0,68 |
+| QUT | PTP 0x88f7 | 4008,0 ms | 0,57 |
+| QUT | UDP 192.168.10.1 ↔ .221 | 10.002,2 ms | **0,00** |
+| QUT | UDP 192.168.10.20 → difusión | 8008,7 ms | **0,00** |
+| QUT | ARP 84:2b:2b:ab:59:be | 29.998,6 ms | **0,00** |
+| Westermo | PLC1 → PLC2 (TCP, ICSSIM) | 0,2 ms | 2,40 |
+| QUT | maestro → esclavo (DNP3) | 204,9 ms | 1,43 |
+
+Hay, entonces, dos poblaciones superpuestas: balizas de protocolo del todo
+deterministas (CV de 0,00 en varias) y tráfico de aplicación a
+ráfagas. Mezclarlas en una sola distribución de intervalos borra las dos.
+
+La **estructura** sí es estable en ambos conjuntos. En Westermo, el conjunto de
+pares que conversan se mantiene con un Jaccard mediano de 0,81 entre ventanas
+de 10 s y en el último tercio del tramo aparecen **0,02 pares nuevos por
+ventana**: el vecindario deja de crecer. A nivel de flujo, con la etiqueta NST
+exacta, los 17.456 flujos normales del tramo de entrenamiento se reparten en
+solo **22 pares distintos**, y los cinco más frecuentes concentran el **94,1 %**.
+En QUT restringido a DNP3 el Jaccard es **1,00**: siempre los mismos dos
+interlocutores.
+
+La **autocorrelación de la tasa** cierra el cuadro. En el normal limpio de
+Westermo vale −0,27 en el retardo de 1 s: si un segundo queda por encima de la
+media, el siguiente queda por debajo. Es la firma de un lazo de sondeo con
+cupo fijo, y explica que el índice de dispersión caiga por debajo de 1. Los
+rebrotes positivos son débiles, 0,17 en 6 s y 0,13 en 11 s, y el análisis no
+llega más lejos que 15 s porque los huecos limpios no dan para más. En QUT el
+perfil oscila con picos de hasta 0,29 repartidos a lo largo de 180 s, sin un
+período dominante. **En ninguno de los dos conjuntos hay un ciclo operativo
+marcado en la tasa agregada**, lo que descarta las características de
+periodicidad de ventana larga como base de la línea base.
+
+**Conclusión de la pregunta 2.** La premisa del enfoque no supervisado se
+sostiene, pero hay que apoyarla en las características correctas. Son
+discriminantes el volumen por ventana (en Westermo), el conjunto de pares, el
+repertorio de tamaños de paquete (11 valores distintos en el normal limpio
+frente a 36 con eventos) y el vocabulario de funciones (en QUT). No lo es el
+intervalo entre paquetes agregado. Conviene además **modelar por conversación y
+por protocolo**, no sobre el agregado: es ahí donde aparece el determinismo que
+el plan supone.
+
+### Pregunta 3 — ¿Lo que afirma la documentación está en los datos?
+
+**Westermo.** Ver §1.3 (94 eventos, no 96), §1.6 (el reparto sí se reproduce) y
+la cuantificación IT frente a NST:
+
+| | Normal | Anómalo |
+|---|---:|---:|
+| `IT_B_Label` | 12.900 (36,4 %) | 22.504 (63,6 %) |
+| `NST_B_Label` | 29.159 (82,4 %) | 6245 (17,6 %) |
+
+Las dos filas, y todo lo que sigue de Westermo en esta pregunta, son sobre
+`reduced/flows/output_bottom.csv`: los 35.404 flujos de **un** punto de
+captura y **una** variante. La sección 1.6 muestra cuánto cambian las
+proporciones al unir los tres puntos, y conviene no mover una cifra de un
+alcance al otro.
+
+**NST marca un subconjunto estricto de IT**: no hay ni un flujo anómalo para
+NST que no lo sea para IT. Los separan 16.259 flujos, el **45,9 % de la
+captura**. Por tipo, la elección cambia el problema de forma muy desigual:
+
+| Tipo | IT | NST | NST / IT |
+|---|---:|---:|---:|
+| BAD-MISCONF | 2103 | 2103 | 100,0 % |
+| BAD-MISCONF-DUPLICATION | 2453 | 2453 | 100,0 % |
+| BAD-PORTSCAN2 | 2255 | 397 | 17,6 % |
+| BAD-MITM | 3387 | 504 | 14,9 % |
+| BAD-SSH | 11.246 | 751 | 6,7 % |
+| BAD-PORTSCAN1 | 734 | 29 | 4,0 % |
+| GOOD-SSH | 326 | 8 | 2,5 % |
+
+Las dos malas configuraciones son idénticas bajo las dos estrategias, porque
+no las produce un atacante sino el propio equipo mal configurado, y todo su
+tráfico involucra al nodo afectado. Para todo lo demás, IT infla entre 6 y 25
+veces. Dicho de otro modo: **la diferencia entre las dos estrategias se
+concentra en los ataques, no en los errores de configuración**, que son los
+eventos de mayor interés para este proyecto.
+
+Una discrepancia menor, interna al conjunto: el `README` de Westermo declara
+«54 columnas con 50 características y 4 etiquetas», y los seis CSV tienen
+**64 columnas**. Ninguna medición de este análisis se apoya en ese número.
+
+**Morris / Turnipseed.** Las trece comprobaciones dan exacto:
+
+| Comprobación | Declarado | Medido |
+|---|---:|---:|
+| Filas | 274.628 | 274.628 |
+| Atributos | 20 | 20 |
+| Normales | 214.580 | 214.580 |
+| Ataques | 60.048 | 60.048 |
+| Categorías 1 a 7 | 7753 / 13.035 / 7900 / 20.412 / 4898 / 2176 / 3874 | idénticos |
+| `command response` = 0 / = 1 | 137.013 / 137.615 | 137.013 / 137.615 |
+
+**13 de 13.** El control del propio análisis pasa. La única corrección es la
+polaridad de `command response` (§1.4), que es de `PROCEDENCIA.md`.
+
+**La fuga de presión: la afirmación se confirma, con dos precisiones.** La
+afirmación que el proyecto traía es que la fuga del conjunto original no se
+reproduce en el corregido, con «medianas de 5,51 y 0,556» y rangos
+intercuartílicos superpuestos. Medido: la mediana de la clase normal es 5,5058 y la de ataque
+0,5558, y los rangos sí se superponen —normal [1,287, 13,058] contra ataque
+[0, 8,929]—. La afirmación es correcta.
+
+Las dos precisiones:
+
+1. **La presión solo existe en una cuarta parte del conjunto.** Está informada
+   en 68.888 de las 274.628 filas, el 25,08 %, porque solo la traen las
+   respuestas de la función 3. Las otras 205.740 filas tienen `?`. Todo lo que
+   se diga de su distribución vale sobre ese cuarto, no sobre el conjunto.
+2. **«No se reproduce» no quiere decir que la presión no discrimine.** El mejor
+   umbral único posible sobre ese subconjunto alcanza una exactitud de 0,8497
+   contra 0,6977 de la clase mayoritaria: **15,2 puntos de ganancia**, medidos
+   con el umbral elegido sobre los mismos datos, o sea una cota superior. No es
+   la separación trivial del conjunto original, pero tampoco es cero, y un
+   modelo que use la presión se va a quedar con parte de esa señal.
+
+**Y la procedencia de una cifra que circuló mal.** Una versión anterior de la
+revisión de este proyecto cifraba en «el 1,7 % del total» las instancias de ataque con presión
+fuera de rango. Ese pasaje ya se reescribió y la cifra no figura más, pero
+conviene dejar asentado de dónde salía, porque el número era correcto y la
+base no: son **1020 ataques con presión mayor que 10⁶** —valores sin sentido
+físico—, que es el 1,70 % **de los 60.048 ataques**, no del total de 274.628
+filas, sobre el que serían 0,37 %. No era una cifra inventada sino un error de
+denominador, que es distinto y vale la pena distinguir.
+
+Se probaron otros criterios de «fuera de rango» por si la cifra venía de otra
+definición: fuera del rango observado de la clase normal son 12.155 ataques,
+el 20,2 % de los ataques; por encima de 100, son 1270. El único criterio que
+da 1,7 % es el de 10⁶, y sobre los ataques.
+
+El tratamiento completo, con el conjunto original como control positivo, está
+en `eda/scripts/07_morris_fuga_presion.py`.
+
+**HAI.** El formato declarado en `datasets/LEEME.md` se confirma en todo:
+
+| Versión | Separador | Columnas | Etiquetas | Columna de tiempo |
+|---|---|---:|---|---|
+| hai-20.07 | `;` | 64 | `attack`, `attack_P1/P2/P3` | `time` |
+| hai-21.03 | `,` | 84 | `attack`, `attack_P1/P2/P3` | `time` |
+| hai-22.04 | `,` | 88 | `Attack` | `timestamp` |
+| hai-23.05 | `,` | 87 | en `label-test*.csv` | `timestamp` |
+| haiend-23.05 | `,` | 226 | en `label-test*.csv` | `Timestamp` |
+
+Dos detalles que `LEEME.md` no registra y que el lector común tiene que
+contemplar: **el nombre de la columna de tiempo cambia** entre `time`,
+`timestamp` y `Timestamp`, y **los archivos de entrenamiento de 20.07, 21.03 y
+22.04 también traen las columnas de etiqueta**.
+
+Y un hallazgo que importa más:
+
+> **`hai-20.07/train2.csv` contiene dos ataques etiquetados**, de 387 s y 389 s
+> (776 filas, `attack = 1` y `attack_P1 = 1`), el 2 y el 3 de noviembre de 2019
+> a las 15:31. Los `train` de las demás versiones están limpios. Entrenar
+> «solo con tráfico normal» a partir de los `train*.csv` sin filtrar mete esos
+> dos ataques en el conjunto de entrenamiento.
+
+Sobre qué anomalías están etiquetadas: 20.07 y 21.03 distinguen el proceso
+atacado (P1, P2, P3), pero **ninguna versión etiqueta el tipo de anomalía**.
+A partir de 22.04 solo hay una columna binaria. HAI no permite PD por tipo.
+
+### Pregunta 4 — ¿Alcanzan las muestras para medir PD por tipo?
+
+**Para Morris sí, con holgura. Para Westermo no. Para HAI no, por otro motivo.**
+
+**Morris.** Un «evento» es una racha contigua de filas de la misma categoría. En
+este conjunto las inyecciones son aisladas —uno o dos registros, el comando y
+su respuesta—, de modo que instancias y eventos casi coinciden:
+
+| Categoría | Instancias | Eventos | Eventos en prueba |
+|---|---:|---:|---:|
+| NMRI | 7753 | 7753 | 1639 |
+| CMRI | 13.035 | 13.035 | 2581 |
+| MSCI | 7900 | 3950 | 676 |
+| MPCI | 20.412 | 10.206 | 1808 |
+| MFCI | 4898 | 2449 | 646 |
+| DoS | 2176 | 1088 | 281 |
+| Reconocimiento | 3874 | 2258 | 477 |
+
+Con 281 eventos en el peor caso (DoS), el error estándar de una PD cercana a
+0,5 es de ±0,03. **Morris sostiene sin problemas el compromiso de un punto de
+operación por familia de anomalía que el proyecto se propone.**
+
+**Westermo no lo sostiene.** La figura muestra por qué: los 94 eventos se
+reparten de forma pareja a lo largo de toda la captura, de modo que cualquier
+corte temporal deja pocos de cada tipo a cada lado.
+
+![Los 94 eventos de Westermo a lo largo de la captura, con los cortes de la partición](figuras/p4_westermo_eventos.png) Hay 94 eventos en total y la partición
+60/20/20 deja **17 en el tramo de prueba**, repartidos así:
+
+| Tipo | Total | Entrenamiento | Calibración | **Prueba** |
+|---|---:|---:|---:|---:|
+| BAD-SSH | 16 | 10 | 3 | 3 |
+| BAD-MITM | 16 | 10 | 3 | 3 |
+| BAD-MISCONF-DUPLICATION | 16 | 9 | 4 | 3 |
+| BAD-MISCONF | 15 | 10 | 2 | 3 |
+| GOOD-SSH | 15 | 9 | 4 | 2 |
+| BAD-PORTSCAN2 | 8 | 4 | 2 | 2 |
+| BAD-PORTSCAN1 | 8 | 5 | 2 | **1** |
+| **Total** | **94** | **57** | **20** | **17** |
+
+Con 3 eventos por tipo, el intervalo de confianza del 95 % de una PD por tipo
+tiene un semiancho de alrededor de **±0,55**: el resultado no distingue un
+detector que funciona de uno que no. Con 1 evento (BAD-PORTSCAN1) no hay
+estimación posible. **Para los siete tipos de Westermo, el número de eventos de
+prueba es insuficiente.**
+
+Hay un segundo problema, independiente del anterior: en el punto de captura
+inferior, varios eventos **no dejan ningún flujo etiquetado** bajo NST.
+
+| Tipo | Eventos | Flujos por evento (mín / mediana / máx) | Eventos con 0 flujos |
+|---|---:|---|---:|
+| BAD-MISCONF-DUPLICATION | 16 | 60 / 152 / 232 | 0 |
+| BAD-MISCONF | 15 | 91 / 130 / 188 | 0 |
+| BAD-MITM | 16 | 30 / 31 / 34 | 0 |
+| BAD-PORTSCAN2 | 8 | 1 / 75 / 92 | 0 |
+| BAD-SSH | 16 | 0 / 1 / 169 | **7** |
+| BAD-PORTSCAN1 | 8 | 1 / 1 / 21 | 0 |
+| GOOD-SSH | 15 | 0 / 0 / 3 | **11** |
+
+`BAD-SSH` es invisible desde el punto inferior en 7 de sus 16 eventos, y
+`GOOD-SSH` en 11 de 15. La causa se puede comprobar, porque `events.txt`
+registra contra qué equipo iba cada sesión:
+
+| Objetivo del SSH | Eventos | De ellos, sin ningún flujo |
+|---|---:|---:|
+| `.1` (hub) | 4 | **4** |
+| `.5` (top) | 4 | **4** |
+| `.43`, `.48`, `.41` | 4 | **4** |
+| `.3` (filler) | 6 | 3 |
+| `.40`, `.45`, `.46` | 6 | 3 |
+| `.6` (el propio router inferior) | 2 | 0 |
+| `.38`, `.47`, `.49` (bottom tras las malas config.) | 5 | 0 |
+| **Total** | **31** | **18** |
+
+El reparto no es de dos grupos sino de tres. De las 31 sesiones de SSH, **18
+no dejan ningún flujo** en este punto. De las 13 que sí dejan, **seis** —las
+seis de `BAD-SSH` dirigidas a equipos del segmento inferior, `.6`, `.38`,
+`.47` y `.49`— dejan entre 94 y 169 flujos, y las **siete** restantes dejan
+entre uno y tres. El rango de 94 a 169 vale para esas seis, no para las trece.
+Los eventos dirigidos al concentrador o a `top` no dejan ninguno, sin
+excepción.
+
+Lo que **no** se puede concluir es que el objetivo determine la visibilidad:
+contra `.3` hay un episodio sin ningún flujo y dos con uno solo, y las dos
+filas intermedias de la tabla tienen la mitad de sus episodios de cada lado.
+La invisibilidad no se deduce del objetivo, y el camino en la topología no se
+midió, de modo que acá no se le atribuye causa. Lo que sí queda medido es que
+**una PD medida en un solo punto de captura subestima el desempeño por
+construcción**: 18 de 31 eventos no son observables desde este punto.
+
+Qué hacer, en orden de preferencia:
+
+1. **Medir PD por flujo, no por evento, y declararlo así.** Hay muestra de
+   sobra, pero el alcance tiene que ir declarado con la cifra: son 6245 flujos
+   anómalos bajo NST en `reduced/flows/output_bottom.csv`, que es **un** punto
+   de captura y **una** variante, y la unión de los tres puntos de la variante
+   reducida son 48.657 flujos con el 24,5 % anómalo. El costo, en los dos
+   casos, es que los flujos de un mismo evento no son independientes.
+2. **Usar los tres puntos de captura a la vez.** Triplica la evidencia por
+   evento y resuelve el problema de visibilidad.
+3. **Comprometer el punto de operación por familia solo sobre Morris**, y
+   reportar Westermo de forma agregada con intervalo de confianza explícito.
+
+No se recomienda cambiar la partición temporal para ganar eventos de prueba:
+el criterio de no mirar el test vale más que los tres eventos adicionales.
+
+**HAI.** Hay eventos de sobra —38 en 20.07, 50 en 21.03, 58 en 22.04 y 52 en
+cada versión 23.05—, pero **ninguna versión etiqueta el tipo de anomalía**, así
+que no hay PD por tipo que estimar. Sirve para PD agregada y, en 20.07 y 21.03,
+por proceso atacado. Como control de la verificación: los conteos de
+`hai-23.05` y `haiend-23.05` coinciden (14 y 38 eventos), que es lo
+que debe pasar si los archivos de etiqueta son idénticos, como declara
+`LEEME.md`.
+
+### Pregunta 5 — ¿Hay deriva medible en HAI?
+
+**Sí, dentro de una versión, y es mayor que el ruido del propio estimador.**
+![HAI: deriva entre tramos de entrenamiento sucesivos, contra el nivel de referencia interno](figuras/p5_hai_deriva.png)
+
+El problema de medir deriva es que cualquier par de muestras finitas difiere un
+poco. Para que las cifras signifiquen algo se calculó primero un **nivel de
+referencia**: la misma medida (estadístico KS por columna, mediana entre
+columnas) entre la **primera y la segunda mitad del mismo archivo**. Una
+diferencia entre archivos solo es deriva si supera ese nivel con holgura.
+
+| Versión | Referencia (mitad vs mitad) | Entre `train` sucesivos | Razón |
+|---|---:|---|---:|
+| hai-20.07 | 0,093 | t1→t2: **0,235** | **2,5×** |
+| hai-21.03 | 0,080 | t1→t2: 0,192 / t2→t3: 0,163 | **2,4× / 2,0×** |
+| hai-22.04 | 0,168 | 0,082 a **0,246** | 0,5× a 1,5× |
+| hai-23.05 | 0,098 | 0,073 a 0,137 | 0,7× a 1,4× |
+| haiend-23.05 | 0,053 | 0,076 a 0,145 | 1,4× a 2,7× |
+
+**La deriva es real y desigual.** En 20.07 y 21.03 supera el doble del nivel de
+referencia de forma consistente. En 23.05 está al borde del ruido salvo en el
+último tramo. En 22.04 el propio nivel de referencia es alto (0,168), lo que
+indica que esa versión ya es heterogénea de por sí.
+
+Las columnas que más se mueven se repiten y son interpretables: consignas y
+posiciones de válvula (`P1_PCV02Z`, `P1_PP04SP`, `x1003_18_SETPOINT_OUT`),
+vibración (`P2_VIBTR01` a `04`) y conmutadores de modo (`P2_ManualSD`,
+`P3_LH01`, `P3_LL01`). Varias llegan a KS = 1,00, es decir distribuciones
+disjuntas entre un tramo y el siguiente. **No es ruido de sensor: es cambio de
+punto de operación del proceso.**
+
+**Una salvedad importante sobre cómo leer esto.** Los `train` sucesivos no son
+continuos. Están separados por huecos:
+
+| Versión | Huecos entre archivos sucesivos |
+|---|---|
+| hai-20.07 | **47,4 días** |
+| hai-21.03 | 18,4 y 1,4 días |
+| hai-22.04 | 4,5 / 4,4 / 1,3 / 6,1 / 1,0 días |
+| hai-23.05 y haiend | 5,3 / 3,0 / 1,6 días |
+
+Lo que se mide, entonces, es la diferencia entre **campañas de adquisición
+separadas en el tiempo**, no deriva continua. Que el salto mayor (20.07, 2,5×)
+corresponda al hueco mayor (47 días) es consistente con deriva temporal, pero
+con dos archivos no alcanza para afirmar una tendencia.
+
+**Entre versiones no se midió divergencia, a propósito.** Hay cambios de banco
+documentados, y las columnas ni siquiera coinciden:
+
+| | 20.07 | 21.03 | 22.04 | 23.05 | haiend |
+|---|---:|---:|---:|---:|---:|
+| **20.07** (64) | 64 | 58 | 46 | 38 | 0 |
+| **21.03** (84) | 58 | 84 | 67 | 59 | 0 |
+| **22.04** (88) | 46 | 67 | 88 | 79 | 0 |
+| **23.05** (87) | 38 | 59 | 79 | 87 | 0 |
+| **haiend** (226) | 0 | 0 | 0 | 0 | 226 |
+
+No hay **ninguna** columna común a las cinco versiones, y `haiend-23.05` no
+comparte ni una con el resto porque usa otra convención de nombres. Entre 20.07
+y 23.05 solo coinciden 38 de 64. Calcular una divergencia sobre esa
+intersección y llamarla deriva sería un error; se reporta como cambio de
+sistema, que es lo que es.
+
+---
+
+## 4. Addendum: ICS-Flow, el conjunto que faltaba
+
+Este apartado se agregó después de cerrar las cinco preguntas, para resolver
+lo que la recomendación 2 de la sección siguiente dejaba abierto: ningún
+conjunto permitía a la vez **calcular** una característica semántica de
+parámetro desde la carga útil y **medir** sobre la familia que manipula esos
+parámetros. ICS-Flow era el candidato, y se verificó con el mismo criterio que
+el resto: se lo midió, en lugar de confiar en lo que dice su artículo.
+
+Script: `eda/scripts/06_icsflow_escrituras.py` y el lector
+`eda/scripts/modbus.py`.
+
+![ICS-Flow tiene escrituras Modbus con parámetros: repertorio de las consignas escritas y su evolución en el tiempo](figuras/p6_icsflow_escrituras.png)
+
+### 4.1 Partición
+
+El conjunto no trae partición designada, así que se define por tiempo con el
+mismo criterio que los demás. La captura va de 1663319679,510 a
+1663328062,090: 8383 s, 2,33 h.
+
+| Partición | Tramo (offset) | Uso |
+|---|---|---|
+| Entrenamiento | 0 – 5030 s (60 %) | exploración |
+| Calibración | 5030 – 6706 s (20 %) | umbral; no se explora |
+| Prueba | 6706 – 8383 s (20 %) | no se abre |
+
+El primer evento empieza a los 3661 s, de modo que el **43,7 % inicial de la
+captura es tráfico normal sin ningún ataque activo**. A diferencia de
+Westermo, acá sí hay un tramo normal limpio y largo, lo que lo vuelve mucho
+más cómodo para ajustar un modelo no supervisado.
+
+El PCAP se leyó entero una vez, pero **el detalle solo se extrajo del 60 %
+inicial**. Lo único que se midió fuera de ese tramo son cantidades: cuántas
+ADU Modbus y cuántas escrituras hay por partición, y cuántas caen dentro de
+una ventana de intermediario. Es la excepción de dimensionamiento del brief, y
+es la cifra que decide el alcance.
+
+### 4.2 Las escrituras son consignas, no bits
+
+Sobre 25.161.400 paquetes hay 5.924.975 segmentos Modbus en el puerto 502.
+En el tramo de entrenamiento: 1.190.823 lecturas de registro (función 3) y
+**448 peticiones de escritura múltiple** (función 16), todas con el valor
+recuperable.
+
+| Destino | Dir. | Variable | Escrituras | Valores distintos | Rango |
+|---|---:|---|---:|---:|---|
+| 192.168.0.11 (PLC1) | 6 | `tank_level_min` | 166 | 145 | 1,0026 – 4,6667 |
+| 192.168.0.11 (PLC1) | 8 | `tank_level_max` | 116 | 110 | 5,5258 – 9,5714 |
+| 192.168.0.12 (PLC2) | 22 | `bottle_level_max` | 166 | 147 | 1,0037 – 1,8869 |
+
+**Una corrección sobre cómo se leyeron estos registros al principio.** Una
+medición previa los describió como pares de registro de control y registro de
+valor, porque los registros 6, 8 y 22 tomaban uno o dos valores y los 7, 9 y 23
+tomaban cientos. No es eso. ICSSIM escribe **un entero de 32 bits repartido en
+dos registros consecutivos**, el más significativo primero, con función 16 y
+cantidad 2. El registro «de control» es la semipalabra alta, que vale 0 o 1, y
+el «de valor» es la baja. Leerlos por separado parte el número: la semipalabra
+baja de `tank_level_max` recorre 141 – 65.466 cuando el valor real va de 55.258
+a 95.714, porque desborda los 16 bits.
+
+Dos comprobaciones sostienen la interpretación:
+
+1. **El mapa de registros.** La dirección Modbus es el doble del índice de
+   variable que declaran las cabeceras de `snapshots_PLC1.csv` y
+   `snapshots_PLC2.csv` —`tank_level_min(3)` en la dirección 6,
+   `tank_level_max(4)` en la 8, `bottle_level_max(11)` en la 22—, que es lo
+   que corresponde si cada variable ocupa dos registros.
+2. **La escala y el efecto.** Al dividir por 10.000, el rango escrito coincide
+   con el de la variable en el registro de proceso:
+
+| Variable | Rango escrito (entrenamiento) | Rango en el snapshot |
+|---|---|---|
+| `tank_level_min(3)` | 1,0026 – 4,6667 | 1,0026 – 4,6666 |
+| `tank_level_max(4)` | 5,5258 – 9,5714 | 5,5258 – 9,5714 |
+| `bottle_level_max(11)` | 1,0037 – 1,8869 | 1,0025 – 1,8959 |
+
+La coincidencia es exacta en los extremos inferiores de las tres variables y
+en el superior de dos. **La consigna que viaja por la red es la que el PLC
+aplica**: manipularla tiene efecto observable sobre el proceso y no se queda
+en la trama.
+
+Y lo que decide la pregunta: 402 valores distintos sobre 448 escrituras. No es
+un bit ni un puñado de estados, es una consigna continua. Es el repertorio que
+la familia de manipulación de parámetros necesita y que QUT no tiene.
+
+### 4.3 El intermediario se ve en la carga útil, y el factor es 1,100
+
+El artículo sostiene que el atacante modifica las peticiones de escritura y
+multiplica sus valores por un factor. Se midió cuál.
+
+Las MAC del banco siguen la convención de Docker, `02:42:` seguido de la IP en
+hexadecimal, de modo que la MAC delata al emisor real: `02:42:c0:a8:00:17` es
+192.168.0.23, el HMI que escribe, y `02:42:c0:a8:00:29` es 192.168.0.41, el
+atacante. Dentro de las ventanas de intermediario aparecen **20 escrituras
+cuya MAC de origen es la del atacante y cuya IP de origen es la del HMI**, que
+es la firma del envenenamiento de ARP.
+
+Como el atacante retransmite, la misma escritura se ve dos veces. Hay 22
+parejas en las que la primera trama lleva la MAC del HMI y la segunda la del
+atacante:
+
+| Razón entre el segundo valor y el primero | Parejas de relay | Resto |
+|---|---:|---:|
+| 1,100 | **15** | 0 |
+| 1,000 | 7 | 10 |
+| 0,909 | 0 | 7 |
+| 0,543 | 0 | 1 |
+
+**En las 15 parejas de relay con valor alterado, la razón vale 1,100 sin una
+sola excepción.** El atacante reescribe la consigna multiplicada por 1,1. Las
+razones 0,909 son 1/1,1 y corresponden a leer la pareja al revés, cuando a la
+trama modificada le sigue la siguiente escritura legítima.
+
+Esto es manipulación de parámetros de comando sobre carga útil real,
+identificable sin etiquetas y con el mecanismo medido. Es lo que faltaba.
+
+**Y hay un segundo mecanismo sobre el mismo campo.** De las 448 escrituras del
+tramo de entrenamiento, 40 llevan la MAC del atacante: 20 caen en ventanas de
+intermediario, 19 en ventanas de repetición y una fuera de toda ventana
+declarada. La repetición reenvía consignas capturadas antes, que llegan al PLC
+fuera de tiempo con un valor que fue legítimo y ya no lo es.
+
+| MAC de origen | Sin ventana | mitm | replay | port-scan | ip-scan | ddos |
+|---|---:|---:|---:|---:|---:|---:|
+| `…00:17` (HMI) | 348 | 24 | 20 | 7 | 4 | 5 |
+| `…00:29` (atacante) | 1 | 20 | 19 | 0 | 0 | 0 |
+
+De modo que el conjunto aporta **dos** mecanismos de anomalía contextual sobre
+el mismo campo —valor multiplicado y valor rancio—, no uno.
+
+Conviene registrar que esto se comprobó antes de sacar la conclusión
+equivocada. Las 20 escrituras del atacante que caen fuera de una ventana de
+intermediario parecían, a primera vista, etiquetado defectuoso o envenenamiento
+de ARP persistente. No lo son: 19 caen en ventanas de repetición y una sola
+queda fuera de toda ventana declarada. El etiquetado es consistente: de los
+6460 flujos de la captura en los que interviene la MAC del atacante, solo 9
+están marcados como normales.
+
+### 4.4 Cuántas muestras hay, que es donde aprieta
+
+| Partición | ADU Modbus | Escrituras | Bajo intermediario |
+|---|---:|---:|---:|
+| Entrenamiento | 1.191.721 | 448 | 44 |
+| Calibración | 2.593.792 | 176 | 48 |
+| Prueba | 2.139.462 | 178 | 51 |
+| **Total** | **5.924.975** | **802** | **143** |
+
+Son 802 escrituras en 25,2 millones de paquetes. Las 5.924.975 ADU Modbus se
+reparten por mitades entre peticiones y respuestas, de modo que hay unos 2,96
+millones de peticiones y las escrituras son una de cada 3693. El cuello de
+botella deja de ser la semántica y pasa a ser el tamaño de muestra.
+
+| Unidad de medida | n en prueba | IC 95 % de una PD cercana a 0,5 |
+|---|---:|---|
+| ICS-Flow, escritura manipulada | 51 | ±0,137 |
+| ICS-Flow, evento de intermediario | 5 | ±0,438 |
+| Morris, evento MPCI | 1808 | ±0,023 |
+
+### 4.5 Con qué alcance cierra la brecha
+
+**Cierra la mitad que faltaba, no las dos.** ICS-Flow es el único de los cinco
+conjuntos donde se puede calcular una característica semántica de parámetro
+desde la carga útil y además ver cómo la familia de manipulación actúa sobre
+ella. Sirve para **construir y validar el flujo de extracción** del
+requerimiento 2.3 sobre datos reales, que es algo que hasta ahora no se podía
+hacer con ningún conjunto.
+
+No reemplaza a Morris para medir. Con 51 escrituras manipuladas en el tramo de
+prueba, una PD por escritura queda con un intervalo de ±0,14 —utilizable pero
+grueso—, y por evento, con 5 eventos, no es estimable. Morris es todavía el
+único que sostiene un compromiso numérico por tipo, y sigue sin carga útil.
+
+De modo que la división de roles **no se resuelve: pasa de dos conjuntos a
+tres**. QUT para el grueso de las características semánticas de función y
+temporizado, ICS-Flow para construir y validar la extracción de parámetros y
+dar una PD gruesa sobre esa familia, y Morris para el compromiso numérico.
+
+El resto de los tipos de anomalía de ICS-Flow tiene el mismo problema que
+Westermo: 74 eventos en total, 21 en el tramo de prueba repartidos en cinco
+tipos, y el menos representado con uno solo.
+
+**Sobre Lemay y WDT, que quedaban anotados como alternativas para D3.** La
+revisión de sus condiciones de uso no dejó ninguno en pie como repuesto: el repositorio de Lemay no declara licencia
+—campo vacío y sin archivo de términos— y la ficha de WDT en IEEE DataPort
+tampoco, solo la etiqueta «Open Access», con una contradicción interna sobre
+si hace falta suscripción. **Sin licencia explícita no hay concesión de
+derechos**, que a los efectos de un desarrollo que se entregue es peor que la
+CC BY-NC-SA de ICS-Flow, porque esta al menos dice qué se puede hacer. Para
+uso académico los tres sirven. *Esto no se midió en este análisis: se toma de
+esa verificación y queda anotado como tal.*
+
+Conviene registrar, de la misma fuente, que WDT **sí publica capturas** —cinco
+PCAP junto a los CSV de proceso—, de modo que es un cuarto candidato con carga
+útil y no un conjunto de características ya extraídas. No se midió su densidad
+de escritura. Hacerlo solo cambiaría algo si antes se resolviera la licencia,
+porque un conjunto sobre el que no se puede construir nada entregable no
+reemplaza a ICS-Flow por muchas escrituras que tenga. Si se aclaran los
+términos con los autores, la medición es barata: son 860 MB y una pasada
+del lector `eda/scripts/modbus.py`, con el recaudo de no dar por hecho el
+empaquetado de 32 bits, que es convención de ICSSIM y no de Modbus.
+
+### 4.6 La licencia es la restrictiva
+
+La discrepancia se resolvió contra la fuente. La página de Kaggle de la que se
+bajó el conjunto —`kaggle.com/datasets/alirezadehlaghi/icssim`, titulada
+«ICS-Flow», de Alireza Dehlaghi— declara **CC BY-NC-SA 4.0**. Ninguno de los
+seis archivos descargados trae un archivo de licencia que diga otra cosa.
+
+**La cláusula NC importa si el desarrollo se entrega.** CC BY-NC-SA 4.0
+prohíbe el uso comercial y obliga a compartir las obras derivadas con la misma
+licencia. Un trabajo académico publicado no tiene problema, pero conviene
+saberlo antes de que el conjunto entre en algo que se entregue fuera del
+ámbito académico.
+
+> **Resuelto el 15/11/2026.** Se confirmó que la cláusula no tiene impacto en
+> este trabajo: el resultado esperado es de orden académico y no se aplicará
+> en producción ni con fines comerciales. El análisis de arriba se conserva
+> como registro de lo verificado.
+
+La atribución CC BY 4.0 que aparece en la otra fuente no se pudo confirmar
+sobre el conjunto. La explicación más probable es que corresponda al artículo
+y no a los datos: el trabajo que lo presenta salió en IEEE Access, que es de
+acceso abierto, y la licencia del artículo es independiente de la del conjunto.
+No se verificó la licencia del artículo, de modo que esto queda como hipótesis
+y no como dato.
+
+---
+
+## 5. Addendum: ¿se puede armar un conjunto integrado?
+
+Esta sección responde una pregunta que llegó después de las cinco
+anteriores: conocer qué características publica cada conjunto y decidir
+si los seleccionados se pueden unir en uno solo. El detalle campo por campo
+está en `eda/salidas/p10_inventario.txt` y la medición de integración, en
+`eda/salidas/p11_integracion.txt`.
+
+![Campos con el mismo nombre entre los esquemas publicados, y granularidad temporal medida de cada conjunto](figuras/p11_esquemas.png)
+
+**Respuesta corta: con los cinco, no. Con tres de ellos, sí, al nivel de
+características de flujo y con dos límites medidos.**
+
+### 5.1 Qué publica cada conjunto
+
+| Conjunto | Nivel del registro | Captura | Esquema propio | Etiqueta |
+|---|---|---|---|---|
+| Westermo | flujo de 0,5 s | sí | 64 campos | 4 columnas, 2 estrategias |
+| ICS-Flow | flujo de 0,5 s | sí | 64 campos | 4 columnas, 2 estrategias |
+| QUT DNP3 | paquete | sí | **ninguno** | por paquete |
+| Morris | transacción Modbus | **no** | 20 atributos | 3 columnas |
+| HAI | muestra de proceso de 1 s | **no** | 64 a 226 columnas | binaria |
+
+Dos asimetrías condicionan todo lo demás. **QUT no publica ningún esquema
+tabular**: publica capturas, de modo que sus características son las que el
+proyecto decida calcular, no un dato del conjunto. Y **Morris y HAI no
+publican captura**: de Morris no está archivado el crudo de las tramas, y HAI
+no trae ni una sola característica de red —sus columnas son todas variables
+de proceso, en bar, mm, l/h, %, grados, RPM, MW y Hz—.
+
+### 5.2 Westermo e ICS-Flow son el mismo esquema
+
+No se parecen: son idénticos. Las dos cabeceras tienen **los mismos 64 campos
+en el mismo orden**, repartidos en 13 identificadores, 47 características y
+4 etiquetas. La ventana de flujo es de 0,5 s en los dos, las identidades
+numéricas que fijan las unidades se cumplen en ambos con las mismas
+tolerancias, y las cuatro columnas de etiqueta traen las mismas dos
+estrategias, IT y NST. Los generó la misma herramienta.
+
+Esa coincidencia no se repite en ninguna otra parte del conjunto de cinco:
+
+| Intersección de nombres de campo | Campos comunes |
+|---|---:|
+| Westermo ∩ ICS-Flow | **64** |
+| Westermo ∩ Morris | 0 |
+| Westermo ∩ cualquier versión de HAI | 0 |
+| Los cuatro conjuntos con esquema tabular, a la vez | **0** |
+
+### 5.3 Pero no son la misma población
+
+Compartir la definición no es compartir la distribución, y esta es la
+precisión que decide el alcance. Se comparó **solo el tráfico normal de los
+dos tramos de entrenamiento** —17.456 flujos de Westermo y 22.856 de
+ICS-Flow— con un nivel de referencia interno: el mismo estadístico entre la
+primera y la segunda mitad de cada conjunto. Una diferencia entre conjuntos
+solo significa algo si supera ese nivel.
+
+| Campo | Referencia Westermo | Referencia ICS-Flow | Cruzado | Razón |
+|---|---:|---:|---:|---:|
+| `rBytesSum` | 0,013 | 0,013 | 0,538 | 41× |
+| `rPackets` | 0,012 | 0,013 | 0,538 | 43× |
+| `sPayloadSum` | 0,010 | 0,009 | 0,534 | 56× |
+| `rInterPacketAvg` | 0,240 | 0,038 | 0,515 | 2,1× |
+| `rPayloadSum` | 0,011 | 0,009 | 0,505 | 46× |
+
+Sobre las 37 características que sí varían, el estadístico cruzado
+tiene mediana **0,124**, y la razón entre el cruzado y el mayor de los dos
+niveles de referencia de cada campo tiene mediana **7,6**. Esa es la regla:
+primero el cociente campo por campo contra su propio ruido, después la mediana
+entre campos; el mayor de los dos niveles es la elección conservadora, porque
+da el factor más chico. Sobre el factor cabe una advertencia que no cabe sobre
+la mediana, y está en §5.6.
+
+Ninguna distribución es disjunta, así que la diferencia no es dramática, pero
+**se concentra en volumen y temporizado**, que son las características que la
+pregunta 2 identificó como las que llevan la señal. Entrenar sobre la unión de
+las filas ensancha la envolvente del normal en las variables que discriminan,
+sin excepción.
+
+Conviene registrar una asimetría: el nivel de referencia interno de Westermo
+en los campos de temporizado —`duration` 0,200, `rLoad` 0,194,
+`sInterPacketAvg` 0,158— es entre cinco y diez veces el de ICS-Flow. El propio
+tramo de entrenamiento de Westermo es más heterogéneo en el tiempo, de modo
+que parte de lo que se mediría como diferencia entre conjuntos es variabilidad
+interna de uno de ellos.
+
+### 5.4 Las tres formas de integrar, y qué sobrevive a cada una
+
+**Apilar las filas de los cinco con un esquema común: no es viable.** Hay cero
+campos con el mismo nombre, pero el obstáculo es anterior a los nombres: los
+registros no son la misma cosa. Un flujo de 0,5 s, una transacción Modbus, una
+muestra de proceso de 1 s y un paquete no son observaciones de la misma
+población, y ninguna transformación de columnas lo arregla.
+
+**Unir al nivel de características de flujo: sí, y es lo que la evidencia
+sostiene.** Westermo e ICS-Flow se unen sin intermediarios, y **a ellos se puede
+sumar QUT** calculándole las mismas 47 características desde sus PCAP. Eso es
+trabajo del proyecto y no un dato del conjunto, con la ventaja de que el flujo
+de extracción queda bajo control propio, que es lo que pide el
+requerimiento 2.3. Los dos límites: **10 de las 47 características son
+constantes en los dos conjuntos a la vez** —`sttl`, las tasas de banderas TCP
+y las de fragmentación—, de modo que la unión útil es menor que el número de
+columnas; y la diferencia de poblaciones de §5.3. Morris y HAI quedan afuera
+por falta de captura y de características de red, que no es una limitación
+salvable.
+
+**Integrar el protocolo de evaluación en lugar de los datos: es lo que
+funciona para los cinco.** Cada conjunto conserva su esquema, su nivel de
+agregación y su etiquetado, y lo que se unifica es la partición temporal
+60/20/20, la definición de PD y PFA, la regla de no mirar el tramo de prueba y
+una tabla de resultados por conjunto y por familia de anomalía. Se pierde la
+cifra agregada única y la posibilidad de afirmar que el detector generaliza
+entre dominios; se gana que cada cifra sea interpretable y que cada
+característica tenga unidad y ventana declaradas.
+
+Un obstáculo adicional para cualquier unión que cruce los cinco: **las
+etiquetas no son traducibles sin interpretación**. Hay dos esquemas de
+etiquetado, no cinco —Westermo e ICS-Flow comparten los cuatro campos y las
+dos estrategias; los otros tres tienen el suyo—, y los vocabularios no
+coinciden: las malas configuraciones de Westermo no existen en ningún otro
+conjunto, y la taxonomía contextual de Morris no existe en Westermo. Un
+diccionario escrito a mano puede unificar a nivel grueso, pero eso es una
+interpretación de las taxonomías publicadas y no una medición. Y lo que cada
+conjunto llama igual está medido sobre unidades distintas: un intermediario de
+Westermo es un flujo de 0,5 s y uno de QUT es un paquete.
+
+### 5.5 Qué se propone
+
+1. **Construir la unión de flujo con Westermo, ICS-Flow y QUT**, con las 47
+   características del esquema común, sin las 10 constantes. Es la única
+   unión que la medición sostiene.
+2. **No entrenar un modelo único sobre las filas unidas sin medir antes el
+   costo.** La diferencia de poblaciones de §5.3 cae sobre las variables
+   discriminantes. La forma de saber cuánto cuesta es comparar, sobre el mismo
+   tramo de prueba, un modelo entrenado por conjunto contra uno entrenado
+   sobre la unión. Es un experimento acotado y conviene correrlo antes de
+   comprometer la arquitectura.
+3. **Mantener Morris y HAI como conjuntos separados**, con el protocolo de
+   evaluación unificado. Morris sostiene el compromiso de PD por tipo y HAI el
+   eje de deriva; ninguno de los dos puede entrar en la unión de flujo.
+4. **No prometer una cifra agregada única sobre los cinco.** No
+   existe un conjunto integrado de los cinco del que pueda salir, y
+   presentarla sería dar por unificado lo que está medido como separable.
+
+### 5.6 Qué se verificó de esta sección
+
+Las mediciones de `p10` y `p11` las produjo una revisión posterior al EDA. Se
+reverificaron de forma independiente, con código propio y sobre los archivos,
+las cifras que sostienen la conclusión: los recuentos de campos de los diez
+esquemas, los 0 campos comunes a los cuatro conjuntos tabulares, la identidad
+de las dos cabeceras, el reparto 13/47/4, las 10 características constantes,
+los 17.456 y 22.856 flujos normales, la tabla de §5.3 completa, los niveles de
+referencia de temporizado, la ventana de 0,5 s, la ausencia de características
+de red en las cinco versiones de HAI y la ausencia de captura en Morris. Todas
+reproducen.
+
+Con una diferencia de criterio que corresponde declarar. `p11` resume la
+divergencia entre los dos conjuntos con una mediana de 0,066 y un factor de 4,
+calculados **sobre las 47 características**; como 10 de ellas son constantes
+en ambos y no pueden diferir, aportan un cero cada una y bajan las dos cifras.
+Se comprobó que la regla del factor es la misma en los dos cálculos —el
+cociente contra el mayor de los dos niveles de referencia de cada campo, y
+después la mediana entre campos—, de modo que la diferencia es solo el
+conjunto de campos sobre el que se toma la mediana.
+Sobre las 37 que varían, los valores son **0,124 y 7,6×**, que son los que usa
+esta sección. No es un error de cálculo sino una elección de denominador, y la
+diferencia importa porque el resumen más bajo suaviza la conclusión.
+
+Las dos medianas se pueden rehacer sin correr nada: `p11_integracion.json`
+trae los 47 valores individuales en `westermo_icsflow.ks`, con el nombre del
+campo, los dos niveles de referencia y el estadístico cruzado, y la lista de
+las diez constantes en `westermo_icsflow.campos_constantes_en_ambos`. La
+mediana de las 47 da 0,066 y la de las 37 restantes, 0,124, por tres caminos
+distintos: el script original, un recálculo desde cero y la cuenta sobre el
+JSON publicado.
+
+**El factor no es tan firme como la mediana, y conviene decirlo.** Es un
+cociente contra el nivel de referencia interno, que es una cantidad chica
+—entre 0,005 y 0,24 según el campo—, de modo que diferencias ínfimas en cómo
+se estima el ruido se amplifican al dividir. Dos implementaciones que
+coinciden en la mediana del cruzado hasta el cuarto decimal dan **7,5 y 7,6**
+para el factor, porque difieren hasta 6·10⁻⁴ en los niveles de referencia. La
+causa está identificada: una descarta los valores ausentes antes de partir el
+tramo en dos mitades y la otra después, de modo que las dos mitades no caen en
+el mismo sitio. Con la primera convención el factor es 7,5 y con la segunda
+7,6. La conclusión que el
+factor sostiene —que la divergencia entre conjuntos es casi un orden de
+magnitud mayor que la variabilidad interna— no depende de esa diferencia, pero
+el número no debería citarse con más precisión que **«alrededor de 7 a 8
+veces»**.
+
+---
+
+## 6. Qué implica para el proyecto
+
+1. **Rehacer el argumento de selección de QUT** (§1.1 y §1.2).
+   El conjunto se mantiene como la mejor opción para características semánticas
+   de función y temporizado, pero no da parámetros de comando y no trae la
+   separación comando/respuesta en su estructura de archivos.
+2. **Incorporar ICS-Flow con un rol acotado** (sección 4). Cierra la mitad de
+   la brecha que este informe había dejado abierta: permite construir y
+   validar la extracción de parámetros desde la carga útil, con dos mecanismos
+   de anomalía sobre el mismo campo —valor multiplicado por 1,1 y valor
+   rancio reenviado— y el factor medido. No cierra la otra mitad: con 51
+   escrituras manipuladas en el tramo de prueba, la PD por esa familia queda
+   con un intervalo de ±0,14, y el compromiso numérico sigue en Morris. Ya no
+   hace falta verificar Lemay ni WDT para este propósito, salvo que se busque
+   más muestra. **Atención a la licencia: CC BY-NC-SA 4.0**, que prohíbe el
+   uso comercial y puede chocar con una entrega fuera del ámbito académico.
+3. **Corregir la polaridad de `command response`** en `PROCEDENCIA.md` antes de
+   construir cualquier característica sobre Morris (§1.4).
+4. **Filtrar los dos ataques de `hai-20.07/train2.csv`** antes de usar ese
+   archivo como tráfico normal.
+5. **Elegir las características de la línea base con el resultado de la
+   pregunta 2**: volumen por ventana, conjunto de pares, repertorio de tamaños
+   y vocabulario de funciones, con un modelo por conversación. No apoyarse en el
+   intervalo entre paquetes agregado.
+6. **Decidir cómo se reporta PD en Westermo** antes de correr el experimento
+   (pregunta 4). Con 17 eventos de prueba, un compromiso por tipo no es
+   defendible; por flujo o agregado con intervalo de confianza, sí.
+7. **Dos criterios de comparabilidad cambian con estas mediciones.** El
+   determinismo de QUT no es el de Westermo —índice de dispersión 2,73 a 3,00
+   contra 0,34— y eso rebaja su calificación en ese criterio (§1.5). Y la
+   duración continua de QUT, que estaba sin medir, queda en 24,02 h por
+   escenario, lo que la sube: con la salvedad de que una duración sola no
+   alcanza si el criterio además pide más de un modo de operación medido, que
+   en QUT no se midió.
+8. **Adoptar una de las tres formas de integración** y descartar las otras dos
+   por escrito (§5.4 y §5.5). Lo que la medición sostiene es la unión de flujo
+   con Westermo, ICS-Flow y QUT, más el protocolo de evaluación unificado para
+   los cinco. Antes de comprometer la arquitectura conviene medir el costo de
+   entrenar sobre la unión, porque la diferencia de poblaciones cae sobre las
+   variables discriminantes.
+
+---
+
+## 7. Cómo reproducir
+
+```bash
+cd eda
+make            # crea el venv si falta y corre todo el análisis
+```
+
+O paso a paso, desde la raíz del repositorio:
+
+```bash
+eda/.venv/bin/python -I eda/scripts/01_qut_payload.py       # pregunta 1
+eda/.venv/bin/python -I eda/scripts/05_determinismo.py      # pregunta 2
+eda/.venv/bin/python -I eda/scripts/02_westermo_etiquetas.py # preguntas 3 y 4
+eda/.venv/bin/python -I eda/scripts/03_morris.py            # preguntas 3 y 4
+eda/.venv/bin/python -I eda/scripts/04_hai.py               # preguntas 3, 4 y 5
+eda/.venv/bin/python -I eda/scripts/06_icsflow_escrituras.py # sección 4
+eda/.venv/bin/python -I eda/scripts/10_inventario_caracteristicas.py  # sección 5
+eda/.venv/bin/python -I eda/scripts/11_integracion_esquemas.py        # sección 5
+```
+
+`make -C eda inventario` corre esos dos solos, que es lo que hace falta para
+rehacer la sección 5 sin repetir lo anterior.
+
+| Archivo | Qué hace |
+|---|---|
+| `scripts/comun.py` | rutas derivadas de la ubicación del script, semilla, estilo de figuras |
+| `scripts/dnp3.py` | lector DNP3 sobre `dpkt`: reensamblado TCP, CRC, capa de aplicación, objetos |
+| `scripts/01_qut_payload.py` | pregunta 1 |
+| `scripts/02_westermo_etiquetas.py` | preguntas 3 y 4, Westermo |
+| `scripts/03_morris.py` | preguntas 3 y 4, Morris |
+| `scripts/04_hai.py` | preguntas 3, 4 y 5, HAI |
+| `scripts/05_determinismo.py` | pregunta 2 |
+| `scripts/modbus.py` | lector Modbus/TCP sobre `dpkt`: reensamblado, MBAP, escrituras |
+| `scripts/06_icsflow_escrituras.py` | sección 4, ICS-Flow |
+| `scripts/07_morris_fuga_presion.py` | fuga de presión de Morris, con control positivo |
+| `scripts/08_qut_desglose_paquetes.py` | desglose de protocolos de QUT |
+| `scripts/09_intervalos_pd.py` | los intervalos de PD con un solo estadístico |
+| `scripts/10_inventario_caracteristicas.py` | sección 5, inventario campo por campo |
+| `scripts/11_integracion_esquemas.py` | sección 5, integración de esquemas |
+| `scripts/12_westermo_modbus.py` | semántica de protocolo en Westermo (D3) |
+| `scripts/13_icsflow_determinismo.py` | determinismo de ICS-Flow (D2) |
+| `scripts/14_schuster_pd_pfa.py` | PD y PFA de Schuster y König, despejadas |
+| `scripts/15_regla_calificacion.py` | regla de calificación de la tabla de criterios |
+
+Notas de reproducibilidad:
+
+- Todo corre en `eda/.venv`; no se instaló nada en el sistema. Python 3.9.6.
+  Las versiones están fijadas en `eda/requirements.txt`.
+- Los PCAP se leen con `dpkt`; no se usa `tshark` ni `pyshark`.
+- Las rutas se derivan de la ubicación de los scripts, no de la máquina.
+- La semilla es `20261024`, declarada en `comun.py`. En la práctica ningún
+  resultado de este informe depende de ella: no hay muestreo aleatorio, todas
+  las cifras salen de recorrer los archivos completos.
+- Los conjuntos de datos no se modificaron. No se escribió nada en `datasets/`.
+- Los dos pasos lentos son la pregunta 1, que recorre 3,46 GB de PCAP y 31,1
+  millones de paquetes, y la sección 4, que recorre 1,8 GB y 25,2 millones.
+  Tardan alrededor de cinco y de siete minutos.
+- La sección 4 deja en `eda/derivados/` el detalle de las 448 escrituras del
+  tramo de entrenamiento, para poder rehacer ese análisis sin volver a leer el
+  PCAP. Ese directorio no se versiona.
+
+**Qué cifras de este informe NO salen de correr el código.** Las afirmaciones
+atribuidas a la selección previa, a `datasets/LEEME.md`, a `PROCEDENCIA.md` y
+a los `README` de cada conjunto se transcribieron de esos documentos para
+contrastarlas; todo
+lo que está en la columna «medido» de cada tabla sale de los scripts. El
+semiancho de ±0,55 del intervalo de confianza de la pregunta 4 es un cálculo
+hecho a mano sobre el número de eventos (aproximación normal de una binomial
+con n = 3), no una salida de los scripts.

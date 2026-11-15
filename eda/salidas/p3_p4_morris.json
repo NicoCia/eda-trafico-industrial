@@ -1,0 +1,109 @@
+{
+ "comprobaciones_ok": 13,
+ "comprobaciones_total": 13,
+ "excepciones_modbus": {
+  "filas": 3905,
+  "cr0": 3905,
+  "cr1": 0
+ },
+ "presencia_campos": {
+  "setpoint/con valor": {
+   "cr0": 0,
+   "cr1": 64100
+  },
+  "setpoint/no nulo": {
+   "cr0": 0,
+   "cr1": 63963
+  },
+  "gain/con valor": {
+   "cr0": 0,
+   "cr1": 64100
+  },
+  "gain/no nulo": {
+   "cr0": 0,
+   "cr1": 64089
+  },
+  "pressure measurement/con valor": {
+   "cr0": 68848,
+   "cr1": 40
+  },
+  "pressure measurement/no nulo": {
+   "cr0": 63314,
+   "cr1": 0
+  }
+ },
+ "por_categoria": {
+  "0": {
+   "instancias": 214580,
+   "eventos": 32558,
+   "por_particion": {
+    "entrenamiento": 19024,
+    "calibracion": 6945,
+    "prueba": 6589
+   }
+  },
+  "1": {
+   "instancias": 7753,
+   "eventos": 7753,
+   "por_particion": {
+    "entrenamiento": 4427,
+    "calibracion": 1687,
+    "prueba": 1639
+   }
+  },
+  "2": {
+   "instancias": 13035,
+   "eventos": 13035,
+   "por_particion": {
+    "entrenamiento": 7666,
+    "calibracion": 2788,
+    "prueba": 2581
+   }
+  },
+  "3": {
+   "instancias": 7900,
+   "eventos": 3950,
+   "por_particion": {
+    "entrenamiento": 2523,
+    "calibracion": 751,
+    "prueba": 676
+   }
+  },
+  "4": {
+   "instancias": 20412,
+   "eventos": 10206,
+   "por_particion": {
+    "entrenamiento": 6130,
+    "calibracion": 2268,
+    "prueba": 1808
+   }
+  },
+  "5": {
+   "instancias": 4898,
+   "eventos": 2449,
+   "por_particion": {
+    "entrenamiento": 1357,
+    "calibracion": 446,
+    "prueba": 646
+   }
+  },
+  "6": {
+   "instancias": 2176,
+   "eventos": 1088,
+   "por_particion": {
+    "entrenamiento": 522,
+    "calibracion": 285,
+    "prueba": 281
+   }
+  },
+  "7": {
+   "instancias": 3874,
+   "eventos": 2258,
+   "por_particion": {
+    "entrenamiento": 1285,
+    "calibracion": 496,
+    "prueba": 477
+   }
+  }
+ }
+}

@@ -1,0 +1,62 @@
+# Pregunta 19 - que escriben las operaciones WRITE de QUT
+
+Fuente: eda/salidas/p1_qut_payload.json, agregando los 42 pares rol-captura
+del tramo de entrenamiento.
+
+## 19.1 Los conteos de partida
+
+WRITE            207798
+objetos         2318278  (en 11 grupos distintos)
+
+   g60v2          432515
+   g60v3          414487
+   g60v4          398411
+   g1v2           230291
+   g60v1          175161
+   g20v2          173541
+   g2v1           162802
+   g80v1          152896
+   g20v0          123218
+   g50v3           54902
+   g52v2              54
+
+## 19.2 Los objetos de control no aparecen
+
+   g12v1               0
+   g41                 0
+   g40                 0
+
+Ninguno de los tres. Es lo que sostiene la seccion 1.2: sobre QUT no
+hay parametros de comando que extraer.
+
+## 19.3 Que escriben entonces las 207798 operaciones WRITE
+
+La atribucion mensaje por mensaje **no esta en esta salida**:
+`func_app` y `objetos` son contadores independientes y nada los cruza.
+Lo que si se puede responder de forma exhaustiva es una pregunta de
+conteos: de los 11 grupos presentes, que subconjuntos suman
+exactamente 207798.
+
+Subconjuntos no vacios evaluados: 2047
+Subconjuntos que cierran:         1
+
+   g80v1 + g50v3 = 207798
+
+**Cierra uno solo, en todo el espacio de 2047 subconjuntos: g80v1 + g50v3.**
+
+Eso es lo que esta medido, y es un argumento de conteo: no se apoya en
+el protocolo en ningun paso. Lo que si sale del protocolo, y queda
+atribuido como tal, es que **son** esos dos objetos:
+
+   g80v1   el bit de reinicio de las indicaciones internas
+   g50v3   la hora
+
+Ninguno de los dos es un parametro de proceso. De modo que la
+conclusion de la seccion 1.2 se sostiene por dos caminos: los objetos
+de control no aparecen (19.2), y lo que las escrituras mueven son el
+bit de reinicio y la hora.
+
+Lo que sigue sin medirse es cuantas de las 207798 escrituras lleva cada
+uno de los dos. Para eso hay que volver a leer los PCAP registrando
+objeto y funcion juntos, y ninguna conclusion de este analisis lo
+necesita.

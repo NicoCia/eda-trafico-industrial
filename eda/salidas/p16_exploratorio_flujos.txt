@@ -1,0 +1,238 @@
+# Exploración de los dos conjuntos de flujos
+
+Generado por `eda/scripts/16_exploratorio_flujos.py`.
+Solo tramo de entrenamiento.
+
+## Westermo
+
+### Panorama
+
+- Observaciones: **21080** · Variables: **64** (13 identificadores, 47 características, 4 etiquetas)
+- Filas duplicadas exactas: **0**; duplicadas en las 47 características: **2705** (12.8 %)
+- Celdas faltantes: 8.1 % del total; filas con al menos un nulo: 16.6 %
+- Protocolos: IPV4-TCP 17750, ARP 1804, IPV4-2 1009, LLDP 324, IPV4-UDP 193
+
+### Faltantes: son estructurales
+
+38 de las 47 características tienen faltantes, entre 0.5 % y 16.6 %.
+
+La hipótesis del dominio es que no faltan al azar: un flujo que no
+es TCP no tiene banderas ni ventana, y una dirección sin paquetes
+no tiene TTL que informar. Se comprueba por identidad exacta.
+
+campo        el nulo equivale a                             exacto
+sttl         no TCP, o sin paquetes de ese lado             sí
+rttl         no TCP, o sin paquetes de ese lado             sí
+sWinTCP      no TCP, o sin paquetes de ese lado             sí
+rWinTCP      no TCP, o sin paquetes de ese lado             sí
+sAckRate     no TCP, o sin paquetes de ese lado             sí
+rAckRate     no TCP, o sin paquetes de ese lado             sí
+sIPs         protocolo sin IPv4 (ARP, LLDP)                 sí
+rIPs         protocolo sin IPv4 (ARP, LLDP)                 sí
+
+El retardo de ACK necesita además al menos dos paquetes del
+lado medido, de modo que su falta crece al achicarse el flujo:
+
+sPackets         flujos    sin el dato
+0                    88           100 %
+1                    65            98 %
+2                    28            29 %
+3                    10             0 %
+más de 3          17559             0 %
+
+**Consecuencia para la preparación.** No corresponde imputar: el
+valor no existe, no está perdido. Un reporte automático propone
+imputación simple para estas columnas, y sería un error — pondría
+un número donde el protocolo no define ninguno. Lo que corresponde
+es una bandera de ausencia, o separar el modelo por protocolo.
+
+### Características degeneradas
+
+- Constantes (un solo valor): **5** — `rFragmentRate`, `rUrgRate`, `sFragmentRate`, `sUrgRate`, `sttl`
+- Casi constantes (un valor en ≥ 99 %): **6** — `rFinRate`, `rPayloadMin`, `rRstRate`, `sAckRate`, `sFinRate`, `sRstRate`
+
+Ninguna de las dos aporta a un modelo y conviene descartarlas antes de
+cualquier cálculo que escale con el número de columnas.
+
+### Forma de las distribuciones
+
+Sobre las 42 características no constantes:
+
+- asimetría simetrica   4
+- asimetría moderada    5
+- asimetría alta       33
+
+Las 33 de asimetría alta son las de volumen y temporizado, donde la
+media no representa el centro: ahí corresponde mediana y, si se
+escala, escala logarítmica.
+
+Las diez con más valores fuera del rango intercuartílico:
+
+campo                   asim.  curtosis  fuera RIQ
+sLoad                    9.51     135.9      23.1 %
+rInterPacketAvg          1.14      12.6      20.0 %
+rLoad                   85.38    8805.5      16.4 %
+sBytesAvg                8.37      77.7       8.4 %
+rPackets                 0.53       6.1       3.2 %
+rBytesSum                0.05       1.8       3.0 %
+rBytesMax               12.60     157.3       2.6 %
+rPayloadMax             12.60     157.3       2.6 %
+sBytesMin                8.46      79.9       2.4 %
+rWinTCP                 18.21     487.3       1.9 %
+
+En un conjunto de tráfico el valor extremo rara vez es un error de
+carga: suele ser la ráfaga o el evento. No se eliminan.
+
+### Redundancia entre características
+
+Pares con |Spearman| ≥ 0.8: **83**. Agrupados por transitividad, quedan **6** grupos de redundancia:
+
+- `rBytesAvg`, `rBytesMax`, `rBytesSum`, `rPackets`, `rPayloadAvg`, `rPayloadMax`, `rPayloadSum`, `rPshRate`, `rWinTCP`, `sAckDelayAvg`, `sAckDelayMax`, `sBytesAvg`, `sBytesMin`, `sBytesSum`, `sPackets`, `sPayloadAvg`, `sPayloadMin`, `sPayloadSum`, `sPshRate`, `sWinTCP`
+- `duration`, `rAckDelayAvg`, `rAckDelayMax`, `rInterPacketAvg`, `rLoad`, `sLoad`
+- `rAckRate`, `rSynRate`, `rttl`, `sSynRate`
+- `sBytesMax`, `sPayloadMax`
+- `sAckRate`, `sRstRate`
+- `rFinRate`, `sFinRate`
+
+Son 36 características dentro de algún grupo. Conservando una por
+grupo, las 42 no constantes se reducen a **12 ejes independientes**.
+
+### Balance de clases
+
+etiqueta           normal    anómalo     razón
+IT_B_Label           7852      13228      1.7:1
+NST_B_Label         17456       3624      4.8:1
+
+IT_M_Label: Normal 7852, BAD-SSH 6727, BAD-MITM 2104, BAD-MISCONF-DUPLICATION 1494, BAD-MISCONF 1413, BAD-PORTSCAN2 909, BAD-PORTSCAN1 376, GOOD-SSH 205
+NST_M_Label: Normal 17456, BAD-MISCONF-DUPLICATION 1494, BAD-MISCONF 1413, BAD-MITM 310, BAD-SSH 229, BAD-PORTSCAN2 145, BAD-PORTSCAN1 26, GOOD-SSH 7
+
+La estrategia de etiquetado cambia el problema: no es la misma tarea
+con una u otra, y eso se decide antes de partir los datos.
+
+**Sobre la fuga.** Las cuatro columnas de etiqueta describen el mismo
+evento con dos estrategias. Usar una como característica para predecir
+otra es fuga por construcción, y un reporte automático lo marca como
+hallazgo. No lo es: son todas la variable a predecir, y la elección
+entre IT y NST es una decisión de diseño, no una característica.
+
+---
+
+## ICS-Flow
+
+### Panorama
+
+- Observaciones: **25620** · Variables: **64** (13 identificadores, 47 características, 4 etiquetas)
+- Filas duplicadas exactas: **0**; duplicadas en las 47 características: **334** (1.3 %)
+- Celdas faltantes: 1.6 % del total; filas con al menos un nulo: 7.0 %
+- Protocolos: IPV4-TCP 24878, ARP 643, IPV4-ICMP 81, IPV4-UDP 9, IPV6 9
+
+### Faltantes: son estructurales
+
+38 de las 47 características tienen faltantes, entre 1.0 % y 4.7 %.
+
+La hipótesis del dominio es que no faltan al azar: un flujo que no
+es TCP no tiene banderas ni ventana, y una dirección sin paquetes
+no tiene TTL que informar. Se comprueba por identidad exacta.
+
+campo        el nulo equivale a                             exacto
+sttl         no TCP, o sin paquetes de ese lado             sí
+rttl         no TCP, o sin paquetes de ese lado             sí
+sWinTCP      no TCP, o sin paquetes de ese lado             sí
+rWinTCP      no TCP, o sin paquetes de ese lado             sí
+sAckRate     no TCP, o sin paquetes de ese lado             sí
+rAckRate     no TCP, o sin paquetes de ese lado             sí
+sIPs         protocolo sin IPv4 (ARP, IPV6)                 sí
+rIPs         protocolo sin IPv4 (ARP, IPV6)                 sí
+
+El retardo de ACK necesita además al menos dos paquetes del
+lado medido, de modo que su falta crece al achicarse el flujo:
+
+sPackets         flujos    sin el dato
+0                    38           100 %
+1                   539            15 %
+2                   305             2 %
+3                   363             1 %
+más de 3          23633             0 %
+
+**Consecuencia para la preparación.** No corresponde imputar: el
+valor no existe, no está perdido. Un reporte automático propone
+imputación simple para estas columnas, y sería un error — pondría
+un número donde el protocolo no define ninguno. Lo que corresponde
+es una bandera de ausencia, o separar el modelo por protocolo.
+
+### Características degeneradas
+
+- Constantes (un solo valor): **4** — `rFragmentRate`, `rUrgRate`, `sFragmentRate`, `sUrgRate`
+- Casi constantes (un valor en ≥ 99 %): **5** — `rFinRate`, `rRstRate`, `sAckRate`, `sFinRate`, `sSynRate`
+
+Ninguna de las dos aporta a un modelo y conviene descartarlas antes de
+cualquier cálculo que escale con el número de columnas.
+
+### Forma de las distribuciones
+
+Sobre las 43 características no constantes:
+
+- asimetría simetrica   4
+- asimetría moderada    4
+- asimetría alta       35
+
+Las 35 de asimetría alta son las de volumen y temporizado, donde la
+media no representa el centro: ahí corresponde mediana y, si se
+escala, escala logarítmica.
+
+Las diez con más valores fuera del rango intercuartílico:
+
+campo                   asim.  curtosis  fuera RIQ
+sLoad                   14.09     238.4      24.1 %
+rLoad                   17.08     301.3      23.6 %
+duration                -1.20      -0.4      22.4 %
+rPackets                 6.98      50.9       9.7 %
+rBytesSum                6.66      45.4       9.4 %
+rInterPacketAvg          6.70      82.9       6.2 %
+rPayloadMax              6.79     108.0       5.8 %
+rBytesMax               -2.88      21.5       5.7 %
+rAckDelayAvg             3.69      34.0       5.0 %
+sBytesAvg               -2.43      10.8       3.8 %
+
+En un conjunto de tráfico el valor extremo rara vez es un error de
+carga: suele ser la ráfaga o el evento. No se eliminan.
+
+### Redundancia entre características
+
+Pares con |Spearman| ≥ 0.8: **46**. Agrupados por transitividad, quedan **12** grupos de redundancia:
+
+- `rBytesAvg`, `rBytesMax`, `rPayloadAvg`, `rPayloadMax`, `rPshRate`, `rWinTCP`, `sBytesAvg`, `sBytesMin`, `sPayloadAvg`, `sPayloadMin`, `sPshRate`, `sWinTCP`
+- `rAckDelayAvg`, `rInterPacketAvg`, `rLoad`
+- `rRstRate`, `sAckRate`, `sSynRate`
+- `rAckRate`, `rSynRate`, `sRstRate`
+- `duration`, `rAckDelayMax`
+- `sBytesSum`, `sPackets`
+- `rBytesSum`, `rPackets`
+- `sBytesMax`, `sPayloadMax`
+- `sInterPacketAvg`, `sLoad`
+- `rPayloadSum`, `sPayloadSum`
+- `rFinRate`, `sFinRate`
+- `sAckDelayAvg`, `sAckDelayMax`
+
+Son 37 características dentro de algún grupo. Conservando una por
+grupo, las 43 no constantes se reducen a **18 ejes independientes**.
+
+### Balance de clases
+
+etiqueta           normal    anómalo     razón
+IT_B_Label          21006       4614      4.6:1
+NST_B_Label         22856       2764      8.3:1
+
+IT_M_Label: Normal 21006, replay 1855, port-scan 952, mitm 942, ddos 541, ip-scan 324
+NST_M_Label: Normal 22856, replay 1051, mitm 807, port-scan 574, ddos 244, ip-scan 88
+
+La estrategia de etiquetado cambia el problema: no es la misma tarea
+con una u otra, y eso se decide antes de partir los datos.
+
+**Sobre la fuga.** Las cuatro columnas de etiqueta describen el mismo
+evento con dos estrategias. Usar una como característica para predecir
+otra es fuga por construcción, y un reporte automático lo marca como
+hallazgo. No lo es: son todas la variable a predecir, y la elección
+entre IT y NST es una decisión de diseño, no una característica.
+
+---

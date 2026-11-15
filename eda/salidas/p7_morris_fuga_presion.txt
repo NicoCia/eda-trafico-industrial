@@ -1,0 +1,196 @@
+# Pregunta 7 - Morris / Turnipseed: se reproduce la fuga de presion?
+
+Archivo medido : datasets/morris-turnipseed/IanArffDataset.arff   (Dataset 4, version corregida)
+Control positivo: datasets/morris-turnipseed/gas_final_DATASET3_CON_FUGA.arff
+
+Todo porcentaje de este informe lleva su denominador escrito al lado.
+
+## 7.0 Denominadores
+
+subconjunto                                            instancias % del total
+total del conjunto                                         274628   100.00 %
+normales (`binary result` = 0)                             214580    78.13 %
+ataques (`binary result` = 1)                               60048    21.87 %
+con `pressure measurement` numerico                         68888    25.08 %
+  de ellas normales                                         48060    17.50 %
+  de ellas ataques                                          20828     7.58 %
+con valor numerico y distinto de cero                       63314    23.05 %
+sin valor (`?` en el ARFF)                                 205740    74.92 %
+  de ellas normales                                        166520    60.63 %
+  de ellas ataques                                          39220    14.28 %
+
+`binary result` y `categorized result` coinciden: True
+
+Dato estructural que condiciona todo lo que sigue: en esta version la
+presion solo viene informada en las respuestas Modbus (funcion 3), que
+son 68888 de las 274628 filas, el 25.08 % del total. Las 205740 filas restantes
+traen `?`: no hay valor que umbralizar.
+
+## 7.1 Distribucion de `pressure measurement` por clase
+
+Sobre las 68888 filas con valor numerico (denominador de esta seccion).
+
+clase             n          min           Q1      mediana           Q3          max          RIQ
+normal        48060     0.482759      1.28736      5.50575      13.0575      39.6782      11.7701
+ataque        20828           -0            0      0.55581      8.92888  3.36031e+38      8.92888
+
+Se solapan los rangos intercuartilicos? SI
+  normal [1.28736, 13.0575]  ataque [0, 8.92888]  interseccion [1.28736, 8.92888]
+Se solapan los rangos completos? SI
+
+Misma tabla restringida a los valores distintos de cero, porque los
+ceros explicitos se tratan aparte en 7.3:
+
+clase             n          min           Q1      mediana           Q3          max          RIQ
+normal        48060     0.482759      1.28736      5.50575      13.0575      39.6782      11.7701
+ataque        15254  8.44422e-42     0.174821      2.74317      16.1379  3.36031e+38      15.9631
+
+Los ataques alcanzan 3,36e+38 y 8,44e-42, que son valores de coma
+flotante sin sentido fisico: son la inyeccion de respuesta en si misma,
+no un artefacto del montaje experimental.
+
+## 7.2 Mejor exactitud alcanzable por un umbral unico
+
+Prueba directa de la fuga. Se evaluan de forma exacta las dos reglas
+posibles en todas las fronteras utiles; el optimo que se reporta es el
+mejor caso, medido sobre los mismos datos con los que se eligio el
+umbral, de modo que es una cota superior, no una estimacion honesta.
+
+alcance                                                   exactitud    mayoria  ganancia
+subconjunto con valor numerico (n = 68888)                  0.8497     0.6977   15.21 pp
+total, filas sin valor asignadas a normal (n = 274628)      0.8195     0.7813    3.81 pp
+total, filas sin valor asignadas a ataque (n = 274628)      0.3560     0.7813  -42.54 pp
+
+Umbral optimo sobre el subconjunto: ataque si x <= t, con t = 0.56232.
+
+  VP =  10923   FN =   9905   tasa de deteccion = 0.5244  (sobre 20828 ataques
+                                                       con valor)
+  FP =    448   VN =  47612   tasa de falsa alarma = 0.0093  (sobre 48060
+                                                       normales con valor)
+
+AUC sobre el subconjunto con valor: 0.3223. Esta por debajo de 0,5, es
+decir que los ataques toman valores mas bajos que las normales; la
+separabilidad efectiva es |AUC - 0,5| = 0.1777, equivalente a un AUC de
+0.6777 con la regla invertida. Lejos del 1,0 que daria una fuga.
+
+## 7.3 Ataques fuera del rango de valores de las normales
+
+Tres definiciones del rango normal, porque el resultado depende de la
+definicion. Las tres se calculan sobre las 48060 normales con valor.
+
+definicion del rango                      intervalo   ataques     % del      % de  % de atk  normales
+                                                        fuera     total   ataques con valor     fuera
+min-max de las normales             [0.4828, 39.68]     12155    4.426   20.242    58.359         0
+vallas de Tukey, 1,5 RIQ            [-16.37, 30.71]      2315    0.843    3.855    11.115       453
+percentiles 0,1 y 99,9              [0.5287, 38.95]     12237    4.456   20.379    58.753        96
+
+Denominadores de esas columnas: total = 274628, ataques = 60048, ataques con
+valor numerico = 20828.
+
+### El cero explicito
+
+Hay un artefacto puntual que conviene aislar: `pressure measurement`
+vale exactamente cero en 5574 filas, y las 5574 son ataques.
+
+El `-0` que aparece como minimo de los ataques en 7.1 es un cero con
+signo, no una presion negativa: de los 5574 ceros, 5437 estan escritos con
+signo menos. En el conjunto no hay ningun valor estrictamente menor
+que cero (0 filas).
+
+  precision de la regla `presion == 0 -> ataque` : 1.0000
+  cobertura sobre los 60048 ataques del conjunto     : 0.0928
+  cobertura sobre los 20828 ataques con valor        : 0.2676
+
+Es una regla de precision perfecta, pero de cobertura baja: identifica
+el 9.28 % de los ataques del conjunto (denominador 60048) y deja el resto
+sin tocar. No alcanza para el nivel de exactitud que daria una fuga.
+
+## 7.4 Por tipo de anomalia
+
+Es el corte que importa, porque los valores de referencia que se
+adoptan son por tipo. Cada fila enfrenta las normales contra un solo
+tipo, sobre las filas de ese subconjunto que tienen valor numerico.
+
+tipo                                                  filas      con   mayoria     mejor ganancia
+                                                   del tipo    valor              umbral         
+NMRI  (inyeccion simple de respuesta maliciosa)        7753     7753    0.8611    0.9538   9.27 pp
+CMRI  (inyeccion compleja de respuesta maliciosa)     13035    13035    0.7866    0.8721   8.54 pp
+MSCI  (inyeccion de estado malicioso)                  7900        0       n/d       n/d      n/d
+MPCI  (inyeccion de parametros de comando)            20412        0       n/d       n/d      n/d
+MFCI  (inyeccion de codigo de funcion malicioso)       4898        0       n/d       n/d      n/d
+DoS   (denegacion de servicio)                         2176        0       n/d       n/d      n/d
+Reconnaissance (reconocimiento)                        3874       40    0.9992    1.0000   0.08 pp
+
+`n/d` no es un cero medido: son tipos para los que **ninguna** fila
+trae valor de presion, porque son ataques del lado del comando y la
+presion solo viaja en la respuesta. Para MSCI, MPCI, MFCI y DoS el
+atributo no puede ser un atajo, porque no existe.
+
+Donde queda senal es en NMRI y CMRI, que son precisamente las dos
+familias de inyeccion de respuesta: ahi el valor de presion falseado
+**es** la anomalia, no una pista espuria del montaje. Que un umbral
+sobre la medicion las detecte es el comportamiento esperado de la
+tarea, no una fuga.
+
+Reconnaissance aparece con exactitud 1,0000, y hay que leerlo con
+cuidado: solo 40 de sus 3874 instancias traen valor de presion, y las 40
+traen un cero explicito. La ganancia sobre la mayoria es de 0.08 pp
+sobre un subconjunto de 48100 filas, de las cuales 40 son del tipo.
+
+## 7.5 Control positivo: el Dataset 3, con fuga documentada
+
+Sin este control no se puede afirmar que el procedimiento detectaria la
+fuga si estuviera. Se repite la medida sobre el Dataset 3, que es el
+conjunto sobre el que pesa la advertencia de los autores. Ahi el
+atributo se llama `measurement` y la etiqueta `result`.
+
+Filas: 97019. Normales: 61156. Ataques: 35863. Con valor numerico: 97019.
+
+Umbral unico, clase binaria: mayoria 0.6304, mejor umbral 0.7223
+(ataque si x <= t, t = 0), ganancia de 9.20 pp sobre 97019 filas.
+
+Por tipo, que es como la describieron los autores:
+
+tipo       instancias  n compar.   mayoria     mejor ganancia
+1                2763      63919    0.9568    0.9957   3.89 pp
+2               15466      76622    0.7982    0.9004  10.22 pp
+3                 782      61938    0.9874    0.9874   0.00 pp
+4                7637      68793    0.8890    0.8890   0.00 pp
+5                 573      61729    0.9907    0.9907   0.00 pp
+6                1837      62993    0.9708    0.9708   0.00 pp
+7                6805      67961    0.8999    0.9889   8.91 pp
+
+Asi se ve la fuga documentada: en el Dataset 3 los tipos 1, 2 y 7
+llegan a 0,9957, 0,9004 y 0,9889 de exactitud con un solo umbral, y los
+tipos 3 a 6 se quedan exactamente en la mayoria. Es decir que la fuga
+del Dataset 3 **tambien es por tipo**, concentrada en tres de los
+siete, y es ahi donde el procedimiento la encuentra.
+
+Diferencia de fondo entre las dos versiones, en el atributo mismo: en
+el Dataset 3 la presion esta informada en las 97019 filas (el 100 %), y
+en el Dataset 4 en 68888 de 274628 (el 25.08 %), solo en las respuestas.
+
+## 7.6 Conclusion
+
+**La fuga no se reproduce en la version corregida.** El mejor umbral
+unico sobre `pressure measurement` alcanza 0.8497 de exactitud sobre las
+68888 filas que tienen valor, contra 0.6977 del clasificador que asigna
+todo a la clase mayoritaria: 15.21 pp de ganancia, con una tasa de
+deteccion de 0.5244. Sobre el total de 274628 filas la exactitud es de 0.8195
+contra 0.7813 de la mayoria. Los rangos intercuartilicos de las dos
+clases se solapan y el AUC es de 0.3223. En el Dataset 3 el mismo
+procedimiento encuentra tres tipos por encima de 0,90.
+
+Cuatro de los siete tipos --- MSCI, MPCI, MFCI y DoS --- no tienen
+ninguna fila con valor de presion, de modo que para ellos el atributo
+no puede inflar nada. La senal que queda esta en NMRI y CMRI, donde la
+medicion falseada es la anomalia por definicion.
+
+**Los valores de referencia por tipo son utilizables.** Queda una
+salvedad que no es una fuga pero conviene dejar anotada: el cero
+explicito de presion identifica ataque con precision 1,0000 en 5574
+filas, el 9.28 % de los 60048 ataques. Conviene no construir la linea
+base sobre ese cero como caracteristica aislada.
+
+Reproducible con:
+  eda/.venv/bin/python -I eda/scripts/07_morris_fuga_presion.py

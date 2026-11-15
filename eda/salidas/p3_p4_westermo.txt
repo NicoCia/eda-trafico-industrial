@@ -1,0 +1,177 @@
+# Preguntas 3 y 4 - Westermo
+
+## P3.a Inventario de eventos (data/events.txt)
+
+Eventos START/END emparejados: **94**
+Eventos START sin END: 0 
+Tandas detectadas (un tipo no se repite dentro de una tanda): **16**
+Lineas INFO u otras: 4
+
+tipo                        eventos  dur.med.s  dur.min.s  dur.max.s
+BAD-MITM                         16       32.9       32.1       37.1
+BAD-MISCONF-DUPLICATION          16       24.0        9.0       38.7
+BAD-SSH                          16      104.4       48.6      171.2
+GOOD-SSH                         15        2.9        2.8        3.1
+BAD-MISCONF                      15       20.4       14.5       29.6
+BAD-PORTSCAN1                     8       17.8        5.6       18.8
+BAD-PORTSCAN2                     8       46.0       17.4       63.7
+
+Tamano de cada tanda: [6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 4]
+
+Tipos distintos tal como aparecen: 7 -> ['BAD-MISCONF', 'BAD-MISCONF-DUPLICATION', 'BAD-MITM', 'BAD-PORTSCAN1', 'BAD-PORTSCAN2', 'BAD-SSH', 'GOOD-SSH']
+Tipos si se unifica PORTSCAN1 y PORTSCAN2: 6 -> ['BAD-MISCONF', 'BAD-MISCONF-DUPLICATION', 'BAD-MITM', 'BAD-PORTSCAN', 'BAD-SSH', 'GOOD-SSH']
+
+## P3.b Reparto de etiquetas en los seis CSV de flujos
+
+Agrupacion de la cifra publicada: normal (incluye GOOD-SSH) / malas
+config. y SSH malicioso (BAD-SSH, BAD-MISCONF, BAD-MISCONF-DUPLICATION)
+/ ataques (BAD-PORTSCAN1, BAD-PORTSCAN2, BAD-MITM).
+
+Cifra publicada en la bibliografia: 75,0 / 18,5 / 6,5 por ciento.
+
+variante  punto     flujos  NST  normal/misconf/ataque    IT   normal/misconf/ataque  
+reduced   bottom     35404   82.4 /  15.0 /   2.6          37.4 /  44.6 /  18.0       
+reduced   left        8533   47.9 /  30.8 /  21.3          23.1 /  46.5 /  30.4       
+reduced   right       4720   73.6 /  17.7 /   8.7          33.3 /  43.5 /  23.1       
+extended  bottom     55425   83.9 /  14.4 /   1.7          37.8 /  44.4 /  17.8       
+extended  left        8555   47.9 /  30.9 /  21.2          23.1 /  46.5 /  30.3       
+extended  right       4749   73.4 /  18.0 /   8.6          33.4 /  43.6 /  23.0       
+
+Union de los tres puntos de captura dentro de cada variante (sumar las
+dos variantes duplicaria el mismo trafico, asi que no se hace):
+
+  reduced   NST    48657 flujos -> 75.5 / 18.0 / 6.5
+  reduced   IT     48657 flujos -> 34.5 / 44.8 / 20.7
+  extended  NST    68729 flujos -> 78.7 / 16.7 / 4.6
+  extended  IT     68729 flujos -> 35.7 / 44.6 / 19.7
+
+## P3.c Cuanto cambia el problema segun la estrategia de etiquetado
+
+Archivo de referencia: datasets/westermo/data/reduced/flows/output_bottom.csv (35404 filas, 64 columnas)
+
+                         normal          anomalo
+IT_B_Label      12900 (36.4%)  22504 (63.6%)
+NST_B_Label     29159 (82.4%)   6245 (17.6%)
+
+Flujos anomalos para ambas estrategias : 6245
+Anomalos solo para IT                  : 16259  (45.9% del total)
+Anomalos solo para NST                 : 0
+
+Es decir: NST marca un subconjunto estricto de IT. Los 16259 flujos que
+separan una estrategia de la otra son trafico de terceros capturado
+durante la ventana de un evento, y son el 45.9% de la captura.
+
+Por tipo, cuantos flujos marca cada estrategia:
+
+tipo                             IT_M      NST_M   NST/IT
+BAD-MISCONF                      2103       2103   100.0%
+BAD-MISCONF-DUPLICATION          2453       2453   100.0%
+BAD-MITM                         3387        504    14.9%
+BAD-PORTSCAN1                     734         29     4.0%
+BAD-PORTSCAN2                    2255        397    17.6%
+BAD-SSH                         11246        751     6.7%
+GOOD-SSH                          326          8     2.5%
+Normal                          12900      29159   226.0%
+
+## P4 Muestras y eventos distintos por tipo (Westermo)
+
+Particion temporal fijada en el brief sobre startOffset:
+  entrenamiento 0-3265 s | calibracion 3265-4354 s | prueba 4354-5442 s
+
+Eventos de events.txt asignados por su instante de inicio:
+
+tipo                          total  entrenamiento  calibracion   prueba
+BAD-MITM                         16             10            3        3
+BAD-MISCONF-DUPLICATION          16              9            4        3
+BAD-SSH                          16             10            3        3
+GOOD-SSH                         15              9            4        2
+BAD-MISCONF                      15             10            2        3
+BAD-PORTSCAN1                     8              5            2        1
+BAD-PORTSCAN2                     8              4            2        2
+TOTAL                            94             57           20       17
+
+Flujos por tipo y particion (NST_M_Label, datasets/westermo/data/reduced/flows/output_bottom.csv):
+
+tipo                        entrenamiento  calibracion   prueba
+BAD-MISCONF                          1413          223      467
+BAD-MISCONF-DUPLICATION              1494          611      348
+BAD-MITM                              310           96       98
+BAD-PORTSCAN1                          26            2        1
+BAD-PORTSCAN2                         145           76      176
+BAD-SSH                               229          248      274
+GOOD-SSH                                7            1        0
+Normal                              17456         5847     5856
+
+Flujos por evento individual (mediana por tipo), util para saber si un
+tipo con muchos flujos tiene en realidad pocos eventos:
+
+tipo                        eventos     min mediana     max    ev=0   flujos tot
+BAD-MITM                         16      30      31      34       0          504
+BAD-MISCONF-DUPLICATION          16      60     152     232       0         2419
+BAD-SSH                          16       0       1     169       7          749
+GOOD-SSH                         15       0       0       3      11            8
+BAD-MISCONF                      15      91     130     188       0         2071
+BAD-PORTSCAN1                     8       1       1      21       0           29
+BAD-PORTSCAN2                     8       1      75      92       0          397
+
+Reparto completo de flujos por evento, por tipo:
+  BAD-MITM                   [30, 30, 31, 31, 31, 31, 31, 31, 31, 32, 32, 32, 32, 32, 33, 34]
+  BAD-MISCONF-DUPLICATION    [60, 74, 76, 121, 126, 129, 137, 142, 152, 170, 172, 177, 211, 212, 228, 232]
+  BAD-SSH                    [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 94, 104, 115, 132, 132, 169]
+  GOOD-SSH                   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 3, 3]
+  BAD-MISCONF                [91, 92, 93, 104, 125, 129, 130, 130, 134, 142, 164, 178, 184, 187, 188]
+  BAD-PORTSCAN1              [1, 1, 1, 1, 1, 1, 2, 21]
+  BAD-PORTSCAN2              [1, 1, 1, 59, 75, 84, 84, 92]
+
+Los eventos de SSH que no dejan ningun flujo en este punto de captura:
+contra que equipo iba cada uno. El texto de events.txt trae el objetivo,
+asi que se puede comprobar si la invisibilidad depende de la topologia
+en lugar de suponerlo.
+
+tipo       objetivo             flujos
+BAD-SSH    198.18.134.6            132
+BAD-SSH    198.18.134.38            94
+BAD-SSH    198.18.134.3              0
+BAD-SSH    198.18.134.5              0
+BAD-SSH    198.18.134.1              0
+BAD-SSH    198.18.134.3              1
+BAD-SSH    198.18.134.41             0
+BAD-SSH    198.18.134.1              0
+BAD-SSH    198.18.134.45             1
+BAD-SSH    198.18.134.43             0
+BAD-SSH    198.18.134.47           115
+BAD-SSH    198.18.134.47           132
+BAD-SSH    198.18.134.46             0
+BAD-SSH    198.18.134.49           169
+BAD-SSH    198.18.134.49           104
+BAD-SSH    198.18.134.3              1
+GOOD-SSH   198.18.134.5              0
+GOOD-SSH   198.18.134.6              3
+GOOD-SSH   198.18.134.3              0
+GOOD-SSH   198.18.134.3              0
+GOOD-SSH   198.18.134.40             3
+GOOD-SSH   198.18.134.1              0
+GOOD-SSH   198.18.134.3              1
+GOOD-SSH   198.18.134.5              0
+GOOD-SSH   198.18.134.5              0
+GOOD-SSH   198.18.134.45             0
+GOOD-SSH   198.18.134.46             1
+GOOD-SSH   198.18.134.1              0
+GOOD-SSH   198.18.134.43             0
+GOOD-SSH   198.18.134.46             0
+GOOD-SSH   198.18.134.48             0
+
+Resumen por objetivo (eventos / de ellos sin ningun flujo):
+  198.18.134.1        4 /  4
+  198.18.134.3        6 /  3
+  198.18.134.38       1 /  0
+  198.18.134.40       1 /  0
+  198.18.134.41       1 /  1
+  198.18.134.43       2 /  2
+  198.18.134.45       2 /  1
+  198.18.134.46       3 /  2
+  198.18.134.47       2 /  0
+  198.18.134.48       1 /  1
+  198.18.134.49       2 /  0
+  198.18.134.5        4 /  4
+  198.18.134.6        2 /  0

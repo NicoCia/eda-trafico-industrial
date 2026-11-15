@@ -1,0 +1,308 @@
+# Pregunta 12 - Westermo publica semantica de protocolo de control?
+
+La tabla de criterios de comparabilidad le asigna a Westermo D3 = no
+cumple. Esa calificacion no estaba medida: sale de la ficha del
+conjunto, que enumera ARP, ICMP, IGMP, LLDP, RSTP, TCP y UDP sin
+nombrar ningun protocolo industrial. Aca se delimita Modbus/TCP sobre
+el puerto 5502 en los seis PCAP.
+
+Que decide que: si solo hay funcion 3 (lectura de registros), el
+conjunto publica carga util interpretable pero no escrituras de
+consigna, y D3 se cumple en parte. Si aparece alguna funcion de
+escritura (5, 6, 15, 16), se cumple del todo.
+
+Corte de entrenamiento: 3265 s (comun.WESTERMO_CORTES[0]), medido desde el primer paquete de cada archivo.
+
+## reduced / bottom
+
+### datasets/westermo/data/reduced/pcaps/bottom.pcap
+
+Paquetes: 1513815  |  IP 1488891  |  TCP 1484940  |  TCP con carga 999875  |  puerto 5502: 993634
+Duracion de la captura: 5442 s. Paquetes antes del corte de entrenamiento (3265 s): 898597 (59.4 % del archivo).
+Tramas que no son IP: {'ARP': 10230, 'LLC': 13608, 'bytes': 1086}
+Paquetes IP que no son TCP: {'IGMP': 2875, 'UDP': 1076}
+Puertos TCP con carga (servicio = menor de los dos): {5502: 993634, 22: 6241}
+
+Control de la medida: el mismo delimitador MBAP corrido sobre los
+OTROS puertos con carga, en los primeros 600000 paquetes del archivo.
+Si la contabilidad de octetos no distinguiera Modbus de cualquier
+otro flujo, el 100 % del puerto 5502 no mediria nada.
+   puerto        octetos       en ADU   en ADU %  primeros octetos
+   22             397848       141970     35.68  b'SSH-2.0-OpenSSH_7.6p1 Ubuntu-4ubuntu0.7\r'
+
+ADU Modbus delimitadas: **993634**
+Validez de la cabecera MBAP, por contabilidad de octetos sobre la
+carga TCP del puerto 5502:
+   octetos de carga            12420460
+   dentro de una ADU valida    12420460  (100.0000 %)
+   salteados al resincronizar         0  (0.0000 %)
+   sin cerrar al final de la captura    0  (en 8 flujos)
+   Un octeto salteado es un octeto que NO formaba una cabecera
+   MBAP plausible (identificador de protocolo 0 y longitud entre
+   2 y 254). Cero salteados = el flujo entero se lee como Modbus.
+
+Copias exactas en el punto de captura: 496859 de 993634 paquetes del puerto
+5502 (50.0 %). Retardo entre copias: mediana 0.0010 ms, p95 0.0012 ms
+   Es la duplicacion que avisa el README: el mismo paquete grabado al
+   entrar y al salir del equipo. Un retardo de microsegundos no es
+   una retransmision TCP. Las columnas `unicas` descuentan esas
+   copias y son las que cuentan unidades de dialogo.
+
+Codigos de funcion (archivo completo):
+   funcion                          peticion pet. unic.  respuesta resp. unic.
+   Read Holding Registers             496782     248387     496852     248388
+
+Codigos de funcion (solo tramo de entrenamiento, sin descontar copias):
+   funcion                              peticion  respuesta
+   Read Holding Registers                 297939     297978
+
+**No hay ninguna peticion de escritura (funciones 5, 6, 15, 16,
+21, 22, 23) en todo el archivo.** El dialogo es de solo lectura.
+
+Identificadores de unidad: {1: 993634}
+Servidores Modbus (destino de las peticiones): {'198.18.134.12': 270607, '198.18.134.11': 226175}
+Pares cliente -> servidor: {'198.18.134.15 -> 198.18.134.11': 171749, '198.18.134.11 -> 198.18.134.12': 163267, '198.18.134.15 -> 198.18.134.12': 107340, '198.18.134.12 -> 198.18.134.11': 54426}
+
+Emparejamiento de peticion y respuesta por (origen, destino,
+identificador de transaccion): 248392 emparejadas, 0 peticiones sin
+respuesta al cerrar la captura.
+Latencia de respuesta: mediana 0.53 ms, p05 0.40, p95 0.78, min 0.00, max 112.16, CV 0.64
+   solo entrenamiento (148970 pares): mediana 0.53 ms, p95 0.77
+
+Mapa de registros leidos (destino, direccion de inicio, cantidad):
+   198.18.134.11 dir=14 cant=2             75894 peticiones
+   198.18.134.12 dir=22 cant=2             75891 peticiones
+   198.18.134.12 dir=20 cant=2             75890 peticiones
+   198.18.134.12 dir=24 cant=2             75890 peticiones
+   198.18.134.11 dir=4 cant=2              21473 peticiones
+   198.18.134.11 dir=8 cant=2              21470 peticiones
+   198.18.134.11 dir=2 cant=2              21468 peticiones
+   198.18.134.11 dir=6 cant=2              21468 peticiones
+   198.18.134.11 dir=10 cant=2             21468 peticiones
+   198.18.134.11 dir=12 cant=2             21468 peticiones
+   198.18.134.12 dir=16 cant=2             21468 peticiones
+   198.18.134.12 dir=18 cant=2             21468 peticiones
+   198.18.134.11 dir=0 cant=2              21466 peticiones
+
+Respuestas de lectura con la cuenta de octetos coherente: 248392; incoherente: 0
+
+Valores devueltos, decodificados con el mapa de ICSSIM (dos
+registros de 16 bits por variable, el mas significativo primero,
+escala 10000). Es el mismo mapa que el script 06 verifico en
+ICS-Flow contra las cabeceras de snapshots_PLC*.csv:
+   servidor / registro    variable                      muestras distintos        min    mediana        max
+   198.18.134.11 dir=0    (0) tank_input_valve_status      10733         2     0.0000     0.0000     1.0000
+   198.18.134.11 dir=2    (1) tank_input_valve_mode        10734         1     3.0000     3.0000     3.0000
+   198.18.134.11 dir=4    (2) tank_level_value             10737      1181     2.9966     5.0166     7.0133
+   198.18.134.11 dir=6    (3) tank_level_min               10734         1     3.0000     3.0000     3.0000
+   198.18.134.11 dir=8    (4) tank_level_max               10735         1     7.0000     7.0000     7.0000
+   198.18.134.11 dir=10   (5) tank_output_valve_status     10734         2     0.0000     1.0000     1.0000
+   198.18.134.11 dir=12   (6) tank_output_valve_mode       10734         1     3.0000     3.0000     3.0000
+   198.18.134.11 dir=14   (7) tank_output_flow_value       37947         2     0.0000     0.0001     0.0001
+   198.18.134.12 dir=16   (8) conveyor_belt_engine_status     10734         2     0.0000     0.0000     1.0000
+   198.18.134.12 dir=18   (9) conveyor_belt_engine_mode     10734         1     3.0000     3.0000     3.0000
+   198.18.134.12 dir=20   (10) bottle_level_value          37945       140     0.0000     0.7066     1.8533
+   198.18.134.12 dir=22   (11) bottle_level_max            37946         1     1.8000     1.8000     1.8000
+   198.18.134.12 dir=24   (12) bottle_distance_to_filler_value     37945        20     0.0000     1.0000    19.0000
+
+## reduced / left
+
+### datasets/westermo/data/reduced/pcaps/left.pcap
+
+Paquetes: 281105  |  IP 259490  |  TCP 256378  |  TCP con carga 30513  |  puerto 5502: 0
+Duracion de la captura: 5441 s. Paquetes antes del corte de entrenamiento (3265 s): 128580 (45.7 % del archivo).
+Tramas que no son IP: {'ARP': 12547, 'LLC': 8163, 'bytes': 905}
+Paquetes IP que no son TCP: {'IGMP': 1650, 'UDP': 1436, 'ICMP': 26}
+Puertos TCP con carga (servicio = menor de los dos): {22: 30513}
+
+Control de la medida: el mismo delimitador MBAP corrido sobre los
+OTROS puertos con carga, en los primeros 281105 paquetes del archivo.
+Si la contabilidad de octetos no distinguiera Modbus de cualquier
+otro flujo, el 100 % del puerto 5502 no mediria nada.
+   puerto        octetos       en ADU   en ADU %  primeros octetos
+   22            5928547      2002660     33.78  b'SSH-2.0-OpenSSH_7.6p1 Ubuntu-4ubuntu0.7\r'
+
+ADU Modbus delimitadas: **0**
+No hay carga TCP en el puerto 5502: **no hay Modbus en este archivo**.
+
+## reduced / right
+
+### datasets/westermo/data/reduced/pcaps/right.pcap
+
+Paquetes: 35067  |  IP 22896  |  TCP 21740  |  TCP con carga 2137  |  puerto 5502: 0
+Duracion de la captura: 5444 s. Paquetes antes del corte de entrenamiento (3265 s): 20287 (57.9 % del archivo).
+Tramas que no son IP: {'ARP': 6183, 'LLC': 5445, 'bytes': 543}
+Paquetes IP que no son TCP: {'IGMP': 438, 'UDP': 718}
+Puertos TCP con carga (servicio = menor de los dos): {22: 2137}
+
+Control de la medida: el mismo delimitador MBAP corrido sobre los
+OTROS puertos con carga, en los primeros 35067 paquetes del archivo.
+Si la contabilidad de octetos no distinguiera Modbus de cualquier
+otro flujo, el 100 % del puerto 5502 no mediria nada.
+   puerto        octetos       en ADU   en ADU %  primeros octetos
+   22             418191       144985     34.67  b'SSH-2.0-OpenSSH_7.6p1 Ubuntu-4ubuntu0.7\r'
+
+ADU Modbus delimitadas: **0**
+No hay carga TCP en el puerto 5502: **no hay Modbus en este archivo**.
+
+## extended / bottom
+
+### datasets/westermo/data/extended/pcaps/bottom.pcap
+
+Paquetes: 4384183  |  IP 4357976  |  TCP 4348980  |  TCP con carga 2960405  |  puerto 5502: 993634
+Duracion de la captura: 5442 s. Paquetes antes del corte de entrenamiento (3265 s): 2618591 (59.7 % del archivo).
+Tramas que no son IP: {'ARP': 11513, 'LLC': 13608, 'bytes': 1086}
+Paquetes IP que no son TCP: {'IGMP': 3284, 'ICMP': 4636, 'UDP': 1076}
+Puertos TCP con carga (servicio = menor de los dos): {11211: 1960530, 5502: 993634, 22: 6241}
+
+Control de la medida: el mismo delimitador MBAP corrido sobre los
+OTROS puertos con carga, en los primeros 600000 paquetes del archivo.
+Si la contabilidad de octetos no distinguiera Modbus de cualquier
+otro flujo, el 100 % del puerto 5502 no mediria nada.
+   puerto        octetos       en ADU   en ADU %  primeros octetos
+   11211         8399718            0      0.00  b'get bottle_distance_to_filler_value\r\n'
+   22             385537       140912     36.55  b'SSH-2.0-OpenSSH_7.6p1 Ubuntu-4ubuntu0.7\r'
+
+ADU Modbus delimitadas: **993634**
+Validez de la cabecera MBAP, por contabilidad de octetos sobre la
+carga TCP del puerto 5502:
+   octetos de carga            12420460
+   dentro de una ADU valida    12420460  (100.0000 %)
+   salteados al resincronizar         0  (0.0000 %)
+   sin cerrar al final de la captura    0  (en 8 flujos)
+   Un octeto salteado es un octeto que NO formaba una cabecera
+   MBAP plausible (identificador de protocolo 0 y longitud entre
+   2 y 254). Cero salteados = el flujo entero se lee como Modbus.
+
+Copias exactas en el punto de captura: 496859 de 993634 paquetes del puerto
+5502 (50.0 %). Retardo entre copias: mediana 0.0010 ms, p95 0.0012 ms
+   Es la duplicacion que avisa el README: el mismo paquete grabado al
+   entrar y al salir del equipo. Un retardo de microsegundos no es
+   una retransmision TCP. Las columnas `unicas` descuentan esas
+   copias y son las que cuentan unidades de dialogo.
+
+Codigos de funcion (archivo completo):
+   funcion                          peticion pet. unic.  respuesta resp. unic.
+   Read Holding Registers             496782     248387     496852     248388
+
+Codigos de funcion (solo tramo de entrenamiento, sin descontar copias):
+   funcion                              peticion  respuesta
+   Read Holding Registers                 297939     297978
+
+**No hay ninguna peticion de escritura (funciones 5, 6, 15, 16,
+21, 22, 23) en todo el archivo.** El dialogo es de solo lectura.
+
+Identificadores de unidad: {1: 993634}
+Servidores Modbus (destino de las peticiones): {'198.18.134.12': 270607, '198.18.134.11': 226175}
+Pares cliente -> servidor: {'198.18.134.15 -> 198.18.134.11': 171749, '198.18.134.11 -> 198.18.134.12': 163267, '198.18.134.15 -> 198.18.134.12': 107340, '198.18.134.12 -> 198.18.134.11': 54426}
+
+Emparejamiento de peticion y respuesta por (origen, destino,
+identificador de transaccion): 248392 emparejadas, 0 peticiones sin
+respuesta al cerrar la captura.
+Latencia de respuesta: mediana 0.53 ms, p05 0.40, p95 0.78, min 0.00, max 112.16, CV 0.64
+   solo entrenamiento (148970 pares): mediana 0.53 ms, p95 0.77
+
+Mapa de registros leidos (destino, direccion de inicio, cantidad):
+   198.18.134.11 dir=14 cant=2             75894 peticiones
+   198.18.134.12 dir=22 cant=2             75891 peticiones
+   198.18.134.12 dir=20 cant=2             75890 peticiones
+   198.18.134.12 dir=24 cant=2             75890 peticiones
+   198.18.134.11 dir=4 cant=2              21473 peticiones
+   198.18.134.11 dir=8 cant=2              21470 peticiones
+   198.18.134.11 dir=2 cant=2              21468 peticiones
+   198.18.134.11 dir=6 cant=2              21468 peticiones
+   198.18.134.11 dir=10 cant=2             21468 peticiones
+   198.18.134.11 dir=12 cant=2             21468 peticiones
+   198.18.134.12 dir=16 cant=2             21468 peticiones
+   198.18.134.12 dir=18 cant=2             21468 peticiones
+   198.18.134.11 dir=0 cant=2              21466 peticiones
+
+Respuestas de lectura con la cuenta de octetos coherente: 248392; incoherente: 0
+
+Valores devueltos, decodificados con el mapa de ICSSIM (dos
+registros de 16 bits por variable, el mas significativo primero,
+escala 10000). Es el mismo mapa que el script 06 verifico en
+ICS-Flow contra las cabeceras de snapshots_PLC*.csv:
+   servidor / registro    variable                      muestras distintos        min    mediana        max
+   198.18.134.11 dir=0    (0) tank_input_valve_status      10733         2     0.0000     0.0000     1.0000
+   198.18.134.11 dir=2    (1) tank_input_valve_mode        10734         1     3.0000     3.0000     3.0000
+   198.18.134.11 dir=4    (2) tank_level_value             10737      1181     2.9966     5.0166     7.0133
+   198.18.134.11 dir=6    (3) tank_level_min               10734         1     3.0000     3.0000     3.0000
+   198.18.134.11 dir=8    (4) tank_level_max               10735         1     7.0000     7.0000     7.0000
+   198.18.134.11 dir=10   (5) tank_output_valve_status     10734         2     0.0000     1.0000     1.0000
+   198.18.134.11 dir=12   (6) tank_output_valve_mode       10734         1     3.0000     3.0000     3.0000
+   198.18.134.11 dir=14   (7) tank_output_flow_value       37947         2     0.0000     0.0001     0.0001
+   198.18.134.12 dir=16   (8) conveyor_belt_engine_status     10734         2     0.0000     0.0000     1.0000
+   198.18.134.12 dir=18   (9) conveyor_belt_engine_mode     10734         1     3.0000     3.0000     3.0000
+   198.18.134.12 dir=20   (10) bottle_level_value          37945       140     0.0000     0.7066     1.8533
+   198.18.134.12 dir=22   (11) bottle_level_max            37946         1     1.8000     1.8000     1.8000
+   198.18.134.12 dir=24   (12) bottle_distance_to_filler_value     37945        20     0.0000     1.0000    19.0000
+
+## extended / left
+
+### datasets/westermo/data/extended/pcaps/left.pcap
+
+Paquetes: 281197  |  IP 259490  |  TCP 256378  |  TCP con carga 30513  |  puerto 5502: 0
+Duracion de la captura: 5441 s. Paquetes antes del corte de entrenamiento (3265 s): 128648 (45.8 % del archivo).
+Tramas que no son IP: {'ARP': 12639, 'LLC': 8163, 'bytes': 905}
+Paquetes IP que no son TCP: {'IGMP': 1650, 'UDP': 1436, 'ICMP': 26}
+Puertos TCP con carga (servicio = menor de los dos): {22: 30513}
+
+Control de la medida: el mismo delimitador MBAP corrido sobre los
+OTROS puertos con carga, en los primeros 281197 paquetes del archivo.
+Si la contabilidad de octetos no distinguiera Modbus de cualquier
+otro flujo, el 100 % del puerto 5502 no mediria nada.
+   puerto        octetos       en ADU   en ADU %  primeros octetos
+   22            5928547      2002660     33.78  b'SSH-2.0-OpenSSH_7.6p1 Ubuntu-4ubuntu0.7\r'
+
+ADU Modbus delimitadas: **0**
+No hay carga TCP en el puerto 5502: **no hay Modbus en este archivo**.
+
+## extended / right
+
+### datasets/westermo/data/extended/pcaps/right.pcap
+
+Paquetes: 35124  |  IP 22902  |  TCP 21740  |  TCP con carga 2137  |  puerto 5502: 0
+Duracion de la captura: 5444 s. Paquetes antes del corte de entrenamiento (3265 s): 20321 (57.9 % del archivo).
+Tramas que no son IP: {'ARP': 6234, 'LLC': 5445, 'bytes': 543}
+Paquetes IP que no son TCP: {'IGMP': 438, 'UDP': 718, 'ICMP': 6}
+Puertos TCP con carga (servicio = menor de los dos): {22: 2137}
+
+Control de la medida: el mismo delimitador MBAP corrido sobre los
+OTROS puertos con carga, en los primeros 35124 paquetes del archivo.
+Si la contabilidad de octetos no distinguiera Modbus de cualquier
+otro flujo, el 100 % del puerto 5502 no mediria nada.
+   puerto        octetos       en ADU   en ADU %  primeros octetos
+   22             418191       144985     34.67  b'SSH-2.0-OpenSSH_7.6p1 Ubuntu-4ubuntu0.7\r'
+
+ADU Modbus delimitadas: **0**
+No hay carga TCP en el puerto 5502: **no hay Modbus en este archivo**.
+
+## Resumen
+
+variante   punto        paquetes   ADU Modbus ADU unicas   pet. fn3  resp. fn3   escrit.  MBAP mal
+reduced    bottom        1513815       993634     496775     496782     496852         0         0
+reduced    left           281105            0          0          0          0         0         0
+reduced    right           35067            0          0          0          0         0         0
+extended   bottom        4384183       993634     496775     496782     496852         0         0
+extended   left           281197            0          0          0          0         0         0
+extended   right           35124            0          0          0          0         0         0
+
+Total de ADU Modbus observadas en los seis archivos: 1987268
+Total descontando las copias del punto de captura: 993550
+Total de peticiones de escritura en los seis archivos: **0**
+
+Repertorio de funciones Modbus en todo el conjunto (peticion y
+respuesta sumadas): {'Read Holding Registers': 1987268}
+
+**Westermo NO tiene escrituras de consigna.** El unico codigo de
+funcion presente es el 3, lectura de registros de retencion. El
+conjunto publica carga util Modbus interpretable --- cabecera
+MBAP, codigo de funcion, direccion de registro, cantidad y los
+valores devueltos ---, pero el dialogo es de solo lectura: no hay
+ningun comando con parametro que un atacante pueda manipular.
+
+Ojo con los duplicados: el propio README advierte que un paquete que
+entra y sale del mismo equipo aparece dos veces, de modo que los
+conteos de ADU no son unidades de dialogo distintas sino unidades
+observadas en el punto de captura.

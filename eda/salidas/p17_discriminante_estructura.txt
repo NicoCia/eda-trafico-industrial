@@ -1,0 +1,162 @@
+# Poder discriminante, estructura temporal y reduccion
+
+Generado por `eda/scripts/17_discriminante_estructura.py`.
+Solo tramo de entrenamiento. Objetivo: `NST_B_Label`.
+
+## Westermo
+
+### Poder discriminante por característica
+
+AUC de cada característica tomada sola frente a `NST_B_Label`. Un AUC de
+0,5 es no discriminar; se informa además el valor plegado, que trata
+igual a las que discriminan con el signo invertido.
+
+campo                    AUC AUC pleg. F de ANOVA inf. mutua
+sWinTCP                0.563     0.563       1557     0.026
+rAckDelayMax           0.440     0.560        102     0.036
+sPackets               0.442     0.558         96     0.013
+rAckRate               0.444     0.556       1131     0.023
+rSynRate               0.556     0.556       1131     0.015
+rPshRate               0.450     0.550        245     0.018
+sLoad                  0.451     0.549          3     0.036
+sBytesSum              0.451     0.549         60     0.019
+rttl                   0.453     0.547        860     0.019
+sSynRate               0.543     0.543        718     0.020
+rInterPacketAvg        0.542     0.542        158     0.034
+sPayloadSum            0.461     0.539         20     0.026
+
+De las 42 características evaluadas: **0** alcanzan AUC plegado
+≥ 0,70 y **37** quedan por debajo de 0,55, es decir que no
+discriminan por sí solas.
+
+Con el etiquetado `IT_B_Label` como objetivo, el mejor AUC plegado pasa
+de 0.563 a 0.515: la estrategia de etiquetado cambia también qué
+tan separable es el problema, no solo su balance.
+
+### Estructura temporal
+
+Autocorrelación dentro de cada conversación, ponderada por su largo
+(7 conversaciones con al menos 200 flujos).
+
+retardo     mediana        p90 con |ac|>0,3
+1             -0.04       0.10            6
+2             -0.00       0.14            1
+5             -0.01       0.01            1
+10             0.05       0.33            6
+
+La autocorrelación mediana a retardo 1 es **-0.04**, de modo
+que la corrección AR(1) del tamaño de muestra es inmaterial:
+las 21080 filas valen como 22755.
+
+Las filas sucesivas son casi independientes, de modo que los
+estadísticos habituales se pueden usar sin corrección.
+
+### Reducción de dimensión
+
+PCA sobre las 41 características no constantes, estandarizadas,
+con las 17586 filas completas (83 % del tramo; no se imputa, porque
+los faltantes son estructurales).
+
+- Componentes para el 90 % de la varianza: **9** de 41
+- Componentes para el 95 % de la varianza: **12**
+- La primera componente explica el 28.3 %
+
+LDA con dos clases da una sola dirección discriminante, que separa
+con AUC 0.585 sobre los mismos datos con los que se ajustó, de modo
+que es una cota superior y no una estimación honesta.
+
+### Identificadores de red publicados
+
+El conjunto publica 6 columnas con identificadores de red: `sAddress`, `rAddress`, `sMACs`, `rMACs`, `sIPs`, `rIPs`.
+  - `sAddress ` 27 valores distintos
+  - `rAddress ` 12 valores distintos
+  - `sMACs    ` 18 valores distintos
+  - `rMACs    ` 12 valores distintos
+  - `sIPs     ` 15 valores distintos
+  - `rIPs     ` 7 valores distintos
+
+Son direcciones de un banco de pruebas, no de personas, y el rango
+no es enrutable en Internet. No hay datos personales, pero sí
+topología: conviene no publicarlas en un anexo sin pensarlo.
+
+---
+
+## ICS-Flow
+
+### Poder discriminante por característica
+
+AUC de cada característica tomada sola frente a `NST_B_Label`. Un AUC de
+0,5 es no discriminar; se informa además el valor plegado, que trata
+igual a las que discriminan con el signo invertido.
+
+campo                    AUC AUC pleg. F de ANOVA inf. mutua
+rPayloadMax            0.331     0.669        689     0.008
+rBytesMax              0.333     0.667       3920     0.007
+rttl                   0.336     0.664       5532     0.043
+sBytesMax              0.341     0.659       7922     0.008
+sPayloadMax            0.342     0.658       6162     0.007
+sPayloadSum            0.353     0.647       1798     0.153
+rPayloadAvg            0.361     0.639         42     0.080
+rPayloadSum            0.362     0.638       1795     0.149
+sBytesMin              0.366     0.634       1055     0.035
+sPayloadAvg            0.367     0.633       1402     0.064
+rAckDelayAvg           0.624     0.624       1246     0.099
+rPshRate               0.378     0.622       1452     0.067
+
+De las 43 características evaluadas: **0** alcanzan AUC plegado
+≥ 0,70 y **18** quedan por debajo de 0,55, es decir que no
+discriminan por sí solas.
+
+Con el etiquetado `IT_B_Label` como objetivo, el mejor AUC plegado pasa
+de 0.669 a 0.596: la estrategia de etiquetado cambia también qué
+tan separable es el problema, no solo su balance.
+
+### Estructura temporal
+
+Autocorrelación dentro de cada conversación, ponderada por su largo
+(6 conversaciones con al menos 200 flujos).
+
+retardo     mediana        p90 con |ac|>0,3
+1              0.37       0.85           27
+2              0.40       0.71           26
+5              0.38       0.59           24
+10             0.25       0.46           17
+
+Con una autocorrelación mediana a retardo 1 de **0.37**, la
+corrección AR(1) del tamaño de muestra da
+**n_efectivo ≈ 11848** sobre 25620 filas, el 46 %.
+
+Las filas **no** se pueden tratar como independientes. Toda
+validación cruzada tiene que ser por bloques temporales, nunca
+al azar, y los intervalos de confianza calculados como si
+fueran independientes salen demasiado angostos.
+
+### Reducción de dimensión
+
+PCA sobre las 42 características no constantes, estandarizadas,
+con las 23828 filas completas (93 % del tramo; no se imputa, porque
+los faltantes son estructurales).
+
+- Componentes para el 90 % de la varianza: **10** de 42
+- Componentes para el 95 % de la varianza: **12**
+- La primera componente explica el 25.6 %
+
+LDA con dos clases da una sola dirección discriminante, que separa
+con AUC 0.993 sobre los mismos datos con los que se ajustó, de modo
+que es una cota superior y no una estimación honesta.
+
+### Identificadores de red publicados
+
+El conjunto publica 6 columnas con identificadores de red: `sAddress`, `rAddress`, `sMACs`, `rMACs`, `sIPs`, `rIPs`.
+  - `sAddress ` 14 valores distintos
+  - `rAddress ` 11 valores distintos
+  - `sMACs    ` 10 valores distintos
+  - `rMACs    ` 12 valores distintos
+  - `sIPs     ` 7 valores distintos
+  - `rIPs     ` 6 valores distintos
+
+Son direcciones de un banco de pruebas, no de personas, y el rango
+no es enrutable en Internet. No hay datos personales, pero sí
+topología: conviene no publicarlas en un anexo sin pensarlo.
+
+---
