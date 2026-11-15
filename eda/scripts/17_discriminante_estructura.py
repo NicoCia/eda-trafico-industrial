@@ -115,6 +115,43 @@ def autocorrelacion(df, feats, tcol):
     return out, len(grupos)
 
 
+def autocorrelacion_objetivo(df, objetivo, tcol):
+    """Autocorrelacion de la ETIQUETA en el orden temporal global.
+
+    Es una pregunta distinta de `autocorrelacion`, que mide las
+    caracteristicas dentro de cada conversacion y responde cuanta informacion
+    nueva trae cada fila. Lo que decide si una particion al azar filtra es la
+    dependencia de la variable a predecir sobre el orden global: si un evento
+    deja muchos flujos contiguos de la misma clase, al azar caen vecinos del
+    mismo evento a los dos lados del corte, y eso es fuga.
+
+    Devuelve rho a retardo 1, el n efectivo AR(1), la cantidad de rachas de
+    la clase minoritaria y la mas larga.
+    """
+    d = df.sort_values(tcol)
+    y = pd.to_numeric(d[objetivo], errors="coerce").dropna()
+    if len(y) < 10 or y.nunique() < 2:
+        return None
+    mayoritaria = y.value_counts().idxmax()
+    b = (y != mayoritaria).astype(int).to_numpy(float)
+    z = b - b.mean()
+    if (z * z).sum() == 0:
+        return None
+    rho = float((z[:-1] * z[1:]).sum() / (z * z).sum())
+    n_eff = len(b) * (1 - rho) / (1 + rho) if rho > -1 else float(len(b))
+    rachas, act = [], 0
+    for x in b:
+        if x:
+            act += 1
+        elif act:
+            rachas.append(act)
+            act = 0
+    if act:
+        rachas.append(act)
+    return {"rho_lag1": rho, "n": len(b), "n_efectivo": float(n_eff),
+            "rachas": len(rachas), "racha_mas_larga": max(rachas) if rachas else 0}
+
+
 def main():
     comun.preparar()
     # numpy compilado contra Accelerate (macOS) emite avisos de desbordamiento
@@ -188,6 +225,19 @@ def main():
         w("Autocorrelación dentro de cada conversación, ponderada por su largo")
         w("(%d conversaciones con al menos 200 flujos)." % n_conv)
         w("")
+        mi_ser = d.set_index("campo")["mi"].dropna()
+        if len(mi_ser):
+            w("La información mutua más alta de las %d es **%s** con"
+              % (len(mi_ser), mi_ser.idxmax()))
+            w("**%.4f**; la más baja, %s con %.4f. La tabla de arriba está"
+              % (mi_ser.max(), mi_ser.idxmin(), mi_ser.min()))
+            w("ordenada por AUC, de modo que la de mayor MI no tiene por qué")
+            w("aparecer en ella.")
+            w("")
+            r["mi_maxima"] = {"campo": str(mi_ser.idxmax()),
+                              "valor": float(mi_ser.max()),
+                              "campo_minimo": str(mi_ser.idxmin()),
+                              "valor_minimo": float(mi_ser.min())}
         w("%-8s %10s %10s %12s" % ("retardo", "mediana", "p90", "con |ac|>0,3"))
         for lag in LAGS:
             v = np.array(list(ac[lag].values()))
@@ -212,13 +262,48 @@ def main():
             w("las %d filas valen como %d." % (n, round(n_eff)))
         w("")
         if rho >= 0.3:
-            w("Las filas **no** se pueden tratar como independientes. Toda")
-            w("validación cruzada tiene que ser por bloques temporales, nunca")
-            w("al azar, y los intervalos de confianza calculados como si")
-            w("fueran independientes salen demasiado angostos.")
+            w("Las **características** de filas sucesivas no se pueden tratar")
+            w("como independientes: los intervalos de confianza calculados")
+            w("sobre ellas como si lo fueran salen demasiado angostos.")
         else:
-            w("Las filas sucesivas son casi independientes, de modo que los")
-            w("estadísticos habituales se pueden usar sin corrección.")
+            w("Las **características** de filas sucesivas traen casi toda su")
+            w("información: la corrección AR(1) sobre ellas es inmaterial.")
+        w("")
+
+        # ---------- 2b. la etiqueta, que es la que decide el split ----------
+        w("#### Y la etiqueta, que es la que decide si un split al azar filtra")
+        w("")
+        w("La medida de arriba es de las características dentro de cada")
+        w("conversación, y responde cuánta información nueva trae cada fila.")
+        w("Que una partición al azar filtre o no lo decide otra cosa: la")
+        w("dependencia de **la variable a predecir** en el orden temporal")
+        w("global. Se mide aparte porque las dos respuestas pueden ser")
+        w("opuestas, y acá lo son.")
+        w("")
+        aco = autocorrelacion_objetivo(df, OBJETIVO, tcol)
+        acp = autocorrelacion_objetivo(df, PARALELO, tcol)
+        w("%-14s %10s %12s %10s %14s"
+          % ("etiqueta", "rho(1)", "n_efectivo", "rachas", "racha + larga"))
+        for etq, a in ((OBJETIVO, aco), (PARALELO, acp)):
+            if a:
+                w("%-14s %10.3f %12d %10d %14d"
+                  % (etq, a["rho_lag1"], round(a["n_efectivo"]),
+                     a["rachas"], a["racha_mas_larga"]))
+        r["autocorrelacion_objetivo"] = {"objetivo": aco, "paralelo": acp}
+        w("")
+        if aco and aco["rho_lag1"] >= 0.3:
+            w("Con rho de **%.3f** sobre la etiqueta, una validación cruzada"
+              % aco["rho_lag1"])
+            w("al azar **sí filtra**: un evento deja hasta %d flujos"
+              % aco["racha_mas_larga"])
+            w("contiguos de la misma clase, de modo que el vecino de una fila")
+            w("de validación cae en el ajuste. La partición tiene que ser por")
+            w("bloques temporales, y el tamaño efectivo para cualquier")
+            w("intervalo sobre la etiqueta es **%d de %d**, no las %d filas."
+              % (round(aco["n_efectivo"]), aco["n"], aco["n"]))
+            w("")
+            w("Esto vale aunque la autocorrelación de las características sea")
+            w("baja: son dos preguntas distintas y no se deducen una de otra.")
         r["autocorrelacion"] = {"rho_lag1": rho, "n": n,
                                 "n_efectivo": float(n_eff),
                                 "conversaciones": n_conv,

@@ -63,15 +63,19 @@ durante la ventana de un evento, y son el 45.9% de la captura.
 
 Por tipo, cuantos flujos marca cada estrategia:
 
-tipo                             IT_M      NST_M   NST/IT
-BAD-MISCONF                      2103       2103   100.0%
-BAD-MISCONF-DUPLICATION          2453       2453   100.0%
-BAD-MITM                         3387        504    14.9%
-BAD-PORTSCAN1                     734         29     4.0%
-BAD-PORTSCAN2                    2255        397    17.6%
-BAD-SSH                         11246        751     6.7%
-GOOD-SSH                          326          8     2.5%
-Normal                          12900      29159   226.0%
+tipo                             IT_M      NST_M   NST/IT    factor
+BAD-MISCONF                      2103       2103   100.0%     1.00x
+BAD-MISCONF-DUPLICATION          2453       2453   100.0%     1.00x
+BAD-MITM                         3387        504    14.9%     6.72x
+BAD-PORTSCAN1                     734         29     4.0%    25.31x
+BAD-PORTSCAN2                    2255        397    17.6%     5.68x
+BAD-SSH                         11246        751     6.7%    14.97x
+GOOD-SSH                          326          8     2.5%    40.75x
+Normal                          12900      29159   226.0%     0.44x
+
+Las malas configuraciones dan factor 1,00 bajo las dos estrategias.
+Para los 5 tipos restantes, IT infla **entre 5.68 y 40.75 veces**:
+el minimo es BAD-PORTSCAN2 y el maximo GOOD-SSH.
 
 ## P4 Muestras y eventos distintos por tipo (Westermo)
 

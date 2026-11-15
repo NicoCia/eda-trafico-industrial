@@ -412,9 +412,49 @@ def seccion_2(w, J, esq):
       % (len(fuertes), len(filas)))
     w("Campos con KS cruzado igual a 1,00 (distribuciones disjuntas): **%d**."
       % int((cruzados >= 0.999).sum()))
-    w("Campos constantes en los dos conjuntos, que no aportan nada a ninguno de")
-    w("los dos por separado: **%d de %d**." % (len(constantes), len(filas)))
+    w("Campos sin variacion **en el trafico normal** de los dos conjuntos:")
+    w("**%d de %d**." % (len(constantes), len(filas)))
     w("  %s" % ", ".join(constantes))
+    w("")
+    w("**Y hay que medir que pasa fuera del trafico normal antes de")
+    w("descartarlos.** Esta seccion compara solo flujos normales, de modo que")
+    w("'constante' aca significa constante en esa poblacion y no en el")
+    w("conjunto. Medido sobre todo el tramo de entrenamiento y separando por")
+    w("clase, varios de estos campos si varian, y varian justamente sobre los")
+    w("flujos anomalos:")
+    w("")
+    aw = trw[trw["NST_M_Label"] != "Normal"]
+    ai = tri[tri["NST_M_Label"] != "Normal"]
+    w("%-18s %11s %11s %11s %11s"
+      % ("campo", "W normal", "W anomalo", "I normal", "I anomalo"))
+    varian, const_tramo_w, const_tramo_i = [], 0, 0
+    reparto = {}
+    for c in constantes:
+        def nu(d):
+            return int(pd.to_numeric(d[c], errors="coerce").nunique(dropna=True))
+        vwn, vwa, vin, via = nu(nw), nu(aw), nu(ni), nu(ai)
+        w("%-18s %11d %11d %11d %11d" % (c[:18], vwn, vwa, vin, via))
+        reparto[c] = {"westermo_normal": vwn, "westermo_anomalo": vwa,
+                      "icsflow_normal": vin, "icsflow_anomalo": via}
+        if vwa > 1 or via > 1:
+            varian.append(c)
+        if nu(trw) <= 1:
+            const_tramo_w += 1
+        if nu(tri) <= 1:
+            const_tramo_i += 1
+    w("")
+    w("**%d de los %d varian sobre los flujos anomalos**: %s."
+      % (len(varian), len(constantes), ", ".join(varian)))
+    w("Sobre todo el tramo de entrenamiento quedan sin variacion %d en"
+      % const_tramo_w)
+    w("Westermo y %d en ICS-Flow, no %d." % (const_tramo_i, len(constantes)))
+    w("")
+    w("Importa para la decision, no es un detalle de redaccion: son tasas de")
+    w("banderas TCP de reinicio y de cierre, que es donde se ve un barrido de")
+    w("puertos, y Westermo inyecta justamente BAD-PORTSCAN. Son constantes")
+    w("**por construccion del subconjunto normal**: toda su informacion esta")
+    w("en los anomalos. Descartarlos por este numero tiraria senal")
+    w("discriminante.")
     w("")
     w("### 2.5 Donde esta la diferencia, en magnitudes")
     w("")
@@ -484,6 +524,10 @@ def seccion_2(w, J, esq):
         "ks_mayor_05": int((cruzados > 0.5).sum()),
         "ks_igual_1": int((cruzados >= 0.999).sum()),
         "campos_constantes_en_ambos": constantes,
+        "campos_constantes_solo_en_normal": varian,
+        "campos_constantes_reparto_por_clase": reparto,
+        "campos_sin_variacion_en_todo_el_tramo": {
+            "westermo": const_tramo_w, "icsflow": const_tramo_i},
         "cuantiles_campos_fuertes": cuantiles,
     }
     return numericas
@@ -956,11 +1000,16 @@ def seccion_5(w, J, esq, union, numericas):
     w("del conjunto. Tiene la ventaja de que el flujo de extraccion queda bajo")
     w("control del proyecto, que es justo lo que pide el requerimiento 2.3.")
     w("")
-    w("Y tiene un limite que conviene fijar ahora: de las %d caracteristicas,"
+    w("Y tiene un limite, enunciado con su alcance: de las %d"
       % len(carac))
-    w("**%d son constantes en los dos conjuntos a la vez** (seccion 2.4), de"
+    w("caracteristicas, **%d no varian en el TRAFICO NORMAL de los dos"
       % len(J["westermo_icsflow"]["campos_constantes_en_ambos"]))
-    w("modo que la union util es menor que el numero de columnas.")
+    w("conjuntos** (seccion 2.4). Eso no las vuelve descartables: %d de ellas"
+      % len(J["westermo_icsflow"].get("campos_constantes_solo_en_normal", [])))
+    w("si varian sobre los flujos anomalos, y sobre todo el tramo las que no")
+    w("varian son %d en Westermo y %d en ICS-Flow."
+      % (J["westermo_icsflow"]["campos_sin_variacion_en_todo_el_tramo"]["westermo"],
+         J["westermo_icsflow"]["campos_sin_variacion_en_todo_el_tramo"]["icsflow"]))
     w("")
     hai_min = min((len(v) for k, v in esq.items() if k.startswith("HAI")),
                   default=0)

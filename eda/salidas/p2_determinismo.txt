@@ -3,7 +3,10 @@
 Lectura de las medidas:
   CV del intervalo entre paquetes ~0 = periodico; ~1 = tipo Poisson;
   >1 = a rafagas. El indice de dispersion de la tasa (var/media)
-  compara contra el azar puro sin que el nivel medio confunda.
+  compara contra el azar puro: 1 es el valor de un proceso de Poisson.
+  Depende de la ventana salvo que el proceso sea de Poisson, de modo
+  que entre series de tasas distintas solo es comparable a recuento
+  por ventana igualado. La seccion 2.3 lo mide.
   Entropia normalizada ~0 = un solo interlocutor;
   ~1 = reparto uniforme. Jaccard ~1 = el mismo conjunto de pares
   conversa en cada ventana.
@@ -202,3 +205,42 @@ Flujos normales en el tramo de entrenamiento: 17456
      origen            destino           proto  paquetes  dt med ms   dt CV  moda tam
      192.168.10.221    192.168.10.222    TCP       59293      205.0    1.43    60 B (41%)
      192.168.10.222    192.168.10.221    TCP       38045     1473.2    1.02    71 B (55%)
+
+## 2.3 El indice de dispersion depende de la ventana
+
+El indice de Fano es invariante de escala **solo** para un proceso de
+Poisson. Para cualquier otro depende de cuantas llegadas caen en la
+ventana. Las tasas de estas series difieren por un factor grande, de
+modo que una ventana fija de 1 s no compara la misma cosa en las tres:
+
+   Westermo limpio    273.12 paq/s  ->   273.1 paquetes por ventana de 1 s
+   QUT Control          4.85 paq/s  ->     4.9 paquetes por ventana de 1 s
+   QUT solo DNP3        1.12 paq/s  ->     1.1 paquetes por ventana de 1 s
+
+### (a) Barrido de la ventana
+
+ventana         Westermo limpio     QUT Control   QUT solo DNP3
+0.1 s                     32.63            2.37            1.78
+0.5 s                      1.16            2.95            2.63
+1 s                        0.34            3.00            2.73
+10 s                       0.23            3.90            1.04
+
+### (b) A recuento por ventana igualado
+
+La comparacion que el indice admite: se elige la ventana de cada serie
+para que el recuento esperado sea el mismo en todas.
+
+paq/ventana     Westermo limpio     QUT Control   QUT solo DNP3
+5                         30.80            3.07            2.28
+50                        24.41            3.87            0.25
+273                        0.36            0.83            0.09
+
+Lo que esto significa, y es una correccion a como se leyo antes esta
+medida: con la ventana de 1 s Westermo da el valor mas bajo de las tres
+series y a recuento igualado da el mas alto. El orden se invierte, de
+modo que **no hay una sola calificacion comparativa de determinismo**
+que salga de este indice. Lo que se sostiene es que cada serie es
+regular en su propia escala de tiempo, y cual es esa escala.
+
+Conviene mirar tambien el CV del intervalo entre paquetes, que esta mas
+arriba y que ordena estas series al revés que la ventana de 1 s.

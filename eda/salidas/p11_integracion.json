@@ -2407,6 +2407,80 @@
    "sFragmentRate",
    "rFragmentRate"
   ],
+  "campos_constantes_solo_en_normal": [
+   "sttl",
+   "sAckRate",
+   "sFinRate",
+   "rFinRate",
+   "sRstRate",
+   "rRstRate"
+  ],
+  "campos_constantes_reparto_por_clase": {
+   "sttl": {
+    "westermo_normal": 1,
+    "westermo_anomalo": 1,
+    "icsflow_normal": 1,
+    "icsflow_anomalo": 65
+   },
+   "sAckRate": {
+    "westermo_normal": 1,
+    "westermo_anomalo": 36,
+    "icsflow_normal": 1,
+    "icsflow_anomalo": 2
+   },
+   "sUrgRate": {
+    "westermo_normal": 1,
+    "westermo_anomalo": 1,
+    "icsflow_normal": 1,
+    "icsflow_anomalo": 1
+   },
+   "rUrgRate": {
+    "westermo_normal": 1,
+    "westermo_anomalo": 1,
+    "icsflow_normal": 1,
+    "icsflow_anomalo": 1
+   },
+   "sFinRate": {
+    "westermo_normal": 1,
+    "westermo_anomalo": 38,
+    "icsflow_normal": 1,
+    "icsflow_anomalo": 12
+   },
+   "rFinRate": {
+    "westermo_normal": 1,
+    "westermo_anomalo": 27,
+    "icsflow_normal": 1,
+    "icsflow_anomalo": 13
+   },
+   "sRstRate": {
+    "westermo_normal": 1,
+    "westermo_anomalo": 34,
+    "icsflow_normal": 1,
+    "icsflow_anomalo": 2
+   },
+   "rRstRate": {
+    "westermo_normal": 1,
+    "westermo_anomalo": 38,
+    "icsflow_normal": 1,
+    "icsflow_anomalo": 15
+   },
+   "sFragmentRate": {
+    "westermo_normal": 1,
+    "westermo_anomalo": 1,
+    "icsflow_normal": 1,
+    "icsflow_anomalo": 1
+   },
+   "rFragmentRate": {
+    "westermo_normal": 1,
+    "westermo_anomalo": 1,
+    "icsflow_normal": 1,
+    "icsflow_anomalo": 1
+   }
+  },
+  "campos_sin_variacion_en_todo_el_tramo": {
+   "westermo": 5,
+   "icsflow": 4
+  },
   "cuantiles_campos_fuertes": {
    "rBytesSum": {
     "Westermo": [

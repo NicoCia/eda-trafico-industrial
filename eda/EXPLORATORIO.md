@@ -80,11 +80,17 @@ Imputarlo sería inventar un número donde el protocolo no define ninguno.
 veinte características que se mueven juntas, y el PCA lo confirma: nueve y
 diez componentes bastan para el 90 % de la varianza.
 
-**5. Las filas de ICS-Flow no son independientes y las de Westermo sí.**
-Dentro de una conversación, la autocorrelación mediana a retardo 1 es **0,37
-en ICS-Flow** y **−0,04 en Westermo**. Las 25.620 filas de ICS-Flow valen como
-11.848 a efectos de precisión, y cualquier validación cruzada sobre ese
-conjunto tiene que ser por bloques temporales.
+**5. En los dos conjuntos una validación cruzada al azar filtra, y hay que
+medirlo sobre la etiqueta y no sobre las características.** Son dos preguntas
+distintas y dan respuestas opuestas. Dentro de una conversación, la
+autocorrelación mediana de las *características* a retardo 1 es **0,37 en
+ICS-Flow** y **−0,04 en Westermo**: eso dice cuánta información nueva trae
+cada fila. Lo que decide si un corte al azar filtra es la dependencia de la
+*etiqueta* en el orden temporal, y ahí los dos son altos: **0,78 en Westermo**
+y **0,73 en ICS-Flow**, porque un evento deja rachas de hasta 228 y 148 flujos
+contiguos de la misma clase. A efectos de precisión sobre la etiqueta, las
+21.080 filas de Westermo valen **2618** y las 25.620 de ICS-Flow, **4049**.
+**Las dos particiones tienen que ser por bloques temporales.**
 
 **6. El desbalance depende de una decisión, no del fenómeno.** La misma
 captura da 1,7:1 o 4,8:1 en Westermo según qué estrategia de etiquetado se
@@ -237,10 +243,25 @@ al menos 200 flujos, y ponderada por su largo:
 | 2 | −0,00 | 1 |
 | 10 | 0,05 | 6 |
 
-**Las filas sucesivas son casi independientes.** La corrección AR(1) del
-tamaño de muestra es inmaterial, de modo que los estadísticos habituales se
-pueden usar sin ajuste y una validación cruzada al azar no introduciría fuga
-apreciable. Es lo contrario de lo que pasa en ICS-Flow.
+**Las características de filas sucesivas traen casi toda su información.** La
+corrección AR(1) *sobre ellas* es inmaterial, de modo que un estadístico
+descriptivo de una característica no necesita ajuste por este motivo.
+
+**Pero eso no autoriza una validación cruzada al azar, y conviene no deducir
+una cosa de la otra.** Lo que decide si un corte al azar filtra es la
+dependencia de la variable a predecir, que se mide aparte y en el orden
+temporal global, no dentro de conversaciones:
+
+| Etiqueta | ρ a retardo 1 | n efectivo | Rachas | Racha más larga |
+|---|---:|---:|---:|---:|
+| `NST_B_Label` | **0,779** | 2618 de 21.080 | 663 | **228 flujos** |
+| `IT_B_Label` | **0,984** | 170 de 21.080 | 79 | 295 flujos |
+
+Un evento deja centenares de flujos contiguos de la misma clase, de modo que
+una partición al azar pone vecinos del mismo evento a los dos lados del corte.
+**Es fuga, no una cuestión de precisión**, y pasa igual que en ICS-Flow. La
+partición tiene que ser por bloques temporales, y cualquier intervalo sobre la
+etiqueta vale sobre 2618 observaciones, no sobre 21.080.
 
 ### ¿Conviene reducir la dimensión?
 
@@ -387,8 +408,10 @@ debajo de 0,55 —contra 37 en Westermo—. Hay más señal repartida, aunque
 ninguna variable sola alcance.
 
 Vale la pena mirar `sPayloadSum`: su AUC plegado es 0,647 pero su información
-mutua es 0,153, la más alta del conjunto y seis veces la de `rBytesMax`, que
-tiene AUC parecido. La información mutua captura relaciones no monótonas que
+mutua es 0,153, **veintiuna veces** la de `rBytesMax`, que tiene AUC parecido.
+No es la más alta del conjunto —esa es `rBytesSum`, con 0,160—, porque la
+tabla está ordenada por AUC y la de mayor información mutua no tiene por qué
+aparecer en ella. La información mutua captura relaciones no monótonas que
 el AUC se pierde, de modo que esa característica separa las clases sin que
 una sea siempre mayor que la otra.
 
@@ -713,12 +736,13 @@ ICS-Flow.
 | Unidad del registro | flujo 0,5 s | flujo 0,5 s | transacción | proceso 1 s | paquete |
 | Registros de entrenamiento | 21.080 | 25.620 | 163.823 | 550.800 | — |
 | Variables publicadas | 47 | 47 | 16 | 59 | **0** |
-| Celdas faltantes | 8,1 % | 1,6 % | **~75 %** | 0 % | — |
+| Celdas faltantes, sobre todas las columnas | 8,1 % | 1,6 % | **42,0 %** | 0 % | — |
 | Variables constantes | 5 | 4 | 0 | 8 | — |
 | Componentes para el 90 % | 9 | 10 | no aplica | 13 | — |
 | Asimetría alta | 33 de 42 | 35 de 43 | 9 de 16 | 11 de 51 | — |
-| Autocorrelación a retardo 1 | **−0,04** | 0,37 | 0,86 | **1,00** | — |
-| Observaciones independientes | ≈ 21.080 | 11.848 | 12.060 | **≈ 306** | — |
+| Autocorr. de las características | **−0,04** | 0,37 | 0,86 | **1,00** | — |
+| Autocorr. de la etiqueta | 0,78 | 0,73 | 0,86 | no medible | — |
+| Obs. independientes, por la etiqueta | 2618 | 4049 | 12.060 | **≈ 306** | — |
 | Mejor AUC de una variable | 0,563 | 0,669 | **0,684** | no medible | — |
 | Anomalías en entrenamiento | sí | sí | sí | **no** | sí |
 | Licencia | CC BY 4.0 | CC BY-NC-SA 4.0 | sin declarar | CC BY-SA 4.0 | sin declarar |
@@ -745,8 +769,13 @@ que sirva de alarma en ninguna de las tres fuentes, y eso es un resultado
 sobre el problema y no sobre los datos.
 
 **Los faltantes y la dimensión se comportan al revés de lo esperable.** El
-conjunto con atributos semánticos —Morris— es el que más valores omite, el
-75 %, y a la vez el único sin ninguna redundancia entre variables. Los de
+conjunto con atributos semánticos —Morris— es el que más valores omite y a la
+vez el único sin ninguna redundancia entre variables. Cuánto omite depende de
+qué se cuente, y conviene no mezclar las dos cantidades: la fracción de celdas
+vacías es del **42,0 %** sobre sus 20 columnas y del 52,5 % sobre las 16
+características, mientras que la **tasa por columna** de las 11 columnas
+afectadas va del 74,9 al 76,6 %. La fila de la tabla usa la primera, que es la
+comparable con el 8,1 % y el 1,6 % de los conjuntos de flujo. Los de
 flujo, con casi todas las celdas llenas, resultan ser una docena de ejes
 disfrazados de cuarenta y siete columnas.
 
@@ -787,13 +816,17 @@ sino lo que la descripción deja fijado.
    filas no vienen ordenadas por tiempo en los archivos**, de modo que el
    corte se hace por el valor de la columna y nunca por la posición de la
    fila.
-8. **Validación cruzada por bloques en ICS-Flow.** Con autocorrelación de
-   0,37, una partición al azar deja el vecino de cada fila de validación
-   dentro del ajuste. En Westermo el riesgo es despreciable.
-9. **Ensanchar los intervalos de ICS-Flow.** Su tamaño de muestra efectivo es
-   el 46 % del nominal, así que cualquier intervalo calculado como si las
-   filas fueran independientes queda angosto por un factor de alrededor de
-   1,5.
+8. **Validación cruzada por bloques en los dos conjuntos de flujo.** La
+   autocorrelación de la etiqueta es 0,78 en Westermo y 0,73 en ICS-Flow, con
+   rachas de hasta 228 y 148 flujos, de modo que una partición al azar deja el
+   vecino de cada fila de validación dentro del ajuste. Vale para los dos: la
+   autocorrelación baja de las características de Westermo no autoriza un
+   corte al azar, porque mide otra cosa.
+9. **Ensanchar los intervalos sobre la etiqueta en los dos.** El tamaño
+   efectivo es 2618 de 21.080 en Westermo, lo que ensancha el intervalo por
+   un factor de **2,8**, y 4049 de 25.620 en ICS-Flow, un factor de **2,5**.
+   Para un estadístico descriptivo de una característica, en cambio, el factor
+   de ICS-Flow es 1,5 y el de Westermo es despreciable.
 10. **No confundir el valor extremo con la anomalía.** El rango
    intercuartílico mira la distribución marginal e ignora el tiempo. Una
    anomalía contextual —la familia que más le importa a este proyecto— es un valor

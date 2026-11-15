@@ -71,7 +71,10 @@ una latencia mediana de 8,1 ms.
 
 **Limitación medida:** el conjunto **no contiene comandos de control con parámetros**.
 Sobre 2.318.278 cabeceras de objeto no hay ninguna g12v1 (CROB), g41 ni g40; las 207.798
-operaciones WRITE escriben g80v1, es decir limpian el bit de reinicio. La familia de
+operaciones WRITE no escriben consignas de proceso: de los once grupos de
+objetos que la captura contiene, el único subconjunto cuyos conteos suman esas
+207.798 es g80v1 más g50v3 —el bit de reinicio y la hora—, único entre los
+2047 posibles. La atribución mensaje por mensaje no se midió. La familia de
 anomalías de manipulación de parámetros de comando no se puede ejercitar sobre QUT.
 
 **Contenido extraído y verificado**: 3.051 PCAP, 16 GB, con firma válida

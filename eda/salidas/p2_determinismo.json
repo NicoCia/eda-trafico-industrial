@@ -1735,5 +1735,42 @@
   },
   "proto_categorias": 1,
   "proto_suma": 97338
+ },
+ "sensibilidad_ventana": {
+  "ventana_0.1_s": {
+   "Westermo limpio": 32.628707875941316,
+   "QUT Control": 2.366776332389051,
+   "QUT solo DNP3": 1.7776400965085275
+  },
+  "ventana_0.5_s": {
+   "Westermo limpio": 1.1601022538997248,
+   "QUT Control": 2.9465538264418525,
+   "QUT solo DNP3": 2.627254935290972
+  },
+  "ventana_1_s": {
+   "Westermo limpio": 0.33568217580571535,
+   "QUT Control": 3.003621492489774,
+   "QUT solo DNP3": 2.7328075918666093
+  },
+  "ventana_10_s": {
+   "Westermo limpio": 0.2267698262964012,
+   "QUT Control": 3.9016284787594397,
+   "QUT solo DNP3": 1.036974586023178
+  },
+  "recuento_5": {
+   "Westermo limpio": 30.796649343789237,
+   "QUT Control": 3.0690994065952433,
+   "QUT solo DNP3": 2.283806566488469
+  },
+  "recuento_50": {
+   "Westermo limpio": 24.406720016508462,
+   "QUT Control": 3.870131323843668,
+   "QUT solo DNP3": 0.2503033419023136
+  },
+  "recuento_273": {
+   "Westermo limpio": 0.3586361563144777,
+   "QUT Control": 0.8328168851788007,
+   "QUT solo DNP3": 0.09031979256698358
+  }
  }
 }

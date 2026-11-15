@@ -115,6 +115,37 @@ def morris(w):
     for c, v in nul[nul > 0].items():
         w("%-24s %7.1f %%" % (c, v))
     w("")
+    # Dos cantidades que no son la misma y conviene no mezclar: la TASA POR
+    # COLUMNA de las columnas afectadas, y la FRACCION DE CELDAS del conjunto.
+    # La segunda depende del denominador, asi que se informa con los tres que
+    # tienen sentido.
+    afect = nul[nul > 0]
+    etiq = [c for c in tr.columns if c in ("binary result", "categorized result",
+                                           "specific result")]
+    sin_etiq = [c for c in tr.columns if c not in etiq]
+    w("Las dos cantidades que no hay que confundir:")
+    w("")
+    w("  tasa por columna de las %d columnas afectadas: %.1f a %.1f %%"
+      % (len(afect), afect.min(), afect.max()))
+    for nom, cols in (("las %d caracteristicas" % len(feats), list(feats)),
+                      ("las %d columnas sin etiqueta" % len(sin_etiq), sin_etiq),
+                      ("las %d columnas" % len(tr.columns), list(tr.columns))):
+        w("  fraccion de celdas faltantes sobre %-28s %5.1f %%"
+          % (nom + ":", 100 * tr[cols].isna().mean().mean()))
+    w("")
+    w("La tasa por columna es alta porque la falta es estructural y parte el")
+    w("conjunto en dos mitades; la fraccion de celdas es la que se puede")
+    w("comparar contra otro conjunto, y solo si se declara el denominador.")
+    w("")
+    res_falt = {"tasa_por_columna_min": float(afect.min()),
+                "tasa_por_columna_max": float(afect.max()),
+                "columnas_afectadas": int(len(afect)),
+                "celdas_sobre_caracteristicas":
+                    float(100 * tr[list(feats)].isna().mean().mean()),
+                "celdas_sobre_sin_etiqueta":
+                    float(100 * tr[sin_etiq].isna().mean().mean()),
+                "celdas_sobre_todas":
+                    float(100 * tr[list(tr.columns)].isna().mean().mean())}
     cr = tr["command response"]
     w("La falta es estructural y la explica el sentido de la transacción: una")
     w("petición no trae medición y una respuesta no trae consigna. Medido:")
@@ -274,6 +305,7 @@ def morris(w):
     w("etiquetada, y por eso sostiene el compromiso de PD por tipo.")
     r["balance"] = {"normal": nb, "ataque": na,
                     "por_categoria": {str(k): int(v) for k, v in vc.items()}}
+    r["faltantes"] = res_falt
     w("")
     w("---")
     w("")

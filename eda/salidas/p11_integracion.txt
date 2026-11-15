@@ -244,9 +244,39 @@ observaciones en los dos conjuntos.
 Mediana del nivel de referencia interno: **0.007**.
 Campos con KS cruzado por encima de 0,5: **5 de 47**.
 Campos con KS cruzado igual a 1,00 (distribuciones disjuntas): **0**.
-Campos constantes en los dos conjuntos, que no aportan nada a ninguno de
-los dos por separado: **10 de 47**.
+Campos sin variacion **en el trafico normal** de los dos conjuntos:
+**10 de 47**.
   sttl, sAckRate, sUrgRate, rUrgRate, sFinRate, rFinRate, sRstRate, rRstRate, sFragmentRate, rFragmentRate
+
+**Y hay que medir que pasa fuera del trafico normal antes de
+descartarlos.** Esta seccion compara solo flujos normales, de modo que
+'constante' aca significa constante en esa poblacion y no en el
+conjunto. Medido sobre todo el tramo de entrenamiento y separando por
+clase, varios de estos campos si varian, y varian justamente sobre los
+flujos anomalos:
+
+campo                 W normal   W anomalo    I normal   I anomalo
+sttl                         1           1           1          65
+sAckRate                     1          36           1           2
+sUrgRate                     1           1           1           1
+rUrgRate                     1           1           1           1
+sFinRate                     1          38           1          12
+rFinRate                     1          27           1          13
+sRstRate                     1          34           1           2
+rRstRate                     1          38           1          15
+sFragmentRate                1           1           1           1
+rFragmentRate                1           1           1           1
+
+**6 de los 10 varian sobre los flujos anomalos**: sttl, sAckRate, sFinRate, rFinRate, sRstRate, rRstRate.
+Sobre todo el tramo de entrenamiento quedan sin variacion 5 en
+Westermo y 4 en ICS-Flow, no 10.
+
+Importa para la decision, no es un detalle de redaccion: son tasas de
+banderas TCP de reinicio y de cierre, que es donde se ve un barrido de
+puertos, y Westermo inyecta justamente BAD-PORTSCAN. Son constantes
+**por construccion del subconjunto normal**: toda su informacion esta
+en los anomalos. Descartarlos por este numero tiraria senal
+discriminante.
 
 ### 2.5 Donde esta la diferencia, en magnitudes
 
@@ -576,9 +606,11 @@ caracteristicas desde sus PCAP, que es trabajo del proyecto y no un dato
 del conjunto. Tiene la ventaja de que el flujo de extraccion queda bajo
 control del proyecto, que es justo lo que pide el requerimiento 2.3.
 
-Y tiene un limite que conviene fijar ahora: de las 47 caracteristicas,
-**10 son constantes en los dos conjuntos a la vez** (seccion 2.4), de
-modo que la union util es menor que el numero de columnas.
+Y tiene un limite, enunciado con su alcance: de las 47
+caracteristicas, **10 no varian en el TRAFICO NORMAL de los dos
+conjuntos** (seccion 2.4). Eso no las vuelve descartables: 6 de ellas
+si varian sobre los flujos anomalos, y sobre todo el tramo las que no
+varian son 5 en Westermo y 4 en ICS-Flow.
 
 **Morris y HAI quedan afuera de esta union, y no por una limitacion
 salvable.** Morris no publica captura --- el archivo con el hexadecimal

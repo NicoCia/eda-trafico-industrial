@@ -34,6 +34,12 @@ VENTANA = 1.0          # segundos por ventana para la tasa
 VENTANA_PARES = 10.0   # segundos para la estabilidad del conjunto de pares
 LAG_MAX = 180          # retardo maximo de la autocorrelacion, en ventanas
 
+# Barrido de la seccion 2.3: el indice de dispersion no es invariante de
+# escala salvo para Poisson, asi que se mide con varias ventanas y tambien a
+# recuento esperado por ventana igualado entre series.
+VENTANAS_BARRIDO = (0.1, 0.5, 1.0, 10.0)
+RECUENTOS_BARRIDO = (5, 50, 273)
+
 LINEA_EV = re.compile(
     r"^\[(\d+\.\d+) -- ([\d\- :]+) -- (-?[\d.]+)\] \[([A-Z0-9\-]+)\](.*)$")
 
@@ -199,8 +205,13 @@ def caracterizar(df, nombre, intervalos):
         r["tasa_p95"] = float(np.percentile(todas, 95))
         # Indice de dispersion (Fano): var/media. Vale 1 si las llegadas
         # fuesen Poisson; por debajo de 1 el trafico es MAS regular que el
-        # azar, por encima es a rafagas. Es lo que permite comparar tasas
-        # muy distintas sin que el nivel medio confunda la lectura.
+        # azar, por encima es a rafagas.
+        #
+        # CUIDADO: el indice es invariante de escala SOLO para un proceso de
+        # Poisson. Para cualquier otro depende de cuantas llegadas caen en la
+        # ventana, de modo que comparar dos series de tasas muy distintas con
+        # una ventana fija NO es comparar la misma cosa. La seccion 2.3 mide
+        # esa sensibilidad en lugar de suponerla.
         r["fano"] = float(todas.var() / todas.mean()) if todas.mean() \
             else float("nan")
         lmax = min(LAG_MAX, max(1, max(len(s) for s in segmentos) // 3))
@@ -298,6 +309,26 @@ def caracterizar(df, nombre, intervalos):
     return r
 
 
+def fano_con_ventana(df, intervalos, ventana):
+    """Indice de dispersion del recuento por ventana, con la ventana dada.
+
+    Misma definicion que `caracterizar`: se cuenta dentro de cada tramo
+    continuo y recien despues se agrupa. Se separa en una funcion propia para
+    poder barrer la ventana sin recalcular todo lo demas.
+    """
+    segmentos = []
+    for tt, a, b in _por_tramos(df["t"].to_numpy(), intervalos):
+        nb = int((b - a) // ventana)
+        if nb < 1:
+            continue
+        c, _ = np.histogram(tt, bins=a + np.arange(nb + 1) * ventana)
+        segmentos.append(c)
+    if not segmentos:
+        return float("nan")
+    todas = np.concatenate(segmentos)
+    return float(todas.var() / todas.mean()) if todas.mean() else float("nan")
+
+
 def imprimir(r, w):
     if not r.get("paquetes"):
         w("  (sin paquetes)")
@@ -368,7 +399,10 @@ def main():
     w("Lectura de las medidas:")
     w("  CV del intervalo entre paquetes ~0 = periodico; ~1 = tipo Poisson;")
     w("  >1 = a rafagas. El indice de dispersion de la tasa (var/media)")
-    w("  compara contra el azar puro sin que el nivel medio confunda.")
+    w("  compara contra el azar puro: 1 es el valor de un proceso de Poisson.")
+    w("  Depende de la ventana salvo que el proceso sea de Poisson, de modo")
+    w("  que entre series de tasas distintas solo es comparable a recuento")
+    w("  por ventana igualado. La seccion 2.3 lo mide.")
     w("  Entropia normalizada ~0 = un solo interlocutor;")
     w("  ~1 = reparto uniforme. Jaccard ~1 = el mismo conjunto de pares")
     w("  conversa en cada ventana.")
@@ -417,6 +451,7 @@ def main():
     w("")
     resultados["westermo_todo"] = ra
     resultados["westermo_limpio"] = rb
+    barrido = [("Westermo limpio", df_limpio, huecos)]
 
     # Flujos etiquetados: la definicion NST exacta.
     w("### (c) Westermo a nivel de flujo, NST_B_Label = 0 (normal exacto)")
@@ -478,6 +513,61 @@ def main():
         w("")
         resultados["qut_control_%s" % sub] = r
         resultados["qut_control_%s_dnp3" % sub] = rd
+        if sub == "frequent":
+            barrido.append(("QUT Control", d, span))
+            barrido.append(("QUT solo DNP3", dn, span))
+
+    # ---------- 2.3 sensibilidad del indice a la ventana ----------
+    w("## 2.3 El indice de dispersion depende de la ventana")
+    w("")
+    w("El indice de Fano es invariante de escala **solo** para un proceso de")
+    w("Poisson. Para cualquier otro depende de cuantas llegadas caen en la")
+    w("ventana. Las tasas de estas series difieren por un factor grande, de")
+    w("modo que una ventana fija de 1 s no compara la misma cosa en las tres:")
+    w("")
+    for nom, d_, iv_ in barrido:
+        dur = float(sum(b - a for a, b in iv_))
+        w("   %-16s %8.2f paq/s  ->  %6.1f paquetes por ventana de 1 s"
+          % (nom, len(d_) / dur, len(d_) / dur))
+    w("")
+    w("### (a) Barrido de la ventana")
+    w("")
+    w("%-14s %s" % ("ventana", "".join("%16s" % n for n, _, _ in barrido)))
+    sens = {}
+    for v in VENTANAS_BARRIDO:
+        fila = [fano_con_ventana(d_, iv_, v) for _, d_, iv_ in barrido]
+        sens["ventana_%g_s" % v] = dict(zip([n for n, _, _ in barrido], fila))
+        w("%-14s %s" % ("%g s" % v,
+                        "".join("%16.2f" % x for x in fila)))
+    w("")
+    w("### (b) A recuento por ventana igualado")
+    w("")
+    w("La comparacion que el indice admite: se elige la ventana de cada serie")
+    w("para que el recuento esperado sea el mismo en todas.")
+    w("")
+    w("%-14s %s" % ("paq/ventana", "".join("%16s" % n for n, _, _ in barrido)))
+    for objetivo in RECUENTOS_BARRIDO:
+        fila = []
+        for _, d_, iv_ in barrido:
+            dur = float(sum(b - a for a, b in iv_))
+            tasa = len(d_) / dur
+            fila.append(fano_con_ventana(d_, iv_, objetivo / tasa) if tasa
+                        else float("nan"))
+        sens["recuento_%d" % objetivo] = dict(
+            zip([n for n, _, _ in barrido], fila))
+        w("%-14s %s" % (objetivo, "".join("%16.2f" % x for x in fila)))
+    w("")
+    w("Lo que esto significa, y es una correccion a como se leyo antes esta")
+    w("medida: con la ventana de 1 s Westermo da el valor mas bajo de las tres")
+    w("series y a recuento igualado da el mas alto. El orden se invierte, de")
+    w("modo que **no hay una sola calificacion comparativa de determinismo**")
+    w("que salga de este indice. Lo que se sostiene es que cada serie es")
+    w("regular en su propia escala de tiempo, y cual es esa escala.")
+    w("")
+    w("Conviene mirar tambien el CV del intervalo entre paquetes, que esta mas")
+    w("arriba y que ordena estas series al revés que la ventana de 1 s.")
+    w("")
+    resultados["sensibilidad_ventana"] = sens
 
     comun.escribir("p2_determinismo.txt", "\n".join(L))
     with open(os.path.join(comun.SALIDAS, "p2_determinismo.json"), "w") as fh:

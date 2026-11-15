@@ -38,6 +38,11 @@ tan separable es el problema, no solo su balance.
 Autocorrelación dentro de cada conversación, ponderada por su largo
 (7 conversaciones con al menos 200 flujos).
 
+La información mutua más alta de las 42 es **rAckDelayMax** con
+**0.0365**; la más baja, sAckDelayMin con 0.0000. La tabla de arriba está
+ordenada por AUC, de modo que la de mayor MI no tiene por qué
+aparecer en ella.
+
 retardo     mediana        p90 con |ac|>0,3
 1             -0.04       0.10            6
 2             -0.00       0.14            1
@@ -48,8 +53,31 @@ La autocorrelación mediana a retardo 1 es **-0.04**, de modo
 que la corrección AR(1) del tamaño de muestra es inmaterial:
 las 21080 filas valen como 22755.
 
-Las filas sucesivas son casi independientes, de modo que los
-estadísticos habituales se pueden usar sin corrección.
+Las **características** de filas sucesivas traen casi toda su
+información: la corrección AR(1) sobre ellas es inmaterial.
+
+#### Y la etiqueta, que es la que decide si un split al azar filtra
+
+La medida de arriba es de las características dentro de cada
+conversación, y responde cuánta información nueva trae cada fila.
+Que una partición al azar filtre o no lo decide otra cosa: la
+dependencia de **la variable a predecir** en el orden temporal
+global. Se mide aparte porque las dos respuestas pueden ser
+opuestas, y acá lo son.
+
+etiqueta           rho(1)   n_efectivo     rachas  racha + larga
+NST_B_Label         0.779         2618        663            228
+IT_B_Label          0.984          170         79            295
+
+Con rho de **0.779** sobre la etiqueta, una validación cruzada
+al azar **sí filtra**: un evento deja hasta 228 flujos
+contiguos de la misma clase, de modo que el vecino de una fila
+de validación cae en el ajuste. La partición tiene que ser por
+bloques temporales, y el tamaño efectivo para cualquier
+intervalo sobre la etiqueta es **2618 de 21080**, no las 21080 filas.
+
+Esto vale aunque la autocorrelación de las características sea
+baja: son dos preguntas distintas y no se deducen una de otra.
 
 ### Reducción de dimensión
 
@@ -116,6 +144,11 @@ tan separable es el problema, no solo su balance.
 Autocorrelación dentro de cada conversación, ponderada por su largo
 (6 conversaciones con al menos 200 flujos).
 
+La información mutua más alta de las 43 es **rBytesSum** con
+**0.1601**; la más baja, sSynRate con 0.0006. La tabla de arriba está
+ordenada por AUC, de modo que la de mayor MI no tiene por qué
+aparecer en ella.
+
 retardo     mediana        p90 con |ac|>0,3
 1              0.37       0.85           27
 2              0.40       0.71           26
@@ -126,10 +159,32 @@ Con una autocorrelación mediana a retardo 1 de **0.37**, la
 corrección AR(1) del tamaño de muestra da
 **n_efectivo ≈ 11848** sobre 25620 filas, el 46 %.
 
-Las filas **no** se pueden tratar como independientes. Toda
-validación cruzada tiene que ser por bloques temporales, nunca
-al azar, y los intervalos de confianza calculados como si
-fueran independientes salen demasiado angostos.
+Las **características** de filas sucesivas no se pueden tratar
+como independientes: los intervalos de confianza calculados
+sobre ellas como si lo fueran salen demasiado angostos.
+
+#### Y la etiqueta, que es la que decide si un split al azar filtra
+
+La medida de arriba es de las características dentro de cada
+conversación, y responde cuánta información nueva trae cada fila.
+Que una partición al azar filtre o no lo decide otra cosa: la
+dependencia de **la variable a predecir** en el orden temporal
+global. Se mide aparte porque las dos respuestas pueden ser
+opuestas, y acá lo son.
+
+etiqueta           rho(1)   n_efectivo     rachas  racha + larga
+NST_B_Label         0.727         4049        673            148
+IT_B_Label          0.993           91         27            545
+
+Con rho de **0.727** sobre la etiqueta, una validación cruzada
+al azar **sí filtra**: un evento deja hasta 148 flujos
+contiguos de la misma clase, de modo que el vecino de una fila
+de validación cae en el ajuste. La partición tiene que ser por
+bloques temporales, y el tamaño efectivo para cualquier
+intervalo sobre la etiqueta es **4049 de 25620**, no las 25620 filas.
+
+Esto vale aunque la autocorrelación de las características sea
+baja: son dos preguntas distintas y no se deducen una de otra.
 
 ### Reducción de dimensión
 

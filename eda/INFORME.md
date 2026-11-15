@@ -168,14 +168,38 @@ ese atributo es el que da la separación semántica en Morris: cualquier
 característica construida sobre la lectura anterior quedaría invertida. La
 ficha ya está corregida.
 
-### 1.5 El determinismo no se cumple por igual en Westermo y en QUT
+### 1.5 Cada conjunto es regular en su propia escala de tiempo, y una sola calificación de determinismo no se sostiene
 
-Los dos conjuntos suelen describirse como tráfico industrial determinista, y
-medidos no lo son en la misma medida (pregunta 2): el tráfico normal limpio de
-Westermo es **más regular que el azar** —índice de dispersión 0,34—, mientras
-que el escenario base de QUT es **a ráfagas**, entre 2,73 y 3,00. Cualquier
-tabla que los califique igual en ese criterio mide la descripción y no los
-datos.
+Los dos conjuntos suelen describirse como tráfico industrial determinista.
+Medirlo exige elegir una ventana, y **la elección decide el resultado**: el
+índice de dispersión es invariante de escala solo para un proceso de Poisson,
+de modo que entre series de tasas muy distintas —273 paquetes por segundo en
+Westermo contra 4,9 en QUT— una ventana fija no compara la misma cosa.
+
+Medido con varias ventanas, en la salida de la pregunta 2
+(`eda/salidas/p2_determinismo.txt`, sección 2.3):
+
+| Ventana | Westermo limpio | QUT Control | QUT solo DNP3 |
+|---|---:|---:|---:|
+| 0,1 s | **32,63** | 2,37 | 1,78 |
+| 0,5 s | 1,16 | 2,95 | 2,63 |
+| 1 s | **0,34** | **3,00** | **2,73** |
+| 10 s | 0,23 | 3,90 | 1,04 |
+
+Y a recuento esperado por ventana igualado, que es la comparación que el
+índice admite, **el orden se invierte**: con 5 paquetes por ventana Westermo
+da 30,80 contra 3,07 de QUT Control.
+
+De modo que la lectura defendible no es que uno sea determinista y el otro no.
+Es que **Westermo es de una regularidad notable en la escala del segundo y a
+ráfagas por debajo de los 0,5 s**, y QUT es a ráfagas en todas las escalas
+medidas, sin llegar al extremo de ninguna de las dos caras de Westermo. El CV del intervalo entre paquetes, más abajo, ordena las
+dos series al revés que la ventana de 1 s —4,49 en Westermo contra 1,26 en
+QUT—, que es otra cara de lo mismo.
+
+Lo que esto descarta es una **sola calificación comparativa** de determinismo
+salida de este índice, en cualquier dirección. Lo que queda, y es lo que el
+proyecto necesita, es la escala en la que cada conjunto es regular.
 
 ### 1.6 El reparto de clases de Westermo sí se reproduce, al nivel correcto
 
@@ -349,8 +373,12 @@ fuera—, así que la segunda columna equivale a quedarse solo con el TCP.
 | Tamaños de paquete distintos | 11 | 36 | 21 | 13 |
 
 El **índice de dispersión** (varianza sobre media del recuento por ventana) es
-la medida que decide, porque vale 1 para llegadas al puro azar y permite
-comparar tasas muy distintas sin que el nivel medio confunda la lectura.
+la medida que decide, porque vale 1 para llegadas al puro azar. Con una
+salvedad que cambia cómo se lee la tabla: **es invariante de escala solo para
+un proceso de Poisson**, de modo que entre series de tasas muy distintas los
+valores de una misma ventana no son comparables entre sí. La sección 2.3 de
+`eda/salidas/p2_determinismo.txt` mide esa sensibilidad y §1.5 la resume; las
+viñetas que siguen valen para la ventana de 1 s.
 
 - **Westermo, tráfico normal limpio: 0,34.** Por debajo de 1, es decir **más
   regular que el azar**. El volumen es 272,9 ± 9,6 paquetes por segundo, con
@@ -359,14 +387,19 @@ comparar tasas muy distintas sin que el nivel medio confunda la lectura.
   ocho la dispersión del volumen. Esto es una buena noticia para el proyecto:
   significa que los eventos **son visibles en la tasa agregada**, sin mirar
   contenido.
-- **QUT Control: 2,73 a 3,00.** El escenario base de QUT, que no tiene ningún
-  ataque, es a ráfagas. Su determinismo está en otro lado (ver abajo), no en el
-  volumen.
+- **QUT Control: 2,73 a 3,00.** En esta ventana el escenario base de QUT, que
+  no tiene ningún ataque, es a ráfagas. Su determinismo está en otro lado (ver
+  abajo), no en el volumen. **No se sigue de acá que sea menos determinista
+  que Westermo**: a recuento igualado el orden se invierte (§1.5).
 
 El **CV del intervalo entre paquetes** está entre 1,26 y 4,49 en los cuatro
 casos: por encima de 1 en todos, es decir más disperso que Poisson. **El
 tráfico normal no es periódico a nivel de paquete en ninguno de los dos
-conjuntos.** Un detector que modele el intervalo entre paquetes agregado va a
+conjuntos.** Conviene notar que esta medida **ordena las dos series al revés**
+que el índice de dispersión con ventana de 1 s: por el CV, Westermo (4,49) es
+más disperso que QUT (1,26). No es una contradicción, son dos escalas: el
+intervalo entre paquetes mira la separación de llegadas sucesivas y la ventana
+de 1 s mira el volumen agregado. Un detector que modele el intervalo entre paquetes agregado va a
 encontrar una envolvente ancha.
 
 Donde sí hay periodicidad estricta es en el **plano de control**, conversación
@@ -448,8 +481,8 @@ captura**. Por tipo, la elección cambia el problema de forma muy desigual:
 
 Las dos malas configuraciones son idénticas bajo las dos estrategias, porque
 no las produce un atacante sino el propio equipo mal configurado, y todo su
-tráfico involucra al nodo afectado. Para todo lo demás, IT infla entre 6 y 25
-veces. Dicho de otro modo: **la diferencia entre las dos estrategias se
+tráfico involucra al nodo afectado. Para los otros cinco tipos, IT infla **entre 5,68 y 40,75
+veces**, con el mínimo en `BAD-PORTSCAN2` y el máximo en `GOOD-SSH`. Dicho de otro modo: **la diferencia entre las dos estrategias se
 concentra en los ataques, no en los errores de configuración**, que son los
 eventos de mayor interés para este proyecto.
 
@@ -868,7 +901,7 @@ botella deja de ser la semántica y pasa a ser el tamaño de muestra.
 
 | Unidad de medida | n en prueba | IC 95 % de una PD cercana a 0,5 |
 |---|---:|---|
-| ICS-Flow, escritura manipulada | 51 | ±0,137 |
+| ICS-Flow, escritura bajo ventana de intermediario | 51 | ±0,137 |
 | ICS-Flow, evento de intermediario | 5 | ±0,438 |
 | Morris, evento MPCI | 1808 | ±0,023 |
 
@@ -881,9 +914,16 @@ ella. Sirve para **construir y validar el flujo de extracción** del
 requerimiento 2.3 sobre datos reales, que es algo que hasta ahora no se podía
 hacer con ningún conjunto.
 
-No reemplaza a Morris para medir. Con 51 escrituras manipuladas en el tramo de
-prueba, una PD por escritura queda con un intervalo de ±0,14 —utilizable pero
-grueso—, y por evento, con 5 eventos, no es estimable. Morris es todavía el
+No reemplaza a Morris para medir, y la cifra que lo decide hay que leerla con
+cuidado. Lo que está contado en el tramo de prueba son **51 escrituras bajo
+una ventana de intermediario**, que no es lo mismo que 51 escrituras
+manipuladas: en el tramo de entrenamiento, de las 44 que caen bajo esa
+ventana las que llevan el valor alterado son **15, el 34 %** (§4.3). Si esa
+proporción se mantuviera, las manipuladas de prueba serían del orden de 17 y
+el intervalo pasaría de ±0,14 a cerca de ±0,24. **No se midió**: medirlo
+exigiría abrir el tramo de prueba. De modo que ±0,14 es una cota optimista,
+el número honesto queda entre ±0,14 y ±0,24, y por evento, con 5 eventos, no
+es estimable. Morris es todavía el
 único que sostiene un compromiso numérico por tipo, y sigue sin carga útil.
 
 De modo que la división de roles **no se resuelve: pasa de dos conjuntos a
@@ -1041,10 +1081,33 @@ sostiene.** Westermo e ICS-Flow se unen sin intermediarios, y **a ellos se puede
 sumar QUT** calculándole las mismas 47 características desde sus PCAP. Eso es
 trabajo del proyecto y no un dato del conjunto, con la ventaja de que el flujo
 de extracción queda bajo control propio, que es lo que pide el
-requerimiento 2.3. Los dos límites: **10 de las 47 características son
-constantes en los dos conjuntos a la vez** —`sttl`, las tasas de banderas TCP
-y las de fragmentación—, de modo que la unión útil es menor que el número de
-columnas; y la diferencia de poblaciones de §5.3. Morris y HAI quedan afuera
+requerimiento 2.3. Los dos límites: la diferencia de poblaciones de §5.3, y que **10 de las 47
+características no varían en el tráfico normal de los dos conjuntos a la vez**
+—`sttl`, las tasas de banderas TCP y las de fragmentación—.
+
+Ese segundo límite hay que enunciarlo con su alcance, porque sin él lleva a la
+decisión equivocada. La comparación de §5.3 se hace **solo sobre flujos
+normales**, de modo que «constante» ahí significa constante en esa población.
+Medido sobre todo el tramo de entrenamiento, clase por clase, **6 de los 10 sí
+varían, y lo hacen sobre los flujos anómalos**:
+
+| Campo | W normal | W anómalo | I normal | I anómalo |
+|---|---:|---:|---:|---:|
+| `sttl` | 1 | 1 | 1 | **65** |
+| `sAckRate` | 1 | **36** | 1 | 2 |
+| `sFinRate` | 1 | **38** | 1 | 12 |
+| `rFinRate` | 1 | **27** | 1 | 13 |
+| `sRstRate` | 1 | **34** | 1 | 2 |
+| `rRstRate` | 1 | **38** | 1 | 15 |
+| `sUrgRate`, `rUrgRate`, `sFragmentRate`, `rFragmentRate` | 1 | 1 | 1 | 1 |
+
+Sobre todo el tramo quedan sin variación **5 características en Westermo y 4
+en ICS-Flow**, no 10. Y las seis que varían son tasas de banderas de reinicio
+y de cierre, que es donde se ve un barrido de puertos: son constantes **por
+construcción del subconjunto normal**, porque toda su información está en los
+anómalos. Y Westermo inyecta `BAD-PORTSCAN1` y `BAD-PORTSCAN2`.
+
+Morris y HAI quedan afuera
 por falta de captura y de características de red, que no es una limitación
 salvable.
 
@@ -1071,8 +1134,12 @@ Westermo es un flujo de 0,5 s y uno de QUT es un paquete.
 ### 5.5 Qué se propone
 
 1. **Construir la unión de flujo con Westermo, ICS-Flow y QUT**, con las 47
-   características del esquema común, sin las 10 constantes. Es la única
-   unión que la medición sostiene.
+   características del esquema común. Es la única unión que la medición
+   sostiene. **Descartar solo las que no varían sobre todo el tramo** —5 en
+   Westermo y 4 en ICS-Flow—, no las 10 que no varían en el tráfico normal:
+   seis de esas diez son tasas de banderas TCP que se mueven solo sobre
+   los flujos anómalos (§5.4), de modo que tirarlas sería tirar señal
+   discriminante de la familia de barrido de puertos.
 2. **No entrenar un modelo único sobre las filas unidas sin medir antes el
    costo.** La diferencia de poblaciones de §5.3 cae sobre las variables
    discriminantes. La forma de saber cuánto cuesta es comparar, sobre el mismo
@@ -1092,8 +1159,8 @@ Las mediciones de `p10` y `p11` las produjo una revisión posterior al EDA. Se
 reverificaron de forma independiente, con código propio y sobre los archivos,
 las cifras que sostienen la conclusión: los recuentos de campos de los diez
 esquemas, los 0 campos comunes a los cuatro conjuntos tabulares, la identidad
-de las dos cabeceras, el reparto 13/47/4, las 10 características constantes,
-los 17.456 y 22.856 flujos normales, la tabla de §5.3 completa, los niveles de
+de las dos cabeceras, el reparto 13/47/4, las 10 características sin
+variación en el tráfico normal, los 17.456 y 22.856 flujos normales, la tabla de §5.3 completa, los niveles de
 referencia de temporizado, la ventana de 0,5 s, la ausencia de características
 de red en las cinco versiones de HAI y la ausencia de captura en Morris. Todas
 reproducen.
@@ -1145,9 +1212,11 @@ veces»**.
    la brecha que este informe había dejado abierta: permite construir y
    validar la extracción de parámetros desde la carga útil, con dos mecanismos
    de anomalía sobre el mismo campo —valor multiplicado por 1,1 y valor
-   rancio reenviado— y el factor medido. No cierra la otra mitad: con 51
-   escrituras manipuladas en el tramo de prueba, la PD por esa familia queda
-   con un intervalo de ±0,14, y el compromiso numérico sigue en Morris. Ya no
+   rancio reenviado— y el factor medido. No cierra la otra mitad: en el tramo
+   de prueba hay 51 escrituras **bajo ventana de intermediario**, de las que
+   una fracción está manipulada —en entrenamiento es 15 de 44—, de modo que la
+   PD por esa familia queda con un intervalo de entre ±0,14 y ±0,24 y el
+   compromiso numérico sigue en Morris. Ya no
    hace falta verificar Lemay ni WDT para este propósito, salvo que se busque
    más muestra. **Atención a la licencia: CC BY-NC-SA 4.0**, que prohíbe el
    uso comercial y puede chocar con una entrega fuera del ámbito académico.
@@ -1162,13 +1231,17 @@ veces»**.
 6. **Decidir cómo se reporta PD en Westermo** antes de correr el experimento
    (pregunta 4). Con 17 eventos de prueba, un compromiso por tipo no es
    defendible; por flujo o agregado con intervalo de confianza, sí.
-7. **Dos criterios de comparabilidad cambian con estas mediciones.** El
-   determinismo de QUT no es el de Westermo —índice de dispersión 2,73 a 3,00
-   contra 0,34— y eso rebaja su calificación en ese criterio (§1.5). Y la
-   duración continua de QUT, que estaba sin medir, queda en 24,02 h por
-   escenario, lo que la sube: con la salvedad de que una duración sola no
-   alcanza si el criterio además pide más de un modo de operación medido, que
-   en QUT no se midió.
+7. **Dos criterios de comparabilidad cambian con estas mediciones, y uno de
+   los dos cambia de forma distinta a la que parecía.** El determinismo no
+   admite una sola calificación comparativa salida del índice de dispersión:
+   con ventana de 1 s Westermo da 0,34 y QUT 2,73 a 3,00, pero a recuento
+   igualado el orden se invierte, y el CV del intervalo entre paquetes ordena
+   al revés desde el principio (§1.5). Lo que hay que calificar es la escala
+   en la que cada conjunto es regular, con la ventana declarada; calificar
+   «determinismo» sin ventana no es una medición. Y la duración continua de
+   QUT, que estaba sin medir, queda en 24,02 h por escenario: con la salvedad
+   de que una duración sola no alcanza si el criterio además pide más de un
+   modo de operación medido, que en QUT no se midió.
 8. **Adoptar una de las tres formas de integración** y descartar las otras dos
    por escrito (§5.4 y §5.5). Lo que la medición sostiene es la unión de flujo
    con Westermo, ICS-Flow y QUT, más el protocolo de evaluación unificado para

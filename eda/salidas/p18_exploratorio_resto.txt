@@ -31,6 +31,17 @@ pump                        76.6 %
 solenoid                    76.6 %
 pressure measurement        74.9 %
 
+Las dos cantidades que no hay que confundir:
+
+  tasa por columna de las 11 columnas afectadas: 74.9 a 76.6 %
+  fraccion de celdas faltantes sobre las 16 caracteristicas:       52.5 %
+  fraccion de celdas faltantes sobre las 17 columnas sin etiqueta:  49.4 %
+  fraccion de celdas faltantes sobre las 20 columnas:              42.0 %
+
+La tasa por columna es alta porque la falta es estructural y parte el
+conjunto en dos mitades; la fraccion de celdas es la que se puede
+comparar contra otro conjunto, y solo si se declara el denominador.
+
 La falta es estructural y la explica el sentido de la transacción: una
 petición no trae medición y una respuesta no trae consigna. Medido:
 

@@ -241,15 +241,32 @@ def main():
     w("")
     w("Por tipo, cuantos flujos marca cada estrategia:")
     w("")
-    w("%-26s %10s %10s %8s" % ("tipo", "IT_M", "NST_M", "NST/IT"))
+    w("%-26s %10s %10s %8s %9s" % ("tipo", "IT_M", "NST_M", "NST/IT",
+                                    "factor"))
     vc_it = df["IT_M_Label"].value_counts()
     vc_nst = df["NST_M_Label"].value_counts()
+    factores = {}
     for tipo in sorted(set(vc_it.index) | set(vc_nst.index)):
         a = int(vc_it.get(tipo, 0))
         b = int(vc_nst.get(tipo, 0))
-        w("%-26s %10d %10d %7.1f%%" % (tipo, a, b,
-                                       100.0 * b / a if a else float("nan")))
+        f = (a / b) if b else float("inf")
+        if tipo != "Normal":
+            factores[tipo] = f
+        w("%-26s %10d %10d %7.1f%% %8.2fx"
+          % (tipo, a, b, 100.0 * b / a if a else float("nan"), f))
     w("")
+    # El factor por el que IT infla cada tipo respecto de NST. Se informan el
+    # minimo y el maximo medidos, no un rango escrito a ojo: los dos extremos
+    # son justamente los que una lectura rapida de la tabla se saltea.
+    infla = {k: v for k, v in factores.items() if v > 1.0001}
+    if infla:
+        lo = min(infla, key=infla.get)
+        hi = max(infla, key=infla.get)
+        w("Las malas configuraciones dan factor 1,00 bajo las dos estrategias.")
+        w("Para los %d tipos restantes, IT infla **entre %.2f y %.2f veces**:"
+          % (len(infla), infla[lo], infla[hi]))
+        w("el minimo es %s y el maximo %s." % (lo, hi))
+        w("")
 
     # ------------------------------------------------------------------
     # Pregunta 4: eventos por tipo y por particion
