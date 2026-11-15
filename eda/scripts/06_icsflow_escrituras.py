@@ -56,6 +56,10 @@ VARIABLE = {
 # Modbus es el doble del indice de variable. Se comprueba en INFORME.md.
 ESCALA = 10000.0
 
+# Lo que se mide sobre la manipulacion del intermediario, para que salga en el
+# JSON y otros scripts no tengan que repetir la cuenta ni copiarla a mano.
+MANIPULACION = {}
+
 
 def variable_de(direccion):
     if direccion is None or direccion % 2:
@@ -383,6 +387,14 @@ def main():
             rel = dd[dd["relay"] & (dd["r3"] != 1.0)]["r3"]
             if len(rel):
                 factor = float(rel.mode().iloc[0])
+                # Se exporta el conteo de escrituras ALTERADAS, no solo las
+                # que caen bajo ventana de intermediario: son dos cosas
+                # distintas y confundirlas ya costo una correccion. El
+                # script 09 lo usa para el caso hipotetico de la seccion 4.5.
+                MANIPULACION["factor"] = factor
+                MANIPULACION["alteradas_en_entrenamiento"] = int(
+                    (rel == factor).sum())
+                MANIPULACION["parejas_relay_con_valor_distinto"] = int(len(rel))
                 w("")
                 w("**El factor de manipulacion es %.3f**: en %d de las %d"
                   % (factor, int((rel == factor).sum()), len(rel)))
@@ -567,6 +579,7 @@ def main():
             "eventos_por_particion": tab.to_dict(),
             "emparejadas": emparejadas,
             "conteo_por_particion": {k: dict(v) for k, v in conteo.items()},
+            "manipulacion": MANIPULACION,
         }, fh, indent=1, ensure_ascii=False, default=str)
 
     # ---------------- figura ----------------

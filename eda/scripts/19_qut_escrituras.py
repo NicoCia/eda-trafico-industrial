@@ -2,7 +2,7 @@
 
 La seccion 1.2 de INFORME.md afirma que QUT no contiene comandos de control
 con parametros. Eso esta medido: g12v1, g41 y g40 no aparecen ni una vez entre
-las 2.318.278 cabeceras de objeto. Lo que durante un tiempo estuvo mal dicho
+las 2.318.092 cabeceras de objeto. Lo que durante un tiempo estuvo mal dicho
 es el paso siguiente --- que escriben entonces las 207.798 operaciones WRITE.
 
 LO QUE NO SE PUEDE MEDIR CON LO QUE HAY
@@ -56,9 +56,16 @@ CONTROL = ("g12v1", "g41", "g40")
 
 
 def agregar(datos):
-    """Suma `objetos` y `func_app` sobre todos los pares rol-captura."""
+    """Suma `objetos` y `func_app` sobre todos los pares rol-captura.
+
+    Las claves que empiezan con `_` no son escenarios sino agregados que el
+    script 01 guarda al lado, de modo que se saltean en lugar de romper el
+    recorrido.
+    """
     objetos, funciones, pares = {}, {}, 0
-    for escenario in datos.values():
+    for nombre, escenario in datos.items():
+        if nombre.startswith("_"):
+            continue
         for captura in escenario.values():
             for rol in captura.get("roles", {}).values():
                 pares += 1

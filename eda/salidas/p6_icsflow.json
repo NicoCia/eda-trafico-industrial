@@ -93,5 +93,10 @@
    "escrituras": 178,
    "escrituras_en_mitm": 51
   }
+ },
+ "manipulacion": {
+  "factor": 1.1,
+  "alteradas_en_entrenamiento": 15,
+  "parejas_relay_con_valor_distinto": 15
  }
 }

@@ -65,7 +65,15 @@ def discriminante(df, feats, objetivo):
         xi, yi = x[m].to_numpy(float), y[m].to_numpy(int)
         auc = roc_auc_score(yi, xi)
         # El AUC por debajo de 0,5 discrimina igual, con el signo invertido.
+        #
+        # `cobertura` y `prev` no son decoracion: un campo con faltantes
+        # estructurales se evalua sobre OTRA poblacion, y con otra prevalencia
+        # de la clase positiva, que uno presente en todas las filas. Sin esas
+        # dos columnas dos AUC de esta tabla se comparan como si fueran lo
+        # mismo, y en Morris esa confusion ya dio vuelta una conclusion.
         filas.append({"campo": c, "n": int(m.sum()),
+                      "cobertura": 100.0 * m.sum() / len(df),
+                      "prev": 100.0 * float(yi.mean()),
                       "auc": float(auc), "auc_abs": float(abs(auc - 0.5) + 0.5),
                       "F": float(f_classif(xi.reshape(-1, 1), yi)[0][0])})
     if not filas:
@@ -191,12 +199,43 @@ def main():
         w("0,5 es no discriminar; se informa además el valor plegado, que trata")
         w("igual a las que discriminan con el signo invertido.")
         w("")
-        w("%-20s %7s %9s %10s %9s" % ("campo", "AUC", "AUC pleg.", "F de ANOVA",
-                                      "inf. mutua"))
-        for _, x in d.head(12).iterrows():
-            w("%-20s %7.3f %9.3f %10.0f %9.3f"
-              % (x.campo, x.auc, x.auc_abs, x.F, x.mi))
+        w("La cobertura y la prevalencia dicen si dos filas son comparables:")
+        w("un campo con faltantes estructurales se evalua sobre otra poblacion")
+        w("que uno presente en todas las filas.")
         w("")
+        w("%-20s %7s %9s %10s %9s %7s %7s"
+          % ("campo", "AUC", "AUC pleg.", "F de ANOVA", "inf. mutua",
+             "cob.%", "pos.%"))
+        for _, x in d.head(12).iterrows():
+            w("%-20s %7.3f %9.3f %10.0f %9.3f %7.1f %7.1f"
+              % (x.campo, x.auc, x.auc_abs, x.F, x.mi, x.cobertura, x.prev))
+        w("")
+        COB_MIN = 99.0
+        comp = d[d["cobertura"] >= COB_MIN]
+        if len(comp):
+            mc = comp.iloc[0]
+            w("Mejor AUC plegado sobre poblacion completa (cobertura >= %.0f %%):"
+              % COB_MIN)
+            w("**%.3f** (`%s`, cobertura %.1f %%). Esa es la cifra comparable"
+              % (mc.auc_abs, mc.campo, mc.cobertura))
+            w("entre conjuntos; el maximo de la tabla puede estar medido sobre")
+            w("una subpoblacion.")
+            if abs(mc.auc_abs - d["auc_abs"].max()) > 1e-9:
+                mx = d.iloc[0]
+                w("Aca difieren: el maximo es %.3f (`%s`) sobre el %.1f %% de"
+                  % (mx.auc_abs, mx.campo, mx.cobertura))
+                w("las filas.")
+            else:
+                w("Aca coinciden: el maximo de la tabla ya es de poblacion")
+                w("completa.")
+            w("")
+            r_auc_comp = float(mc.auc_abs)
+            r_campo_comp = mc.campo
+        else:
+            r_auc_comp = None
+            r_campo_comp = None
+            w("Ningun campo llega al %.0f %% de cobertura." % COB_MIN)
+            w("")
         fuertes = int((d["auc_abs"] >= 0.70).sum())
         nulas = int((d["auc_abs"] < 0.55).sum())
         w("De las %d características evaluadas: **%d** alcanzan AUC plegado"
@@ -212,6 +251,8 @@ def main():
             w("tan separable es el problema, no solo su balance.")
         r["discriminante"] = {
             "evaluadas": len(d), "auc_max": float(d["auc_abs"].max()),
+            "auc_max_poblacion_completa": r_auc_comp,
+            "campo_poblacion_completa": r_campo_comp,
             "fuertes_070": fuertes, "nulas_055": nulas,
             "top": d.head(12)[["campo", "auc", "auc_abs", "mi"]]
                     .to_dict("records")}

@@ -30,6 +30,15 @@ Los tipos con 3 eventos en prueba son: BAD-MISCONF, BAD-MISCONF-DUPLICATION, BAD
 1 evento(s), en BAD-PORTSCAN1. El intervalo de +-0,55 que publican los
 informes corresponde al tipo con 3, que no es el tipo mas pobre.
 
+Caso hipotetico que se agrega, y marcado como tal: de las 44
+escrituras bajo ventana de intermediario del tramo de
+ENTRENAMIENTO, las que llevan el valor alterado son **15**, el
+34 %. Si esa proporcion se mantuviera en prueba, las alteradas
+serian del orden de 17. **No esta medido** y no puede estarlo sin
+abrir el tramo de prueba; entra en la tabla para que la cifra que
+cita la seccion 4.5 de INFORME.md salga del mismo estadistico que
+las demas y no de una cuenta a mano.
+
 ## 9.1 Que estadistico corresponde, y por que
 
 **Se propone el intervalo de Wilson (score) al 95 % como el estadistico
@@ -70,6 +79,7 @@ ICS-Flow, escrituras bajo MITM (prueba)          51     0.1323       [0.3677, 0.
 Westermo, tipo con 3 eventos (prueba)             3     0.3747       [0.1253, 0.8747]    0.3333
 Westermo, peor tipo: BAD-PORTSCAN1 (prueba)       1     0.4454       [0.0546, 0.9454]    1.0000
 ICS-Flow, eventos de MITM (prueba)                5     0.3296       [0.1704, 0.8296]    0.2000
+ICS-Flow, escritura ALTERADA (hipotetico, no medido)     17     0.2147       [0.2853, 0.7147]    0.0588
 
 ## 9.3 Contra las cifras publicadas
 
@@ -84,6 +94,7 @@ ICS-Flow, escrituras bajo MITM (prueba)          51      +-0,137     0.0700     
 Westermo, tipo con 3 eventos (prueba)             3       +-0,55     0.2887     0.5658     0.3747
 Westermo, peor tipo: BAD-PORTSCAN1 (prueba)       1           no     0.5000     0.9800     0.4454
 ICS-Flow, eventos de MITM (prueba)                5      +-0,438     0.2236     0.4383     0.3296
+ICS-Flow, escritura ALTERADA (hipotetico, no medido)     17           no     0.1213     0.2377     0.2147
 
 Lectura fila por fila:
 
@@ -119,6 +130,7 @@ ICS-Flow, escrituras bajo MITM (prueba)          51     0.0196          NO  0, 1
 Westermo, tipo con 3 eventos (prueba)             3     0.3333          NO  0.000, 0.333, 0.667, 1.000
 Westermo, peor tipo: BAD-PORTSCAN1 (prueba)       1     1.0000          NO  0.000, 1.000
 ICS-Flow, eventos de MITM (prueba)                5     0.2000          NO  0.000, 0.200, 0.400, 0.600, 0.800, 1.000
+ICS-Flow, escritura ALTERADA (hipotetico, no medido)     17     0.0588          NO  0, 1/17, 2/17, ... , 1
 
 **Con 3 eventos la PD solo puede valer 0; 0,333; 0,667 o 1.** El 0,5 que
 suponen los informes para calcular el +-0,55 no es un resultado posible
@@ -137,6 +149,7 @@ ICS-Flow, escrituras bajo MITM (prueba)          51           25     0.1323
 Westermo, tipo con 3 eventos (prueba)             3            1     0.3654
 Westermo, peor tipo: BAD-PORTSCAN1 (prueba)       1            0     0.3967
 ICS-Flow, eventos de MITM (prueba)                5            2     0.3258
+ICS-Flow, escritura ALTERADA (hipotetico, no medido)     17            8     0.2144
 
 ## 9.5 Tabla citable
 
@@ -151,6 +164,7 @@ ICS-Flow, escrituras bajo MITM (prueba)          51       0.132         0.143   
 Westermo, tipo con 3 eventos (prueba)             3       0.375         0.449         no
 Westermo, peor tipo: BAD-PORTSCAN1 (prueba)       1       0.445         0.487         no
 ICS-Flow, eventos de MITM (prueba)                5       0.330         0.400         no
+ICS-Flow, escritura ALTERADA (hipotetico, no medido)     17       0.215         0.246         no
 
 Los semianchos de Clopper-Pearson son equivalentes: la mitad del ancho
 del intervalo exacto, que en general es asimetrico. Cuando `k entero` es
@@ -163,6 +177,32 @@ al unificar el estadistico --- Morris sigue sosteniendo el compromiso y
 ICS-Flow sigue siendo grueso pero utilizable --- pero la fila de Morris
 DoS pasa de +-0,03 a +-0.058, que es la cifra comparable con las otras,
 y la de Westermo no deberia presentarse como un intervalo.
+
+## 9.6 La independencia que el intervalo supone, medida
+
+Cualquiera de estos intervalos supone que los n eventos son ensayos
+independientes. Eso **no** se deduce de que las filas del conjunto
+sean autocorrelacionadas: Morris tiene 0,86 a retardo 1 ENTRE FILAS, y
+el conteo por rachas ya absorbe esa dependencia, de modo que aplicarla
+otra vez a los eventos seria descontar dos veces lo mismo. La pregunta
+correcta es si los EVENTOS estan agrupados entre si, y se mide sobre la
+secuencia de eventos, no sobre las filas.
+
+categoria        eventos   rho(ev,1)   n efectivo    IC95 PD=0,5
+CMRI                2581      -0.213         3978        +-0.016
+MPCI                1808      -0.140         2398        +-0.020
+NMRI                1639      -0.126         2110        +-0.021
+MSCI                 676      -0.048          744        +-0.036
+MFCI                 646      -0.046          708        +-0.037
+Reconnaissance       477      -0.034          510        +-0.043
+DoS                  281      -0.019          292        +-0.057
+
+**Todas negativas.** Los eventos de una categoria no se agrupan:
+se alternan, porque a un evento anomalo le sigue trafico normal
+casi siempre. Con autocorrelacion negativa el tamano efectivo
+es MAYOR que n, de modo que suponer independencia es
+conservador y no optimista, y los intervalos de 9.5 no hay que
+ensancharlos por este motivo.
 
 Reproducible con:
   eda/.venv/bin/python -I eda/scripts/09_intervalos_pd.py

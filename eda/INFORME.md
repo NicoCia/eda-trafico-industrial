@@ -65,7 +65,7 @@ sirve; lo que no sirve es confiar en los nombres de archivo.
 
 ### 1.2 QUT DNP3 no contiene comandos de control con parámetros
 
-Sobre las 2.318.278 cabeceras de objeto DNP3 extraídas de todo el tramo de
+Sobre las 2.318.092 cabeceras de objeto DNP3 extraídas de todo el tramo de
 entrenamiento, **no aparece ni un solo objeto de control**:
 
 | Objeto | Qué es | Apariciones |
@@ -80,7 +80,7 @@ Lo que sí aparece es sondeo por clase y telemetría:
 |---|---:|---|---:|
 | g60v2/v3/v4 (clases 1/2/3) | 1.245.413 | g80v1 (indicaciones internas) | 152.896 |
 | g1v2 (entrada binaria) | 230.291 | g20v0/g20v2 (contadores) | 296.759 |
-| g60v1 (clase 0) | 175.161 | g2v1 (evento de entrada binaria) | 162.802 |
+| g60v1 (clase 0) | 175.161 | g2v1 (evento de entrada binaria) | 162.616 |
 | g50v3 (marca de tiempo) | 54.902 | g52v2 (retardo) | 54 |
 
 Las 207.798 operaciones `WRITE` del conjunto **no escriben consignas de
@@ -220,6 +220,33 @@ Es la unión de los tres puntos de captura de la variante reducida con
 etiquetado NST. La lección es de método: antes de dar por falsa una cifra
 publicada, conviene probar a qué agregación corresponde.
 
+Esa identificación admite dos objeciones razonables, y las dos se midieron en
+lugar de contestarse.
+
+**¿Acertar una de muchas agregaciones dice algo?** Diría poco si hubiera
+muchas candidatas cerca, así que se enumeró el espacio entero —dos variantes,
+dos estrategias de etiquetado, los tres puntos sueltos y su unión: **16
+candidatas**— y se midió la distancia de cada una a la cifra publicada como
+desvío máximo entre las tres proporciones. **Cierra una sola: la que el
+documento nombra, a 0,5 pp. La siguiente queda a 2,1 pp**, cuatro veces más
+lejos. No es una coincidencia entre muchas parecidas.
+
+**¿La unión cuenta el mismo tráfico tres veces?** El README del conjunto avisa
+que un paquete que entra y sale del equipo que graba aparece dos veces, lo que
+haría de la unión tráfico inflado y no una población. Medido sobre los flujos,
+no: **dentro de cada punto no hay un solo flujo repetido**, y los flujos con
+gemelo en otro punto —mismo par de direcciones, protocolo, paquetes y bytes en
+los dos sentidos, y comienzo dentro de un segundo— son el 0,8 % en `bottom`,
+el 3,0 % en `left` y el 0,5 % en `right`. La duplicación que el README describe
+es de paquetes y no sobrevive al armado de flujos.
+
+Queda una salvedad que la unión no borra, y vale tenerla a la vista: los tres
+puntos ven repartos **muy** distintos —82,4 / 15,0 / 2,6 en `bottom` contra
+47,9 / 30,8 / 21,3 en `left`— y la unión está dominada por `bottom`, que aporta
+el 72,8 % de sus flujos. La cifra de la unión no es una propiedad de la red
+sino del reparto de volumen entre puntos de captura. El detalle está en las
+secciones P3.c y P3.d de `eda/salidas/p3_p4_westermo.txt`.
+
 ## 2. Partición usada y qué se exploró
 
 Las particiones vienen fijadas en `eda/INSTRUCCIONES.md`; este análisis las
@@ -293,11 +320,41 @@ funciones es, por sí solo, un discriminante fuerte en este conjunto.
 
 **Parámetros, no solo cabeceras.** El lector recupera grupo, variación,
 calificador, rango y los **valores de punto** de cada objeto. Sobre el total,
-**2.318.278 cabeceras de objeto, el 100,0 % interpretadas por completo** tras
+**2.318.092 cabeceras de objeto, el 100,0 % interpretadas por completo** tras
 incorporar la variación g50v3. En `Control` se decodifican 31.952 valores de
 punto por captura sin una sola cabecera incompleta. Dicho esto, los
 «parámetros» que existen son valores de telemetría y clases sondeadas: como se
 explica en §1.2, no hay parámetros de comando de control.
+
+**Un defecto del lector, y cuánto costó.** La cabecera de aplicación vive solo
+en la trama que **abre** un fragmento, la que lleva el bit FIR en uno; en una
+trama de continuación los octetos siguientes son datos de objeto.
+`eda/scripts/dnp3.py` no miraba ese bit, de modo que leía esos octetos como
+control de aplicación y código de función e inventaba una función y una
+cabecera de objeto por trama. Ya lo mira, y cuenta las de continuación en
+lugar de interpretarlas. Medido sobre el tramo de entrenamiento: de las
+2.372.794 tramas de enlace, **2.372.108 llevan octeto de transporte, y de esas
+2.371.922 son fragmento único y 186 —el 0,008 %— son de continuación**. Las
+686 restantes son tramas de solo enlace, que por diseño no llevan capa de
+aplicación. Las 186 estaban mal leídas, siempre como `UNSOLICITED_RESPONSE`
+con una cabecera `g2v1` falsa. El arreglo mueve dos cifras de este documento:
+las cabeceras de objeto bajan de 2.318.278 a **2.318.092** y `g2v1` de 162.802
+a **162.616**. Nada más: el recuento de WRITE no cambia, los objetos de control
+siguen en cero y el subconjunto que cierra en §1.2 se mantiene único.
+
+Dos detalles que vale registrar porque dicen qué eran esas tramas. No hay **ni
+una** trama de apertura de fragmento múltiple ni de cierre, solo intermedias,
+de modo que no son fragmentos bien formados; y aparecen solo en `Attacks`,
+`Flooding`, `Masqurading` y `Replay`, ninguna en `Control`, `Injection` ni
+`MITM`. Es tráfico DNP3 fabricado, que es donde se esperan tramas mal formadas.
+Por eso ninguna cifra de `Control` —las 29.094 lecturas, los 31.952 valores de
+punto, las 68.120 cabeceras completas— se movió.
+
+El lector **no reensambla** fragmentos repartidos en varias tramas, y queda
+dicho en su encabezado en lugar de quedar implícito: un fragmento así se lee
+hasta donde llega su primera trama. Sobre estos datos no cambia nada, porque
+fragmentos bien formados de varias tramas no hay ninguno, pero quien reuse el
+lector sobre otra captura tiene que saberlo.
 
 **Emparejamiento de comando y respuesta.** Funciona con el **número de
 secuencia de aplicación** más el orden temporal. En `Control`:
@@ -368,9 +425,23 @@ fuera—, así que la segunda columna equivale a quedarse solo con el TCP.
 | Índice de dispersión (var/media) | **0,34** | 2,83 | 3,00 | 2,73 |
 | CV del intervalo entre paquetes | 4,49 | 4,40 | 1,26 | 1,98 |
 | Nodos / pares distintos | 31 / 32 | 40 / 51 | 17 / 16 | 2 / 2 |
-| Entropía normalizada IP origen | 0,38 | 0,37 | 0,54 | 0,96 |
+| Entropía de la IP origen (bits / normalizada / distintas) | 1,73 / 0,38 / 24 | 1,85 / 0,37 / 32 | 1,78 / 0,54 / 10 | **0,96** / 0,96 / **2** |
 | Jaccard del conjunto de pares (10 s) | 0,81 | 0,82 | 0,80 | **1,00** |
 | Tamaños de paquete distintos | 11 | 36 | 21 | 13 |
+
+La fila de la **entropía** se publicaba antes solo con la versión normalizada,
+y así ordenaba las cuatro series al revés. Normalizar divide por log₂(k), con
+k el número de direcciones distintas, de modo que responde «dado que hay k
+direcciones, cuán parejo es el reparto» y no «cuán concentrado es el
+direccionamiento». «QUT solo DNP3» tiene la entropía **más baja** de las cuatro
+en bits —0,96 con 2 direcciones— y la **más alta** normalizada, porque con dos
+direcciones el máximo posible es 1 bit y casi cualquier reparto da un valor
+alto. Es la misma serie que en esta tabla tiene Jaccard 1,00: siempre los
+mismos dos interlocutores. Las dos cifras solo parecen contradecirse si la
+normalizada se lee como si midiera desorden. **Para comparar series hay que
+citar los bits y el k**; la normalizada sirve dentro de una serie, no entre
+series con k distinto. La comparación está en la sección 2.4 de
+`eda/salidas/p2_determinismo.txt`.
 
 El **índice de dispersión** (varianza sobre media del recuento por ventana) es
 la medida que decide, porque vale 1 para llegadas al puro azar. Con una
@@ -586,9 +657,34 @@ su respuesta—, de modo que instancias y eventos casi coinciden:
 | DoS | 2176 | 1088 | 281 |
 | Reconocimiento | 3874 | 2258 | 477 |
 
-Con 281 eventos en el peor caso (DoS), el error estándar de una PD cercana a
-0,5 es de ±0,03. **Morris sostiene sin problemas el compromiso de un punto de
+Con 281 eventos en el peor caso (DoS), el intervalo de confianza del 95 % de
+una PD cercana a 0,5 tiene un semiancho de **±0,058** (Wilson; ±0,060 con
+Clopper-Pearson). **Morris sostiene sin problemas el compromiso de un punto de
 operación por familia de anomalía que el proyecto se propone.**
+
+Una aclaración sobre esa cifra, porque una versión anterior de este documento
+publicaba ±0,03 y la llamaba «error estándar». Lo era: ±0,03 es un error
+estándar, no un intervalo, y el intervalo al 95 % es 1,96 veces más ancho. El
+problema no es el número sino que la fila de al lado —Westermo— sí traía un
+intervalo al 95 %, de modo que las dos no se podían poner en la misma tabla.
+`eda/scripts/09_intervalos_pd.py` recalcula las cuatro cifras de precisión del
+análisis con **un solo estadístico** y es la fuente de las de esta sección; la
+salida está en `eda/salidas/p9_intervalos_pd.txt`. La conclusión no cambia
+—±0,058 contra ±0,38 es un factor de 6,5—, pero ahora las dos
+filas miden lo mismo.
+
+Vale registrar también por qué ese intervalo es legítimo acá y no en Westermo.
+Un intervalo centrado en PD = 0,5 supone que 0,5 es un resultado posible del
+experimento, y con n = 281 lo es a menos de 0,004. La independencia entre
+eventos que el intervalo supone también se comprobó, en lugar de darse por
+buena: la autocorrelación a retardo 1 del indicador de categoría **sobre la
+secuencia de eventos** es negativa en las siete categorías (−0,019 en DoS,
+−0,21 en CMRI), porque a un evento anómalo le sigue tráfico normal casi
+siempre. Con autocorrelación negativa el tamaño efectivo es mayor que n, de
+modo que suponer independencia es conservador y no optimista. La
+autocorrelación de 0,86 que `EXPLORATORIO.md` informa para Morris es **entre
+filas**, y el conteo por rachas ya la absorbe: aplicarla a los eventos sería
+descontar dos veces la misma dependencia.
 
 **Westermo no lo sostiene.** La figura muestra por qué: los 94 eventos se
 reparten de forma pareja a lo largo de toda la captura, de modo que cualquier
@@ -608,11 +704,23 @@ corte temporal deja pocos de cada tipo a cada lado.
 | BAD-PORTSCAN1 | 8 | 5 | 2 | **1** |
 | **Total** | **94** | **57** | **20** | **17** |
 
-Con 3 eventos por tipo, el intervalo de confianza del 95 % de una PD por tipo
-tiene un semiancho de alrededor de **±0,55**: el resultado no distingue un
-detector que funciona de uno que no. Con 1 evento (BAD-PORTSCAN1) no hay
-estimación posible. **Para los siete tipos de Westermo, el número de eventos de
-prueba es insuficiente.**
+Con 3 eventos por tipo el semiancho al 95 % es de **±0,38** (Wilson; ±0,45 con
+Clopper-Pearson): el resultado no distingue un detector que funciona de uno
+que no. Y el peor tipo no es ese: **BAD-PORTSCAN1 deja 1 solo evento**.
+
+Hay algo más fuerte que el ancho del intervalo, y es lo que decide la
+pregunta. Con n eventos la PD estimada solo puede tomar n + 1 valores,
+espaciados 1/n. **Con 3 eventos la PD solo puede valer 0; 0,333; 0,667 o 1**,
+de modo que el 0,5 que sirve de centro a cualquiera de esos
+semianchos no es un resultado posible del experimento. Citar un intervalo
+centrado en un valor inalcanzable sugiere una precisión que no existe: con 3
+eventos, y mucho más con 1, lo correcto es decir que la PD de ese tipo **no es
+estimable**, no acotarla. **Para los siete tipos de Westermo, el número de
+eventos de prueba es insuficiente.**
+
+Las cifras de este párrafo y del anterior salen de
+`eda/salidas/p9_intervalos_pd.txt`, que recalcula las cuatro precisiones del
+análisis con el mismo estadístico y deja la tabla citable en su sección 9.5.
 
 Hay un segundo problema, independiente del anterior: en el punto de captura
 inferior, varios eventos **no dejan ningún flujo etiquetado** bajo NST.
@@ -684,27 +792,63 @@ que debe pasar si los archivos de etiqueta son idénticos, como declara
 
 ### Pregunta 5 — ¿Hay deriva medible en HAI?
 
-**Sí, dentro de una versión, y es mayor que el ruido del propio estimador.**
-![HAI: deriva entre tramos de entrenamiento sucesivos, contra el nivel de referencia interno](figuras/p5_hai_deriva.png)
+**Sí, y es mucho mayor que el ruido del estimador. La comparación que importa
+es otra: contra la deriva que ya hay dentro de una sola campaña.**
+![HAI: deriva entre campañas de entrenamiento, contra la deriva dentro de una campaña y contra el ruido del estimador](figuras/p5_hai_deriva.png)
 
-El problema de medir deriva es que cualquier par de muestras finitas difiere un
-poco. Para que las cifras signifiquen algo se calculó primero un **nivel de
-referencia**: la misma medida (estadístico KS por columna, mediana entre
-columnas) entre la **primera y la segunda mitad del mismo archivo**. Una
-diferencia entre archivos solo es deriva si supera ese nivel con holgura.
+Medir deriva exige una vara, y acá hacen falta **dos**, porque confundirlas
+cambia la lectura de toda la sección. La medida es el estadístico de
+Kolmogórov-Smirnov por columna sobre las acumuladas empíricas exactas, resumido
+como mediana entre columnas.
 
-| Versión | Referencia (mitad vs mitad) | Entre `train` sucesivos | Razón |
+| Vara | Qué es | 20.07 |
+|---|---|---:|
+| **Ruido del estimador** | mitades del mismo archivo partido **al azar** | 0,002 |
+| **Deriva dentro de una campaña** | mitades del mismo archivo **en orden temporal** | 0,097 |
+| **Entre campañas** | un `train` contra el siguiente | 0,269 |
+
+La primera fila es la única que merece el nombre de ruido, y es diminuta: en
+las cinco versiones queda por debajo de su propio umbral de significación al
+95 % —entre 0,005 y 0,009 según el tamaño—, que es lo que dos
+mitades de la misma distribución deben dar.
+
+**La segunda fila no es ruido: es deriva.** Supera a la primera entre 20 y 43
+veces según la versión. Una versión anterior de este documento llamaba a esa
+fila «el ruido de fondo del estimador» y leía la columna «Razón» de la tabla
+que sigue como una relación señal-ruido. No lo es: lo que esa razón compara es
+**deriva entre campañas contra deriva dentro de una campaña**, que es una
+pregunta distinta y una vara mucho más exigente. Esa corrección no mueve
+ninguna cifra, solo lo que significan.
+
+Hay una segunda corrección, esta sí de cifras, y es pequeña. El estadístico
+que las tablas llaman KS se calculaba sobre las acumuladas de 50 intervalos,
+no sobre las empíricas exactas, y eso lo subestima: mira la diferencia solo en
+los bordes de los intervalos. Ya se calcula con `scipy.stats.ks_2samp`. Las
+medianas suben poco —la de 20.07 pasa de 0,093 a 0,097— pero en una columna la
+subestimación llegaba a 0,14, que es del tamaño de los efectos que esta
+sección discute, de modo que no era un detalle de redondeo. La distancia de
+Jensen-Shannon sí necesita intervalos, porque es una divergencia entre
+distribuciones discretas, y queda declarado en la salida.
+
+| Versión | Dentro de una campaña | Entre campañas sucesivas | Razón |
 |---|---:|---|---:|
-| hai-20.07 | 0,093 | t1→t2: **0,235** | **2,5×** |
-| hai-21.03 | 0,080 | t1→t2: 0,192 / t2→t3: 0,163 | **2,4× / 2,0×** |
-| hai-22.04 | 0,168 | 0,082 a **0,246** | 0,5× a 1,5× |
-| hai-23.05 | 0,098 | 0,073 a 0,137 | 0,7× a 1,4× |
-| haiend-23.05 | 0,053 | 0,076 a 0,145 | 1,4× a 2,7× |
+| hai-20.07 | 0,097 | t1→t2: **0,269** | **2,8×** |
+| hai-21.03 | 0,104 | t1→t2: 0,217 / t2→t3: 0,163 | **2,1× / 1,6×** |
+| hai-22.04 | 0,184 | 0,105 a **0,269** | 0,6× a 1,5× |
+| hai-23.05 | 0,098 | 0,085 a 0,139 | 0,9× a 1,4× |
+| haiend-23.05 | 0,054 | 0,082 a 0,145 | 1,5× a 2,7× |
 
-**La deriva es real y desigual.** En 20.07 y 21.03 supera el doble del nivel de
-referencia de forma consistente. En 23.05 está al borde del ruido salvo en el
-último tramo. En 22.04 el propio nivel de referencia es alto (0,168), lo que
-indica que esa versión ya es heterogénea de por sí.
+**La deriva es real, desigual, y en ningún caso está «al borde del ruido».**
+Las tres versiones cuya razón ronda 1 —22.04, 23.05 y haiend— no son versiones
+sin deriva: son versiones donde la diferencia entre campañas es **del mismo
+tamaño que la que ya hay dentro de una campaña**, y las dos están entre 20 y 40
+veces por encima del ruido. En 20.07 y 21.03 la diferencia entre campañas
+duplica además la interna. Y en 22.04 la deriva interna es la más alta de las
+cinco (0,184), lo que dice que esa versión es heterogénea de por sí.
+
+Para el proyecto la consecuencia es la misma en los dos casos y conviene
+dejarla dicha: **una línea base ajustada sobre un `train` de HAI no vale para
+el siguiente, y tampoco para la segunda mitad del propio archivo.**
 
 Las columnas que más se mueven se repiten y son interpretables: consignas y
 posiciones de válvula (`P1_PCV02Z`, `P1_PP04SP`, `x1003_18_SETPOINT_OUT`),
@@ -724,9 +868,21 @@ continuos. Están separados por huecos:
 | hai-23.05 y haiend | 5,3 / 3,0 / 1,6 días |
 
 Lo que se mide, entonces, es la diferencia entre **campañas de adquisición
-separadas en el tiempo**, no deriva continua. Que el salto mayor (20.07, 2,5×)
+separadas en el tiempo**, no deriva continua. Que el salto mayor (20.07, 2,8×)
 corresponda al hueco mayor (47 días) es consistente con deriva temporal, pero
 con dos archivos no alcanza para afirmar una tendencia.
+
+Ese hueco tiene una consecuencia en el código, no solo en la lectura: **una
+serie con 47 días de hueco no se puede concatenar antes de medir nada que mire
+el orden temporal**, porque el salto introduce correlaciones falsas.
+`05_determinismo.py` lo dice por escrito y lo respeta para Westermo, y
+`18_exploratorio_resto.py` lo incumplía al calcular la autocorrelación de HAI
+sobre `train1` y `train2` pegados. Ya mide por tramos. El sesgo, medido en
+lugar de supuesto, resultó nulo: con un solo hueco entre 550.800 filas el
+tiempo de decorrelación mediano da 1800 s de las dos maneras y **ninguna** de
+las 51 columnas no constantes cambia el suyo. Lo que se corrigió es el método,
+que contradecía la regla del propio análisis; las cifras publicadas no
+dependían del error.
 
 **Entre versiones no se midió divergencia, a propósito.** Hay cambios de banco
 documentados, y las columnas ni siquiera coinciden:
@@ -899,11 +1055,16 @@ reparten por mitades entre peticiones y respuestas, de modo que hay unos 2,96
 millones de peticiones y las escrituras son una de cada 3693. El cuello de
 botella deja de ser la semántica y pasa a ser el tamaño de muestra.
 
-| Unidad de medida | n en prueba | IC 95 % de una PD cercana a 0,5 |
-|---|---:|---|
-| ICS-Flow, escritura bajo ventana de intermediario | 51 | ±0,137 |
-| ICS-Flow, evento de intermediario | 5 | ±0,438 |
-| Morris, evento MPCI | 1808 | ±0,023 |
+| Unidad de medida | n en prueba | IC 95 % (Wilson) de una PD cercana a 0,5 | ¿0,5 alcanzable? |
+|---|---:|---:|---|
+| ICS-Flow, escritura bajo ventana de intermediario | 51 | ±0,132 | no |
+| ICS-Flow, evento de intermediario | 5 | ±0,330 | no |
+| Morris, evento MPCI | 1808 | ±0,023 | sí |
+
+Las tres salen de `eda/salidas/p9_intervalos_pd.txt`, con el mismo estadístico
+que las de la pregunta 4. La última columna recuerda que con n = 5 la PD solo
+puede valer 0; 0,2; 0,4; 0,6; 0,8 o 1, de modo que esa fila acota un valor que
+el experimento no puede dar: sirve para dimensionar, no para informar una PD.
 
 ### 4.5 Con qué alcance cierra la brecha
 
@@ -920,10 +1081,12 @@ una ventana de intermediario**, que no es lo mismo que 51 escrituras
 manipuladas: en el tramo de entrenamiento, de las 44 que caen bajo esa
 ventana las que llevan el valor alterado son **15, el 34 %** (§4.3). Si esa
 proporción se mantuviera, las manipuladas de prueba serían del orden de 17 y
-el intervalo pasaría de ±0,14 a cerca de ±0,24. **No se midió**: medirlo
-exigiría abrir el tramo de prueba. De modo que ±0,14 es una cota optimista,
-el número honesto queda entre ±0,14 y ±0,24, y por evento, con 5 eventos, no
-es estimable. Morris es todavía el
+el intervalo pasaría de ±0,13 a **±0,21**. **No se midió**: medirlo
+exigiría abrir el tramo de prueba. De modo que ±0,13 es una cota optimista,
+el número honesto queda entre ±0,13 y ±0,21, y por evento, con 5 eventos, no
+es estimable. Las dos cifras salen de
+`eda/salidas/p9_intervalos_pd.txt`, donde el caso de 17 entra marcado como
+hipotético para que no se lo confunda con una medición. Morris es todavía el
 único que sostiene un compromiso numérico por tipo, y sigue sin carga útil.
 
 De modo que la división de roles **no se resuelve: pasa de dos conjuntos a
@@ -1050,10 +1213,13 @@ solo significa algo si supera ese nivel.
 Sobre las 37 características que sí varían, el estadístico cruzado
 tiene mediana **0,124**, y la razón entre el cruzado y el mayor de los dos
 niveles de referencia de cada campo tiene mediana **7,6**. Esa es la regla:
-primero el cociente campo por campo contra su propio ruido, después la mediana
-entre campos; el mayor de los dos niveles es la elección conservadora, porque
-da el factor más chico. Sobre el factor cabe una advertencia que no cabe sobre
-la mediana, y está en §5.6.
+primero el cociente campo por campo contra su propia variabilidad interna,
+después la mediana entre campos; el mayor de los dos niveles es la elección
+conservadora, porque da el factor más chico. Conviene no llamar «ruido» a ese
+nivel: como se mide entre dos mitades **en orden temporal**, lleva adentro la
+deriva del propio tramo, y de eso vive el último párrafo de esta sección. Es
+la misma distinción que la pregunta 5 hace para HAI. Sobre el factor cabe una
+advertencia que no cabe sobre la mediana, y está en §5.6.
 
 Ninguna distribución es disjunta, así que la diferencia no es dramática, pero
 **se concentra en volumen y temporizado**, que son las características que la
@@ -1188,7 +1354,7 @@ JSON publicado.
 **El factor no es tan firme como la mediana, y conviene decirlo.** Es un
 cociente contra el nivel de referencia interno, que es una cantidad chica
 —entre 0,005 y 0,24 según el campo—, de modo que diferencias ínfimas en cómo
-se estima el ruido se amplifican al dividir. Dos implementaciones que
+se estima ese nivel se amplifican al dividir. Dos implementaciones que
 coinciden en la mediana del cruzado hasta el cuarto decimal dan **7,5 y 7,6**
 para el factor, porque difieren hasta 6·10⁻⁴ en los niveles de referencia. La
 causa está identificada: una descarta los valores ausentes antes de partir el
@@ -1215,7 +1381,7 @@ veces»**.
    rancio reenviado— y el factor medido. No cierra la otra mitad: en el tramo
    de prueba hay 51 escrituras **bajo ventana de intermediario**, de las que
    una fracción está manipulada —en entrenamiento es 15 de 44—, de modo que la
-   PD por esa familia queda con un intervalo de entre ±0,14 y ±0,24 y el
+   PD por esa familia queda con un intervalo de entre ±0,13 y ±0,21 y el
    compromiso numérico sigue en Morris. Ya no
    hace falta verificar Lemay ni WDT para este propósito, salvo que se busque
    más muestra. **Atención a la licencia: CC BY-NC-SA 4.0**, que prohíbe el
@@ -1316,7 +1482,19 @@ Notas de reproducibilidad:
 atribuidas a la selección previa, a `datasets/LEEME.md`, a `PROCEDENCIA.md` y
 a los `README` de cada conjunto se transcribieron de esos documentos para
 contrastarlas; todo
-lo que está en la columna «medido» de cada tabla sale de los scripts. El
-semiancho de ±0,55 del intervalo de confianza de la pregunta 4 es un cálculo
-hecho a mano sobre el número de eventos (aproximación normal de una binomial
-con n = 3), no una salida de los scripts.
+lo que está en la columna «medido» de cada tabla sale de los scripts.
+
+Los semianchos de los intervalos de confianza **ya no son una excepción**. Una
+versión anterior de este documento los calculaba a mano con la aproximación
+normal de una binomial, y así se colaron dos problemas: la cifra de Morris era
+un error estándar y la de Westermo un intervalo al 95 %, de modo que no se
+podían comparar, y con n = 3 la aproximación normal da un intervalo que se
+sale de [0, 1]. `eda/scripts/09_intervalos_pd.py` recalcula las cuatro con el
+intervalo de Wilson, agrega Clopper-Pearson como control y deja la tabla
+citable en `eda/salidas/p9_intervalos_pd.txt`, sección 9.5. Las cifras de las
+preguntas 4 y de la sección 4.4 salen de ahí.
+
+La única que sigue sin ser una medición es, y está marcada como tal en los dos
+lugares donde aparece, el caso de **17 escrituras alteradas** de §4.5: supone
+que la proporción medida en entrenamiento se mantiene en el tramo de prueba, y
+comprobarlo exigiría abrirlo.

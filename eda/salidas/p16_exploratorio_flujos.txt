@@ -20,6 +20,38 @@ La hipótesis del dominio es que no faltan al azar: un flujo que no
 es TCP no tiene banderas ni ventana, y una dirección sin paquetes
 no tiene TTL que informar. Se comprueba por identidad exacta.
 
+Los 38 campos con huecos se reparten en **10 patrones de faltantes
+distintos**. Para cada uno se busca una condición estructural que
+lo reproduzca exacto:
+
+camp. faltan   condición que lo reproduce               campos
+8     3418     no TCP o sPackets == 0                   sAckRate, sWinTCP, sRstRate, sSynRate, sPshR
+8     3333     no TCP o rPackets == 0                   rFinRate, rttl, rWinTCP, rRstRate, rSynRate,
+6     3246     rPackets == 0                            rPayloadMax, rBytesMax, rPayloadAvg, rBytesA
+6     106      sPackets == 0                            sPayloadAvg, sBytesMax, sPayloadMax, sBytesA
+3     3491     --- ninguna ---                          sAckDelayAvg, sAckDelayMin, sAckDelayMax
+3     3422     --- ninguna ---                          rAckDelayAvg, rAckDelayMin, rAckDelayMax
+1     3326     --- ninguna ---                          rFragmentRate
+1     3261     rPackets < 2                             rInterPacketAvg
+1     2223     --- ninguna ---                          sFragmentRate
+1     1079     sPackets < 2                             sInterPacketAvg
+
+**6 patrones, que cubren 30 de los 38 campos, cierran exactos.**
+Los otros 4 patrones, con 8 campos, **no**:
+
+- `sAckDelayAvg`, `sAckDelayMin`, `sAckDelayMax`: faltan 3491. La condición más cercana es «no TCP o sPackets < 2» y
+  difiere en **10** de las 21080 filas.
+- `rAckDelayAvg`, `rAckDelayMin`, `rAckDelayMax`: faltan 3422. La condición más cercana es «no TCP o sPackets == 0» y
+  difiere en **4** de las 21080 filas.
+- `rFragmentRate`: faltan 3326. La condición más cercana es «no TCP o rPackets == 0» y
+  difiere en **7** de las 21080 filas.
+- `sFragmentRate`: faltan 2223. La condición más cercana es «protocolo sin IPv4 (ARP, LLDP)» y
+  difiere en **95** de las 21080 filas.
+
+De modo que la frase correcta no es que la ausencia se explique
+por completo, sino que se explica para 30 de los 38 campos y
+queda sin explicar para 8.
+
 campo        el nulo equivale a                             exacto
 sttl         no TCP, o sin paquetes de ese lado             sí
 rttl         no TCP, o sin paquetes de ese lado             sí
@@ -40,11 +72,17 @@ sPackets         flujos    sin el dato
 3                    10             0 %
 más de 3          17559             0 %
 
-**Consecuencia para la preparación.** No corresponde imputar: el
+**Consecuencia para la preparación**, y el alcance importa. Para
+los 30 campos cuyo patrón cierra exacto no corresponde imputar: el
 valor no existe, no está perdido. Un reporte automático propone
 imputación simple para estas columnas, y sería un error — pondría
 un número donde el protocolo no define ninguno. Lo que corresponde
 es una bandera de ausencia, o separar el modelo por protocolo.
+
+Para los 8 campos cuyo patrón **no** cierra, el argumento de
+inexistencia no está hecho y no se puede usar. Ahí la bandera
+de ausencia no es una alternativa a imputar sino lo único
+defendible, porque el faltante no quedó caracterizado.
 
 ### Características degeneradas
 
@@ -134,6 +172,38 @@ La hipótesis del dominio es que no faltan al azar: un flujo que no
 es TCP no tiene banderas ni ventana, y una dirección sin paquetes
 no tiene TTL que informar. Se comprueba por identidad exacta.
 
+Los 38 campos con huecos se reparten en **10 patrones de faltantes
+distintos**. Para cada uno se busca una condición estructural que
+lo reproduzca exacto:
+
+camp. faltan   condición que lo reproduce               campos
+8     780      no TCP o sPackets == 0                   sWinTCP, sRstRate, sSynRate, sPshRate, sFinR
+8     743      no TCP o rPackets == 0                   rttl, rPshRate, rFinRate, rRstRate, rUrgRate
+6     288      sPackets == 0                            sBytesMin, sPayloadMax, sPayloadAvg, sBytesM
+6     264      rPackets == 0                            rBytesMax, rBytesMin, rBytesAvg, rPayloadMax
+3     1200     --- ninguna ---                          rAckDelayAvg, rAckDelayMin, rAckDelayMax
+3     927      --- ninguna ---                          sAckDelayAvg, sAckDelayMin, sAckDelayMax
+1     1157     sPackets < 2                             sInterPacketAvg
+1     771      --- ninguna ---                          sFragmentRate
+1     662      --- ninguna ---                          rFragmentRate
+1     527      rPackets < 2                             rInterPacketAvg
+
+**6 patrones, que cubren 30 de los 38 campos, cierran exactos.**
+Los otros 4 patrones, con 8 campos, **no**:
+
+- `rAckDelayAvg`, `rAckDelayMin`, `rAckDelayMax`: faltan 1200. La condición más cercana es «no TCP o sPackets == 0» y
+  difiere en **420** de las 25620 filas.
+- `sAckDelayAvg`, `sAckDelayMin`, `sAckDelayMax`: faltan 927. La condición más cercana es «no TCP o rPackets < 2» y
+  difiere en **106** de las 25620 filas.
+- `sFragmentRate`: faltan 771. La condición más cercana es «no TCP o sPackets == 0» y
+  difiere en **9** de las 25620 filas.
+- `rFragmentRate`: faltan 662. La condición más cercana es «protocolo sin IPv4 (ARP, IPV6)» y
+  difiere en **10** de las 25620 filas.
+
+De modo que la frase correcta no es que la ausencia se explique
+por completo, sino que se explica para 30 de los 38 campos y
+queda sin explicar para 8.
+
 campo        el nulo equivale a                             exacto
 sttl         no TCP, o sin paquetes de ese lado             sí
 rttl         no TCP, o sin paquetes de ese lado             sí
@@ -154,11 +224,17 @@ sPackets         flujos    sin el dato
 3                   363             1 %
 más de 3          23633             0 %
 
-**Consecuencia para la preparación.** No corresponde imputar: el
+**Consecuencia para la preparación**, y el alcance importa. Para
+los 30 campos cuyo patrón cierra exacto no corresponde imputar: el
 valor no existe, no está perdido. Un reporte automático propone
 imputación simple para estas columnas, y sería un error — pondría
 un número donde el protocolo no define ninguno. Lo que corresponde
 es una bandera de ausencia, o separar el modelo por protocolo.
+
+Para los 8 campos cuyo patrón **no** cierra, el argumento de
+inexistencia no está hecho y no se puede usar. Ahí la bandera
+de ausencia no es una alternativa a imputar sino lo único
+defendible, porque el faltante no quedó caracterizado.
 
 ### Características degeneradas
 

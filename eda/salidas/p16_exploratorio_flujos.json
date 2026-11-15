@@ -4,6 +4,35 @@
   "columnas": 64,
   "duplicadas": 0,
   "duplicadas_features": 2705,
+  "patrones_faltantes": {
+   "patrones": 10,
+   "campos_con_hueco": 38,
+   "patrones_exactos": 6,
+   "campos_explicados": 30,
+   "campos_sin_explicar": 8,
+   "sin_explicar": {
+    "sAckDelayAvg, sAckDelayMin, sAckDelayMax": {
+     "faltan": 3491,
+     "condicion_mas_cercana": "no TCP o sPackets < 2",
+     "filas_de_diferencia": 10
+    },
+    "rAckDelayAvg, rAckDelayMin, rAckDelayMax": {
+     "faltan": 3422,
+     "condicion_mas_cercana": "no TCP o sPackets == 0",
+     "filas_de_diferencia": 4
+    },
+    "rFragmentRate": {
+     "faltan": 3326,
+     "condicion_mas_cercana": "no TCP o rPackets == 0",
+     "filas_de_diferencia": 7
+    },
+    "sFragmentRate": {
+     "faltan": 2223,
+     "condicion_mas_cercana": "protocolo sin IPv4 (ARP, LLDP)",
+     "filas_de_diferencia": 95
+    }
+   }
+  },
   "faltantes_estructurales": {
    "sttl": true,
    "rttl": true,
@@ -121,6 +150,35 @@
   "columnas": 64,
   "duplicadas": 0,
   "duplicadas_features": 334,
+  "patrones_faltantes": {
+   "patrones": 10,
+   "campos_con_hueco": 38,
+   "patrones_exactos": 6,
+   "campos_explicados": 30,
+   "campos_sin_explicar": 8,
+   "sin_explicar": {
+    "rAckDelayAvg, rAckDelayMin, rAckDelayMax": {
+     "faltan": 1200,
+     "condicion_mas_cercana": "no TCP o sPackets == 0",
+     "filas_de_diferencia": 420
+    },
+    "sAckDelayAvg, sAckDelayMin, sAckDelayMax": {
+     "faltan": 927,
+     "condicion_mas_cercana": "no TCP o rPackets < 2",
+     "filas_de_diferencia": 106
+    },
+    "sFragmentRate": {
+     "faltan": 771,
+     "condicion_mas_cercana": "no TCP o sPackets == 0",
+     "filas_de_diferencia": 9
+    },
+    "rFragmentRate": {
+     "faltan": 662,
+     "condicion_mas_cercana": "protocolo sin IPv4 (ARP, IPV6)",
+     "filas_de_diferencia": 10
+    }
+   }
+  },
   "faltantes_estructurales": {
    "sttl": true,
    "rttl": true,

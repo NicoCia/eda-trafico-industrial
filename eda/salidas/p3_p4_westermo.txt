@@ -45,7 +45,69 @@ dos variantes duplicaria el mismo trafico, asi que no se hace):
   extended  NST    68729 flujos -> 78.7 / 16.7 / 4.6
   extended  IT     68729 flujos -> 35.7 / 44.6 / 19.7
 
-## P3.c Cuanto cambia el problema segun la estrategia de etiquetado
+## P3.c La union, cuenta el mismo trafico mas de una vez?
+
+El README del conjunto avisa que un paquete que entra y sale del
+equipo que graba aparece dos veces. Si eso llegara a los FLUJOS, la
+union de los tres puntos no seria una poblacion sino trafico inflado,
+y el reparto no significaria nada. Se mide.
+
+Gemelo = mismo par de direcciones, protocolo, numero de paquetes y de
+bytes en los dos sentidos, y comienzo dentro de 1 s. Es un flujo
+observado en dos puntos a la vez.
+
+   reduced:
+     bottom    35404 flujos; con gemelo en otro punto   272 (0.8 %); repetidos dentro del punto 0
+     left       8533 flujos; con gemelo en otro punto   257 (3.0 %); repetidos dentro del punto 0
+     right      4720 flujos; con gemelo en otro punto    22 (0.5 %); repetidos dentro del punto 0
+   extended:
+     bottom    55425 flujos; con gemelo en otro punto   273 (0.5 %); repetidos dentro del punto 0
+     left       8555 flujos; con gemelo en otro punto   258 (3.0 %); repetidos dentro del punto 0
+     right      4749 flujos; con gemelo en otro punto    24 (0.5 %); repetidos dentro del punto 0
+
+La duplicacion que el README describe es de PAQUETES y no sobrevive al
+armado de flujos: dentro de cada punto no hay un solo flujo repetido, y
+entre puntos el solape es de pocos puntos porcentuales. De modo que la
+union es una poblacion de flujos, no trafico contado tres veces.
+
+## P3.d Cuantas agregaciones candidatas hay, y cuantas coinciden
+
+Acertar una de muchas no probaria nada, asi que se enumera el espacio
+entero --- dos variantes, dos estrategias de etiquetado, los tres
+puntos sueltos y su union --- y se mide la distancia de cada candidata
+a la cifra publicada, como desvio maximo entre las tres proporciones.
+
+variante  etiq punto   normal/misconf/ataque  desvio max
+reduced   NST  union     75.5 /  18.0 /   6.5          0.5 pp
+extended  NST  right     73.4 /  18.0 /   8.6          2.1 pp
+reduced   NST  right     73.6 /  17.7 /   8.7          2.2 pp
+extended  NST  union     78.7 /  16.7 /   4.6          3.7 pp
+reduced   NST  bottom    82.4 /  15.0 /   2.6          7.4 pp
+extended  NST  bottom    83.9 /  14.4 /   1.7          8.9 pp
+reduced   NST  left      47.9 /  30.8 /  21.3         27.1 pp
+extended  NST  left      47.9 /  30.9 /  21.2         27.1 pp
+extended  IT   bottom    37.8 /  44.4 /  17.8         37.2 pp
+reduced   IT   bottom    37.4 /  44.6 /  18.0         37.6 pp
+extended  IT   union     35.7 /  44.6 /  19.7         39.3 pp
+reduced   IT   union     34.5 /  44.8 /  20.7         40.5 pp
+extended  IT   right     33.4 /  43.6 /  23.0         41.6 pp
+reduced   IT   right     33.3 /  43.5 /  23.1         41.7 pp
+extended  IT   left      23.1 /  46.5 /  30.3         51.9 pp
+reduced   IT   left      23.1 /  46.5 /  30.4         51.9 pp
+
+Candidatas enumeradas: 16. Dentro de 1 pp: 1. Dentro de 2 pp: 1.
+
+**Cierra una sola en todo el espacio: reduced / NST / union, a 0.5 pp.**
+La siguiente queda a 2.1 pp. De modo que la identificacion no es
+una coincidencia entre muchas parecidas: es unica en el espacio de
+agregaciones que el conjunto permite construir.
+
+Queda una salvedad que la union no borra: los tres puntos ven repartos
+muy distintos entre si, y la union esta dominada por el punto con mas
+flujos. No es una propiedad de la red sino del reparto de volumen
+entre puntos de captura.
+
+## P3.e Cuanto cambia el problema segun la estrategia de etiquetado
 
 Archivo de referencia: datasets/westermo/data/reduced/flows/output_bottom.csv (35404 filas, 64 columnas)
 

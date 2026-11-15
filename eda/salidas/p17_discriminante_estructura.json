@@ -3,6 +3,8 @@
   "discriminante": {
    "evaluadas": 42,
    "auc_max": 0.563120926016718,
+   "auc_max_poblacion_completa": 0.5584615269827589,
+   "campo_poblacion_completa": "sPackets",
    "fuertes_070": 0,
    "nulas_055": 37,
    "top": [
@@ -134,6 +136,8 @@
   "discriminante": {
    "evaluadas": 43,
    "auc_max": 0.668594995749852,
+   "auc_max_poblacion_completa": 0.647264821860847,
+   "campo_poblacion_completa": "sPayloadSum",
    "fuertes_070": 0,
    "nulas_055": 18,
    "top": [

@@ -256,6 +256,108 @@
     "k": 2
    },
    "granularidad_1_sobre_n": 0.2
+  },
+  {
+   "caso": "ICS-Flow, escritura ALTERADA (hipotetico, no medido)",
+   "n": 17,
+   "publicado": "no publicado",
+   "wilson_95": {
+    "k_continuo": 8.5,
+    "centro": 0.5,
+    "inferior": 0.28533856016458625,
+    "superior": 0.7146614398354137,
+    "semiancho": 0.21466143983541372
+   },
+   "clopper_pearson_95": {
+    "k_exacto_alcanzable": false,
+    "por_k": [
+     {
+      "k": 8,
+      "p_estimada": 0.47058823529411764,
+      "inferior": 0.22983268726599038,
+      "superior": 0.7218816996688935,
+      "semiancho_equivalente": 0.24602450620145155
+     },
+     {
+      "k": 9,
+      "p_estimada": 0.5294117647058824,
+      "inferior": 0.27811830033110657,
+      "superior": 0.7701673127340096,
+      "semiancho_equivalente": 0.24602450620145153
+     }
+    ],
+    "semiancho_equivalente": 0.24602450620145155
+   },
+   "wald": {
+    "error_estandar": 0.12126781251816648,
+    "semiancho_95": 0.23768054501956182,
+    "inferior": 0.2623194549804382,
+    "superior": 0.7376805450195618,
+    "se_sale_de_0_1": false
+   },
+   "wilson_peor_caso": {
+    "semiancho": 0.21435829248793067,
+    "k": 8
+   },
+   "granularidad_1_sobre_n": 0.058823529411764705
+  }
+ ],
+ "autocorrelacion_entre_eventos": [
+  {
+   "categoria": "CMRI",
+   "codigo": "2",
+   "eventos": 2581,
+   "rho": -0.21303859475659456,
+   "n_efectivo": 3978.4068090332903,
+   "ic95": 0.015529373283912176
+  },
+  {
+   "categoria": "MPCI",
+   "codigo": "4",
+   "eventos": 1808,
+   "rho": -0.14028419724595045,
+   "n_efectivo": 2398.0410991822587,
+   "ic95": 0.01999595778244891
+  },
+  {
+   "categoria": "NMRI",
+   "codigo": "1",
+   "eventos": 1639,
+   "rho": -0.12552546479994584,
+   "n_efectivo": 2109.536827604808,
+   "ic95": 0.021317166378810443
+  },
+  {
+   "categoria": "MSCI",
+   "codigo": "3",
+   "eventos": 676,
+   "rho": -0.048216674686645165,
+   "n_efectivo": 744.4913702967871,
+   "ic95": 0.035823721202354906
+  },
+  {
+   "categoria": "MFCI",
+   "codigo": "5",
+   "eventos": 646,
+   "rho": -0.04597850363308999,
+   "n_efectivo": 708.2671783813829,
+   "ic95": 0.03672357635156228
+  },
+  {
+   "categoria": "Reconnaissance",
+   "codigo": "7",
+   "eventos": 477,
+   "rho": -0.033546586188690865,
+   "n_efectivo": 510.11431546172736,
+   "ic95": 0.043227012384174514
+  },
+  {
+   "categoria": "DoS",
+   "codigo": "6",
+   "eventos": 281,
+   "rho": -0.019493557127372857,
+   "n_efectivo": 292.17318421028136,
+   "ic95": 0.05695888745433511
   }
  ],
  "estadistico": {

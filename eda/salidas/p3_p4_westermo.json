@@ -175,6 +175,43 @@
    }
   }
  },
+ "union_de_puntos": {
+  "candidatas": 16,
+  "dentro_de_1pp": 1,
+  "dentro_de_2pp": 1,
+  "duplicacion_entre_puntos": {
+   "reduced/bottom": {
+    "flujos": 35404,
+    "con_gemelo_en_otro_punto": 272,
+    "repetidos_dentro_del_punto": 0
+   },
+   "reduced/left": {
+    "flujos": 8533,
+    "con_gemelo_en_otro_punto": 257,
+    "repetidos_dentro_del_punto": 0
+   },
+   "reduced/right": {
+    "flujos": 4720,
+    "con_gemelo_en_otro_punto": 22,
+    "repetidos_dentro_del_punto": 0
+   },
+   "extended/bottom": {
+    "flujos": 55425,
+    "con_gemelo_en_otro_punto": 273,
+    "repetidos_dentro_del_punto": 0
+   },
+   "extended/left": {
+    "flujos": 8555,
+    "con_gemelo_en_otro_punto": 258,
+    "repetidos_dentro_del_punto": 0
+   },
+   "extended/right": {
+    "flujos": 4749,
+    "con_gemelo_en_otro_punto": 24,
+    "repetidos_dentro_del_punto": 0
+   }
+  }
+ },
  "eventos_por_particion": {
   "BAD-MITM": {
    "entrenamiento": 10,

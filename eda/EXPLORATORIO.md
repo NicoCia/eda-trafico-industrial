@@ -44,11 +44,25 @@ materia en `eda/derivados/reporte_westermo.md` y
 `eda/derivados/reporte_icsflow.md`.
 
 **Sobre la coherencia interna de los datos.** No se da por buena: el
-inventario `eda/salidas/p10_inventario.txt` verifica dieciocho identidades
+inventario `eda/salidas/p10_inventario.txt` verifica **diecisiete** identidades
 entre campos sobre cada archivo —que `duration` sea el intervalo declarado,
 que los promedios sean el cociente de suma y cuenta, que el mínimo no supere
-al máximo, que las catorce tasas caigan en [0, 1]— y se cumplen en el 100 %
-de las filas, salvo `sLoad` y `rLoad` con un 0,06 % de desvío por redondeo.
+al máximo, que las catorce tasas caigan en [0, 1]—. **Quince se cumplen en el
+100 % de las filas de los dos conjuntos.** Las excepciones conviene nombrarlas
+una por una, porque no son todas del mismo tamaño:
+
+| Identidad | Westermo | ICS-Flow |
+|---|---:|---:|
+| `sLoad`, `rLoad` como 8·bytes/duración | 99,94 % y 99,99 % | 100 % |
+| `sAckDelayMax` ≤ `duration` | 100 % | 99,34 % |
+| `sInterPacketAvg` ≈ `duration`/(`sPackets`−1) | **63,6 %** | **75,3 %** |
+
+Las dos primeras son redondeo. **La tercera no**, y por eso lleva `≈` en el
+inventario: la ventana de flujo de 0,5 s recorta el último intervalo, de modo
+que en un tercio de los flujos de Westermo el promedio publicado no es el que
+se deduce de la duración y el número de paquetes. No es un error del conjunto
+sino el efecto de cerrar la ventana, pero significa que **`sInterPacketAvg` no
+se puede reconstruir desde los otros campos** y hay que tomarlo como viene.
 
 ---
 
@@ -58,9 +72,11 @@ Seis hallazgos antes del detalle, porque cambian cómo hay que prepararlos.
 
 **1. Ninguna característica discrimina por sí sola.** El mejor AUC de una
 característica tomada sola es **0,563 en Westermo** y **0,669 en ICS-Flow**,
-contra el 0,5 de no discriminar. Ninguna de las 85 evaluadas entre los dos
-conjuntos llega a 0,70. La detección tiene que ser multivariada; no hay un
-indicador único que sirva de alarma.
+contra el 0,5 de no discriminar; si se exige que la característica exista en
+todas las filas, baja a **0,558 y 0,647**. Ninguna de las 85
+evaluadas entre los dos conjuntos llega a 0,70 con ninguna de las dos bases.
+La detección tiene que ser multivariada; no hay un indicador único que sirva
+de alarma.
 
 **2. Y los dos conjuntos no son igual de difíciles.** La mejor combinación
 lineal de todas las características separa con AUC **0,585 en Westermo** y
@@ -69,10 +85,14 @@ ajustaron, o sea cotas superiores. La diferencia es demasiado grande para ser
 optimismo del ajuste: a nivel de características de flujo, Westermo es un
 problema duro y ICS-Flow uno fácil.
 
-**3. Los faltantes son estructurales, no aleatorios.** 38 de las 47
-características tienen huecos, y en los dos conjuntos la ausencia se explica
-por completo con ocho identidades exactas: el dato no está perdido, no existe.
-Imputarlo sería inventar un número donde el protocolo no define ninguno.
+**3. Los faltantes son estructurales en su mayor parte, y hay que saber en qué
+parte.** 38 de las 47 características tienen huecos, y se reparten en **diez
+patrones de faltantes distintos**. Seis de esos patrones, que cubren **30 de
+los 38 campos**, los reproduce **exacto** una condición estructural —no es TCP,
+o ese lado no tiene paquetes—: ahí el dato no está perdido, no existe, e
+imputarlo sería inventar un número donde el protocolo no define ninguno. Los
+otros **cuatro patrones, con 8 campos**, no los reproduce ninguna condición, y
+para esos el argumento de inexistencia no está hecho.
 
 **4. Las características son muchas menos de lo que parece.** Westermo declara
 47; de ellas 5 son constantes y las demás se agrupan por correlación en
@@ -124,32 +144,60 @@ publican.
 
 8,1 % de las celdas; 16,6 % de las filas tienen al menos un hueco. No es
 azar. La hipótesis del dominio es que un flujo que no es TCP no tiene banderas
-ni ventana, y que una dirección sin paquetes no tiene TTL que informar. Se
-comprobó por identidad exacta, no por asociación:
+ni ventana, y que una dirección sin paquetes no tiene TTL que informar.
 
-| Campo | El valor falta si y solo si | ¿Se cumple? |
-|---|---|---|
-| `sttl`, `rttl` | el flujo no es TCP, o ese lado no tiene paquetes | sí |
-| `sWinTCP`, `rWinTCP` | ídem | sí |
-| `sAckRate`, `rAckRate` | ídem | sí |
-| `sIPs`, `rIPs` | el protocolo no tiene capa IPv4 (`ARP`, `LLDP`) | sí |
+Comprobarla en un puñado de campos elegidos a mano no alcanza, porque los
+campos con huecos son 38. Se agruparon **todos** por su patrón de faltantes
+exacto —el conjunto de filas en que el campo falta— y se buscó, patrón por
+patrón, una condición que lo reproduzca si y solo si:
 
-Las ocho identidades se cumplen sin una sola excepción. El retardo de ACK
-agrega una condición más, porque medir un retardo exige al menos dos paquetes:
+| Campos | Faltan | Condición que lo reproduce exacto |
+|---:|---:|---|
+| 8 (banderas TCP, `sttl`, `sWinTCP`, `sAckRate`) | 3418 | no es TCP, o `sPackets` = 0 |
+| 8 (ídem del lado receptor) | 3333 | no es TCP, o `rPackets` = 0 |
+| 6 (bytes y carga útil, lado emisor) | 106 | `sPackets` = 0 |
+| 6 (ídem del lado receptor) | 3246 | `rPackets` = 0 |
+| 1 (`sInterPacketAvg`) | 1079 | `sPackets` < 2 |
+| 1 (`rInterPacketAvg`) | 3261 | `rPackets` < 2 |
+| 3 (`sAckDelay*`) | 3491 | **ninguna** |
+| 3 (`rAckDelay*`) | 3422 | **ninguna** |
+| 1 (`sFragmentRate`) | 2223 | **ninguna** |
+| 1 (`rFragmentRate`) | 3326 | **ninguna** |
+
+**Seis patrones, que cubren 30 de los 38 campos, cierran exactos.** Los otros
+cuatro no, y conviene mirar cuánto les falta: a los `AckDelay` la condición más
+cercana les erra en 10 y en 4 filas de 21.080, y a `rFragmentRate` en 7, de
+modo que son casi estructurales; a `sFragmentRate` le erra en **95**, que ya es
+otra cosa.
+
+El caso de los `AckDelay` se entiende: medir un retardo exige al menos dos
+paquetes, pero el umbral no es nítido.
 
 | `sPackets` | Flujos | Sin `sAckDelayAvg` |
 |---:|---:|---:|
-| 0 | 88 | 100 % |
-| 1 | 65 | 98 % |
-| 2 | 28 | 29 % |
-| 3 o más | 17.569 | 0 % |
+| 0 | 106 | 100 % |
+| 1 | 973 | 99,9 % |
+| 2 | 139 | 86 % |
+| 3 o más | 19.862 | 11,5 % |
 
-**Qué hacer con esto.** No imputar. El reporte automático propone «imputación
-simple» para las 21 columnas con más huecos, y sería un error: pondría una
-media donde el protocolo no define ningún valor, y además borraría la
-información de que el flujo no era TCP, que es informativa en sí misma. Lo que
-corresponde es una bandera de ausencia, o separar el tratamiento por
-protocolo.
+Con dos paquetes falta el 86 % y con tres o más todavía el 11,5 %: **no es un
+«si y solo si»**, es una tendencia fuerte con excepciones. Y el 11,5 % de
+flujos bien poblados sin el dato es el residuo que ninguna condición explica.
+
+**Qué hacer con esto, y el alcance importa.** Para los 30 campos cuyo patrón
+cierra exacto, no imputar. El reporte automático propone «imputación simple»
+para las 21 columnas con más huecos, y sería un error: pondría una media donde
+el protocolo no define ningún valor, y además borraría la información de que el
+flujo no era TCP, que es informativa en sí misma. Lo que corresponde es una
+bandera de ausencia, o separar el tratamiento por protocolo.
+
+Para los 8 campos cuyo patrón **no** cierra —los seis `AckDelay` y las dos
+tasas de fragmentación— el argumento de inexistencia no está hecho, de modo que
+no se puede usar para descartar la imputación. Ahí la bandera de ausencia no es
+una alternativa entre dos sino lo único defendible, porque el faltante quedó
+sin caracterizar. `sFragmentRate` es el caso que más conviene mirar antes de
+usarlo: su patrón no se parece a ninguna condición estructural y falta en el
+9,2 % de los flujos con tres o más paquetes.
 
 ### Qué variables hay en realidad
 
@@ -208,17 +256,24 @@ características, además de sus distribuciones y su periodicidad. Medido como
 el AUC de cada una tomada sola frente a `NST_B_Label`, donde 0,5 es no
 discriminar:
 
-| Característica | AUC | AUC plegado | Información mutua |
-|---|---:|---:|---:|
-| `sWinTCP` | 0,563 | 0,563 | 0,026 |
-| `rAckDelayMax` | 0,440 | 0,560 | 0,036 |
-| `sPackets` | 0,442 | 0,558 | 0,013 |
-| `rAckRate` | 0,444 | 0,556 | 0,023 |
-| `rSynRate` | 0,556 | 0,556 | 0,015 |
+| Característica | AUC | AUC plegado | Información mutua | Cobertura |
+|---|---:|---:|---:|---:|
+| `sWinTCP` | 0,563 | **0,563** | 0,026 | 83,8 % |
+| `rAckDelayMax` | 0,440 | 0,560 | 0,036 | 83,8 % |
+| `sPackets` | 0,442 | **0,558** | 0,013 | **100 %** |
+| `rAckRate` | 0,444 | 0,556 | 0,023 | 84,2 % |
+| `rSynRate` | 0,556 | 0,556 | 0,015 | 84,2 % |
 
 El AUC plegado trata igual a las que discriminan con el signo invertido. De
 las 42 evaluadas, **ninguna llega a 0,70 y 37 quedan por debajo de 0,55**. Con
 el etiquetado `IT` el mejor cae a 0,515, casi el azar.
+
+La cobertura importa para comparar con los otros conjuntos: el máximo, 0,563,
+es de un campo que falta en el 16,2 % de los flujos —los que no son TCP—, de
+modo que está medido sobre otra población. Sobre las filas completas el mejor
+es `sPackets` con **0,558**. La diferencia es de milésimas acá, pero la
+costumbre de citar el máximo sin su cobertura sí cambió una conclusión en
+Morris, de modo que conviene declararla en los tres.
 
 **Ninguna característica de flujo, por sí sola, separa el tráfico normal del
 anómalo en Westermo.** Es un resultado negativo y es importante: descarta de
@@ -350,20 +405,32 @@ el 84 % allá.
 ### Qué falta, y por qué
 
 1,6 % de las celdas y 7,0 % de las filas, bastante menos que en Westermo, y
-por la misma razón estructural. Las mismas ocho identidades se cumplen
-exactas, con una diferencia que conviene registrar: **el conjunto de
-protocolos sin IPv4 no es el mismo**.
+por la misma razón estructural. **La estructura de los faltantes es la misma
+que allá, hasta en el reparto**: los 38 campos con huecos dan otra vez diez
+patrones distintos, de los que seis —los mismos seis, con los mismos 30
+campos— cierran exactos, y cuatro no. Que dos conjuntos armados por la misma
+herramienta repitan el reparto 30/8 es, en sí, una comprobación de que el
+patrón viene del generador y no del tráfico.
 
 | Campo | El valor falta si y solo si | ¿Se cumple? |
 |---|---|---|
 | `sttl`, `rttl`, `sWinTCP`, `rWinTCP`, `sAckRate`, `rAckRate` | no es TCP, o ese lado no tiene paquetes | sí |
 | `sIPs`, `rIPs` | el protocolo no tiene capa IPv4 (`ARP`, `IPV6`) | sí |
+| `sAckDelay*`, `rAckDelay*`, `sFragmentRate`, `rFragmentRate` | — | **no** |
 
-En Westermo esos protocolos son `ARP` y `LLDP`; acá son `ARP` e `IPV6`. La
-regla es la misma —no hay dirección IPv4 que informar— pero el repertorio
+Con una diferencia que conviene registrar: **el conjunto de protocolos sin
+IPv4 no es el mismo**. En Westermo son `ARP` y `LLDP`; acá son `ARP` e `IPV6`.
+La regla es la misma —no hay dirección IPv4 que informar— pero el repertorio
 cambia, de modo que no se puede codificar la lista: hay que derivarla de cada
 conjunto. Es el tipo de detalle que convierte un lector común en uno que falla
 en silencio.
+
+Y una que corre en la otra dirección: acá los `AckDelay` se apartan **más** de
+la condición estructural que en Westermo —la más cercana les erra en 420 y en
+106 filas de 25.620, contra 10 y 4 de 21.080 allá—, mientras que las tasas de
+fragmentación se apartan menos, 9 y 10 filas. El residuo no está en los mismos
+campos en los dos conjuntos, de modo que no se puede heredar la conclusión de
+uno al otro.
 
 ### Qué variables hay en realidad
 
@@ -395,17 +462,22 @@ flujos cortos. Es un artefacto de cómo se construye el flujo, no del tráfico.
 
 ### Poder discriminante
 
-| Característica | AUC | AUC plegado | Información mutua |
-|---|---:|---:|---:|
-| `rPayloadMax` | 0,331 | 0,669 | 0,008 |
-| `rBytesMax` | 0,333 | 0,667 | 0,007 |
-| `rttl` | 0,336 | 0,664 | 0,043 |
-| `sBytesMax` | 0,341 | 0,659 | 0,008 |
-| `sPayloadSum` | 0,353 | 0,647 | 0,153 |
+| Característica | AUC | AUC plegado | Información mutua | Cobertura |
+|---|---:|---:|---:|---:|
+| `rPayloadMax` | 0,331 | **0,669** | 0,008 | 99,0 % |
+| `rBytesMax` | 0,333 | 0,667 | 0,007 | 99,0 % |
+| `rttl` | 0,336 | 0,664 | 0,043 | 97,1 % |
+| `sBytesMax` | 0,341 | 0,659 | 0,008 | 98,9 % |
+| `sPayloadSum` | 0,353 | **0,647** | 0,153 | **100 %** |
 
 De las 43 evaluadas, **tampoco ninguna llega a 0,70**, pero solo 18 quedan por
 debajo de 0,55 —contra 37 en Westermo—. Hay más señal repartida, aunque
 ninguna variable sola alcance.
+
+Acá los faltantes apenas muerden —el máximo está medido sobre el 99,0 % de las
+filas—, de modo que el mejor sobre población completa, `sPayloadSum` con
+**0,647**, queda a dos centésimas del máximo. Es la cifra que corresponde usar
+al comparar con los otros dos conjuntos.
 
 Vale la pena mirar `sPayloadSum`: su AUC plegado es 0,647 pero su información
 mutua es 0,153, **veintiuna veces** la de `rBytesMax`, que tiene AUC parecido.
@@ -540,19 +612,41 @@ los conjuntos de flujo, donde la proporción alta pasaba del 78 %.
 
 ### Poder discriminante
 
-| Atributo | AUC | AUC plegado | n |
-|---|---:|---:|---:|
-| `pressure measurement` | 0,316 | **0,684** | 41.085 |
-| `crc rate` | 0,611 | 0,611 | 163.823 |
-| `command response` | 0,394 | 0,606 | 163.823 |
-| `function` | 0,604 | 0,604 | 163.823 |
-| `setpoint` | 0,553 | 0,553 | 38.398 |
+| Atributo | AUC | AUC plegado | n | Cobertura | Positivos |
+|---|---:|---:|---:|---:|---:|
+| `pressure measurement` | 0,316 | **0,684** | 41.085 | **25,1 %** | 29,5 % |
+| `crc rate` | 0,611 | **0,611** | 163.823 | 100 % | 21,6 % |
+| `command response` | 0,394 | 0,606 | 163.823 | 100 % | 21,6 % |
+| `function` | 0,604 | 0,604 | 163.823 | 100 % | 21,6 % |
+| `setpoint` | 0,553 | 0,553 | 38.398 | 23,4 % | 23,9 % |
 
-El mejor es 0,684, apenas por encima del 0,669 de ICS-Flow y bastante por
-encima del 0,563 de Westermo. Que Morris quede primero es esperable, porque
-sus atributos son semánticos y la anomalía los manipula de forma directa.
-Pero la diferencia es de centésimas: **en ninguno de los tres conjuntos con
-etiqueta hay un atributo que separe bien por sí solo.**
+**Las dos últimas columnas deciden qué se puede comparar con qué.** El 0,684
+de `pressure measurement` está medido sobre 41.085 filas —un cuarto del
+tramo—, que son las respuestas, y en esa subpoblación la clase positiva pesa
+29,5 % y no 21,6 %. Es un AUC **condicional** a que el atributo exista, no uno
+del conjunto. Sobre todo el tramo el mejor es `crc rate` con **0,611**.
+
+Y la cobertura no es una particularidad de Morris: los tres conjuntos tienen
+atributos con faltantes estructurales, de modo que los tres tienen dos cifras
+distintas y hay que decir cuál se cita.
+
+| Conjunto | Mejor sobre población completa | Mejor absoluto, y sobre qué fracción |
+|---|---|---|
+| Westermo | 0,558 (`sPackets`, 100 %) | 0,563 (`sWinTCP`, **83,8 %**) |
+| ICS-Flow | 0,647 (`sPayloadSum`, 100 %) | 0,669 (`rPayloadMax`, 99,0 %) |
+| Morris | 0,611 (`crc rate`, 100 %) | 0,684 (`pressure measurement`, **25,1 %**) |
+
+**El orden entre conjuntos depende de la base, y por eso hay que declararla.**
+Sobre población completa es ICS-Flow (0,647), después Morris (0,611) y después
+Westermo (0,558). Sobre el máximo absoluto es Morris (0,684), ICS-Flow (0,669)
+y Westermo (0,563). Una versión anterior citaba los máximos absolutos sin
+decirlo y concluía que Morris quedaba primero «porque sus atributos son
+semánticos»: con la base comparable queda segundo, y la explicación sobraba.
+
+Lo que no depende de la base, y es la conclusión que importa, es que ningún
+máximo pasa de 0,684 ni ningún mejor de población completa pasa de 0,647: **en
+ninguno de los tres conjuntos con etiqueta hay un atributo que separe bien por
+sí solo.**
 
 ### Estructura temporal
 
@@ -640,6 +734,11 @@ medir, y se deja dicho en lugar de completarlo.**
 
 ### Estructura temporal
 
+Los dos archivos `train` de esta versión son campañas separadas por **47,4
+días**, de modo que la serie es segmentada y no continua. Se mide con pares
+dentro de un mismo archivo, que es la regla que el análisis aplica a Westermo:
+concatenar tramos separados por huecos introduce correlaciones falsas.
+
 | Retardo | Autocorrelación mediana | Columnas con \|ac\| > 0,3 |
 |---:|---:|---:|
 | 1 | 1,00 | 46 de 51 |
@@ -658,6 +757,13 @@ que no supone ningún modelo:
 Las 153 horas de registro valen como unas trescientas observaciones
 independientes. Es la cifra que hay que usar para cualquier intervalo de
 confianza sobre este conjunto, y cambia por completo la lectura de su tamaño.
+
+Una versión anterior calculaba esto sobre los dos archivos **pegados**, que es
+justo lo que el análisis prohíbe por escrito para Westermo. Se corrigió, y el
+sesgo quedó medido en lugar de supuesto: con un solo hueco entre 550.800 filas
+el tiempo de decorrelación mediano da 1800 s de las dos maneras y **ninguna**
+de las 51 columnas no constantes cambia el suyo. Las cifras no dependían del
+error; lo que se corrigió es el método.
 
 ![Caída de la autocorrelación en los cuatro conjuntos medibles](figuras/p18_decorrelacion.png)
 
@@ -743,7 +849,8 @@ ICS-Flow.
 | Autocorr. de las características | **−0,04** | 0,37 | 0,86 | **1,00** | — |
 | Autocorr. de la etiqueta | 0,78 | 0,73 | 0,86 | no medible | — |
 | Obs. independientes, por la etiqueta | 2618 | 4049 | 12.060 | **≈ 306** | — |
-| Mejor AUC de una variable | 0,563 | 0,669 | **0,684** | no medible | — |
+| Mejor AUC de una variable, población completa | 0,558 | **0,647** | 0,611 | no medible | — |
+| Mejor AUC absoluto, y su cobertura | 0,563 *(83,8 %)* | 0,669 *(99,0 %)* | **0,684** *(25,1 %)* | no medible | — |
 | Anomalías en entrenamiento | sí | sí | sí | **no** | sí |
 | Licencia | CC BY 4.0 | CC BY-NC-SA 4.0 | sin declarar | CC BY-SA 4.0 | sin declarar |
 
@@ -763,10 +870,12 @@ Westermo parece el más chico y es el único cuyas filas resultan
 independientes. Ordenar los conjuntos por número de filas da el orden
 equivocado.
 
-**Ninguna variable alcanza sola, en ninguno.** El mejor AUC de los tres
-conjuntos donde se puede medir va de 0,563 a 0,684. No hay un indicador único
-que sirva de alarma en ninguna de las tres fuentes, y eso es un resultado
-sobre el problema y no sobre los datos.
+**Ninguna variable alcanza sola, en ninguno.** Sobre población completa el
+mejor AUC de los tres conjuntos donde se puede medir va de 0,558 a 0,647, y
+los máximos absolutos, medidos cada uno sobre las filas en que su atributo
+existe, de 0,563 a 0,684. Con cualquiera de las dos bases no hay un indicador
+único que sirva de alarma en ninguna de las tres fuentes, y eso es un
+resultado sobre el problema y no sobre los datos.
 
 **Los faltantes y la dimensión se comportan al revés de lo esperable.** El
 conjunto con atributos semánticos —Morris— es el que más valores omite y a la

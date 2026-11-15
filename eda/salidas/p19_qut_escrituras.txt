@@ -6,7 +6,7 @@ del tramo de entrenamiento.
 ## 19.1 Los conteos de partida
 
 WRITE            207798
-objetos         2318278  (en 11 grupos distintos)
+objetos         2318092  (en 11 grupos distintos)
 
    g60v2          432515
    g60v3          414487
@@ -14,7 +14,7 @@ objetos         2318278  (en 11 grupos distintos)
    g1v2           230291
    g60v1          175161
    g20v2          173541
-   g2v1           162802
+   g2v1           162616
    g80v1          152896
    g20v0          123218
    g50v3           54902

@@ -73,27 +73,36 @@ separado.
 ### Poder discriminante
 
 AUC de cada atributo frente a `binary result`, sobre las filas en que
-el atributo existe:
+el atributo existe. **La columna de cobertura decide si dos AUC son
+comparables**: un atributo que falta en tres de cada cuatro filas se
+evalua sobre otra poblacion, y con otra prevalencia de la clase
+positiva, que uno presente en todas.
 
-atributo                      AUC  AUC pleg.          n
-pressure measurement        0.316      0.684      41085
-crc rate                    0.611      0.611     163823
-command response            0.394      0.606     163823
-function                    0.604      0.604     163823
-setpoint                    0.553      0.553      38398
-pump                        0.553      0.553      38398
-rate                        0.550      0.550      38398
-system mode                 0.547      0.547      38398
+atributo                      AUC  AUC pleg.          n   cob.%   pos.%
+pressure measurement        0.316      0.684      41085    25.1    29.5
+crc rate                    0.611      0.611     163823   100.0    21.6
+command response            0.394      0.606     163823   100.0    21.6
+function                    0.604      0.604     163823   100.0    21.6
+setpoint                    0.553      0.553      38398    23.4    23.9
+pump                        0.553      0.553      38398    23.4    23.9
+rate                        0.550      0.550      38398    23.4    23.9
+system mode                 0.547      0.547      38398    23.4    23.9
 
-El mejor es `pressure measurement` con AUC plegado **0.684**, frente a 0.563 de Westermo y 0.669 de ICS-Flow.
+Sobre **todo el tramo** (cobertura >= 99 %) el mejor es `crc rate` con AUC
+plegado **0.611**. Esa es la cifra comparable con 0.563 de Westermo y 0.669 de ICS-Flow,
+que son de población completa.
 
-Es el más alto de los tres conjuntos con etiqueta, pero por poco y
-sin llegar a separar bien: **en ninguno de los tres hay un atributo
-que alcance solo.** Que Morris quede algo por encima es esperable,
-porque sus atributos son semánticos y la anomalía los manipula de
-forma directa, mientras que en los de flujo la anomalía aparece
-recién al agregar paquetes. Pero la diferencia es de centésimas y
-no cambia la conclusión.
+El mejor absoluto es otro: `pressure measurement`, con **0.684**, pero medido sobre
+41085 filas, el 25.1 % del tramo, donde la clase positiva pesa
+29.5 % en lugar del 21.6 % del tramo entero. Es un AUC
+**condicional** a que el atributo exista, y no se puede poner al
+lado de los otros dos conjuntos como si fuera lo mismo.
+
+Con esa base Morris **queda por debajo de ICS-Flow**, de modo que no es
+el conjunto más separable pese a tener atributos semánticos. Lo
+que sí se sostiene, y es la conclusión que importa, es que **en
+ninguno de los tres hay un atributo que alcance solo**: los tres
+mejores quedan entre 0,56 y 0,67.
 
 ### Estructura temporal
 
@@ -191,11 +200,23 @@ protocolo, de modo que **queda sin medir y se deja dicho**.
 
 ### Estructura temporal
 
-retardo       mediana   con |ac|>0,3
-1                1.00             46
-2                1.00             46
-5                0.99             48
-10               0.99             48
+Los 2 archivos `train` de hai-20.07 son campañas separadas por días, de modo
+que la serie es **segmentada**. Se mide con pares dentro de un mismo
+archivo, como hace `05_determinismo.py` para Westermo: concatenar
+tramos separados por huecos introduce correlaciones falsas.
+
+retardo       mediana   con |ac|>0,3  si se concatena
+1                1.00             46             1.00
+2                1.00             46             1.00
+5                0.99             48             0.99
+10               0.99             48             0.99
+
+La última columna es la medida mal hecha, a propósito, para saber
+cuánto costaba el atajo: con un solo hueco entre 550800 filas el sesgo
+no se ve. Tiempo de decorrelación mediano **1800 s** por tramos y
+1800 s concatenando, y de las 51 columnas no constantes cambian **0**.
+De modo que las cifras publicadas no dependían del error; lo que se
+corrige es el método, que contradecía la regla del propio script 05.
 
 Con 1.00 a retardo 1 es **el valor más alto de los cuatro conjuntos**.
 Tan cerca de 1 la corrección AR(1) deja de ser fiable, porque su

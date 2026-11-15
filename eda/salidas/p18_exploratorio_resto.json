@@ -23,8 +23,13 @@
    "alta": 9
   },
   "discriminante": {
-   "mejor": "pressure measurement",
-   "auc": 0.6839518616252513,
+   "mejor_absoluto": "pressure measurement",
+   "auc_absoluto": 0.6839518616252513,
+   "cobertura_del_mejor_absoluto": 25.078896125696637,
+   "prevalencia_en_esa_subpoblacion": 29.487647559936715,
+   "prevalencia_en_el_tramo": 21.587933318276434,
+   "mejor_en_poblacion_completa": "crc rate",
+   "auc_en_poblacion_completa": 0.6114871163150368,
    "evaluados": 16
   },
   "autocorrelacion": {
@@ -100,9 +105,14 @@
    "alta": 11
   },
   "positivos_en_train": 776,
+  "autocorrelacion_concatenando": {
+   "tau_s": 1800.0,
+   "columnas_que_cambian": 0
+  },
   "autocorrelacion": {
-   "rho_lag1": 0.9991834065477436,
+   "rho_lag1": 0.9991858586266045,
    "n": 550800,
+   "segmentos": 2,
    "tau_decorrelacion_s": 1800.0,
    "independientes": 306.0
   },

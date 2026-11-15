@@ -47,6 +47,37 @@ HAI_VERSIONES = [("hai-20.07", ";", "train*.csv", "time"),
 HAI_FICHA = "hai-20.07"   # la version con linea base publicada
 
 
+def autocorr_segmentos(segmentos, lag):
+    """Autocorrelacion agrupada sobre tramos discontinuos.
+
+    Misma regla que `05_determinismo.py`: no se puede concatenar tramos
+    separados por huecos, porque el salto introduce correlaciones falsas. Se
+    acumulan numerador y denominador por tramo, con la media global, y solo se
+    usan pares dentro de un mismo tramo.
+
+    Los `train` de HAI son campanas de adquisicion separadas por dias --- en
+    `hai-20.07` el hueco entre `train1` y `train2` es de 47,4 dias ---, de modo
+    que la serie es segmentada y no continua. Una version anterior de este
+    script las concatenaba antes de medir, que es justo lo que el script 05
+    prohibe por escrito y evita para Westermo.
+    """
+    ss = [np.asarray(s, dtype=float) for s in segmentos]
+    ss = [s[np.isfinite(s)] for s in ss]
+    ss = [s for s in ss if len(s) > lag]
+    if not ss:
+        return np.nan
+    todo = np.concatenate(ss)
+    mu = todo.mean()
+    den = float(((todo - mu) ** 2).sum())
+    if den == 0:
+        return np.nan
+    num = 0.0
+    for s in ss:
+        z = s - mu
+        num += float((z[:-lag] * z[lag:]).sum())
+    return num / den
+
+
 def autocorr_serie(v, lag):
     v = np.asarray(v, float)
     v = v[np.isfinite(v)]
@@ -216,40 +247,72 @@ def morris(w):
         filas.append((c, float(auc), float(abs(auc - 0.5) + 0.5),
                       int(m.sum())))
     dd = pd.DataFrame(filas, columns=["campo", "auc", "auc_abs", "n"])
+    dd["cobertura"] = 100.0 * dd["n"] / len(tr)
+    # Prevalencia de la clase positiva en la subpoblacion de cada atributo: si
+    # cambia, el AUC no esta midiendo sobre la misma poblacion que los demas.
+    dd["prev"] = [100.0 * y[num[c].notna()].mean() for c in dd["campo"]]
     dd = dd.sort_values("auc_abs", ascending=False)
     w("AUC de cada atributo frente a `binary result`, sobre las filas en que")
-    w("el atributo existe:")
+    w("el atributo existe. **La columna de cobertura decide si dos AUC son")
+    w("comparables**: un atributo que falta en tres de cada cuatro filas se")
+    w("evalua sobre otra poblacion, y con otra prevalencia de la clase")
+    w("positiva, que uno presente en todas.")
     w("")
-    w("%-24s %8s %10s %10s" % ("atributo", "AUC", "AUC pleg.", "n"))
+    w("%-24s %8s %10s %10s %7s %7s"
+      % ("atributo", "AUC", "AUC pleg.", "n", "cob.%", "pos.%"))
     for _, x in dd.head(8).iterrows():
-        w("%-24s %8.3f %10.3f %10d" % (x.campo, x.auc, x.auc_abs, x.n))
+        w("%-24s %8.3f %10.3f %10d %7.1f %7.1f"
+          % (x.campo, x.auc, x.auc_abs, x.n, x.cobertura, x.prev))
     w("")
     mejor = dd.iloc[0]
-    # La comparacion con los otros dos conjuntos se calcula, no se afirma:
-    # el orden depende del dato y ya cambio una vez al medirlo.
+    # Las cifras de los otros dos conjuntos son de poblacion completa, de modo
+    # que lo comparable es el mejor atributo COMPLETO, no el mejor absoluto.
+    COB_MIN = 99.0
+    completos = dd[dd["cobertura"] >= COB_MIN]
+    mejor_comp = completos.iloc[0] if len(completos) else None
     otros = {"Westermo": 0.563, "ICS-Flow": 0.669}
-    peor_que = [k for k, v in otros.items() if mejor.auc_abs <= v]
-    w("El mejor es `%s` con AUC plegado **%.3f**, frente a %s."
-      % (mejor.campo, mejor.auc_abs,
+    w("Sobre **todo el tramo** (cobertura >= %.0f %%) el mejor es `%s` con AUC"
+      % (COB_MIN, mejor_comp.campo if mejor_comp is not None else "-"))
+    w("plegado **%.3f**. Esa es la cifra comparable con %s,"
+      % (mejor_comp.auc_abs if mejor_comp is not None else float("nan"),
          " y ".join("%.3f de %s" % (v, k) for k, v in otros.items())))
+    w("que son de población completa.")
     w("")
-    if not peor_que and mejor.auc_abs < 0.75:
-        w("Es el más alto de los tres conjuntos con etiqueta, pero por poco y")
-        w("sin llegar a separar bien: **en ninguno de los tres hay un atributo")
-        w("que alcance solo.** Que Morris quede algo por encima es esperable,")
-        w("porque sus atributos son semánticos y la anomalía los manipula de")
-        w("forma directa, mientras que en los de flujo la anomalía aparece")
-        w("recién al agregar paquetes. Pero la diferencia es de centésimas y")
-        w("no cambia la conclusión.")
+    if mejor.campo != (mejor_comp.campo if mejor_comp is not None else None):
+        w("El mejor absoluto es otro: `%s`, con **%.3f**, pero medido sobre"
+          % (mejor.campo, mejor.auc_abs))
+        w("%d filas, el %.1f %% del tramo, donde la clase positiva pesa"
+          % (mejor.n, mejor.cobertura))
+        w("%.1f %% en lugar del %.1f %% del tramo entero. Es un AUC"
+          % (mejor.prev, 100.0 * y.mean()))
+        w("**condicional** a que el atributo exista, y no se puede poner al")
+        w("lado de los otros dos conjuntos como si fuera lo mismo.")
+        w("")
+    base = mejor_comp.auc_abs if mejor_comp is not None else mejor.auc_abs
+    peor_que = [k for k, v in otros.items() if base <= v]
+    if not peor_que and base < 0.75:
+        w("Con esa base Morris queda el más alto de los tres conjuntos con")
+        w("etiqueta, por poco y sin llegar a separar bien.")
     elif peor_que:
-        w("Queda por debajo de %s, de modo que no es el conjunto más separable"
+        w("Con esa base Morris **queda por debajo de %s**, de modo que no es"
           % " y ".join(peor_que))
-        w("pese a tener atributos semánticos.")
+        w("el conjunto más separable pese a tener atributos semánticos. Lo")
+        w("que sí se sostiene, y es la conclusión que importa, es que **en")
+        w("ninguno de los tres hay un atributo que alcance solo**: los tres")
+        w("mejores quedan entre 0,56 y 0,67.")
     else:
         w("Es el único de los tres donde un atributo solo separa bien.")
-    r["discriminante"] = {"mejor": mejor.campo,
-                          "auc": float(mejor.auc_abs),
-                          "evaluados": len(dd)}
+    r["discriminante"] = {
+        "mejor_absoluto": mejor.campo,
+        "auc_absoluto": float(mejor.auc_abs),
+        "cobertura_del_mejor_absoluto": float(mejor.cobertura),
+        "prevalencia_en_esa_subpoblacion": float(mejor.prev),
+        "prevalencia_en_el_tramo": float(100.0 * y.mean()),
+        "mejor_en_poblacion_completa": (mejor_comp.campo
+                                        if mejor_comp is not None else None),
+        "auc_en_poblacion_completa": (float(mejor_comp.auc_abs)
+                                      if mejor_comp is not None else None),
+        "evaluados": len(dd)}
     w("")
 
     w("### Estructura temporal")
@@ -351,7 +414,17 @@ def hai(w):
 
     ver, sep, pat, tcol = [v for v in HAI_VERSIONES if v[0] == HAI_FICHA][0]
     arch = sorted(glob.glob(os.path.join(comun.HAI, ver, pat)))
-    df = pd.concat([pd.read_csv(a, sep=sep) for a in arch], ignore_index=True)
+    # Los archivos se guardan POR SEPARADO, no solo concatenados: lo que es
+    # legitimo calcular sobre la union (que falta, que varia, como se
+    # distribuye, cuanto se correlacionan dos columnas) no lo es para nada
+    # que mire el orden temporal, porque entre un archivo y el siguiente hay
+    # dias de hueco. La seccion de estructura temporal usa `piezas`.
+    piezas = []
+    for a in arch:
+        x = pd.read_csv(a, sep=sep)
+        x.columns = [c.strip() for c in x.columns]
+        piezas.append(x)
+    df = pd.concat(piezas, ignore_index=True)
     df.columns = [c.strip() for c in df.columns]
     etq = [c for c in df.columns if c.lower().startswith("attack")]
     feats = [c for c in df.columns if c not in etq + [tcol]]
@@ -422,30 +495,62 @@ def hai(w):
 
     w("### Estructura temporal")
     w("")
-    w("%-8s %12s %14s" % ("retardo", "mediana", "con |ac|>0,3"))
+    w("Los %d archivos `train` de %s son campañas separadas por días, de modo"
+      % (len(piezas), HAI_FICHA))
+    w("que la serie es **segmentada**. Se mide con pares dentro de un mismo")
+    w("archivo, como hace `05_determinismo.py` para Westermo: concatenar")
+    w("tramos separados por huecos introduce correlaciones falsas.")
+    w("")
+    segs = {c: [pd.to_numeric(p[c], errors="coerce").to_numpy(float)
+                for p in piezas if c in p.columns] for c in utiles}
+    w("%-8s %12s %14s %16s" % ("retardo", "mediana", "con |ac|>0,3",
+                               "si se concatena"))
     ac1 = None
     for lag in LAGS:
-        v = np.array([autocorr_serie(num[c].values, lag) for c in utiles])
+        v = np.array([autocorr_segmentos(segs[c], lag) for c in utiles])
         v = v[np.isfinite(v)]
+        vc = np.array([autocorr_serie(num[c].values, lag) for c in utiles])
+        vc = vc[np.isfinite(vc)]
         if lag == 1:
             ac1 = float(np.median(v))
-        w("%-8d %12.2f %14d" % (lag, np.median(v), int((np.abs(v) > 0.3).sum())))
+        w("%-8d %12.2f %14d %16.2f"
+          % (lag, np.median(v), int((np.abs(v) > 0.3).sum()), np.median(vc)))
     n = len(df)
     # Con rho tan cerca de 1 la correccion AR(1) se vuelve inestable --- da un
     # numero enorme o ridiculo segun la cuarta cifra de rho --- asi que se usa
     # el tiempo de decorrelacion, que es el retardo en que la autocorrelacion
     # cae por debajo de 1/e y no depende de suponer un AR(1).
-    taus = []
+    LAGS_TAU = (1, 2, 5, 10, 30, 60, 300, 600, 1800, 3600)
+    taus, taus_conc = [], []
     for c in utiles:
-        v = num[c].values
-        for lag in (1, 2, 5, 10, 30, 60, 300, 600, 1800, 3600):
-            a_ = autocorr_serie(v, lag)
+        for lag in LAGS_TAU:
+            a_ = autocorr_segmentos(segs[c], lag)
             if a_ is not None and np.isfinite(a_) and a_ < 1 / np.e:
                 taus.append(lag)
                 break
         else:
             taus.append(3600)
+        v = num[c].values
+        for lag in LAGS_TAU:
+            a_ = autocorr_serie(v, lag)
+            if a_ is not None and np.isfinite(a_) and a_ < 1 / np.e:
+                taus_conc.append(lag)
+                break
+        else:
+            taus_conc.append(3600)
     tau = float(np.median(taus))
+    tau_conc = float(np.median(taus_conc))
+    cambian = sum(1 for a_, b_ in zip(taus, taus_conc) if a_ != b_)
+    w("")
+    w("La última columna es la medida mal hecha, a propósito, para saber")
+    w("cuánto costaba el atajo: con un solo hueco entre %d filas el sesgo"
+      % n)
+    w("no se ve. Tiempo de decorrelación mediano **%.0f s** por tramos y"
+      % tau)
+    w("%.0f s concatenando, y de las %d columnas no constantes cambian **%d**."
+      % (tau_conc, len(utiles), cambian))
+    w("De modo que las cifras publicadas no dependían del error; lo que se")
+    w("corrige es el método, que contradecía la regla del propio script 05.")
     w("")
     w("Con %.2f a retardo 1 es **el valor más alto de los cuatro conjuntos**."
       % ac1)
@@ -461,7 +566,9 @@ def hai(w):
     w("A 1 Hz cada fila es casi idéntica a la anterior. El conjunto tiene")
     w("órdenes de magnitud menos observaciones independientes de las que")
     w("aparenta, y esa es la cifra que hay que usar para cualquier intervalo.")
-    r["autocorrelacion"] = {"rho_lag1": ac1, "n": n,
+    r["autocorrelacion_concatenando"] = {"tau_s": tau_conc,
+                                         "columnas_que_cambian": cambian}
+    r["autocorrelacion"] = {"rho_lag1": ac1, "n": n, "segmentos": len(piezas),
                             "tau_decorrelacion_s": tau,
                             "independientes": float(n / tau)}
     FIG["ac_HAI"] = (num[utiles], None)

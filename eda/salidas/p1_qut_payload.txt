@@ -48,24 +48,52 @@ Replay         infre master        710654      67083      67178         0 73348/
 Replay         infre slave         710865      67166      67323         0 73497/73497
 Replay         infre attacker      301680        145        217         0   221/221
 
+## 1.1.b Fragmentado: cuantas tramas NO llevan cabecera de aplicacion
+
+La cabecera de aplicacion --- control, codigo de funcion, IIN --- vive
+solo en la trama que ABRE un fragmento, la del bit FIR en uno. En una
+trama de continuacion los octetos siguientes son datos de objeto, de
+modo que leerlos como cabecera inventa una funcion y una cabecera de
+objeto. `dnp3.py` mira ese bit y cuenta las de continuacion en lugar de
+interpretarlas; esta seccion las informa para que no queden escondidas.
+
+escenario           unico    primero     ultimo intermedio   sin cab.
+Attacks            404012          0          0         24         24
+Control            268892          0          0          0          0
+Flooding           574088          0          0         42         42
+Injection          271239          0          0          0          0
+MITM               275662          0          0          0          0
+Masqurading        306716          0          0         66         66
+Replay             271313          0          0         54         54
+
+TOTAL             2371922          0          0        186        186
+
+Tramas con octeto de transporte: 2372108. Sin cabecera de aplicacion: 186
+(el 0.0078 %).
+
+**No hay ni una trama de apertura de fragmento multiple ni de
+cierre, solo intermedias.** De modo que esas tramas no son
+fragmentos bien formados: les falta la apertura y el cierre que
+todo fragmento repartido tiene que tener. Es trafico fabricado.
+
 ## 1.2 Codigos de funcion de aplicacion
 
-Attacks        frequent   master    solo-enlace=44 app=72098 | RESPONSE=28999, READ=28941, CONFIRM=7683, UNSOLICITED_RESPONSE=6283, RECORD_CURRENT_TIME=71, WRITE=63, ENABLE_UNSOLICITED=58
+Attacks        frequent   master    solo-enlace=53 app=72089 | RESPONSE=28999, READ=28941, CONFIRM=7683, UNSOLICITED_RESPONSE=6274, RECORD_CURRENT_TIME=71, WRITE=63, ENABLE_UNSOLICITED=58
 Attacks        frequent   slave     solo-enlace=55 app=126754 | RESPONSE=33476, WRITE=30713, READ=29028, IMMED_FREEZE=24226, CONFIRM=5777, UNSOLICITED_RESPONSE=3412, RECORD_CURRENT_TIME=52, ENABLE_UNSOLICITED=49
-Attacks        frequent   attacker  solo-enlace=11 app=66918 | WRITE=30674, IMMED_FREEZE=24226, RESPONSE=5589, UNSOLICITED_RESPONSE=3011, CONFIRM=2140, READ=1215, RECORD_CURRENT_TIME=27, ENABLE_UNSOLICITED=15
-Attacks        infrequent master    solo-enlace=6 app=68960 | RESPONSE=29082, READ=29070, CONFIRM=6580, UNSOLICITED_RESPONSE=4191, RECORD_CURRENT_TIME=17, WRITE=10, ENABLE_UNSOLICITED=10
+Attacks        frequent   attacker  solo-enlace=20 app=66909 | WRITE=30674, IMMED_FREEZE=24226, RESPONSE=5589, UNSOLICITED_RESPONSE=3002, CONFIRM=2140, READ=1215, RECORD_CURRENT_TIME=27, ENABLE_UNSOLICITED=15
+Attacks        infrequent master    solo-enlace=9 app=68957 | RESPONSE=29082, READ=29070, CONFIRM=6580, UNSOLICITED_RESPONSE=4188, RECORD_CURRENT_TIME=17, WRITE=10, ENABLE_UNSOLICITED=10
 Attacks        infrequent slave     solo-enlace=8 app=67137 | READ=29071, RESPONSE=29038, CONFIRM=5704, UNSOLICITED_RESPONSE=3297, RECORD_CURRENT_TIME=7, WRITE=7, ENABLE_UNSOLICITED=7, WARM_RESTART=3
-Attacks        infrequent attacker  solo-enlace=2 app=2169 | UNSOLICITED_RESPONSE=910, CONFIRM=908, READ=183, RESPONSE=146, RECORD_CURRENT_TIME=10, WRITE=3, ENABLE_UNSOLICITED=3, WARM_RESTART=3
+Attacks        infrequent attacker  solo-enlace=5 app=2166 | CONFIRM=908, UNSOLICITED_RESPONSE=907, READ=183, RESPONSE=146, RECORD_CURRENT_TIME=10, WRITE=3, ENABLE_UNSOLICITED=3, WARM_RESTART=3
 Control        frequent   master    solo-enlace=0 app=67173 | READ=29094, RESPONSE=29094, CONFIRM=5706, UNSOLICITED_RESPONSE=3279
 Control        frequent   slave     solo-enlace=0 app=67173 | READ=29094, RESPONSE=29094, CONFIRM=5706, UNSOLICITED_RESPONSE=3279
 Control        infrequent master    solo-enlace=0 app=67273 | RESPONSE=29122, READ=29121, CONFIRM=5748, UNSOLICITED_RESPONSE=3282
 Control        infrequent slave     solo-enlace=0 app=67273 | RESPONSE=29122, READ=29121, CONFIRM=5748, UNSOLICITED_RESPONSE=3282
-Flooding       frequent   master    solo-enlace=55 app=93082 | RESPONSE=28949, READ=28891, CONFIRM=18723, UNSOLICITED_RESPONSE=16412, RECORD_CURRENT_TIME=37, WRITE=35, ENABLE_UNSOLICITED=35
+Flooding       frequent   master    solo-enlace=70 app=93067 | RESPONSE=28949, READ=28891, CONFIRM=18723, UNSOLICITED_RESPONSE=16397, RECORD_CURRENT_TIME=37, WRITE=35, ENABLE_UNSOLICITED=35
 Flooding       frequent   slave     solo-enlace=71 app=177848 | WRITE=64538, RESPONSE=37906, IMMED_FREEZE=37272, READ=29011, CONFIRM=5725, UNSOLICITED_RESPONSE=3351, RECORD_CURRENT_TIME=25, ENABLE_UNSOLICITED=20
-Flooding       frequent   attacker  solo-enlace=16 app=137348 | WRITE=64533, IMMED_FREEZE=37272, UNSOLICITED_RESPONSE=13113, CONFIRM=13060, RESPONSE=9077, READ=256, RECORD_CURRENT_TIME=22, ENABLE_UNSOLICITED=15
-Flooding       infrequent master    solo-enlace=2 app=72929 | RESPONSE=29093, READ=29080, CONFIRM=8574, UNSOLICITED_RESPONSE=6152, RECORD_CURRENT_TIME=14, WRITE=8, ENABLE_UNSOLICITED=8
+Flooding       frequent   attacker  solo-enlace=31 app=137333 | WRITE=64533, IMMED_FREEZE=37272, UNSOLICITED_RESPONSE=13098, CONFIRM=13060, RESPONSE=9077, READ=256, RECORD_CURRENT_TIME=22, ENABLE_UNSOLICITED=15
+Flooding       infrequent master    solo-enlace=8 app=72923 | RESPONSE=29093, READ=29080, CONFIRM=8574, UNSOLICITED_RESPONSE=6146, RECORD_CURRENT_TIME=14, WRITE=8, ENABLE_UNSOLICITED=8
 Flooding       infrequent slave     solo-enlace=8 app=77169 | RESPONSE=30704, READ=29141, WRITE=8278, CONFIRM=5739, UNSOLICITED_RESPONSE=3295, RECORD_CURRENT_TIME=7, ENABLE_UNSOLICITED=5
-Flooding       infrequent attacker  solo-enlace=6 app=15754 | WRITE=8276, UNSOLICITED_RESPONSE=2879, CONFIRM=2859, RESPONSE=1635, READ=91, RECORD_CURRENT_TIME=11, ENABLE_UNSOLICITED=3
+Flooding       infrequent attacker  solo-enlace=12 app=15748 | WRITE=8276, UNSOLICITED_RESPONSE=2873, CONFIRM=2859, RESPONSE=1635, READ=91, RECORD_CURRENT_TIME=11, ENABLE_UNSOLICITED=3
 Injection      frequent   master    solo-enlace=6 app=67945 | RESPONSE=29162, READ=29011, CONFIRM=6075, UNSOLICITED_RESPONSE=3466, WRITE=91, RECORD_CURRENT_TIME=75, ENABLE_UNSOLICITED=65
 Injection      frequent   slave     solo-enlace=6 app=67882 | RESPONSE=29253, READ=28983, CONFIRM=5909, UNSOLICITED_RESPONSE=3402, WRITE=91, RECORD_CURRENT_TIME=74, ENABLE_UNSOLICITED=65, IMMED_FREEZE=48
 Injection      frequent   attacker  solo-enlace=0 app=541 | CONFIRM=166, READ=97, RESPONSE=92, UNSOLICITED_RESPONSE=80, IMMED_FREEZE=48, COLD_RESTART=33, WARM_RESTART=24, RECORD_CURRENT_TIME=1
@@ -78,41 +106,41 @@ MITM           frequent   attacker  solo-enlace=0 app=5033 | READ=2306, RESPONSE
 MITM           infrequent master    solo-enlace=2 app=67207 | READ=29080, RESPONSE=29075, CONFIRM=5724, UNSOLICITED_RESPONSE=3292, RECORD_CURRENT_TIME=12, WRITE=12, ENABLE_UNSOLICITED=12
 MITM           infrequent slave     solo-enlace=2 app=67320 | READ=29157, RESPONSE=29085, CONFIRM=5733, UNSOLICITED_RESPONSE=3300, RECORD_CURRENT_TIME=12, WRITE=12, ENABLE_UNSOLICITED=12, IMMED_FREEZE_NR=9
 MITM           infrequent attacker  solo-enlace=0 app=925 | READ=429, RESPONSE=362, CONFIRM=81, UNSOLICITED_RESPONSE=44, IMMED_FREEZE_NR=9
-Masqurading    frequent   master    solo-enlace=54 app=81757 | RESPONSE=28944, READ=28885, CONFIRM=12808, UNSOLICITED_RESPONSE=10792, RECORD_CURRENT_TIME=122, WRITE=103, ENABLE_UNSOLICITED=103
+Masqurading    frequent   master    solo-enlace=81 app=81730 | RESPONSE=28944, READ=28885, CONFIRM=12808, UNSOLICITED_RESPONSE=10765, RECORD_CURRENT_TIME=122, WRITE=103, ENABLE_UNSOLICITED=103
 Masqurading    frequent   slave     solo-enlace=86 app=66946 | READ=28845, RESPONSE=28796, CONFIRM=5618, UNSOLICITED_RESPONSE=3482, RECORD_CURRENT_TIME=76, ENABLE_UNSOLICITED=73, WRITE=56
-Masqurading    frequent   attacker  solo-enlace=32 app=17681 | UNSOLICITED_RESPONSE=7448, CONFIRM=7358, READ=1496, RESPONSE=1188, RECORD_CURRENT_TIME=80, ENABLE_UNSOLICITED=64, WRITE=47
-Masqurading    infrequent master    solo-enlace=7 app=69867 | READ=29059, RESPONSE=29059, CONFIRM=7059, UNSOLICITED_RESPONSE=4647, RECORD_CURRENT_TIME=15, WRITE=14, ENABLE_UNSOLICITED=14
+Masqurading    frequent   attacker  solo-enlace=59 app=17654 | UNSOLICITED_RESPONSE=7421, CONFIRM=7358, READ=1496, RESPONSE=1188, RECORD_CURRENT_TIME=80, ENABLE_UNSOLICITED=64, WRITE=47
+Masqurading    infrequent master    solo-enlace=13 app=69861 | READ=29059, RESPONSE=29059, CONFIRM=7059, UNSOLICITED_RESPONSE=4641, RECORD_CURRENT_TIME=15, WRITE=14, ENABLE_UNSOLICITED=14
 Masqurading    infrequent slave     solo-enlace=11 app=67218 | READ=29098, RESPONSE=29078, CONFIRM=5719, UNSOLICITED_RESPONSE=3293, RECORD_CURRENT_TIME=11, ENABLE_UNSOLICITED=11, WRITE=8
-Masqurading    infrequent attacker  solo-enlace=4 app=3313 | UNSOLICITED_RESPONSE=1384, CONFIRM=1378, READ=299, RESPONSE=227, RECORD_CURRENT_TIME=10, ENABLE_UNSOLICITED=9, WRITE=6
-Replay         frequent   master    solo-enlace=55 app=67327 | READ=29057, RESPONSE=28997, CONFIRM=5803, UNSOLICITED_RESPONSE=3359, RECORD_CURRENT_TIME=37, WRITE=37, ENABLE_UNSOLICITED=37
+Masqurading    infrequent attacker  solo-enlace=10 app=3307 | UNSOLICITED_RESPONSE=1378, CONFIRM=1378, READ=299, RESPONSE=227, RECORD_CURRENT_TIME=10, ENABLE_UNSOLICITED=9, WRITE=6
+Replay         frequent   master    solo-enlace=73 app=67309 | READ=29057, RESPONSE=28997, CONFIRM=5803, UNSOLICITED_RESPONSE=3341, RECORD_CURRENT_TIME=37, WRITE=37, ENABLE_UNSOLICITED=37
 Replay         frequent   slave     solo-enlace=67 app=68159 | READ=29477, RESPONSE=29323, CONFIRM=5876, UNSOLICITED_RESPONSE=3372, RECORD_CURRENT_TIME=37, WRITE=37, ENABLE_UNSOLICITED=37
-Replay         frequent   attacker  solo-enlace=12 app=1175 | READ=502, RESPONSE=326, CONFIRM=205, UNSOLICITED_RESPONSE=142
-Replay         infrequent master    solo-enlace=0 app=67178 | READ=29061, RESPONSE=29056, CONFIRM=5728, UNSOLICITED_RESPONSE=3309, RECORD_CURRENT_TIME=8, WRITE=8, ENABLE_UNSOLICITED=8
+Replay         frequent   attacker  solo-enlace=30 app=1157 | READ=502, RESPONSE=326, CONFIRM=205, UNSOLICITED_RESPONSE=124
+Replay         infrequent master    solo-enlace=9 app=67169 | READ=29061, RESPONSE=29056, CONFIRM=5728, UNSOLICITED_RESPONSE=3300, RECORD_CURRENT_TIME=8, WRITE=8, ENABLE_UNSOLICITED=8
 Replay         infrequent slave     solo-enlace=6 app=67317 | READ=29154, RESPONSE=29100, CONFIRM=5739, UNSOLICITED_RESPONSE=3300, RECORD_CURRENT_TIME=8, WRITE=8, ENABLE_UNSOLICITED=8
-Replay         infrequent attacker  solo-enlace=6 app=211 | READ=111, RESPONSE=44, CONFIRM=31, UNSOLICITED_RESPONSE=25
+Replay         infrequent attacker  solo-enlace=15 app=202 | READ=111, RESPONSE=44, CONFIRM=31, UNSOLICITED_RESPONSE=16
 
 ## 1.3 Objetos y recuperacion de parametros
 
-Attacks        frequent   master    cab.completas=71158 incompletas=0 valores=35306
-                                   g60v2=15241, g60v3=14626, g60v4=14064, g1v2=8994, g60v1=6169, g20v2=6142, g2v1=5859, g50v3=58, g80v1=5
+Attacks        frequent   master    cab.completas=71149 incompletas=0 valores=35297
+                                   g60v2=15241, g60v3=14626, g60v4=14064, g1v2=8994, g60v1=6169, g20v2=6142, g2v1=5850, g50v3=58, g80v1=5
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "b8e918b25701"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "9e6f19b25701"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "456328b25701"}
-                                   PARAM WRITE g80v1 {"punto": 7, "tipo": "g80v1_bit", "valor": 0}
+                                   PARAM WRITE g80v1 {"punto": 7, "tipo": "g80v1_bit1", "valor": 0}
 Attacks        frequent   slave     cab.completas=123323 incompletas=0 valores=62795
                                    g20v0=24232, g80v1=22801, g60v2=15318, g60v3=14663, g60v4=14132, g50v3=7912, g60v1=6224, g1v2=6113, g20v2=6113, g2v1=5810
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "9e6f19b25701"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "456328b25701"}
-                                   PARAM WRITE g80v1 {"punto": 7, "tipo": "g80v1_bit", "valor": 0}
+                                   PARAM WRITE g80v1 {"punto": 7, "tipo": "g80v1_bit1", "valor": 0}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "74c839b25701"}
-Attacks        frequent   attacker  cab.completas=60695 incompletas=0 valores=34877
-                                   g20v0=24232, g80v1=22796, g50v3=7878, g1v2=3061, g60v3=669, g60v2=661, g60v4=624, g60v1=301, g2v1=259, g20v2=209
+Attacks        frequent   attacker  cab.completas=60686 incompletas=0 valores=34868
+                                   g20v0=24232, g80v1=22796, g50v3=7878, g1v2=3061, g60v3=669, g60v2=661, g60v4=624, g60v1=301, g2v1=250, g20v2=209
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "b8e918b25701"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "ad3163b25701"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "7c6da1b25701"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "1f9aedae5701"}
-Attacks        infrequent master    cab.completas=69071 incompletas=0 valores=32952
-                                   g60v2=15287, g60v3=14628, g60v4=14077, g1v2=7047, g60v1=6156, g20v2=6156, g2v1=5710, g50v3=10
+Attacks        infrequent master    cab.completas=69068 incompletas=0 valores=32949
+                                   g60v2=15287, g60v3=14628, g60v4=14077, g1v2=7047, g60v1=6156, g20v2=6156, g2v1=5707, g50v3=10
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "cf95a7925701"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "806467935701"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "629b7f945701"}
@@ -123,8 +151,8 @@ Attacks        infrequent slave     cab.completas=68186 incompletas=0 valores=31
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "806467935701"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "b76c80945701"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "3a3a69955701"}
-Attacks        infrequent attacker  cab.completas=1355 incompletas=0 valores=1103
-                                   g1v2=919, g60v2=107, g60v4=104, g60v3=103, g60v1=50, g2v1=38, g20v2=28, g50v3=3, g20v0=3
+Attacks        infrequent attacker  cab.completas=1352 incompletas=0 valores=1100
+                                   g1v2=919, g60v2=107, g60v4=104, g60v3=103, g60v1=50, g2v1=35, g20v2=28, g50v3=3, g20v0=3
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "629b7f945701"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "153768955701"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "1de0d5965701"}
@@ -136,26 +164,26 @@ Control        infrequent master    cab.completas=68235 incompletas=0 valores=31
                                    g60v2=15291, g60v3=14639, g60v4=14087, g60v1=6166, g1v2=6166, g20v2=6166, g2v1=5720
 Control        infrequent slave     cab.completas=68235 incompletas=0 valores=31950
                                    g60v2=15291, g60v3=14639, g60v4=14087, g60v1=6166, g1v2=6166, g20v2=6166, g2v1=5720
-Flooding       frequent   master    cab.completas=81072 incompletas=0 valores=45084
-                                   g1v2=19212, g60v2=15233, g60v3=14547, g60v4=14000, g20v2=6140, g60v1=6139, g2v1=5766, g50v3=35
+Flooding       frequent   master    cab.completas=81057 incompletas=0 valores=45069
+                                   g1v2=19212, g60v2=15233, g60v3=14547, g60v4=14000, g20v2=6140, g60v1=6139, g2v1=5751, g50v3=35
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "a52c2bde5601"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "3be12bde5601"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "71918fde5601"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "3f5290de5601"}
 Flooding       frequent   slave     cab.completas=169984 incompletas=0 valores=96545
                                    g80v1=50597, g20v0=37272, g60v2=15268, g60v3=14619, g60v4=14068, g50v3=13941, g60v1=6189, g1v2=6134, g20v2=6134, g2v1=5762
-                                   PARAM WRITE g80v1 {"punto": 7, "tipo": "g80v1_bit", "valor": 1}
-                                   PARAM WRITE g80v1 {"punto": 7, "tipo": "g80v1_bit", "valor": 1}
-                                   PARAM WRITE g80v1 {"punto": 7, "tipo": "g80v1_bit", "valor": 1}
-                                   PARAM WRITE g80v1 {"punto": 7, "tipo": "g80v1_bit", "valor": 1}
-Flooding       frequent   attacker  cab.completas=115534 incompletas=0 valores=77815
-                                   g80v1=50597, g20v0=37272, g50v3=13936, g1v2=13096, g60v2=185, g60v3=144, g60v4=140, g60v1=84, g2v1=56, g20v2=24
-                                   PARAM WRITE g80v1 {"punto": 7, "tipo": "g80v1_bit", "valor": 1}
-                                   PARAM WRITE g80v1 {"punto": 7, "tipo": "g80v1_bit", "valor": 1}
-                                   PARAM WRITE g80v1 {"punto": 7, "tipo": "g80v1_bit", "valor": 1}
-                                   PARAM WRITE g80v1 {"punto": 7, "tipo": "g80v1_bit", "valor": 1}
-Flooding       infrequent master    cab.completas=71061 incompletas=0 valores=34807
-                                   g60v2=15286, g60v3=14626, g60v4=14074, g1v2=9023, g60v1=6161, g20v2=6161, g2v1=5722, g50v3=8
+                                   PARAM WRITE g80v1 {"punto": 7, "tipo": "g80v1_bit1", "valor": 1}
+                                   PARAM WRITE g80v1 {"punto": 7, "tipo": "g80v1_bit1", "valor": 1}
+                                   PARAM WRITE g80v1 {"punto": 7, "tipo": "g80v1_bit1", "valor": 1}
+                                   PARAM WRITE g80v1 {"punto": 7, "tipo": "g80v1_bit1", "valor": 1}
+Flooding       frequent   attacker  cab.completas=115519 incompletas=0 valores=77800
+                                   g80v1=50597, g20v0=37272, g50v3=13936, g1v2=13096, g60v2=185, g60v3=144, g60v4=140, g60v1=84, g2v1=41, g20v2=24
+                                   PARAM WRITE g80v1 {"punto": 7, "tipo": "g80v1_bit1", "valor": 1}
+                                   PARAM WRITE g80v1 {"punto": 7, "tipo": "g80v1_bit1", "valor": 1}
+                                   PARAM WRITE g80v1 {"punto": 7, "tipo": "g80v1_bit1", "valor": 1}
+                                   PARAM WRITE g80v1 {"punto": 7, "tipo": "g80v1_bit1", "valor": 1}
+Flooding       infrequent master    cab.completas=71055 incompletas=0 valores=34801
+                                   g60v2=15286, g60v3=14626, g60v4=14074, g1v2=9023, g60v1=6161, g20v2=6161, g2v1=5716, g50v3=8
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "fa3538da5601"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "3bd838da5601"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "c17f77da5601"}
@@ -164,14 +192,14 @@ Flooding       infrequent slave     cab.completas=76631 incompletas=0 valores=40
                                    g60v2=15321, g60v3=14667, g60v4=14116, g60v1=6194, g1v2=6165, g20v2=6165, g2v1=5725, g50v3=5250, g80v1=3028
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "3bd838da5601"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "c17f77da5601"}
-                                   PARAM WRITE g80v1 {"punto": 7, "tipo": "g80v1_bit", "valor": 1}
-                                   PARAM WRITE g80v1 {"punto": 7, "tipo": "g80v1_bit", "valor": 1}
-Flooding       infrequent attacker  cab.completas=11396 incompletas=0 valores=11216
-                                   g50v3=5248, g80v1=3028, g1v2=2872, g60v2=65, g60v3=57, g60v4=56, g60v1=39, g2v1=21, g20v2=10
+                                   PARAM WRITE g80v1 {"punto": 7, "tipo": "g80v1_bit1", "valor": 1}
+                                   PARAM WRITE g80v1 {"punto": 7, "tipo": "g80v1_bit1", "valor": 1}
+Flooding       infrequent attacker  cab.completas=11390 incompletas=0 valores=11210
+                                   g50v3=5248, g80v1=3028, g1v2=2872, g60v2=65, g60v3=57, g60v4=56, g60v1=39, g2v1=15, g20v2=10
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "fa3538da5601"}
-                                   PARAM WRITE g80v1 {"punto": 7, "tipo": "g80v1_bit", "valor": 1}
-                                   PARAM WRITE g80v1 {"punto": 7, "tipo": "g80v1_bit", "valor": 1}
-                                   PARAM WRITE g80v1 {"punto": 7, "tipo": "g80v1_bit", "valor": 1}
+                                   PARAM WRITE g80v1 {"punto": 7, "tipo": "g80v1_bit1", "valor": 1}
+                                   PARAM WRITE g80v1 {"punto": 7, "tipo": "g80v1_bit1", "valor": 1}
+                                   PARAM WRITE g80v1 {"punto": 7, "tipo": "g80v1_bit1", "valor": 1}
 Injection      frequent   master    cab.completas=68566 incompletas=0 valores=32771
                                    g60v2=15326, g60v3=14675, g60v4=14109, g60v1=6203, g1v2=6144, g20v2=6144, g2v1=5874, g50v3=72, g80v1=19
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "b9f295855601"}
@@ -190,13 +218,13 @@ Injection      infrequent master    cab.completas=68271 incompletas=0 valores=32
                                    g60v2=15289, g60v3=14656, g60v4=14080, g60v1=6169, g1v2=6163, g20v2=6163, g2v1=5737, g50v3=11, g80v1=3
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "be9b3a815601"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "fd3187815601"}
-                                   PARAM WRITE g80v1 {"punto": 7, "tipo": "g80v1_bit", "valor": 0}
+                                   PARAM WRITE g80v1 {"punto": 7, "tipo": "g80v1_bit1", "valor": 0}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "b83c87815601"}
 Injection      infrequent slave     cab.completas=68381 incompletas=0 valores=32009
                                    g60v2=15314, g60v3=14681, g60v4=14105, g60v1=6194, g1v2=6164, g20v2=6164, g2v1=5733, g50v3=11, g20v0=9, g52v2=3
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "be9b3a815601"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "fd3187815601"}
-                                   PARAM WRITE g80v1 {"punto": 7, "tipo": "g80v1_bit", "valor": 0}
+                                   PARAM WRITE g80v1 {"punto": 7, "tipo": "g80v1_bit1", "valor": 0}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "b83c87815601"}
 Injection      infrequent attacker  cab.completas=143 incompletas=0 valores=12
                                    g60v2=31, g60v3=31, g60v4=31, g60v1=31, g20v0=9, g2v1=5, g52v2=3, g1v2=1, g20v2=1
@@ -228,8 +256,8 @@ MITM           infrequent slave     cab.completas=68439 incompletas=0 valores=32
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "92efdd565701"}
 MITM           infrequent attacker  cab.completas=1066 incompletas=0 valores=414
                                    g60v2=251, g60v3=227, g60v4=219, g60v1=122, g2v1=81, g20v2=80, g1v2=77, g20v0=9
-Masqurading    frequent   master    cab.completas=75800 incompletas=0 valores=40566
-                                   g60v2=15229, g60v3=14735, g60v4=14010, g1v2=13499, g60v1=6154, g20v2=6147, g2v1=5923, g50v3=103
+Masqurading    frequent   master    cab.completas=75773 incompletas=0 valores=40539
+                                   g60v2=15229, g60v3=14735, g60v4=14010, g1v2=13499, g60v1=6154, g20v2=6147, g2v1=5896, g50v3=103
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "c30327c95601"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "859527c95601"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "a6c338c95601"}
@@ -240,14 +268,14 @@ Masqurading    frequent   slave     cab.completas=68258 incompletas=0 valores=32
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "7b5539c95601"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "2b3e4bc95601"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "3bfb75c95601"}
-Masqurading    frequent   attacker  cab.completas=11066 incompletas=0 valores=9557
-                                   g1v2=7638, g60v3=918, g60v2=795, g60v4=727, g60v1=376, g20v2=286, g2v1=279, g50v3=47
+Masqurading    frequent   attacker  cab.completas=11039 incompletas=0 valores=9530
+                                   g1v2=7638, g60v3=918, g60v2=795, g60v4=727, g60v1=376, g20v2=286, g2v1=252, g50v3=47
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "c30327c95601"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "a6c338c95601"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "ba7b74c95601"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "ba3da6c95601"}
-Masqurading    infrequent master    cab.completas=69529 incompletas=0 valores=33437
-                                   g60v2=15263, g60v3=14643, g60v4=14059, g1v2=7517, g60v1=6155, g20v2=6154, g2v1=5724, g50v3=14
+Masqurading    infrequent master    cab.completas=69523 incompletas=0 valores=33431
+                                   g60v2=15263, g60v3=14643, g60v4=14059, g1v2=7517, g60v1=6155, g20v2=6154, g2v1=5718, g50v3=14
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "9389c1c45601"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "d14ac2c45601"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "f5271cc55601"}
@@ -258,14 +286,14 @@ Masqurading    infrequent slave     cab.completas=68300 incompletas=0 valores=31
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "95a61dc55601"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "fdf068c55601"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "104adac55601"}
-Masqurading    infrequent attacker  cab.completas=2111 incompletas=0 valores=1766
-                                   g1v2=1418, g60v3=187, g60v2=160, g60v4=149, g60v1=85, g20v2=55, g2v1=51, g50v3=6
+Masqurading    infrequent attacker  cab.completas=2105 incompletas=0 valores=1760
+                                   g1v2=1418, g60v3=187, g60v2=160, g60v4=149, g60v1=85, g20v2=55, g2v1=45, g50v3=6
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "9389c1c45601"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "f5271cc55601"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "297267c55601"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "6cabd9c55601"}
-Replay         frequent   master    cab.completas=68436 incompletas=0 valores=32277
-                                   g60v2=15320, g60v3=14655, g60v4=14149, g60v1=6197, g1v2=6144, g20v2=6144, g2v1=5790, g50v3=37
+Replay         frequent   master    cab.completas=68418 incompletas=0 valores=32259
+                                   g60v2=15320, g60v3=14655, g60v4=14149, g60v1=6197, g1v2=6144, g20v2=6144, g2v1=5772, g50v3=37
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "e6d682345601"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "7fc6ed345601"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "1f1101355601"}
@@ -276,10 +304,10 @@ Replay         frequent   slave     cab.completas=69359 incompletas=0 valores=32
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "7fc6ed345601"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "1f1101355601"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "a4cf01355601"}
-Replay         frequent   attacker  cab.completas=1218 incompletas=0 valores=498
-                                   g60v2=270, g60v3=264, g60v4=248, g2v1=152, g60v1=140, g1v2=72, g20v2=72
-Replay         infrequent master    cab.completas=68168 incompletas=0 valores=32003
-                                   g60v2=15271, g60v3=14605, g60v4=14067, g60v1=6168, g1v2=6160, g20v2=6160, g2v1=5729, g50v3=8
+Replay         frequent   attacker  cab.completas=1200 incompletas=0 valores=480
+                                   g60v2=270, g60v3=264, g60v4=248, g60v1=140, g2v1=134, g1v2=72, g20v2=72
+Replay         infrequent master    cab.completas=68159 incompletas=0 valores=31994
+                                   g60v2=15271, g60v3=14605, g60v4=14067, g60v1=6168, g1v2=6160, g20v2=6160, g2v1=5720, g50v3=8
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "908946305601"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "d6d8d2305601"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "985a1a315601"}
@@ -290,8 +318,8 @@ Replay         infrequent slave     cab.completas=68386 incompletas=0 valores=32
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "d6d8d2305601"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "985a1a315601"}
                                    PARAM WRITE g50v3 {"punto": null, "tipo": "g50v3", "crudo": "32c51a315601"}
-Replay         infrequent attacker  cab.completas=324 incompletas=0 valores=78
-                                   g60v2=75, g60v3=75, g60v4=71, g60v1=55, g2v1=28, g1v2=10, g20v2=10
+Replay         infrequent attacker  cab.completas=315 incompletas=0 valores=69
+                                   g60v2=75, g60v3=75, g60v4=71, g60v1=55, g2v1=19, g1v2=10, g20v2=10
 
 ## 1.4 master.pcap frente a slave.pcap
 
@@ -299,22 +327,22 @@ Si la separacion fuese comando/respuesta, master.pcap tendria solo
 peticiones y slave.pcap solo respuestas. Se mide la mezcla en cada uno.
 
 escenario      sub         rol         peticiones   respuestas  % petic.
-Attacks        frequent    master           36745        35353     51.0%
+Attacks        frequent    master           36745        35344     51.0%
 Attacks        frequent    slave            65567        61187     51.7%
 Attacks        frequent    coincidencia de la secuencia (func,seq) master vs slave: 1381/20000 = 6.91%
-Attacks        infrequent  master           35670        33290     51.7%
+Attacks        infrequent  master           35670        33287     51.7%
 Attacks        infrequent  slave            34789        32348     51.8%
-Attacks        infrequent  coincidencia de la secuencia (func,seq) master vs slave: 4557/20000 = 22.79%
+Attacks        infrequent  coincidencia de la secuencia (func,seq) master vs slave: 4541/20000 = 22.71%
 Control        frequent    master           34800        32373     51.8%
 Control        frequent    slave            34800        32373     51.8%
 Control        frequent    coincidencia de la secuencia (func,seq) master vs slave: 20000/20000 = 100.00%
 Control        infrequent  master           34869        32404     51.8%
 Control        infrequent  slave            34869        32404     51.8%
 Control        infrequent  coincidencia de la secuencia (func,seq) master vs slave: 20000/20000 = 100.00%
-Flooding       frequent    master           47684        45398     51.2%
+Flooding       frequent    master           47684        45383     51.2%
 Flooding       frequent    slave            99294        78554     55.8%
 Flooding       frequent    coincidencia de la secuencia (func,seq) master vs slave: 1389/20000 = 6.94%
-Flooding       infrequent  master           37670        35259     51.7%
+Flooding       infrequent  master           37670        35253     51.7%
 Flooding       infrequent  slave            43163        34006     55.9%
 Flooding       infrequent  coincidencia de la secuencia (func,seq) master vs slave: 8914/20000 = 44.57%
 Injection      frequent    master           35242        32703     51.9%
@@ -329,16 +357,16 @@ MITM           frequent    coincidencia de la secuencia (func,seq) master vs sla
 MITM           infrequent  master           34828        32379     51.8%
 MITM           infrequent  slave            34914        32406     51.9%
 MITM           infrequent  coincidencia de la secuencia (func,seq) master vs slave: 5240/20000 = 26.20%
-Masqurading    frequent    master           41899        39858     51.2%
+Masqurading    frequent    master           41899        39831     51.3%
 Masqurading    frequent    slave            34592        32354     51.7%
-Masqurading    frequent    coincidencia de la secuencia (func,seq) master vs slave: 1846/20000 = 9.23%
-Masqurading    infrequent  master           36146        33721     51.7%
+Masqurading    frequent    coincidencia de la secuencia (func,seq) master vs slave: 941/20000 = 4.71%
+Masqurading    infrequent  master           36146        33715     51.7%
 Masqurading    infrequent  slave            34836        32382     51.8%
 Masqurading    infrequent  coincidencia de la secuencia (func,seq) master vs slave: 5082/20000 = 25.41%
-Replay         frequent    master           34934        32393     51.9%
+Replay         frequent    master           34934        32375     51.9%
 Replay         frequent    slave            35427        32732     52.0%
 Replay         frequent    coincidencia de la secuencia (func,seq) master vs slave: 2794/20000 = 13.97%
-Replay         infrequent  master           34805        32373     51.8%
+Replay         infrequent  master           34805        32364     51.8%
 Replay         infrequent  slave            34909        32408     51.9%
 Replay         infrequent  coincidencia de la secuencia (func,seq) master vs slave: 8212/20000 = 41.06%
 

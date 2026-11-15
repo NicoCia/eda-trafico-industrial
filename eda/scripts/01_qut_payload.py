@@ -142,6 +142,7 @@ def main():
     max_packets = int(sys.argv[1]) if len(sys.argv) > 1 else 0
     max_packets = max_packets or None
 
+    resultados_frag = {}
     datos = {}
     for nombre, rel in ESCENARIOS:
         datos[nombre] = {}
@@ -187,6 +188,58 @@ def main():
                     c.get("puerto_dnp3", 0), r["n_tramas"],
                     c.get("crc_malo", 0), pb))
     w("")
+    w("## 1.1.b Fragmentado: cuantas tramas NO llevan cabecera de aplicacion")
+    w("")
+    w("La cabecera de aplicacion --- control, codigo de funcion, IIN --- vive")
+    w("solo en la trama que ABRE un fragmento, la del bit FIR en uno. En una")
+    w("trama de continuacion los octetos siguientes son datos de objeto, de")
+    w("modo que leerlos como cabecera inventa una funcion y una cabecera de")
+    w("objeto. `dnp3.py` mira ese bit y cuenta las de continuacion en lugar de")
+    w("interpretarlas; esta seccion las informa para que no queden escondidas.")
+    w("")
+    w("%-14s %10s %10s %10s %10s %10s"
+      % ("escenario", "unico", "primero", "ultimo", "intermedio", "sin cab."))
+    frag = collections.Counter()
+    por_esc = {}
+    for nombre, subs in datos.items():
+        acc = collections.Counter()
+        for sub, ent in subs.items():
+            for rol in ROLES:
+                c = ent[rol].get("contadores") or {}
+                for k in ("frag_unico", "frag_primero", "frag_ultimo",
+                          "frag_intermedio", "sin_cabecera_app"):
+                    acc[k] += c.get(k, 0)
+        por_esc[nombre] = dict(acc)
+        frag.update(acc)
+        w("%-14s %10d %10d %10d %10d %10d"
+          % (nombre, acc["frag_unico"], acc["frag_primero"],
+             acc["frag_ultimo"], acc["frag_intermedio"],
+             acc["sin_cabecera_app"]))
+    con_transporte = (frag["frag_unico"] + frag["frag_primero"]
+                      + frag["frag_ultimo"] + frag["frag_intermedio"])
+    w("")
+    w("%-14s %10d %10d %10d %10d %10d"
+      % ("TOTAL", frag["frag_unico"], frag["frag_primero"],
+         frag["frag_ultimo"], frag["frag_intermedio"],
+         frag["sin_cabecera_app"]))
+    w("")
+    w("Tramas con octeto de transporte: %d. Sin cabecera de aplicacion: %d"
+      % (con_transporte, frag["sin_cabecera_app"]))
+    if con_transporte:
+        w("(el %.4f %%)." % (100.0 * frag["sin_cabecera_app"]
+                             / con_transporte))
+    w("")
+    if frag["frag_primero"] == 0 and frag["frag_ultimo"] == 0 \
+            and frag["frag_intermedio"] > 0:
+        w("**No hay ni una trama de apertura de fragmento multiple ni de")
+        w("cierre, solo intermedias.** De modo que esas tramas no son")
+        w("fragmentos bien formados: les falta la apertura y el cierre que")
+        w("todo fragmento repartido tiene que tener. Es trafico fabricado.")
+        w("")
+    resultados_frag.update({"por_escenario": por_esc,
+                            "total": dict(frag),
+                            "con_octeto_de_transporte": con_transporte})
+
     w("## 1.2 Codigos de funcion de aplicacion")
     w("")
     for nombre, subs in datos.items():
@@ -299,6 +352,10 @@ def main():
                                    for k, v in ent[rol]["dir_enlace"].items()},
                 } for rol in ROLES},
             }
+    # El agregado del fragmentado va bajo una clave propia, no mezclado con
+    # los escenarios: el script 19 recorre los escenarios y una clave extra
+    # ahi adentro lo romperia.
+    serial["_fragmentado"] = resultados_frag
     with open(os.path.join(comun.SALIDAS, "p1_qut_payload.json"), "w") as fh:
         json.dump(serial, fh, indent=1, ensure_ascii=False, default=str)
 

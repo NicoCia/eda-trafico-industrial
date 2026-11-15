@@ -569,6 +569,59 @@ def main():
     w("")
     resultados["sensibilidad_ventana"] = sens
 
+    # ---------- 2.4 la entropia normalizada invierte el orden ----------
+    w("## 2.4 La entropia normalizada invierte el orden de la cruda")
+    w("")
+    w("La entropia normalizada divide por log2(k), con k el numero de valores")
+    w("distintos. Eso responde «dado que hay k direcciones, cuan parejo es el")
+    w("reparto», que **no** es la pregunta «cuan concentrado es el")
+    w("direccionamiento». Cuando las series tienen k muy distintos las dos")
+    w("preguntas dan ordenes opuestos, y la normalizada es la enganosa de las")
+    w("dos para comparar series entre si.")
+    w("")
+    CLAVES_ENT = [("westermo_limpio", "Westermo limpio"),
+                  ("westermo_todo", "Westermo con eventos"),
+                  ("qut_control_frequent", "QUT Control"),
+                  ("qut_control_frequent_dnp3", "QUT solo DNP3")]
+    w("%-22s %12s %14s %12s" % ("serie", "H (bits)", "normalizada",
+                                "distintos"))
+    ent = {}
+    for clave, etq in CLAVES_ENT:
+        r_ = resultados.get(clave)
+        if not r_ or "H_src" not in r_:
+            continue
+        ent[etq] = {"H": r_["H_src"], "Hn": r_["Hn_src"], "k": r_["k_src"]}
+        w("%-22s %12.2f %14.2f %12d"
+          % (etq, r_["H_src"], r_["Hn_src"], r_["k_src"]))
+    w("")
+    if ent:
+        por_h = sorted(ent, key=lambda e: ent[e]["H"])
+        por_hn = sorted(ent, key=lambda e: ent[e]["Hn"])
+        w("Orden por H cruda  (de menor a mayor): %s" % " < ".join(por_h))
+        w("Orden por H normal.(de menor a mayor): %s" % " < ".join(por_hn))
+        w("")
+        peor_h = por_h[0]
+        peor_hn = por_hn[0]
+        if peor_h != peor_hn:
+            w("La serie de **menor** entropia cruda es «%s» (%.2f bits con %d"
+              % (peor_h, ent[peor_h]["H"], ent[peor_h]["k"]))
+            w("direcciones distintas), y por la normalizada queda la de")
+            w("**mayor** (%.2f). Es el mismo dato leido al reves: con solo %d"
+              % (ent[peor_h]["Hn"], ent[peor_h]["k"]))
+            w("direcciones el maximo posible es log2(%d) = %.0f bit, de modo"
+              % (ent[peor_h]["k"], np.log2(ent[peor_h]["k"])))
+            w("que casi cualquier reparto da normalizada alta.")
+            w("")
+            w("Esa serie es, en la misma tabla, la de Jaccard del conjunto de")
+            w("pares igual a 1,00: siempre los mismos interlocutores. Las dos")
+            w("cifras solo parecen contradecirse si se lee la normalizada como")
+            w("si midiera desorden de direccionamiento.")
+    w("")
+    w("**Para comparar series hay que citar la cruda y el k.** La normalizada")
+    w("sirve dentro de una serie, no entre series con k distinto.")
+    w("")
+    resultados["entropia_cruda_vs_normalizada"] = ent
+
     comun.escribir("p2_determinismo.txt", "\n".join(L))
     with open(os.path.join(comun.SALIDAS, "p2_determinismo.json"), "w") as fh:
         json.dump(resultados, fh, indent=1, ensure_ascii=False, default=str)

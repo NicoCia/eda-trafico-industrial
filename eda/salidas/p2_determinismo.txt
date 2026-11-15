@@ -244,3 +244,35 @@ regular en su propia escala de tiempo, y cual es esa escala.
 
 Conviene mirar tambien el CV del intervalo entre paquetes, que esta mas
 arriba y que ordena estas series al revés que la ventana de 1 s.
+
+## 2.4 La entropia normalizada invierte el orden de la cruda
+
+La entropia normalizada divide por log2(k), con k el numero de valores
+distintos. Eso responde «dado que hay k direcciones, cuan parejo es el
+reparto», que **no** es la pregunta «cuan concentrado es el
+direccionamiento». Cuando las series tienen k muy distintos las dos
+preguntas dan ordenes opuestos, y la normalizada es la enganosa de las
+dos para comparar series entre si.
+
+serie                      H (bits)    normalizada    distintos
+Westermo limpio                1.73           0.38           24
+Westermo con eventos           1.85           0.37           32
+QUT Control                    1.78           0.54           10
+QUT solo DNP3                  0.96           0.96            2
+
+Orden por H cruda  (de menor a mayor): QUT solo DNP3 < Westermo limpio < QUT Control < Westermo con eventos
+Orden por H normal.(de menor a mayor): Westermo con eventos < Westermo limpio < QUT Control < QUT solo DNP3
+
+La serie de **menor** entropia cruda es «QUT solo DNP3» (0.96 bits con 2
+direcciones distintas), y por la normalizada queda la de
+**mayor** (0.96). Es el mismo dato leido al reves: con solo 2
+direcciones el maximo posible es log2(2) = 1 bit, de modo
+que casi cualquier reparto da normalizada alta.
+
+Esa serie es, en la misma tabla, la de Jaccard del conjunto de
+pares igual a 1,00: siempre los mismos interlocutores. Las dos
+cifras solo parecen contradecirse si se lee la normalizada como
+si midiera desorden de direccionamiento.
+
+**Para comparar series hay que citar la cruda y el k.** La normalizada
+sirve dentro de una serie, no entre series con k distinto.

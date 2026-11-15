@@ -11,10 +11,24 @@ etiqueta: es la excepcion de dimensionamiento que admite el brief.
 Pregunta 5: mide deriva. Distingue dos niveles:
   - dentro de una version, entre `train` sucesivos (deriva temporal real);
   - entre versiones, que es cambio de banco de pruebas y no deriva.
-Para que las cifras signifiquen algo se calcula ademas un **nivel de
-referencia**: la misma medida entre la primera y la segunda mitad de un mismo
-archivo de entrenamiento. Una diferencia entre archivos solo es deriva si
-supera claramente ese nivel.
+
+Para que las cifras signifiquen algo hacen falta DOS varas, no una, y
+confundirlas cambia como se lee toda la seccion:
+
+  - el **ruido del estimador**: la misma medida entre dos mitades de un mismo
+    archivo tomadas AL AZAR. Es lo que dos muestras de la misma distribucion
+    dan por tamano finito, y nada mas.
+  - la **deriva dentro del archivo**: la misma medida entre la primera y la
+    segunda mitad del archivo EN ORDEN TEMPORAL. Esto no es ruido: es cuanto
+    se mueve el proceso en las horas que dura una sola campana.
+
+Una version anterior calculaba solo la segunda y la llamaba «ruido de fondo
+del estimador». No lo es: sobre `hai-20.07/train1.csv` la mitad contra mitad
+en orden da KS mediano 0,093 y al azar 0,002, cuarenta y siete veces menos,
+con el umbral de significacion al 95 % en 0,005. De modo que el cociente
+«entre archivos / mitad contra mitad» no es una razon senal-ruido sino la
+comparacion entre deriva entre campanas y deriva dentro de una campana, que
+es una pregunta distinta y una vara mucho mas exigente.
 
 Uso:  python eda/scripts/04_hai.py
 """
@@ -26,6 +40,7 @@ import sys
 
 import numpy as np
 import pandas as pd
+from scipy import stats
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import comun  # noqa: E402
@@ -75,7 +90,24 @@ def rachas_positivas(serie):
 
 
 def divergencia(a, b, lo, hi):
-    """Distancia de Jensen-Shannon y estadistico KS entre dos muestras."""
+    """Distancia de Jensen-Shannon y estadistico KS entre dos muestras.
+
+    Las dos medidas NO se calculan igual, y la diferencia importa:
+
+    * La de Jensen-Shannon es una divergencia entre distribuciones discretas,
+      de modo que **necesita** una discretizacion: se usan los intervalos
+      comunes de `N_BINS`. El valor depende de esa eleccion y se informa como
+      lo que es.
+    * El de Kolmogorov-Smirnov se calcula sobre las acumuladas empiricas
+      **exactas**, con `scipy.stats.ks_2samp`. Una version anterior de este
+      script lo calculaba sobre las acumuladas de esos mismos intervalos y
+      lo llamaba igual: eso es una cota inferior del estadistico, porque mira
+      la diferencia solo en los bordes de los intervalos y no en todos los
+      puntos de la muestra. Sobre `hai-20.07/train1.csv` la mediana entre
+      columnas apenas se movia (0,0930 contra 0,0967), pero en una columna
+      la subestimacion llegaba a 0,14, que es del tamano de los efectos que
+      esta seccion discute.
+    """
     a = a[np.isfinite(a)]
     b = b[np.isfinite(b)]
     if len(a) < 100 or len(b) < 100 or not np.isfinite(lo) or hi <= lo:
@@ -90,9 +122,7 @@ def divergencia(a, b, lo, hi):
         kl_a = np.nansum(np.where(pa > 0, pa * np.log2(pa / m), 0.0))
         kl_b = np.nansum(np.where(pb > 0, pb * np.log2(pb / m), 0.0))
     js = float(np.sqrt(max(0.0, 0.5 * (kl_a + kl_b))))
-    ca = np.cumsum(pa)
-    cb = np.cumsum(pb)
-    ks = float(np.max(np.abs(ca - cb)))
+    ks = float(stats.ks_2samp(a, b).statistic)
     return js, ks
 
 
@@ -277,19 +307,33 @@ def main():
     # ---------------- P5: deriva ----------------
     w("## P5 Deriva")
     w("")
-    w("Medida: distancia de Jensen-Shannon y estadistico KS por columna")
-    w("numerica no constante, sobre %d intervalos comunes. Se resume la" % N_BINS)
+    w("Medida: distancia de Jensen-Shannon por columna numerica no constante,")
+    w("sobre %d intervalos comunes, y estadistico de Kolmogorov-Smirnov sobre" % N_BINS)
+    w("las acumuladas empiricas exactas (`scipy.stats.ks_2samp`). Se resume la")
     w("mediana y el percentil 90 entre columnas.")
     w("")
-    w("### P5.a Nivel de referencia: mitad contra mitad del MISMO archivo")
+    w("### P5.a Las DOS varas, que no son la misma")
     w("")
-    w("Es el ruido de fondo del estimador. Una diferencia entre archivos solo")
-    w("es deriva si lo supera.")
+    w("Hacen falta dos niveles de comparacion, y confundirlos cambia la")
+    w("lectura de toda la seccion:")
     w("")
-    w("%-14s %-16s %7s %9s %8s %9s %8s"
-      % ("version", "archivo", "cols", "JS med", "JS p90", "KS med", "KS p90"))
+    w("  - **ruido del estimador**: mitad contra mitad del mismo archivo")
+    w("    partido AL AZAR. Es lo que dan dos muestras de la misma")
+    w("    distribucion por tamano finito, y nada mas.")
+    w("  - **deriva dentro del archivo**: mitad contra mitad del mismo")
+    w("    archivo EN ORDEN TEMPORAL. No es ruido: es cuanto se mueve el")
+    w("    proceso en las horas que dura una sola campana.")
+    w("")
+    w("Se informa, por archivo, el umbral de significacion del KS al 95 %,")
+    w("que es 1,36*raiz(2/n) con n el tamano de cada mitad.")
+    w("")
+    w("%-14s %-16s %7s %9s %8s %9s %8s %9s %9s"
+      % ("version", "archivo", "cols", "JS med", "JS p90", "KS med",
+         "KS p90", "KS azar", "umbral95"))
     referencia = {}
+    ruido = {}
     cache = {}
+    rng = np.random.default_rng(comun.SEMILLA)
     for ver, sep, coltime, _e in VERSIONES:
         tr = trains(ver)
         if not tr:
@@ -301,12 +345,36 @@ def main():
                not c.lower().startswith("attack") and c.lower() != "label"]
         cache[(ver, tr[0])] = (d, num)
         mitad = len(d) // 2
+        # La vara de ruido: la misma particion por tamano, pero al azar, de
+        # modo que las dos partes vienen de la misma distribucion por
+        # construccion y lo unico que queda es el tamano finito.
+        perm = rng.permutation(len(d))
+        rz = comparar(d.iloc[perm[:mitad]], d.iloc[perm[mitad:]], num)
+        if rz:
+            ruido[ver] = rz
         r = comparar(d.iloc[:mitad], d.iloc[mitad:], num)
         if r:
             referencia[ver] = r
-            w("%-14s %-16s %7d %9.4f %8.4f %9.4f %8.4f"
+            umbral = 1.36 * np.sqrt(2.0 / mitad) if mitad else float("nan")
+            w("%-14s %-16s %7d %9.4f %8.4f %9.4f %8.4f %9.4f %9.5f"
               % (ver, os.path.basename(tr[0]), r["columnas"],
-                 r["js_mediana"], r["js_p90"], r["ks_mediana"], r["ks_p90"]))
+                 r["js_mediana"], r["js_p90"], r["ks_mediana"], r["ks_p90"],
+                 ruido.get(ver, {}).get("ks_mediana", float("nan")), umbral))
+    w("")
+    w("Las dos ultimas columnas son la vara honesta. Donde «KS med» supera a")
+    w("«KS azar» por un factor grande, la mitad contra mitad en orden **no es**")
+    w("ruido del estimador sino deriva dentro de la propia campana:")
+    w("")
+    for ver in referencia:
+        kz = ruido.get(ver, {}).get("ks_mediana")
+        km = referencia[ver]["ks_mediana"]
+        if kz:
+            w("   %-14s en orden %.4f / al azar %.4f = %.0f veces"
+              % (ver, km, kz, km / kz))
+    w("")
+    w("De modo que el cociente de P5.b contra P5.a **no es una razon**")
+    w("senal-ruido. Compara deriva entre campanas contra deriva dentro de una")
+    w("campana, que es una vara mucho mas exigente y una pregunta distinta.")
     w("")
     w("### P5.b Deriva temporal dentro de una version (train sucesivos)")
     w("")
@@ -392,6 +460,9 @@ def main():
                    "referencia_intra_archivo": {
                        k: {kk: vv for kk, vv in v.items() if kk != "detalle"}
                        for k, v in referencia.items()},
+                   "ruido_estimador_particion_al_azar": {
+                       k: {kk: vv for kk, vv in v.items() if kk != "detalle"}
+                       for k, v in ruido.items()},
                    "deriva_intra_version": dentro,
                    "columnas_por_version": {k: sorted(v)
                                             for k, v in juegos.items()}},
@@ -399,7 +470,7 @@ def main():
 
     # Figura: deriva medida contra el nivel de referencia.
     plt = comun.estilo_figura()
-    etiquetas, valores, refs = [], [], []
+    etiquetas, valores, refs, ruidos = [], [], [], []
     for ver, comps in dentro.items():
         for nombre, r in comps.items():
             etiquetas.append("%s\n%s" % (ver.replace("hai-", ""),
@@ -408,19 +479,23 @@ def main():
                                          .replace("end-", "")))
             valores.append(r["ks_mediana"])
             refs.append(referencia.get(ver, {}).get("ks_mediana", np.nan))
+            ruidos.append(ruido.get(ver, {}).get("ks_mediana", np.nan))
     if etiquetas:
         x = np.arange(len(etiquetas))
         fig, ax = plt.subplots(figsize=(max(7, 0.8 * len(x)), 4.0))
-        ax.bar(x - 0.2, valores, width=0.4, label="entre archivos sucesivos")
-        ax.bar(x + 0.2, refs, width=0.4,
-               label="referencia: mitad vs mitad del mismo archivo")
+        ax.bar(x - 0.26, valores, width=0.26,
+               label="entre campanas sucesivas")
+        ax.bar(x, refs, width=0.26,
+               label="deriva dentro de una campana (mitades en orden)")
+        ax.bar(x + 0.26, ruidos, width=0.26,
+               label="ruido del estimador (mitades al azar)")
         ax.set_xticks(x)
         ax.set_xticklabels(etiquetas, fontsize=7)
         ax.set_ylabel("KS mediano entre columnas")
-        ax.set_title("HAI: deriva entre tramos de entrenamiento sucesivos\n"
-                     "frente al ruido de fondo del propio estimador",
-                     fontsize=9)
-        ax.legend(fontsize=8)
+        ax.set_title("HAI: deriva entre campanas de entrenamiento, contra la\n"
+                     "deriva dentro de una campana y contra el ruido del "
+                     "estimador", fontsize=9)
+        ax.legend(fontsize=7)
         fig.savefig(os.path.join(comun.FIGURAS, "p5_hai_deriva.png"))
         print("[figura] %s" % comun.rel(
             os.path.join(comun.FIGURAS, "p5_hai_deriva.png")))

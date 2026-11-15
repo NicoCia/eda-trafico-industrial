@@ -150,6 +150,92 @@ def analizar(nombre, df, w):
         w("no tiene TTL que informar. Se comprueba por identidad exacta.")
         w("")
         no_tcp = df["protocol"] != "IPV4-TCP"
+
+        # ------------------------------------------------------------------
+        # Barrido exhaustivo, en lugar de comprobar un puñado de campos.
+        #
+        # Comprobar seis campos elegidos a mano y concluir que «la ausencia se
+        # explica por completo» es un salto: los campos con huecos son muchos
+        # más. Acá se agrupan TODOS por su patrón de faltantes exacto --- el
+        # conjunto de filas en que el campo falta --- y se busca, patrón por
+        # patrón, una condición estructural que lo reproduzca si y solo si.
+        # Los patrones que ninguna condición reproduce quedan nombrados, con
+        # su residuo, en lugar de quedar tapados por los que sí cierran.
+        # ------------------------------------------------------------------
+        sp = pd.to_numeric(df["sPackets"], errors="coerce").fillna(0)
+        rp = pd.to_numeric(df["rPackets"], errors="coerce").fillna(0)
+        frac_v4 = df.groupby("protocol")["sIPs"].apply(
+            lambda g: g.isna().mean()) if "sIPs" in df.columns else None
+        sin_v4 = (sorted(frac_v4[frac_v4 == 1.0].index)
+                  if frac_v4 is not None else [])
+        CONDICIONES = [
+            ("no TCP o sPackets == 0", (no_tcp | (sp == 0)).to_numpy()),
+            ("no TCP o rPackets == 0", (no_tcp | (rp == 0)).to_numpy()),
+            ("no TCP o sPackets < 2", (no_tcp | (sp < 2)).to_numpy()),
+            ("no TCP o rPackets < 2", (no_tcp | (rp < 2)).to_numpy()),
+            ("sPackets == 0", (sp == 0).to_numpy()),
+            ("rPackets == 0", (rp == 0).to_numpy()),
+            ("sPackets < 2", (sp < 2).to_numpy()),
+            ("rPackets < 2", (rp < 2).to_numpy()),
+            ("no TCP", no_tcp.to_numpy()),
+            ("protocolo sin IPv4 (%s)" % ", ".join(sin_v4),
+             df["protocol"].isin(sin_v4).to_numpy()),
+        ]
+        grupos = {}
+        for c in con_nulos.index:
+            grupos.setdefault(df[c].isna().to_numpy().tobytes(),
+                              []).append(c)
+        w("Los %d campos con huecos se reparten en **%d patrones de faltantes"
+          % (len(con_nulos), len(grupos)))
+        w("distintos**. Para cada uno se busca una condición estructural que")
+        w("lo reproduzca exacto:")
+        w("")
+        w("%-5s %-8s %-40s %s"
+          % ("camp.", "faltan", "condición que lo reproduce", "campos"))
+        exactos, inexactos = [], []
+        for clave, campos in sorted(grupos.items(), key=lambda kv: -len(kv[1])):
+            m = np.frombuffer(clave, dtype=bool)
+            hit = [nom for nom, v in CONDICIONES if np.array_equal(v, m)]
+            w("%-5d %-8d %-40s %s"
+              % (len(campos), int(m.sum()),
+                 hit[0] if hit else "--- ninguna ---",
+                 ", ".join(campos)[:44]))
+            if hit:
+                exactos.append((campos, hit[0]))
+            else:
+                cerca = min(((nom, int((v != m).sum()))
+                             for nom, v in CONDICIONES), key=lambda t: t[1])
+                inexactos.append((campos, int(m.sum()), cerca))
+        w("")
+        n_ex = sum(len(c) for c, _ in exactos)
+        n_in = sum(len(c) for c, _n, _k in inexactos)
+        w("**%d patrones, que cubren %d de los %d campos, cierran exactos.**"
+          % (len(exactos), n_ex, len(con_nulos)))
+        if inexactos:
+            w("Los otros %d patrones, con %d campos, **no**:"
+              % (len(inexactos), n_in))
+            w("")
+            for campos, nf, (nom, err) in inexactos:
+                w("- `%s`: faltan %d. La condición más cercana es «%s» y"
+                  % ("`, `".join(campos), nf, nom))
+                w("  difiere en **%d** de las %d filas." % (err, len(df)))
+            w("")
+            w("De modo que la frase correcta no es que la ausencia se explique")
+            w("por completo, sino que se explica para %d de los %d campos y"
+              % (n_ex, len(con_nulos)))
+            w("queda sin explicar para %d." % n_in)
+        res["patrones_faltantes"] = {
+            "patrones": len(grupos),
+            "campos_con_hueco": int(len(con_nulos)),
+            "patrones_exactos": len(exactos),
+            "campos_explicados": n_ex,
+            "campos_sin_explicar": n_in,
+            "sin_explicar": {", ".join(c): {"faltan": nf,
+                                            "condicion_mas_cercana": nom,
+                                            "filas_de_diferencia": err}
+                             for c, nf, (nom, err) in inexactos},
+        }
+        w("")
         pruebas = []
         for c in ("sttl", "rttl", "sWinTCP", "rWinTCP", "sAckRate",
                   "rAckRate"):
@@ -192,11 +278,19 @@ def analizar(nombre, df, w):
                   % ("más de 3", len(resto),
                      100 * resto["sAckDelayAvg"].isna().mean()))
         w("")
-        w("**Consecuencia para la preparación.** No corresponde imputar: el")
+        w("**Consecuencia para la preparación**, y el alcance importa. Para")
+        w("los %d campos cuyo patrón cierra exacto no corresponde imputar: el"
+          % n_ex)
         w("valor no existe, no está perdido. Un reporte automático propone")
         w("imputación simple para estas columnas, y sería un error — pondría")
         w("un número donde el protocolo no define ninguno. Lo que corresponde")
         w("es una bandera de ausencia, o separar el modelo por protocolo.")
+        if inexactos:
+            w("")
+            w("Para los %d campos cuyo patrón **no** cierra, el argumento de" % n_in)
+            w("inexistencia no está hecho y no se puede usar. Ahí la bandera")
+            w("de ausencia no es una alternativa a imputar sino lo único")
+            w("defendible, porque el faltante no quedó caracterizado.")
     w("")
 
     # ---------------- degeneradas ----------------

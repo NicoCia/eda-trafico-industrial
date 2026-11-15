@@ -10,6 +10,26 @@ Implementa lo necesario para el analisis exploratorio:
 * decodificacion de los parametros de los comandos de control CROB (grupo 12)
   y de salida analogica (grupo 41).
 
+LO QUE NO HACE, Y HAY QUE SABERLO ANTES DE REUSARLO
+---------------------------------------------------
+**No reensambla fragmentos de aplicacion repartidos en varias tramas de
+enlace.** La cabecera de aplicacion (control, codigo de funcion, IIN) vive
+solo en la trama que abre el fragmento, la que trae FIR=1. Este lector mira
+ese bit y **no interpreta** las tramas de continuacion: las cuenta en
+`sin_cabecera_app` y sigue. Un fragmento repartido queda, entonces, leido a
+medias --- se ven sus objetos hasta donde llega la primera trama ---, y eso es
+preferible a lo que hacia antes, que era leer los octetos 1 y 2 de una trama
+de continuacion como si fueran control de aplicacion y codigo de funcion, con
+lo que inventaba una funcion y una cabecera de objeto por trama.
+
+Sobre el tramo de entrenamiento de QUT el caso es raro y vale dejar la cifra:
+de 2.372.108 tramas, 2.371.922 son fragmento unico (FIR=1 y FIN=1) y **186**
+--- el 0,008 % --- son de continuacion. No hay ni una trama de apertura de
+fragmento multiple (FIR=1, FIN=0) ni de cierre (FIR=0, FIN=1), de modo que
+esas 186 no son fragmentos bien formados; aparecen solo en los escenarios de
+ataque (Attacks, Flooding, Masqurading y Replay) y ninguna en Control,
+Injection ni MITM, que es lo esperable de trafico DNP3 fabricado.
+
 Referencia de formato: IEEE 1815-2012.
 """
 
@@ -82,7 +102,7 @@ class Frame(object):
                  "control", "dest", "source", "link_dir", "link_prm",
                  "link_func", "transport", "app_control", "func", "iin",
                  "objects", "app_seq", "payload", "truncated",
-                 "bloques_ok", "bloques_total")
+                 "bloques_ok", "bloques_total", "fir", "fin")
 
     def __init__(self):
         self.objects = []
@@ -95,6 +115,8 @@ class Frame(object):
         self.truncated = False
         self.bloques_ok = 0
         self.bloques_total = 0
+        self.fir = False
+        self.fin = False
 
     @property
     def func_name(self):
@@ -188,20 +210,25 @@ def parse_object_headers(app, start):
             continue
 
         if count is not None and _es_empaquetado(group, var):
-            # Formatos de un bit por punto: el cuerpo es un mapa de bits
-            # comun, no un cuerpo por objeto.
-            nbytes = (count + 7) // 8
+            # Formatos empaquetados: el cuerpo es un mapa de bits comun, no un
+            # cuerpo por objeto. El ancho por punto depende del grupo.
+            ancho = _bits_por_punto(group, var)
+            nbytes = (count * ancho + 7) // 8
             if i + nbytes > n:
                 header["completo"] = False
                 objs.append(header)
                 break
             bits = app[i:i + nbytes]
             i += nbytes
+            mascara = (1 << ancho) - 1
             for k in range(count):
                 punto = None if start_idx is None else start_idx + k
+                desde = k * ancho
+                valor = (bits[desde // 8] >> (desde % 8)) & mascara
                 header["valores"].append({
-                    "punto": punto, "tipo": "g%dv%d_bit" % (group, var),
-                    "valor": (bits[k // 8] >> (k % 8)) & 1})
+                    "punto": punto,
+                    "tipo": "g%dv%d_bit%d" % (group, var, ancho),
+                    "valor": valor})
             objs.append(header)
             continue
 
@@ -233,9 +260,20 @@ def parse_object_headers(app, start):
     return objs
 
 
+def _bits_por_punto(group, var):
+    """Ancho, en bits, de las variaciones empaquetadas. None si no lo es.
+
+    CUIDADO con el grupo 3: es Double-bit Binary Input y empaqueta **dos**
+    bits por punto (00 intermedio, 01 apagado, 10 encendido, 11
+    indeterminado), no uno. Tratarlo como de un bit consume la mitad de los
+    octetos que debe y desalinea todo lo que siga en el mismo fragmento.
+    """
+    return {(1, 1): 1, (10, 1): 1, (80, 1): 1, (3, 1): 2}.get((group, var))
+
+
 def _es_empaquetado(group, var):
-    """Variaciones de un bit por punto (mapa de bits comun)."""
-    return (group, var) in ((1, 1), (10, 1), (3, 1), (80, 1))
+    """Variaciones de un bit o dos por punto (mapa de bits comun)."""
+    return _bits_por_punto(group, var) is not None
 
 
 def _object_body_len(group, var):
@@ -365,7 +403,15 @@ def build_frame(head, body, ts, src_ip, dst_ip, sport, dport):
     f.bloques_ok, f.bloques_total = ok, tot
     if len(app) >= 1:
         f.transport = app[0]
-    if len(app) >= 3:
+        f.fir = bool(app[0] & 0x40)
+        f.fin = bool(app[0] & 0x80)
+    # La cabecera de aplicacion vive SOLO en la trama que abre el fragmento,
+    # la que trae FIR=1. En una trama de continuacion los octetos 1 y 2 son
+    # datos de objeto, y leerlos como control de aplicacion y codigo de
+    # funcion inventa una funcion y una cabecera de objeto que no existen.
+    # Este lector no reensambla fragmentos de varias tramas: cuenta las de
+    # continuacion y no las interpreta, que es preferible a inventarlas.
+    if len(app) >= 3 and f.fir:
         f.app_control = app[1]
         f.func = app[2]
         f.app_seq = app[1] & 0x0F
@@ -388,7 +434,8 @@ def read_pcap(path, max_packets=None, dnp3_port=20000):
 
     streams = {}
     counts = {"paquetes": 0, "tcp": 0, "con_carga": 0, "puerto_dnp3": 0,
-              "crc_ok": 0, "crc_malo": 0}
+              "crc_ok": 0, "crc_malo": 0, "frag_unico": 0, "frag_primero": 0,
+              "frag_ultimo": 0, "frag_intermedio": 0, "sin_cabecera_app": 0}
     with open(path, "rb") as fh:
         try:
             pcap = dpkt.pcap.Reader(fh)
@@ -424,6 +471,20 @@ def read_pcap(path, max_packets=None, dnp3_port=20000):
             src = socket.inet_ntoa(ip.src)
             dst = socket.inet_ntoa(ip.dst)
             for head, body in frames:
-                yield build_frame(head, body, ts, src, dst, tcp.sport,
-                                  tcp.dport), counts
+                f = build_frame(head, body, ts, src, dst, tcp.sport,
+                                tcp.dport)
+                # Contabilidad del fragmentado, para que el lector no esconda
+                # lo que decide no interpretar.
+                if f.transport is not None:
+                    if f.fir and f.fin:
+                        counts["frag_unico"] += 1
+                    elif f.fir:
+                        counts["frag_primero"] += 1
+                    elif f.fin:
+                        counts["frag_ultimo"] += 1
+                    else:
+                        counts["frag_intermedio"] += 1
+                    if not f.fir:
+                        counts["sin_cabecera_app"] += 1
+                yield f, counts
     yield None, counts

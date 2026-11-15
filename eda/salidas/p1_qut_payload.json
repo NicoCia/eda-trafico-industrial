@@ -10,12 +10,12 @@
     "master": {
      "bytes": 122884838,
      "n_tramas": 72142,
-     "n_app": 72098,
-     "n_solo_enlace": 44,
+     "n_app": 72089,
+     "n_solo_enlace": 53,
      "func_app": {
       "READ": 28941,
       "RESPONSE": 28999,
-      "UNSOLICITED_RESPONSE": 6283,
+      "UNSOLICITED_RESPONSE": 6274,
       "CONFIRM": 7683,
       "RECORD_CURRENT_TIME": 71,
       "WRITE": 63,
@@ -33,22 +33,27 @@
       "g60v1": 6169,
       "g1v2": 8994,
       "g20v2": 6142,
-      "g2v1": 5859,
+      "g2v1": 5850,
       "g50v3": 58,
       "g80v1": 5
      },
-     "obj_completos": 71158,
+     "obj_completos": 71149,
      "obj_incompletos": 0,
      "bloques_ok": 78289,
      "bloques_total": 78289,
-     "n_valores": 35306,
+     "n_valores": 35297,
      "contadores": {
       "paquetes": 1191113,
       "tcp": 866241,
       "con_carga": 70977,
       "puerto_dnp3": 70977,
       "crc_ok": 72142,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 72089,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 9,
+      "sin_cabecera_app": 9
      },
      "emparejamiento": {
       "peticiones": 36816,
@@ -99,7 +104,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 0
        }
       },
@@ -227,7 +232,12 @@
       "con_carga": 77339,
       "puerto_dnp3": 77277,
       "crc_ok": 126809,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 126754,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 0,
+      "sin_cabecera_app": 0
      },
      "emparejamiento": {
       "peticiones": 89866,
@@ -267,7 +277,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 0
        }
       },
@@ -344,7 +354,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 0
        }
       }
@@ -397,13 +407,13 @@
     "attacker": {
      "bytes": 57188272,
      "n_tramas": 66929,
-     "n_app": 66918,
-     "n_solo_enlace": 11,
+     "n_app": 66909,
+     "n_solo_enlace": 20,
      "func_app": {
       "READ": 1215,
       "RESPONSE": 5589,
       "IMMED_FREEZE": 24226,
-      "UNSOLICITED_RESPONSE": 3011,
+      "UNSOLICITED_RESPONSE": 3002,
       "CONFIRM": 2140,
       "RECORD_CURRENT_TIME": 27,
       "WRITE": 30674,
@@ -425,23 +435,28 @@
       "g1v2": 3061,
       "g20v2": 209,
       "g20v0": 24232,
-      "g2v1": 259,
+      "g2v1": 250,
       "g50v3": 7878,
       "g52v2": 5,
       "g80v1": 22796
      },
-     "obj_completos": 60695,
+     "obj_completos": 60686,
      "obj_incompletos": 0,
      "bloques_ok": 67145,
      "bloques_total": 67145,
-     "n_valores": 34877,
+     "n_valores": 34868,
      "contadores": {
       "paquetes": 324548,
       "tcp": 21308,
       "con_carga": 16670,
       "puerto_dnp3": 16670,
       "crc_ok": 66929,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 66909,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 9,
+      "sin_cabecera_app": 9
      },
      "emparejamiento": {
       "peticiones": 58318,
@@ -613,19 +628,19 @@
   "infrequent": {
    "firma_master_vs_slave": {
     "comparados": 20000,
-    "iguales": 4557,
-    "fraccion": 0.22785
+    "iguales": 4541,
+    "fraccion": 0.22705
    },
    "roles": {
     "master": {
      "bytes": 66811885,
      "n_tramas": 68966,
-     "n_app": 68960,
-     "n_solo_enlace": 6,
+     "n_app": 68957,
+     "n_solo_enlace": 9,
      "func_app": {
       "RECORD_CURRENT_TIME": 17,
       "RESPONSE": 29082,
-      "UNSOLICITED_RESPONSE": 4191,
+      "UNSOLICITED_RESPONSE": 4188,
       "WRITE": 10,
       "CONFIRM": 6580,
       "READ": 29070,
@@ -637,7 +652,7 @@
       "LINK_STATUS": 1
      },
      "objetos": {
-      "g2v1": 5710,
+      "g2v1": 5707,
       "g50v3": 10,
       "g60v2": 15287,
       "g60v3": 14628,
@@ -646,18 +661,23 @@
       "g1v2": 7047,
       "g20v2": 6156
      },
-     "obj_completos": 69071,
+     "obj_completos": 69068,
      "obj_incompletos": 0,
      "bloques_ok": 75126,
      "bloques_total": 75126,
-     "n_valores": 32952,
+     "n_valores": 32949,
      "contadores": {
       "paquetes": 454716,
       "tcp": 130785,
       "con_carga": 68835,
       "puerto_dnp3": 68835,
       "crc_ok": 68966,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 68957,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 3,
+      "sin_cabecera_app": 3
      },
      "emparejamiento": {
       "peticiones": 35687,
@@ -831,7 +851,12 @@
       "con_carga": 67039,
       "puerto_dnp3": 67039,
       "crc_ok": 67145,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 67137,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 0,
+      "sin_cabecera_app": 0
      },
      "emparejamiento": {
       "peticiones": 34802,
@@ -952,13 +977,13 @@
     "attacker": {
      "bytes": 54227798,
      "n_tramas": 2171,
-     "n_app": 2169,
-     "n_solo_enlace": 2,
+     "n_app": 2166,
+     "n_solo_enlace": 5,
      "func_app": {
       "READ": 183,
       "RESPONSE": 146,
-      "UNSOLICITED_RESPONSE": 910,
       "CONFIRM": 908,
+      "UNSOLICITED_RESPONSE": 907,
       "RECORD_CURRENT_TIME": 10,
       "WRITE": 3,
       "ENABLE_UNSOLICITED": 3,
@@ -977,22 +1002,27 @@
       "g60v1": 50,
       "g1v2": 919,
       "g20v2": 28,
-      "g2v1": 38,
+      "g2v1": 35,
       "g50v3": 3,
       "g20v0": 3
      },
-     "obj_completos": 1355,
+     "obj_completos": 1352,
      "obj_incompletos": 0,
      "bloques_ok": 2197,
      "bloques_total": 2197,
-     "n_valores": 1103,
+     "n_valores": 1100,
      "contadores": {
       "paquetes": 303606,
       "tcp": 2471,
       "con_carga": 2078,
       "puerto_dnp3": 2078,
       "crc_ok": 2171,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 2166,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 3,
+      "sin_cabecera_app": 3
      },
      "emparejamiento": {
       "peticiones": 1113,
@@ -1111,7 +1141,12 @@
       "con_carga": 67126,
       "puerto_dnp3": 67126,
       "crc_ok": 67173,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 67173,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 0,
+      "sin_cabecera_app": 0
      },
      "emparejamiento": {
       "peticiones": 34800,
@@ -1165,7 +1200,12 @@
       "con_carga": 67126,
       "puerto_dnp3": 67126,
       "crc_ok": 67173,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 67173,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 0,
+      "sin_cabecera_app": 0
      },
      "emparejamiento": {
       "peticiones": 34800,
@@ -1204,7 +1244,12 @@
       "con_carga": 0,
       "puerto_dnp3": 0,
       "crc_ok": 0,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 0,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 0,
+      "sin_cabecera_app": 0
      },
      "emparejamiento": null,
      "parametros": [],
@@ -1254,7 +1299,12 @@
       "con_carga": 67222,
       "puerto_dnp3": 67222,
       "crc_ok": 67273,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 67273,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 0,
+      "sin_cabecera_app": 0
      },
      "emparejamiento": {
       "peticiones": 34869,
@@ -1308,7 +1358,12 @@
       "con_carga": 67222,
       "puerto_dnp3": 67222,
       "crc_ok": 67273,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 67273,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 0,
+      "sin_cabecera_app": 0
      },
      "emparejamiento": {
       "peticiones": 34869,
@@ -1347,7 +1402,12 @@
       "con_carga": 0,
       "puerto_dnp3": 0,
       "crc_ok": 0,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 0,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 0,
+      "sin_cabecera_app": 0
      },
      "emparejamiento": null,
      "parametros": [],
@@ -1368,13 +1428,13 @@
     "master": {
      "bytes": 66571285,
      "n_tramas": 93137,
-     "n_app": 93082,
-     "n_solo_enlace": 55,
+     "n_app": 93067,
+     "n_solo_enlace": 70,
      "func_app": {
       "READ": 28891,
       "RESPONSE": 28949,
       "CONFIRM": 18723,
-      "UNSOLICITED_RESPONSE": 16412,
+      "UNSOLICITED_RESPONSE": 16397,
       "RECORD_CURRENT_TIME": 37,
       "WRITE": 35,
       "ENABLE_UNSOLICITED": 35
@@ -1391,21 +1451,26 @@
       "g60v1": 6139,
       "g1v2": 19212,
       "g20v2": 6140,
-      "g2v1": 5766,
+      "g2v1": 5751,
       "g50v3": 35
      },
-     "obj_completos": 81072,
+     "obj_completos": 81057,
      "obj_incompletos": 0,
      "bloques_ok": 99241,
      "bloques_total": 99241,
-     "n_valores": 45084,
+     "n_valores": 45069,
      "contadores": {
       "paquetes": 447200,
       "tcp": 124761,
       "con_carga": 91782,
       "puerto_dnp3": 91782,
       "crc_ok": 93137,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 93067,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 15,
+      "sin_cabecera_app": 15
      },
      "emparejamiento": {
       "peticiones": 47721,
@@ -1579,7 +1644,12 @@
       "con_carga": 92574,
       "puerto_dnp3": 92544,
       "crc_ok": 177919,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 177848,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 0,
+      "sin_cabecera_app": 0
      },
      "emparejamiento": {
       "peticiones": 136591,
@@ -1597,7 +1667,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 1
        }
       },
@@ -1608,7 +1678,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 1
        }
       },
@@ -1619,7 +1689,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 1
        }
       },
@@ -1630,7 +1700,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 1
        }
       },
@@ -1641,7 +1711,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 1
        }
       },
@@ -1652,7 +1722,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 1
        }
       },
@@ -1663,7 +1733,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 1
        }
       },
@@ -1674,7 +1744,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 1
        }
       },
@@ -1685,7 +1755,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 1
        }
       },
@@ -1696,7 +1766,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 1
        }
       }
@@ -1750,15 +1820,15 @@
     "attacker": {
      "bytes": 61568659,
      "n_tramas": 137364,
-     "n_app": 137348,
-     "n_solo_enlace": 16,
+     "n_app": 137333,
+     "n_solo_enlace": 31,
      "func_app": {
       "READ": 256,
       "RESPONSE": 9077,
       "WRITE": 64533,
       "RECORD_CURRENT_TIME": 22,
       "ENABLE_UNSOLICITED": 15,
-      "UNSOLICITED_RESPONSE": 13113,
+      "UNSOLICITED_RESPONSE": 13098,
       "CONFIRM": 13060,
       "IMMED_FREEZE": 37272
      },
@@ -1776,21 +1846,26 @@
       "g20v2": 24,
       "g80v1": 50597,
       "g50v3": 13936,
-      "g2v1": 56,
+      "g2v1": 41,
       "g20v0": 37272
      },
-     "obj_completos": 115534,
+     "obj_completos": 115519,
      "obj_incompletos": 0,
      "bloques_ok": 137387,
      "bloques_total": 137387,
-     "n_valores": 77815,
+     "n_valores": 77800,
      "contadores": {
       "paquetes": 363680,
       "tcp": 64003,
       "con_carga": 50812,
       "puerto_dnp3": 50812,
       "crc_ok": 137364,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 137333,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 15,
+      "sin_cabecera_app": 15
      },
      "emparejamiento": {
       "peticiones": 115158,
@@ -1808,7 +1883,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 1
        }
       },
@@ -1819,7 +1894,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 1
        }
       },
@@ -1830,7 +1905,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 1
        }
       },
@@ -1841,7 +1916,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 1
        }
       },
@@ -1852,7 +1927,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 1
        }
       },
@@ -1863,7 +1938,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 1
        }
       },
@@ -1874,7 +1949,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 1
        }
       },
@@ -1885,7 +1960,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 1
        }
       },
@@ -1896,7 +1971,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 1
        }
       },
@@ -1907,7 +1982,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 1
        }
       }
@@ -1970,13 +2045,13 @@
     "master": {
      "bytes": 64529735,
      "n_tramas": 72931,
-     "n_app": 72929,
-     "n_solo_enlace": 2,
+     "n_app": 72923,
+     "n_solo_enlace": 8,
      "func_app": {
       "READ": 29080,
       "RESPONSE": 29093,
       "CONFIRM": 8574,
-      "UNSOLICITED_RESPONSE": 6152,
+      "UNSOLICITED_RESPONSE": 6146,
       "RECORD_CURRENT_TIME": 14,
       "WRITE": 8,
       "ENABLE_UNSOLICITED": 8
@@ -1993,21 +2068,26 @@
       "g60v1": 6161,
       "g1v2": 9023,
       "g20v2": 6161,
-      "g2v1": 5722,
+      "g2v1": 5716,
       "g50v3": 8
      },
-     "obj_completos": 71061,
+     "obj_completos": 71055,
      "obj_incompletos": 0,
      "bloques_ok": 79091,
      "bloques_total": 79091,
-     "n_valores": 34807,
+     "n_valores": 34801,
      "contadores": {
       "paquetes": 424849,
       "tcp": 103367,
       "con_carga": 72620,
       "puerto_dnp3": 72620,
       "crc_ok": 72931,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 72923,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 6,
+      "sin_cabecera_app": 6
      },
      "emparejamiento": {
       "peticiones": 37684,
@@ -2157,7 +2237,12 @@
       "con_carga": 70935,
       "puerto_dnp3": 70935,
       "crc_ok": 77177,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 77169,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 0,
+      "sin_cabecera_app": 0
      },
      "emparejamiento": {
       "peticiones": 43170,
@@ -2197,7 +2282,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 1
        }
       },
@@ -2208,7 +2293,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 1
        }
       },
@@ -2219,7 +2304,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 1
        }
       },
@@ -2230,7 +2315,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 1
        }
       },
@@ -2241,7 +2326,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 1
        }
       },
@@ -2252,7 +2337,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 1
        }
       },
@@ -2263,7 +2348,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 1
        }
       },
@@ -2274,7 +2359,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 1
        }
       }
@@ -2317,12 +2402,12 @@
     "attacker": {
      "bytes": 54913496,
      "n_tramas": 15760,
-     "n_app": 15754,
-     "n_solo_enlace": 6,
+     "n_app": 15748,
+     "n_solo_enlace": 12,
      "func_app": {
       "READ": 91,
       "RESPONSE": 1635,
-      "UNSOLICITED_RESPONSE": 2879,
+      "UNSOLICITED_RESPONSE": 2873,
       "RECORD_CURRENT_TIME": 11,
       "WRITE": 8276,
       "ENABLE_UNSOLICITED": 3,
@@ -2340,22 +2425,27 @@
       "g60v1": 39,
       "g1v2": 2872,
       "g20v2": 10,
-      "g2v1": 21,
+      "g2v1": 15,
       "g50v3": 5248,
       "g80v1": 3028
      },
-     "obj_completos": 11396,
+     "obj_completos": 11390,
      "obj_incompletos": 0,
      "bloques_ok": 15769,
      "bloques_total": 15769,
-     "n_valores": 11216,
+     "n_valores": 11210,
      "contadores": {
       "paquetes": 309488,
       "tcp": 11009,
       "con_carga": 9297,
       "puerto_dnp3": 9297,
       "crc_ok": 15760,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 15748,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 6,
+      "sin_cabecera_app": 6
      },
      "emparejamiento": {
       "peticiones": 11240,
@@ -2384,7 +2474,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 1
        }
       },
@@ -2395,7 +2485,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 1
        }
       },
@@ -2406,7 +2496,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 1
        }
       },
@@ -2417,7 +2507,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 1
        }
       },
@@ -2428,7 +2518,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 1
        }
       },
@@ -2439,7 +2529,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 1
        }
       },
@@ -2450,7 +2540,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 1
        }
       },
@@ -2461,7 +2551,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 1
        }
       },
@@ -2472,7 +2562,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 1
        }
       }
@@ -2564,7 +2654,12 @@
       "con_carga": 67386,
       "puerto_dnp3": 67386,
       "crc_ok": 67951,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 67945,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 0,
+      "sin_cabecera_app": 0
      },
      "emparejamiento": {
       "peticiones": 35317,
@@ -2670,7 +2765,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 0
        }
       },
@@ -2742,7 +2837,12 @@
       "con_carga": 67383,
       "puerto_dnp3": 67343,
       "crc_ok": 67888,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 67882,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 0,
+      "sin_cabecera_app": 0
      },
      "emparejamiento": {
       "peticiones": 35227,
@@ -2848,7 +2948,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 0
        }
       },
@@ -2949,7 +3049,12 @@
       "con_carga": 423,
       "puerto_dnp3": 417,
       "crc_ok": 541,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 541,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 0,
+      "sin_cabecera_app": 0
      },
      "emparejamiento": {
       "peticiones": 369,
@@ -3053,7 +3158,12 @@
       "con_carga": 67240,
       "puerto_dnp3": 67240,
       "crc_ok": 67361,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 67361,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 0,
+      "sin_cabecera_app": 0
      },
      "emparejamiento": {
       "peticiones": 34920,
@@ -3093,7 +3203,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 0
        }
       },
@@ -3148,7 +3258,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 0
        }
       },
@@ -3228,7 +3338,12 @@
       "con_carga": 67268,
       "puerto_dnp3": 67268,
       "crc_ok": 67418,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 67418,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 0,
+      "sin_cabecera_app": 0
      },
      "emparejamiento": {
       "peticiones": 34953,
@@ -3268,7 +3383,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 0
        }
       },
@@ -3323,7 +3438,7 @@
        "variacion": 1,
        "valor": {
         "punto": 7,
-        "tipo": "g80v1_bit",
+        "tipo": "g80v1_bit1",
         "valor": 0
        }
       },
@@ -3426,7 +3541,12 @@
       "con_carga": 57,
       "puerto_dnp3": 57,
       "crc_ok": 92,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 92,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 0,
+      "sin_cabecera_app": 0
      },
      "emparejamiento": {
       "peticiones": 59,
@@ -3526,7 +3646,12 @@
       "con_carga": 67235,
       "puerto_dnp3": 67235,
       "crc_ok": 67412,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 67389,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 0,
+      "sin_cabecera_app": 0
      },
      "emparejamiento": {
       "peticiones": 34873,
@@ -3699,7 +3824,12 @@
       "con_carga": 67597,
       "puerto_dnp3": 67597,
       "crc_ok": 67811,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 67788,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 0,
+      "sin_cabecera_app": 0
      },
      "emparejamiento": {
       "peticiones": 35302,
@@ -3912,7 +4042,12 @@
       "con_carga": 4980,
       "puerto_dnp3": 4980,
       "crc_ok": 5033,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 5033,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 0,
+      "sin_cabecera_app": 0
      },
      "emparejamiento": {
       "peticiones": 2739,
@@ -4026,7 +4161,12 @@
       "con_carga": 67129,
       "puerto_dnp3": 67129,
       "crc_ok": 67209,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 67207,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 0,
+      "sin_cabecera_app": 0
      },
      "emparejamiento": {
       "peticiones": 34840,
@@ -4198,7 +4338,12 @@
       "con_carga": 67213,
       "puerto_dnp3": 67213,
       "crc_ok": 67322,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 67320,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 0,
+      "sin_cabecera_app": 0
      },
      "emparejamiento": {
       "peticiones": 34935,
@@ -4399,7 +4544,12 @@
       "con_carga": 888,
       "puerto_dnp3": 888,
       "crc_ok": 925,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 925,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 0,
+      "sin_cabecera_app": 0
      },
      "emparejamiento": {
       "peticiones": 519,
@@ -4460,19 +4610,19 @@
   "frequent": {
    "firma_master_vs_slave": {
     "comparados": 20000,
-    "iguales": 1846,
-    "fraccion": 0.0923
+    "iguales": 941,
+    "fraccion": 0.04705
    },
    "roles": {
     "master": {
      "bytes": 65795623,
      "n_tramas": 81811,
-     "n_app": 81757,
-     "n_solo_enlace": 54,
+     "n_app": 81730,
+     "n_solo_enlace": 81,
      "func_app": {
       "READ": 28885,
       "RESPONSE": 28944,
-      "UNSOLICITED_RESPONSE": 10792,
+      "UNSOLICITED_RESPONSE": 10765,
       "CONFIRM": 12808,
       "RECORD_CURRENT_TIME": 122,
       "WRITE": 103,
@@ -4490,21 +4640,26 @@
       "g60v1": 6154,
       "g1v2": 13499,
       "g20v2": 6147,
-      "g2v1": 5923,
+      "g2v1": 5896,
       "g50v3": 103
      },
-     "obj_completos": 75800,
+     "obj_completos": 75773,
      "obj_incompletos": 0,
      "bloques_ok": 88019,
      "bloques_total": 88019,
-     "n_valores": 40566,
+     "n_valores": 40539,
      "contadores": {
       "paquetes": 436786,
       "tcp": 113926,
       "con_carga": 81007,
       "puerto_dnp3": 81007,
       "crc_ok": 81811,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 81730,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 27,
+      "sin_cabecera_app": 27
      },
      "emparejamiento": {
       "peticiones": 42021,
@@ -4675,7 +4830,12 @@
       "con_carga": 66907,
       "puerto_dnp3": 66847,
       "crc_ok": 67032,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 66946,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 0,
+      "sin_cabecera_app": 0
      },
      "emparejamiento": {
       "peticiones": 34668,
@@ -4834,12 +4994,12 @@
     "attacker": {
      "bytes": 56063281,
      "n_tramas": 17713,
-     "n_app": 17681,
-     "n_solo_enlace": 32,
+     "n_app": 17654,
+     "n_solo_enlace": 59,
      "func_app": {
       "READ": 1496,
       "RESPONSE": 1188,
-      "UNSOLICITED_RESPONSE": 7448,
+      "UNSOLICITED_RESPONSE": 7421,
       "CONFIRM": 7358,
       "RECORD_CURRENT_TIME": 80,
       "WRITE": 47,
@@ -4858,20 +5018,25 @@
       "g1v2": 7638,
       "g20v2": 286,
       "g50v3": 47,
-      "g2v1": 279
+      "g2v1": 252
      },
-     "obj_completos": 11066,
+     "obj_completos": 11039,
      "obj_incompletos": 0,
      "bloques_ok": 18024,
      "bloques_total": 18024,
-     "n_valores": 9557,
+     "n_valores": 9530,
      "contadores": {
       "paquetes": 322591,
       "tcp": 21892,
       "con_carga": 17050,
       "puerto_dnp3": 17050,
       "crc_ok": 17713,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 17654,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 27,
+      "sin_cabecera_app": 27
      },
      "emparejamiento": {
       "peticiones": 9045,
@@ -5039,13 +5204,13 @@
     "master": {
      "bytes": 64661821,
      "n_tramas": 69874,
-     "n_app": 69867,
-     "n_solo_enlace": 7,
+     "n_app": 69861,
+     "n_solo_enlace": 13,
      "func_app": {
       "READ": 29059,
       "RESPONSE": 29059,
       "CONFIRM": 7059,
-      "UNSOLICITED_RESPONSE": 4647,
+      "UNSOLICITED_RESPONSE": 4641,
       "RECORD_CURRENT_TIME": 15,
       "WRITE": 14,
       "ENABLE_UNSOLICITED": 14
@@ -5062,21 +5227,26 @@
       "g60v1": 6155,
       "g1v2": 7517,
       "g20v2": 6154,
-      "g2v1": 5724,
+      "g2v1": 5718,
       "g50v3": 14
      },
-     "obj_completos": 69529,
+     "obj_completos": 69523,
      "obj_incompletos": 0,
      "bloques_ok": 76040,
      "bloques_total": 76040,
-     "n_valores": 33437,
+     "n_valores": 33431,
      "contadores": {
       "paquetes": 425454,
       "tcp": 100307,
       "con_carga": 69689,
       "puerto_dnp3": 69689,
       "crc_ok": 69874,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 69861,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 6,
+      "sin_cabecera_app": 6
      },
      "emparejamiento": {
       "peticiones": 36161,
@@ -5247,7 +5417,12 @@
       "con_carga": 67168,
       "puerto_dnp3": 67148,
       "crc_ok": 67229,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 67218,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 0,
+      "sin_cabecera_app": 0
      },
      "emparejamiento": {
       "peticiones": 34847,
@@ -5381,15 +5556,15 @@
     "attacker": {
      "bytes": 54524008,
      "n_tramas": 3317,
-     "n_app": 3313,
-     "n_solo_enlace": 4,
+     "n_app": 3307,
+     "n_solo_enlace": 10,
      "func_app": {
       "READ": 299,
       "RESPONSE": 227,
       "RECORD_CURRENT_TIME": 10,
       "WRITE": 6,
       "ENABLE_UNSOLICITED": 9,
-      "UNSOLICITED_RESPONSE": 1384,
+      "UNSOLICITED_RESPONSE": 1378,
       "CONFIRM": 1378
      },
      "func_enlace": {
@@ -5405,20 +5580,25 @@
       "g1v2": 1418,
       "g20v2": 55,
       "g50v3": 6,
-      "g2v1": 51
+      "g2v1": 45
      },
-     "obj_completos": 2111,
+     "obj_completos": 2105,
      "obj_incompletos": 0,
      "bloques_ok": 3383,
      "bloques_total": 3383,
-     "n_valores": 1766,
+     "n_valores": 1760,
      "contadores": {
       "paquetes": 306378,
       "tcp": 4135,
       "con_carga": 3177,
       "puerto_dnp3": 3177,
       "crc_ok": 3317,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 3307,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 6,
+      "sin_cabecera_app": 6
      },
      "emparejamiento": {
       "peticiones": 1702,
@@ -5541,12 +5721,12 @@
     "master": {
      "bytes": 223921810,
      "n_tramas": 67382,
-     "n_app": 67327,
-     "n_solo_enlace": 55,
+     "n_app": 67309,
+     "n_solo_enlace": 73,
      "func_app": {
       "READ": 29057,
       "RESPONSE": 28997,
-      "UNSOLICITED_RESPONSE": 3359,
+      "UNSOLICITED_RESPONSE": 3341,
       "CONFIRM": 5803,
       "RECORD_CURRENT_TIME": 37,
       "WRITE": 37,
@@ -5564,21 +5744,26 @@
       "g60v1": 6197,
       "g1v2": 6144,
       "g20v2": 6144,
-      "g2v1": 5790,
+      "g2v1": 5772,
       "g50v3": 37
      },
-     "obj_completos": 68436,
+     "obj_completos": 68418,
      "obj_incompletos": 0,
      "bloques_ok": 73520,
      "bloques_total": 73520,
-     "n_valores": 32277,
+     "n_valores": 32259,
      "contadores": {
       "paquetes": 2521607,
       "tcp": 2195606,
       "con_carga": 67221,
       "puerto_dnp3": 67221,
       "crc_ok": 67382,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 67309,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 18,
+      "sin_cabecera_app": 18
      },
      "emparejamiento": {
       "peticiones": 34971,
@@ -5750,7 +5935,12 @@
       "con_carga": 67922,
       "puerto_dnp3": 67865,
       "crc_ok": 68226,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 68159,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 0,
+      "sin_cabecera_app": 0
      },
      "emparejamiento": {
       "peticiones": 35464,
@@ -5921,13 +6111,13 @@
     "attacker": {
      "bytes": 54375270,
      "n_tramas": 1187,
-     "n_app": 1175,
-     "n_solo_enlace": 12,
+     "n_app": 1157,
+     "n_solo_enlace": 30,
      "func_app": {
       "READ": 502,
       "RESPONSE": 326,
       "CONFIRM": 205,
-      "UNSOLICITED_RESPONSE": 142
+      "UNSOLICITED_RESPONSE": 124
      },
      "func_enlace": {
       "UNCONFIRMED_USER_DATA": 1175,
@@ -5941,20 +6131,25 @@
       "g60v1": 140,
       "g1v2": 72,
       "g20v2": 72,
-      "g2v1": 152
+      "g2v1": 134
      },
-     "obj_completos": 1218,
+     "obj_completos": 1200,
      "obj_incompletos": 0,
      "bloques_ok": 1248,
      "bloques_total": 1248,
-     "n_valores": 498,
+     "n_valores": 480,
      "contadores": {
       "paquetes": 304803,
       "tcp": 1854,
       "con_carga": 960,
       "puerto_dnp3": 951,
       "crc_ok": 1187,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 1157,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 18,
+      "sin_cabecera_app": 18
      },
      "emparejamiento": {
       "peticiones": 707,
@@ -6023,13 +6218,13 @@
     "master": {
      "bytes": 86247367,
      "n_tramas": 67178,
-     "n_app": 67178,
-     "n_solo_enlace": 0,
+     "n_app": 67169,
+     "n_solo_enlace": 9,
      "func_app": {
       "READ": 29061,
       "RESPONSE": 29056,
       "CONFIRM": 5728,
-      "UNSOLICITED_RESPONSE": 3309,
+      "UNSOLICITED_RESPONSE": 3300,
       "RECORD_CURRENT_TIME": 8,
       "WRITE": 8,
       "ENABLE_UNSOLICITED": 8
@@ -6041,24 +6236,29 @@
       "g60v2": 15271,
       "g60v4": 14067,
       "g60v3": 14605,
-      "g2v1": 5729,
+      "g2v1": 5720,
       "g60v1": 6168,
       "g1v2": 6160,
       "g20v2": 6160,
       "g50v3": 8
      },
-     "obj_completos": 68168,
+     "obj_completos": 68159,
      "obj_incompletos": 0,
      "bloques_ok": 73348,
      "bloques_total": 73348,
-     "n_valores": 32003,
+     "n_valores": 31994,
      "contadores": {
       "paquetes": 710654,
       "tcp": 386201,
       "con_carga": 67083,
       "puerto_dnp3": 67083,
       "crc_ok": 67178,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 67169,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 9,
+      "sin_cabecera_app": 9
      },
      "emparejamiento": {
       "peticiones": 34813,
@@ -6207,7 +6407,12 @@
       "con_carga": 67166,
       "puerto_dnp3": 67166,
       "crc_ok": 67323,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 67317,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 0,
+      "sin_cabecera_app": 0
      },
      "emparejamiento": {
       "peticiones": 34917,
@@ -6350,12 +6555,12 @@
     "attacker": {
      "bytes": 54071483,
      "n_tramas": 217,
-     "n_app": 211,
-     "n_solo_enlace": 6,
+     "n_app": 202,
+     "n_solo_enlace": 15,
      "func_app": {
       "READ": 111,
       "RESPONSE": 44,
-      "UNSOLICITED_RESPONSE": 25,
+      "UNSOLICITED_RESPONSE": 16,
       "CONFIRM": 31
      },
      "func_enlace": {
@@ -6370,20 +6575,25 @@
       "g60v1": 55,
       "g1v2": 10,
       "g20v2": 10,
-      "g2v1": 28
+      "g2v1": 19
      },
-     "obj_completos": 324,
+     "obj_completos": 315,
      "obj_incompletos": 0,
      "bloques_ok": 221,
      "bloques_total": 221,
-     "n_valores": 78,
+     "n_valores": 69,
      "contadores": {
       "paquetes": 301680,
       "tcp": 293,
       "con_carga": 145,
       "puerto_dnp3": 145,
       "crc_ok": 217,
-      "crc_malo": 0
+      "crc_malo": 0,
+      "frag_unico": 202,
+      "frag_primero": 0,
+      "frag_ultimo": 0,
+      "frag_intermedio": 9,
+      "sin_cabecera_app": 9
      },
      "emparejamiento": {
       "peticiones": 142,
@@ -6436,5 +6646,66 @@
     }
    }
   }
+ },
+ "_fragmentado": {
+  "por_escenario": {
+   "Attacks": {
+    "frag_unico": 404012,
+    "frag_primero": 0,
+    "frag_ultimo": 0,
+    "frag_intermedio": 24,
+    "sin_cabecera_app": 24
+   },
+   "Control": {
+    "frag_unico": 268892,
+    "frag_primero": 0,
+    "frag_ultimo": 0,
+    "frag_intermedio": 0,
+    "sin_cabecera_app": 0
+   },
+   "Flooding": {
+    "frag_unico": 574088,
+    "frag_primero": 0,
+    "frag_ultimo": 0,
+    "frag_intermedio": 42,
+    "sin_cabecera_app": 42
+   },
+   "Injection": {
+    "frag_unico": 271239,
+    "frag_primero": 0,
+    "frag_ultimo": 0,
+    "frag_intermedio": 0,
+    "sin_cabecera_app": 0
+   },
+   "MITM": {
+    "frag_unico": 275662,
+    "frag_primero": 0,
+    "frag_ultimo": 0,
+    "frag_intermedio": 0,
+    "sin_cabecera_app": 0
+   },
+   "Masqurading": {
+    "frag_unico": 306716,
+    "frag_primero": 0,
+    "frag_ultimo": 0,
+    "frag_intermedio": 66,
+    "sin_cabecera_app": 66
+   },
+   "Replay": {
+    "frag_unico": 271313,
+    "frag_primero": 0,
+    "frag_ultimo": 0,
+    "frag_intermedio": 54,
+    "sin_cabecera_app": 54
+   }
+  },
+  "total": {
+   "frag_unico": 2371922,
+   "frag_primero": 0,
+   "frag_ultimo": 0,
+   "frag_intermedio": 186,
+   "sin_cabecera_app": 186
+  },
+  "con_octeto_de_transporte": 2372108
  }
 }

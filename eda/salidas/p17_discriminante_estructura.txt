@@ -11,19 +11,30 @@ AUC de cada característica tomada sola frente a `NST_B_Label`. Un AUC de
 0,5 es no discriminar; se informa además el valor plegado, que trata
 igual a las que discriminan con el signo invertido.
 
-campo                    AUC AUC pleg. F de ANOVA inf. mutua
-sWinTCP                0.563     0.563       1557     0.026
-rAckDelayMax           0.440     0.560        102     0.036
-sPackets               0.442     0.558         96     0.013
-rAckRate               0.444     0.556       1131     0.023
-rSynRate               0.556     0.556       1131     0.015
-rPshRate               0.450     0.550        245     0.018
-sLoad                  0.451     0.549          3     0.036
-sBytesSum              0.451     0.549         60     0.019
-rttl                   0.453     0.547        860     0.019
-sSynRate               0.543     0.543        718     0.020
-rInterPacketAvg        0.542     0.542        158     0.034
-sPayloadSum            0.461     0.539         20     0.026
+La cobertura y la prevalencia dicen si dos filas son comparables:
+un campo con faltantes estructurales se evalua sobre otra poblacion
+que uno presente en todas las filas.
+
+campo                    AUC AUC pleg. F de ANOVA inf. mutua   cob.%   pos.%
+sWinTCP                0.563     0.563       1557     0.026    83.8    16.5
+rAckDelayMax           0.440     0.560        102     0.036    83.8    16.5
+sPackets               0.442     0.558         96     0.013   100.0    17.2
+rAckRate               0.444     0.556       1131     0.023    84.2    16.9
+rSynRate               0.556     0.556       1131     0.015    84.2    16.9
+rPshRate               0.450     0.550        245     0.018    84.2    16.9
+sLoad                  0.451     0.549          3     0.036   100.0    17.2
+sBytesSum              0.451     0.549         60     0.019   100.0    17.2
+rttl                   0.453     0.547        860     0.019    84.2    16.9
+sSynRate               0.543     0.543        718     0.020    83.8    16.5
+rInterPacketAvg        0.542     0.542        158     0.034    84.5    17.2
+sPayloadSum            0.461     0.539         20     0.026   100.0    17.2
+
+Mejor AUC plegado sobre poblacion completa (cobertura >= 99 %):
+**0.558** (`sPackets`, cobertura 100.0 %). Esa es la cifra comparable
+entre conjuntos; el maximo de la tabla puede estar medido sobre
+una subpoblacion.
+Aca difieren: el maximo es 0.563 (`sWinTCP`) sobre el 83.8 % de
+las filas.
 
 De las 42 características evaluadas: **0** alcanzan AUC plegado
 ≥ 0,70 y **37** quedan por debajo de 0,55, es decir que no
@@ -117,19 +128,30 @@ AUC de cada característica tomada sola frente a `NST_B_Label`. Un AUC de
 0,5 es no discriminar; se informa además el valor plegado, que trata
 igual a las que discriminan con el signo invertido.
 
-campo                    AUC AUC pleg. F de ANOVA inf. mutua
-rPayloadMax            0.331     0.669        689     0.008
-rBytesMax              0.333     0.667       3920     0.007
-rttl                   0.336     0.664       5532     0.043
-sBytesMax              0.341     0.659       7922     0.008
-sPayloadMax            0.342     0.658       6162     0.007
-sPayloadSum            0.353     0.647       1798     0.153
-rPayloadAvg            0.361     0.639         42     0.080
-rPayloadSum            0.362     0.638       1795     0.149
-sBytesMin              0.366     0.634       1055     0.035
-sPayloadAvg            0.367     0.633       1402     0.064
-rAckDelayAvg           0.624     0.624       1246     0.099
-rPshRate               0.378     0.622       1452     0.067
+La cobertura y la prevalencia dicen si dos filas son comparables:
+un campo con faltantes estructurales se evalua sobre otra poblacion
+que uno presente en todas las filas.
+
+campo                    AUC AUC pleg. F de ANOVA inf. mutua   cob.%   pos.%
+rPayloadMax            0.331     0.669        689     0.008    99.0    10.0
+rBytesMax              0.333     0.667       3920     0.007    99.0    10.0
+rttl                   0.336     0.664       5532     0.043    97.1     8.8
+sBytesMax              0.341     0.659       7922     0.008    98.9     9.8
+sPayloadMax            0.342     0.658       6162     0.007    98.9     9.8
+sPayloadSum            0.353     0.647       1798     0.153   100.0    10.8
+rPayloadAvg            0.361     0.639         42     0.080    99.0    10.0
+rPayloadSum            0.362     0.638       1795     0.149   100.0    10.8
+sBytesMin              0.366     0.634       1055     0.035    98.9     9.8
+sPayloadAvg            0.367     0.633       1402     0.064    98.9     9.8
+rAckDelayAvg           0.624     0.624       1246     0.099    95.3     7.1
+rPshRate               0.378     0.622       1452     0.067    97.1     8.8
+
+Mejor AUC plegado sobre poblacion completa (cobertura >= 99 %):
+**0.647** (`sPayloadSum`, cobertura 100.0 %). Esa es la cifra comparable
+entre conjuntos; el maximo de la tabla puede estar medido sobre
+una subpoblacion.
+Aca difieren: el maximo es 0.669 (`rPayloadMax`) sobre el 99.0 % de
+las filas.
 
 De las 43 características evaluadas: **0** alcanzan AUC plegado
 ≥ 0,70 y **18** quedan por debajo de 0,55, es decir que no

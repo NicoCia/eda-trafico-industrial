@@ -18,6 +18,7 @@ import os
 import re
 import sys
 
+import numpy as np
 import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -25,6 +26,11 @@ import comun  # noqa: E402
 
 VARIANTES = ["reduced", "extended"]
 PUNTOS = ["bottom", "left", "right"]
+
+# Tolerancia, en segundos, para considerar que dos flujos de puntos de captura
+# distintos son el MISMO flujo observado dos veces. Es holgada a proposito: lo
+# que se quiere es una cota alta de la duplicacion, no contarla justa.
+TOL_GEMELO = 1.0
 
 # Agrupacion de la cifra publicada: normal / malas config. y SSH malicioso /
 # ataques. GOOD-SSH es trafico legitimo, va con el normal.
@@ -191,6 +197,7 @@ def main():
     w("Union de los tres puntos de captura dentro de cada variante (sumar las")
     w("dos variantes duplicaria el mismo trafico, asi que no se hace):")
     w("")
+    candidatas = []
     for var in VARIANTES:
         for estr in ("NST", "IT"):
             g = collections.Counter()
@@ -207,9 +214,152 @@ def main():
     w("")
 
     # ------------------------------------------------------------------
+    # Dos objeciones razonables a identificar la cifra publicada con la
+    # union, y las dos se miden en lugar de contestarse:
+    #
+    #   (a) que la union cuente el mismo trafico mas de una vez, porque los
+    #       tres puntos observan la misma red --- el README del conjunto
+    #       avisa que hay paquetes duplicados;
+    #   (b) que acertar una de muchas agregaciones no diga nada, porque con
+    #       suficientes candidatas una va a coincidir.
+    # ------------------------------------------------------------------
+    w("## P3.c La union, cuenta el mismo trafico mas de una vez?")
+    w("")
+    w("El README del conjunto avisa que un paquete que entra y sale del")
+    w("equipo que graba aparece dos veces. Si eso llegara a los FLUJOS, la")
+    w("union de los tres puntos no seria una poblacion sino trafico inflado,")
+    w("y el reparto no significaria nada. Se mide.")
+    w("")
+    w("Gemelo = mismo par de direcciones, protocolo, numero de paquetes y de")
+    w("bytes en los dos sentidos, y comienzo dentro de %g s. Es un flujo"
+      % TOL_GEMELO)
+    w("observado en dos puntos a la vez.")
+    w("")
+    CMP = ["sAddress", "rAddress", "protocol", "sPackets", "rPackets",
+           "sBytesSum", "rBytesSum"]
+    dup = {}
+    for var in VARIANTES:
+        tablas = {}
+        for pt in PUNTOS:
+            ruta = os.path.join(comun.WESTERMO, var, "flows",
+                                "output_%s.csv" % pt)
+            if os.path.exists(ruta):
+                tablas[pt] = pd.read_csv(ruta)
+        if len(tablas) < 2:
+            continue
+        w("   %s:" % var)
+        for pt, d in tablas.items():
+            marcados = set()
+            ka = list(map(tuple, d[CMP].itertuples(index=False, name=None)))
+            for otro, e in tablas.items():
+                if otro == pt:
+                    continue
+                por_clave = {}
+                for k, s in zip(map(tuple, e[CMP].itertuples(index=False,
+                                                             name=None)),
+                                e["start"]):
+                    por_clave.setdefault(k, []).append(float(s))
+                for v in por_clave.values():
+                    v.sort()
+                for i, (k, s) in enumerate(zip(ka, d["start"])):
+                    v = por_clave.get(k)
+                    if not v:
+                        continue
+                    j = np.searchsorted(v, float(s))
+                    for jj in (j - 1, j):
+                        if 0 <= jj < len(v) and abs(v[jj] - float(s)) <= TOL_GEMELO:
+                            marcados.add(i)
+                            break
+            # duplicados DENTRO del propio punto, que es lo que el README
+            # describe a nivel de paquete
+            kd = list(map(tuple, d[CMP + ["start"]].itertuples(index=False,
+                                                               name=None)))
+            w("     %-8s %6d flujos; con gemelo en otro punto %5d (%.1f %%);"
+              " repetidos dentro del punto %d"
+              % (pt, len(d), len(marcados), 100.0 * len(marcados) / len(d),
+                 len(kd) - len(set(kd))))
+            dup["%s/%s" % (var, pt)] = {
+                "flujos": len(d), "con_gemelo_en_otro_punto": len(marcados),
+                "repetidos_dentro_del_punto": len(kd) - len(set(kd))}
+    w("")
+    w("La duplicacion que el README describe es de PAQUETES y no sobrevive al")
+    w("armado de flujos: dentro de cada punto no hay un solo flujo repetido, y")
+    w("entre puntos el solape es de pocos puntos porcentuales. De modo que la")
+    w("union es una poblacion de flujos, no trafico contado tres veces.")
+    w("")
+
+    w("## P3.d Cuantas agregaciones candidatas hay, y cuantas coinciden")
+    w("")
+    w("Acertar una de muchas no probaria nada, asi que se enumera el espacio")
+    w("entero --- dos variantes, dos estrategias de etiquetado, los tres")
+    w("puntos sueltos y su union --- y se mide la distancia de cada candidata")
+    w("a la cifra publicada, como desvio maximo entre las tres proporciones.")
+    w("")
+    PUB = (75.0, 18.5, 6.5)
+    cands = []
+    for clave, fila in resumen.items():
+        var, pt = clave.split("/")
+        for estr in ("NST", "IT"):
+            p = fila.get("%s_pct" % estr, {})
+            if not p:
+                continue
+            trio = (p.get("normal", 0.0), p.get("misconf_y_ssh", 0.0),
+                    p.get("ataques", 0.0))
+            cands.append((var, estr, pt, trio,
+                          max(abs(a - b) for a, b in zip(trio, PUB))))
+    for var in VARIANTES:
+        for estr in ("NST", "IT"):
+            g = collections.Counter()
+            for pt in PUNTOS:
+                clave = "%s/%s" % (var, pt)
+                if clave in resumen:
+                    g.update(resumen[clave][estr])
+            t = sum(g.values())
+            if not t:
+                continue
+            trio = (100.0 * g["normal"] / t, 100.0 * g["misconf_y_ssh"] / t,
+                    100.0 * g["ataques"] / t)
+            cands.append((var, estr, "union", trio,
+                          max(abs(a - b) for a, b in zip(trio, PUB))))
+    cands.sort(key=lambda c: c[-1])
+    w("%-9s %-4s %-7s %-22s %s"
+      % ("variante", "etiq", "punto", "normal/misconf/ataque", "desvio max"))
+    for var, estr, pt, trio, d_ in cands:
+        w("%-9s %-4s %-7s %6.1f / %5.1f / %5.1f %12.1f pp"
+          % (var, estr, pt, trio[0], trio[1], trio[2], d_))
+    w("")
+    dentro1 = [c for c in cands if c[-1] <= 1.0]
+    dentro2 = [c for c in cands if c[-1] <= 2.0]
+    w("Candidatas enumeradas: %d. Dentro de 1 pp: %d. Dentro de 2 pp: %d."
+      % (len(cands), len(dentro1), len(dentro2)))
+    w("")
+    if len(dentro2) == 1:
+        c = dentro2[0]
+        w("**Cierra una sola en todo el espacio: %s / %s / %s, a %.1f pp.**"
+          % (c[0], c[1], c[2], c[-1]))
+        w("La siguiente queda a %.1f pp. De modo que la identificacion no es"
+          % cands[1][-1])
+        w("una coincidencia entre muchas parecidas: es unica en el espacio de")
+        w("agregaciones que el conjunto permite construir.")
+    else:
+        w("**Hay %d candidatas dentro de 2 pp**, de modo que los conteos no"
+          % len(dentro2))
+        w("distinguen entre ellas y la identificacion no se sostiene sola.")
+    w("")
+    w("Queda una salvedad que la union no borra: los tres puntos ven repartos")
+    w("muy distintos entre si, y la union esta dominada por el punto con mas")
+    w("flujos. No es una propiedad de la red sino del reparto de volumen")
+    w("entre puntos de captura.")
+    w("")
+    resumen_union = {"candidatas": len(cands),
+                     "dentro_de_1pp": len(dentro1),
+                     "dentro_de_2pp": len(dentro2),
+                     "duplicacion_entre_puntos": dup}
+
+    # ------------------------------------------------------------------
     # IT frente a NST
     # ------------------------------------------------------------------
-    w("## P3.c Cuanto cambia el problema segun la estrategia de etiquetado")
+    w("## P3.e Cuanto cambia el problema segun la estrategia de etiquetado")
     w("")
     ruta_b = os.path.join(comun.WESTERMO, "reduced", "flows",
                           "output_bottom.csv")
@@ -377,6 +527,7 @@ def main():
             "tamano_tandas": [len(x) for x in lotes],
             "sin_cerrar": sin_cerrar,
             "reparto_csv": resumen,
+            "union_de_puntos": resumen_union,
             "eventos_por_particion": {k: dict(v) for k, v in cuenta.items()},
         }, fh, indent=1, ensure_ascii=False)
 

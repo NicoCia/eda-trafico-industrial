@@ -29,6 +29,9 @@ import math
 import os
 import sys
 
+import numpy as np
+import pandas as pd
+
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import comun  # noqa: E402
 
@@ -90,6 +93,55 @@ def peor_wilson(n, z=Z95):
         if semi > peor[0]:
             peor = (semi, k)
     return peor
+
+
+def autocorr_eventos_morris():
+    """Autocorrelacion a retardo 1 del indicador de categoria, POR EVENTO.
+
+    La dependencia que invalida un intervalo binomial es entre los ensayos ---
+    los eventos ---, no entre las filas del conjunto. Morris tiene 0,86 de
+    autocorrelacion entre filas, pero el conteo por rachas ya la absorbe: un
+    evento ES una racha. Lo que hay que medir es si los eventos de una misma
+    categoria se agrupan entre si, y eso se mide sobre la secuencia de
+    eventos del tramo de PRUEBA, que es donde se mediria la PD.
+
+    Devuelve None si no se puede leer el ARFF.
+    """
+    try:
+        mor = importlib.import_module("03_morris")
+    except Exception:
+        return None
+    ruta = os.path.join(comun.MORRIS, "IanArffDataset.arff")
+    if not os.path.exists(ruta):
+        return None
+    df = mor.leer_arff(ruta)
+    df["time"] = pd.to_numeric(df["time"], errors="coerce")
+    df = df.sort_values("time", kind="mergesort").reset_index(drop=True)
+    pr = df[df["time"] >= comun.MORRIS_CORTES[1]]
+    cat = pr["categorized result"].astype(str).to_numpy()
+    if len(cat) < 10:
+        return None
+    # Un evento es una racha contigua de la misma categoria, igual que en
+    # la pregunta 4. La secuencia de eventos es la de sus categorias.
+    seq = [cat[0]] + [cat[i] for i in range(1, len(cat)) if cat[i] != cat[i - 1]]
+    filas = []
+    for k in sorted(set(seq)):
+        if k == "0":
+            continue          # la clase normal no es una familia de anomalia
+        ind = np.array([1.0 if s == k else 0.0 for s in seq])
+        n = int(ind.sum())
+        if ind.std() == 0 or n < 2:
+            continue
+        z = ind - ind.mean()
+        rho = float((z[:-1] * z[1:]).sum() / (z * z).sum())
+        nef = n * (1 - rho) / (1 + rho) if rho > -1 else float(n)
+        nombre = mor.CATEGORIA.get(k, k).split("(")[0].strip() or k
+        filas.append({"categoria": nombre, "codigo": k,
+                      "eventos": n, "rho": rho,
+                      "n_efectivo": float(nef),
+                      "ic95": float(wilson(0.5 * max(1.0, nef),
+                                           max(1.0, nef))[3])})
+    return sorted(filas, key=lambda f: -f["eventos"]) or None
 
 
 def eventos_westermo():
@@ -197,6 +249,34 @@ def main():
                       n_west_min, "no publicado"))
     casos.append(("ICS-Flow, eventos de MITM (prueba)", n_ics_ev,
                   "+-0,438 (IC 95 %)"))
+    # Caso hipotetico, y marcado como tal: la seccion 4.5 de INFORME.md
+    # razona que pasaria si la proporcion de escrituras ALTERADAS entre las
+    # que caen bajo ventana de intermediario --- medida en entrenamiento ---
+    # se mantuviera en el tramo de prueba. No esta medido y no puede estarlo
+    # sin abrir ese tramo; entra aca para que la cifra que el documento cita
+    # salga del mismo estadistico que las demas y no de una cuenta a mano.
+    man = icsflow.get("manipulacion") or {}
+    n_alt = man.get("alteradas_en_entrenamiento")
+    n_ics_tr = int(icsflow["conteo_por_particion"]["entrenamiento"]
+                   ["escrituras_en_mitm"])
+    if n_alt and n_ics_tr:
+        frac = n_alt / float(n_ics_tr)
+        n_hip = int(round(n_ics * frac))
+        casos.append(("ICS-Flow, escritura ALTERADA (hipotetico, no medido)",
+                      n_hip, "no publicado"))
+        w("Caso hipotetico que se agrega, y marcado como tal: de las %d"
+          % n_ics_tr)
+        w("escrituras bajo ventana de intermediario del tramo de")
+        w("ENTRENAMIENTO, las que llevan el valor alterado son **%d**, el"
+          % n_alt)
+        w("%.0f %%. Si esa proporcion se mantuviera en prueba, las alteradas"
+          % (100 * frac))
+        w("serian del orden de %d. **No esta medido** y no puede estarlo sin"
+          % n_hip)
+        w("abrir el tramo de prueba; entra en la tabla para que la cifra que")
+        w("cita la seccion 4.5 de INFORME.md salga del mismo estadistico que")
+        w("las demas y no de una cuenta a mano.")
+        w("")
 
     # ---- 9.1 que estadistico ----------------------------------------
     w("## 9.1 Que estadistico corresponde, y por que")
@@ -384,6 +464,45 @@ def main():
       % J["casos"][0]["wilson_95"]["semiancho"])
     w("y la de Westermo no deberia presentarse como un intervalo.")
     w("")
+    # ---- 9.6 la independencia que el intervalo supone ---------------
+    w("## 9.6 La independencia que el intervalo supone, medida")
+    w("")
+    w("Cualquiera de estos intervalos supone que los n eventos son ensayos")
+    w("independientes. Eso **no** se deduce de que las filas del conjunto")
+    w("sean autocorrelacionadas: Morris tiene 0,86 a retardo 1 ENTRE FILAS, y")
+    w("el conteo por rachas ya absorbe esa dependencia, de modo que aplicarla")
+    w("otra vez a los eventos seria descontar dos veces lo mismo. La pregunta")
+    w("correcta es si los EVENTOS estan agrupados entre si, y se mide sobre la")
+    w("secuencia de eventos, no sobre las filas.")
+    w("")
+    ac_ev = autocorr_eventos_morris()
+    if ac_ev is None:
+        w("No se pudo leer el ARFF de Morris: queda sin medir.")
+        w("")
+    else:
+        w("%-14s %9s %11s %12s %14s"
+          % ("categoria", "eventos", "rho(ev,1)", "n efectivo", "IC95 PD=0,5"))
+        for fila in ac_ev:
+            w("%-14s %9d %11.3f %12.0f %14s"
+              % (fila["categoria"], fila["eventos"], fila["rho"],
+                 fila["n_efectivo"], "+-%.3f" % fila["ic95"]))
+        w("")
+        negativas = [f for f in ac_ev if f["rho"] < 0]
+        if len(negativas) == len(ac_ev):
+            w("**Todas negativas.** Los eventos de una categoria no se agrupan:")
+            w("se alternan, porque a un evento anomalo le sigue trafico normal")
+            w("casi siempre. Con autocorrelacion negativa el tamano efectivo")
+            w("es MAYOR que n, de modo que suponer independencia es")
+            w("conservador y no optimista, y los intervalos de 9.5 no hay que")
+            w("ensancharlos por este motivo.")
+        else:
+            w("**Hay categorias con autocorrelacion positiva entre eventos:")
+            w("%s.** En esas el tamano efectivo es menor que n y el intervalo"
+              % ", ".join(f["categoria"] for f in ac_ev if f["rho"] >= 0))
+            w("de 9.5 es optimista: hay que usar la columna de n efectivo.")
+        w("")
+        J["autocorrelacion_entre_eventos"] = ac_ev
+
     w("Reproducible con:")
     w("  eda/.venv/bin/python -I eda/scripts/09_intervalos_pd.py")
     w("")
