@@ -63,6 +63,16 @@ Identificadores de unidad: {1: 993634}
 Servidores Modbus (destino de las peticiones): {'198.18.134.12': 270607, '198.18.134.11': 226175}
 Pares cliente -> servidor: {'198.18.134.15 -> 198.18.134.11': 171749, '198.18.134.11 -> 198.18.134.12': 163267, '198.18.134.15 -> 198.18.134.12': 107340, '198.18.134.12 -> 198.18.134.11': 54426}
 
+El emparejamiento que sigue recorre el flujo CON copias: cuenta cada
+vez que una respuesta encuentra su peticion pendiente. Las dos copias
+de una peticion escriben la misma clave y la primera copia de la
+respuesta la consume, de modo que el total queda cerca del numero de
+dialogos sin ser igual --- da unos pocos mas que las peticiones
+unicas de la tabla de arriba, y a que interleavings se deben esos
+pocos no se midio ---. No es un recuento de mensajes; para
+eso estan las columnas `unicas`. Para la latencia da lo mismo, porque
+son los mismos dialogos.
+
 Emparejamiento de peticion y respuesta por (origen, destino,
 identificador de transaccion): 248392 emparejadas, 0 peticiones sin
 respuesta al cerrar la captura.
@@ -195,6 +205,16 @@ Codigos de funcion (solo tramo de entrenamiento, sin descontar copias):
 Identificadores de unidad: {1: 993634}
 Servidores Modbus (destino de las peticiones): {'198.18.134.12': 270607, '198.18.134.11': 226175}
 Pares cliente -> servidor: {'198.18.134.15 -> 198.18.134.11': 171749, '198.18.134.11 -> 198.18.134.12': 163267, '198.18.134.15 -> 198.18.134.12': 107340, '198.18.134.12 -> 198.18.134.11': 54426}
+
+El emparejamiento que sigue recorre el flujo CON copias: cuenta cada
+vez que una respuesta encuentra su peticion pendiente. Las dos copias
+de una peticion escriben la misma clave y la primera copia de la
+respuesta la consume, de modo que el total queda cerca del numero de
+dialogos sin ser igual --- da unos pocos mas que las peticiones
+unicas de la tabla de arriba, y a que interleavings se deben esos
+pocos no se midio ---. No es un recuento de mensajes; para
+eso estan las columnas `unicas`. Para la latencia da lo mismo, porque
+son los mismos dialogos.
 
 Emparejamiento de peticion y respuesta por (origen, destino,
 identificador de transaccion): 248392 emparejadas, 0 peticiones sin

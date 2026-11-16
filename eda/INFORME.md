@@ -384,15 +384,25 @@ cumple» en semántica de control. Medido sobre los PCAP
 | Mensajes Modbus distintos | **≈ 496.800** | únicos |
 | Octetos de carga dentro de una ADU válida | 12.420.460 de 12.420.460 (**100,0000 %**) | con copias |
 | Octetos salteados al resincronizar | **0** | — |
-| Peticiones emparejadas con su respuesta | 248.392, ninguna sin contestar | únicos |
+| Peticiones emparejadas con su respuesta | 248.392, ninguna sin contestar | con copias |
 | Latencia de respuesta, solo entrenamiento | mediana 0,53 ms, p95 0,77 | únicos |
 
 **Las dos unidades van declaradas a propósito.** El punto de captura duplica
 el 50,0 % de los paquetes del puerto 5502 (§1.7), de modo que los 993.634 y
-los 12.420.460 octetos son observaciones y los 248.392 pares son mensajes.
-Como número de diálogos, lo que hay son unos 496.800. Una versión anterior
-de esta tabla ponía las dos clases de cifra juntas sin decirlo, que es el
-error que §1.7 define.
+los 12.420.460 octetos son observaciones y no mensajes. Como número de
+mensajes distintos, lo que hay son 248.387 peticiones y 248.388 respuestas:
+496.775 en total, que es el ≈ 496.800 de la segunda fila.
+
+Y los 248.392 pares son una tercera cantidad, que conviene no confundir con
+las otras dos. El emparejamiento recorre el flujo **con copias** y cuenta cada
+vez que una respuesta encuentra su petición pendiente; como las dos copias de
+una petición escriben la misma clave y la primera copia de la respuesta la
+consume, el resultado queda cerca del número de diálogos pero no es igual:
+da **cinco más** que las 248.387 peticiones únicas. A qué interleavings se
+deben esos cinco no se midió, y no se completa acá. Para la latencia la
+diferencia es inmaterial —son los mismos diálogos— pero el número no es un
+recuento de mensajes. Una versión anterior de esta tabla ponía las tres clases
+de cifra juntas sin decirlo, que es el error que §1.7 define.
 
 El 100,0000 % no es una tolerancia: cada octeto de carga del puerto 5502 forma
 parte de una cabecera MBAP bien formada. El control de la medida corre el
