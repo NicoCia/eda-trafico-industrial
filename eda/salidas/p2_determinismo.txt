@@ -276,3 +276,45 @@ si midiera desorden de direccionamiento.
 
 **Para comparar series hay que citar la cruda y el k.** La normalizada
 sirve dentro de una serie, no entre series con k distinto.
+
+## 2.5 El indice de dispersion sube con los eventos. Eso alcanza?
+
+El indice pasa de 0,18 a 3,79 al incluir los eventos, y de ahi se
+concluyo que «los eventos son visibles en la tasa agregada». Es un
+salto: el indice es un estadistico de la MEZCLA y no dice si una
+ventana se puede clasificar. Aca se mide la separabilidad, que es la
+pregunta que una linea base necesita.
+
+ventana      limpias  c/evento       AUC   media L   media E
+0.5 s           2521      4009     0.530      68.8      71.5
+1 s             1258      2007     0.547     137.6     142.9
+
+   Con ventana de 1 s, el desvio pasa de 3.2 a 29.2 y el
+   maximo de 155 a 474, pero la media apenas se mueve (137.6 a
+   142.9). El indice sube por una COLA FINA, no por un
+   corrimiento, y una cola fina no clasifica:
+
+      PFA 0.05 -> umbral  143, PD 0.149
+      PFA 0.02 -> umbral  144, PD 0.135
+      PFA 0.01 -> umbral  144, PD 0.135
+      dos colas al 2 % -> PD 0.189
+
+10 s             126       200     0.525    1389.1    1421.4
+
+### Las otras dos caracteristicas, y una distincion que decide como
+### se las escribe
+
+Como RECUENTO por ventana:
+   pares distintos    AUC 0.550
+   tamanos distintos  AUC 0.566
+
+Como NOVEDAD, es decir pertenencia al conjunto visto en limpio:
+   par nunca visto              PFA 0.0000  PD 0.130
+   tamano nunca visto           PFA 0.0000  PD 0.118
+
+**Esa es la distincion que importa.** De recuento, las tres
+caracteristicas que la pregunta 2 recomienda dan entre 0,55 y 0,57 de
+AUC, que es casi nada. De pertenencia, el conjunto de pares y el
+repertorio de tamanos dan PD de 0,12 a 0,13 con CERO falsas alarmas
+sobre 1258 ventanas limpias. Son la misma variable leida de dos modos, y
+solo uno de los dos sirve.

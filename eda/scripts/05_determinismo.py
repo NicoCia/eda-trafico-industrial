@@ -649,6 +649,116 @@ def main():
     w("")
     resultados["entropia_cruda_vs_normalizada"] = ent
 
+    # ---------- 2.5 el volumen por ventana, discrimina? ----------
+    w("## 2.5 El indice de dispersion sube con los eventos. Eso alcanza?")
+    w("")
+    w("El indice pasa de 0,18 a 3,79 al incluir los eventos, y de ahi se")
+    w("concluyo que «los eventos son visibles en la tasa agregada». Es un")
+    w("salto: el indice es un estadistico de la MEZCLA y no dice si una")
+    w("ventana se puede clasificar. Aca se mide la separabilidad, que es la")
+    w("pregunta que una linea base necesita.")
+    w("")
+    sep = {}
+    iv_tr = ventanas_eventos(os.path.join(comun.WESTERMO, "events.txt"), tr)
+    off_u = df_todo["t"].to_numpy() - float(df_todo["t"].min())
+    w("%-10s %9s %9s %9s %9s %9s"
+      % ("ventana", "limpias", "c/evento", "AUC", "media L", "media E"))
+    for vent in (0.5, 1.0, 10.0):
+        nb = int(tr // vent)
+        cuenta, _ = np.histogram(off_u, bins=np.arange(nb + 1) * vent)
+        centros = (np.arange(nb) + 0.5) * vent
+        y = np.array([en_intervalo(c, iv_tr) for c in centros])
+        if not y.any() or y.all():
+            continue
+        r = pd.Series(cuenta).rank().to_numpy()
+        n1, n0 = int(y.sum()), int((~y).sum())
+        auc = (r[y].sum() - n1 * (n1 + 1) / 2) / (n1 * n0)
+        auc = max(auc, 1 - auc)
+        w("%-10s %9d %9d %9.3f %9.1f %9.1f"
+          % ("%g s" % vent, n0, n1, auc, cuenta[~y].mean(), cuenta[y].mean()))
+        sep["ventana_%g_s" % vent] = {
+            "auc": float(auc), "limpias": n0, "con_evento": n1,
+            "media_limpia": float(cuenta[~y].mean()),
+            "media_evento": float(cuenta[y].mean()),
+            "sd_limpia": float(cuenta[~y].std()),
+            "sd_evento": float(cuenta[y].std())}
+        if vent == 1.0:
+            w("")
+            w("   Con ventana de 1 s, el desvio pasa de %.1f a %.1f y el"
+              % (cuenta[~y].std(), cuenta[y].std()))
+            w("   maximo de %d a %d, pero la media apenas se mueve (%.1f a"
+              % (cuenta[~y].max(), cuenta[y].max(), cuenta[~y].mean()))
+            w("   %.1f). El indice sube por una COLA FINA, no por un"
+              % cuenta[y].mean())
+            w("   corrimiento, y una cola fina no clasifica:")
+            w("")
+            for pfa in (0.05, 0.02, 0.01):
+                u = np.quantile(cuenta[~y], 1 - pfa)
+                sep["pd_pfa_%g" % pfa] = float((cuenta[y] > u).mean())
+                w("      PFA %.2f -> umbral %4.0f, PD %.3f"
+                  % (pfa, u, (cuenta[y] > u).mean()))
+            lo, hi = np.quantile(cuenta[~y], [0.01, 0.99])
+            pd2 = float(((cuenta[y] < lo) | (cuenta[y] > hi)).mean())
+            sep["pd_dos_colas_2pc"] = pd2
+            w("      dos colas al 2 %% -> PD %.3f" % pd2)
+            w("")
+    w("")
+    w("### Las otras dos caracteristicas, y una distincion que decide como")
+    w("### se las escribe")
+    w("")
+    vent = 1.0
+    nb = int(tr // vent)
+    idx = np.minimum((off_u // vent).astype(int), nb - 1)
+    pares_v, tam_v = {}, {}
+    for i, s, d, sz in zip(idx, df_todo["src"], df_todo["dst"],
+                           df_todo["size"]):
+        pares_v.setdefault(i, set()).add((s, d))
+        tam_v.setdefault(i, set()).add(sz)
+    centros = (np.arange(nb) + 0.5) * vent
+    y = np.array([en_intervalo(c, iv_tr) for c in centros])
+
+    def _auc(v):
+        r = pd.Series(v).rank().to_numpy()
+        n1, n0 = int(y.sum()), int((~y).sum())
+        a = (r[y].sum() - n1 * (n1 + 1) / 2) / (n1 * n0)
+        return float(max(a, 1 - a))
+
+    a_par = _auc(np.array([len(pares_v.get(i, ())) for i in range(nb)]))
+    a_tam = _auc(np.array([len(tam_v.get(i, ())) for i in range(nb)]))
+    w("Como RECUENTO por ventana:")
+    w("   pares distintos    AUC %.3f" % a_par)
+    w("   tamanos distintos  AUC %.3f" % a_tam)
+    w("")
+    vistos_p = set().union(*[pares_v.get(i, set())
+                             for i in range(nb) if not y[i]]) or set()
+    vistos_t = set().union(*[tam_v.get(i, set())
+                             for i in range(nb) if not y[i]]) or set()
+    nv_p = np.array([bool(pares_v.get(i, set()) - vistos_p)
+                     for i in range(nb)])
+    nv_t = np.array([bool(tam_v.get(i, set()) - vistos_t)
+                     for i in range(nb)])
+    w("Como NOVEDAD, es decir pertenencia al conjunto visto en limpio:")
+    w("   %-28s PFA %.4f  PD %.3f"
+      % ("par nunca visto", nv_p[~y].mean(), nv_p[y].mean()))
+    w("   %-28s PFA %.4f  PD %.3f"
+      % ("tamano nunca visto", nv_t[~y].mean(), nv_t[y].mean()))
+    w("")
+    w("**Esa es la distincion que importa.** De recuento, las tres")
+    w("caracteristicas que la pregunta 2 recomienda dan entre 0,55 y 0,57 de")
+    w("AUC, que es casi nada. De pertenencia, el conjunto de pares y el")
+    w("repertorio de tamanos dan PD de 0,12 a 0,13 con CERO falsas alarmas")
+    w("sobre %d ventanas limpias. Son la misma variable leida de dos modos, y"
+      % int((~y).sum()))
+    w("solo uno de los dos sirve.")
+    w("")
+    sep["pares_recuento_auc"] = a_par
+    sep["tamanos_recuento_auc"] = a_tam
+    sep["pares_novedad"] = {"pfa": float(nv_p[~y].mean()),
+                            "pd": float(nv_p[y].mean())}
+    sep["tamanos_novedad"] = {"pfa": float(nv_t[~y].mean()),
+                              "pd": float(nv_t[y].mean())}
+    resultados["separabilidad_por_ventana"] = sep
+
     comun.escribir("p2_determinismo.txt", "\n".join(L))
     with open(os.path.join(comun.SALIDAS, "p2_determinismo.json"), "w") as fh:
         json.dump(resultados, fh, indent=1, ensure_ascii=False, default=str)

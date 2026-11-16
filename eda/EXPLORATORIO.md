@@ -140,6 +140,26 @@ publican.
 - Protocolos: `IPV4-TCP` 17.750, `ARP` 1804, `IPV4-2` 1009, `LLDP` 324,
   `IPV4-UDP` 193
 
+**Y debajo de ese `IPV4-TCP` hay Modbus**, que ni la ficha del conjunto ni
+una versión anterior de este documento mencionaban. Medido sobre los PCAP en
+`eda/salidas/p12_westermo_modbus.txt`: el **65,6 %** de los paquetes del punto
+inferior —993.634— son Modbus/TCP sobre el puerto 5502, y el **100,00 %** de
+sus 12.420.460 octetos de carga cae dentro de una ADU bien formada, sin un
+solo octeto salteado al resincronizar. El emparejamiento de petición y
+respuesta cierra en 248.392 pares sin ninguna petición sin contestar, con
+latencia mediana de 0,53 ms.
+
+El diálogo es de **solo lectura**: 100 % función 3, y ni una petición de
+escritura en todo el archivo. Los registros leídos se decodifican con el mapa
+de ICSSIM —`tank_level_value`, `tank_input_valve_status`, `bottle_level_value`
+y el resto—, que es el mismo mapa que el análisis verificó en ICS-Flow.
+
+Eso convierte a Westermo en el único de los cinco que tiene a la vez tráfico
+real, esquema de flujo publicado, etiquetas **y** carga útil de control
+decodificable. La salvedad que lo limita es la de solo lectura: no hay
+escrituras de consigna, de modo que no sirve para construir una característica
+de parámetro manipulado, que es lo que aporta ICS-Flow.
+
 ### Qué falta, y por qué
 
 8,1 % de las celdas; 16,6 % de las filas tienen al menos un hueco. No es
@@ -307,10 +327,19 @@ una cosa de la otra.** Lo que decide si un corte al azar filtra es la
 dependencia de la variable a predecir, que se mide aparte y en el orden
 temporal global, no dentro de conversaciones:
 
-| Etiqueta | ρ a retardo 1 | n efectivo | Rachas | Racha más larga |
-|---|---:|---:|---:|---:|
-| `NST_B_Label` | **0,779** | 2618 de 21.080 | 663 | **228 flujos** |
-| `IT_B_Label` | **0,984** | 170 de 21.080 | 79 | 295 flujos |
+| Etiqueta | ρ a retardo 1 | n efectivo | Rachas | Racha anómala más larga | Racha normal más larga |
+|---|---:|---:|---:|---:|---:|
+| `NST_B_Label` | **0,779** | 2618 de 21.080 | 663 | **228 flujos** | 1270 flujos |
+| `IT_B_Label` | **0,984** | 170 de 21.080 | 79 | **951 flujos** | 295 flujos |
+
+Las dos últimas columnas van separadas a propósito. Una versión anterior
+publicaba una sola, «racha más larga», con 228 para NST y 295 para IT, y esas
+dos cifras **no son la misma magnitud**: el script cuenta rachas de la clase
+minoritaria, y bajo `IT` la minoritaria es la normal, porque 13.228 de los
+21.080 flujos quedan marcados como anómalos. El 295 era la racha de tráfico
+normal más larga; la anómala es de **951**. Puestas una al lado de la otra sin
+decirlo, sugerían que IT agrupa un poco más que NST cuando agrupa cuatro veces
+más.
 
 Un evento deja centenares de flujos contiguos de la misma clase, de modo que
 una partición al azar pone vecinos del mismo evento a los dos lados del corte.
@@ -502,9 +531,19 @@ AR(1) deja las 25.620 filas en un equivalente de **11.848**, el 46 %.
 Esto tiene dos consecuencias prácticas. Cualquier validación cruzada sobre
 este conjunto tiene que ser **por bloques temporales**: con particiones al
 azar, el vecino de una fila de validación está en el conjunto de ajuste y casi
-en el mismo estado. Y todo intervalo de confianza calculado como si las filas
-fueran independientes sale demasiado angosto, lo que alcanza a los intervalos
-de PD de [`INFORME.md`](INFORME.md).
+en el mismo estado. Y todo intervalo de confianza **sobre filas** calculado
+como si fueran independientes sale demasiado angosto.
+
+Una versión anterior agregaba que eso «alcanza a los intervalos de PD de
+`INFORME.md`». **No los alcanza**, y la distinción es la misma que este
+documento levanta como hallazgo 5. Los siete intervalos de
+`eda/salidas/p9_intervalos_pd.txt` están calculados sobre **eventos** —281
+episodios de DoS, 3 eventos de un tipo de Westermo— o sobre **escrituras**
+—51 bajo ventana de intermediario—, no sobre filas de flujo. La
+autocorrelación de 0,37 entre filas no dice nada sobre si dos eventos vecinos
+se parecen. Lo que haría falta para corregir esos intervalos —la dependencia
+entre los errores de un detector en eventos sucesivos— no está medido, y
+`INFORME.md` lo declara como supuesto en lugar de darlo por bueno.
 
 La dispersión entre conversaciones es grande: la más larga llega a 0,82 de
 autocorrelación mediana, bastante por encima del 0,37 ponderado. El número que
@@ -957,11 +996,14 @@ sino lo que la descripción deja fijado.
    vecino de cada fila de validación dentro del ajuste. Vale para los dos: la
    autocorrelación baja de las características de Westermo no autoriza un
    corte al azar, porque mide otra cosa.
-9. **Ensanchar los intervalos sobre la etiqueta en los dos.** El tamaño
-   efectivo es 2618 de 21.080 en Westermo, lo que ensancha el intervalo por
-   un factor de **2,8**, y 4049 de 25.620 en ICS-Flow, un factor de **2,5**.
-   Para un estadístico descriptivo de una característica, en cambio, el factor
-   de ICS-Flow es 1,5 y el de Westermo es despreciable.
+9. **Ensanchar los intervalos que se calculen sobre filas de flujo.** El
+   tamaño efectivo por la etiqueta es 2618 de 21.080 en Westermo, lo que
+   ensancha el intervalo por un factor de **2,8**, y 4049 de 25.620 en
+   ICS-Flow, un factor de **2,5**. Para un estadístico descriptivo de una
+   característica el factor de ICS-Flow es 1,5 y el de Westermo es
+   despreciable. **Esto no se aplica a los intervalos de PD de
+   `INFORME.md`**, que son sobre eventos y sobre escrituras: esa dependencia
+   es otra y no está medida.
 10. **No confundir el valor extremo con la anomalía.** El rango
    intercuartílico mira la distribución marginal e ignora el tiempo. Una
    anomalía contextual —la familia que más le importa a este proyecto— es un valor
@@ -995,22 +1037,6 @@ tenerlo presente si alguna vez se aplica el mismo procedimiento a una captura
 de una red en producción, donde la consideración ya no sería la misma.
 
 ---
-
-## Qué sostiene estas afirmaciones
-
-Las afirmaciones de este documento que sostienen alguna conclusión están
-escritas además como comprobaciones ejecutables, de modo que dejen de
-depender de que alguien las relea. Están en `eda/scripts/20_guardas.py`, cada
-una con la sección que defiende, y `make -C eda todo` falla cuando alguna
-deja de valer. De este documento se guardan seis: el reparto de patrones de
-faltantes, que ninguna característica sola llegue a 0,70 de AUC, que el mejor
-de cada conjunto se compare sobre población completa, que la etiqueta siga
-autocorrelacionada —que es lo que obliga a partir por bloques—, que la
-autocorrelación de HAI se mida por tramos y que las identidades del
-inventario se cumplan salvo las tres declaradas.
-
-El motivo de que existan está en la sección 7 de
-[`INFORME.md`](INFORME.md), junto con la lista completa de las veinte.
 
 ## Cómo reproducir
 

@@ -140,6 +140,11 @@ def autocorrelacion_objetivo(df, objetivo, tcol):
     y = pd.to_numeric(d[objetivo], errors="coerce").dropna()
     if len(y) < 10 or y.nunique() < 2:
         return None
+    # Las rachas se cuentan sobre la clase MINORITARIA, que no siempre es la
+    # anomala: bajo `IT_B_Label` la mayoria de los flujos de Westermo son
+    # anomalos, de modo que la minoritaria es la normal. Informar «racha mas
+    # larga» sin decir de que clase pone al lado dos cifras que miden cosas
+    # distintas, que es justo el error que el hallazgo 5 levanta.
     mayoritaria = y.value_counts().idxmax()
     b = (y != mayoritaria).astype(int).to_numpy(float)
     z = b - b.mean()
@@ -147,6 +152,15 @@ def autocorrelacion_objetivo(df, objetivo, tcol):
         return None
     rho = float((z[:-1] * z[1:]).sum() / (z * z).sum())
     n_eff = len(b) * (1 - rho) / (1 + rho) if rho > -1 else float(len(b))
+    # La racha mas larga de CADA clase, para que no haya que adivinar.
+    largos = {}
+    for etq in sorted(y.unique()):
+        v = (y == etq).to_numpy()
+        mejor = act = 0
+        for x in v:
+            act = act + 1 if x else 0
+            mejor = max(mejor, act)
+        largos[str(etq)] = int(mejor)
     rachas, act = [], 0
     for x in b:
         if x:
@@ -157,7 +171,10 @@ def autocorrelacion_objetivo(df, objetivo, tcol):
     if act:
         rachas.append(act)
     return {"rho_lag1": rho, "n": len(b), "n_efectivo": float(n_eff),
-            "rachas": len(rachas), "racha_mas_larga": max(rachas) if rachas else 0}
+            "rachas": len(rachas),
+            "clase_minoritaria": str(y.value_counts().idxmin()),
+            "racha_mas_larga": max(rachas) if rachas else 0,
+            "racha_mas_larga_por_clase": largos}
 
 
 def main():

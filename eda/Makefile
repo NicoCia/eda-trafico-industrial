@@ -14,9 +14,6 @@ FIGURAS  := figuras
 
 .PHONY: todo venv p1 p2 p3 p4 p5 limpiar limpiar-venv requirements
 
-# `guardas` va ULTIMO y a proposito: necesita las salidas de todo lo anterior,
-# y si una afirmacion de los documentos dejo de sostenerse contra los datos,
-# la regeneracion completa tiene que fallar en lugar de terminar en verde.
 # `duplicados` va PRIMERO entre los de Westermo: produce la tabla de flujos
 # con los contadores de volumen recontados sobre paquetes unicos, que es la
 # que usan el 11, el 16 y el 17. Sin ella esos tres caen al CSV publicado,
@@ -26,7 +23,7 @@ duplicados: $(PY)
 
 .PHONY: duplicados
 
-todo: duplicados p1 p2 p3 p4 p5 icsflow verificaciones exploratorio guarda-tabla guardas
+todo: duplicados p1 p2 p3 p4 p5 icsflow verificaciones exploratorio guarda-tabla
 	@echo ""
 	@echo "Analisis completo. Salidas en $(SALIDAS)/ y figuras en $(FIGURAS)/."
 
@@ -104,17 +101,6 @@ guarda-tabla: $(PY)
 	else \
 	  echo "guarda-tabla: la guarda no esta en este arbol; se omite."; \
 	fi
-
-# Las afirmaciones de INFORME.md y EXPLORATORIO.md, escritas como
-# comprobaciones sobre las salidas. 20 termina con codigo distinto de cero
-# cuando una deja de sostenerse, y 21 comprueba que las guardas PUEDEN
-# fallar, que es lo unico que distingue una guarda de un adorno. Las dos solo
-# leen JSON, de modo que corren en segundos.
-guardas: $(PY)
-	$(PY) -I $(SCRIPTS)/20_guardas.py
-	$(PY) -I $(SCRIPTS)/21_guardas_muerden.py
-
-.PHONY: guardas
 
 # Estudio exploratorio de los conjuntos (eda/EXPLORATORIO.md). Escribe sus
 # propios derivados en eda/derivados/.

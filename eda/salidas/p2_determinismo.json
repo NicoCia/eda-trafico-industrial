@@ -1794,5 +1794,48 @@
    "Hn": 0.9649980815503111,
    "k": 2
   }
+ },
+ "separabilidad_por_ventana": {
+  "ventana_0.5_s": {
+   "auc": 0.5302379938672299,
+   "limpias": 2521,
+   "con_evento": 4009,
+   "media_limpia": 68.79531931773106,
+   "media_evento": 71.47942130207034,
+   "sd_limpia": 7.4204597455523365,
+   "sd_evento": 17.07410924031083
+  },
+  "ventana_1_s": {
+   "auc": 0.546623978238328,
+   "limpias": 1258,
+   "con_evento": 2007,
+   "media_limpia": 137.62321144674087,
+   "media_evento": 142.9317389138017,
+   "sd_limpia": 3.19745057249637,
+   "sd_evento": 29.168613202021508
+  },
+  "pd_pfa_0.05": 0.14947683109118087,
+  "pd_pfa_0.02": 0.13502740408570005,
+  "pd_pfa_0.01": 0.13502740408570005,
+  "pd_dos_colas_2pc": 0.18933731938216244,
+  "ventana_10_s": {
+   "auc": 0.5248611111111111,
+   "limpias": 126,
+   "con_evento": 200,
+   "media_limpia": 1389.1031746031747,
+   "media_evento": 1421.395,
+   "sd_limpia": 88.97795601489484,
+   "sd_evento": 208.87139338597805
+  },
+  "pares_recuento_auc": 0.5497729330491135,
+  "tamanos_recuento_auc": 0.5656111796312271,
+  "pares_novedad": {
+   "pfa": 0.0,
+   "pd": 0.13004484304932734
+  },
+  "tamanos_novedad": {
+   "pfa": 0.0,
+   "pd": 0.11758844045839562
+  }
  }
 }

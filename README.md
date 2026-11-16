@@ -10,7 +10,7 @@ Facultad de Ingeniería de la Universidad de Buenos Aires.
 Lo que hay acá son mediciones sobre los archivos. El punto de partida fue una
 selección de conjuntos escrita a partir de la documentación publicada de cada
 uno, antes de abrir ninguno. El análisis la contrastó contra los datos, y
-cinco de los siete hallazgos principales contradicen lo que la documentación de
+seis de los ocho hallazgos principales contradicen lo que la documentación de
 los conjuntos o su descripción corriente dan por sentado. Cada contradicción
 está en [`INFORME.md`](eda/INFORME.md) con el número que la sostiene y el
 script que lo calcula.
@@ -22,7 +22,7 @@ script que lo calcula.
    mecanismo, redundancia, poder discriminante, estructura temporal, balance de
    clases y datos sensibles. Se lee primero porque describe los datos sin
    discutir todavía qué hacer con ellos.
-2. **[`eda/INFORME.md`](eda/INFORME.md)** — qué implican. Los siete hallazgos
+2. **[`eda/INFORME.md`](eda/INFORME.md)** — qué implican. Los ocho hallazgos
    que cambian cómo se usan estos conjuntos, las cinco preguntas que el
    análisis tenía que responder, el papel de ICS-Flow y si los cinco se pueden
    unir en un conjunto integrado.
@@ -47,14 +47,13 @@ archivo.
 texto lo dice en lugar de completarlo, y `INFORME.md` enumera las cifras que
 no salen de correr el código.
 
-Eso no alcanzó. Una auditoría independiente recalculó más de 150 cifras y
-encontró quince errores, ninguno de aritmética: los quince eran una frase que
-respondía una pregunta distinta de la que medía la cifra de al lado —otra
-población, otro denominador, otra ventana—. Están corregidos, y para que no
-haya un decimosexto las **veinte afirmaciones que sostienen alguna conclusión
-están escritas como comprobaciones ejecutables**: `make todo` falla si alguna
-deja de valer. La sección 7 de `INFORME.md` las lista con la sección que
-defiende cada una.
+Y eso no alcanzó, lo que también se deja dicho. Tres auditorías
+independientes recalcularon las cifras contra los archivos y encontraron
+errores que la aritmética no muestra: una frase que responde una pregunta
+distinta de la que mide la cifra de al lado —otra población, otro
+denominador, otra ventana—. Están corregidos, y los documentos registran en
+su lugar cuál era el error y qué lo reemplaza, porque esa historia es parte
+del resultado.
 
 ## Los datos no están acá
 
@@ -87,9 +86,7 @@ make -C eda venv
 make -C eda todo
 ```
 
-`make todo` regenera las 42 salidas y las 13 figuras desde los datos, y
-termina corriendo las guardas, de modo que una afirmación que dejó de valer
-hace fallar la regeneración completa en lugar de pasar inadvertida. Dos pasos
+`make todo` regenera las salidas y las figuras desde los datos. Dos pasos
 son lentos: la pregunta 1 recorre 3,46 GB de PCAP y 31,1 millones de paquetes, y
 la sección 4 recorre 1,8 GB y 25,2 millones; tardan alrededor de cinco y de
 siete minutos. Hay objetivos sueltos para rehacer una parte sola —`p1`, `p2`,

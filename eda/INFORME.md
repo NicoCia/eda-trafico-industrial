@@ -28,7 +28,7 @@ ellos se contrasta está transcrito acá, al lado de la medición.
 
 ---
 
-## 1. Siete hallazgos que cambian cómo se usan estos conjuntos
+## 1. Ocho hallazgos que cambian cómo se usan estos conjuntos
 
 Van primero porque son el resultado más importante del análisis, y porque
 cuatro de ellos contradicen lo que la documentación de los propios conjuntos
@@ -291,11 +291,21 @@ conserva la fila publicada, con sus límites y su asignación de emisor y
 receptor, y se recuentan sus seis contadores de volumen: cada paquete del
 PCAP se asigna a la fila que le corresponde.
 
-Eso se puede validar, y la validación es lo que hace confiable al resto:
-si se recuenta **sin** deduplicar, el resultado reproduce el CSV publicado
-fila por fila en las seis capturas —entre el 99 % y el 100 % de las filas exactas
-en los seis campos—. Si esa reproducción se degrada, el script termina con
-código distinto de cero y no publica ninguna corrección.
+Eso se puede validar en parte, y conviene ser preciso sobre qué parte: si se
+recuenta **sin** deduplicar, el resultado reproduce el CSV publicado fila por
+fila en las seis capturas —entre el **97,9 %** y el 100 % de las filas
+exactas según el campo y la captura, con el peor caso en `extended/bottom`—.
+Si esa reproducción se degrada, el script termina con código distinto de cero
+y no publica ninguna corrección.
+
+**Lo que esa validación establece es que la asignación paquete-fila es
+correcta, y nada más.** No toca la regla de deduplicación, que es el único
+parámetro libre de la corrección: puesta la ventana en el infinito —lo que
+colapsaría también las balizas periódicas, el error que el propio script
+advierte— la validación da la misma salida y el script publica igual. Una
+versión anterior de esta sección decía que «la validación es lo que hace
+confiable al resto». Es un salto: la validación es necesaria y no suficiente.
+Lo que sostiene la ventana de 1 ms es la bimodalidad medida más arriba.
 
 **Qué cambia.** La tasa de Westermo pasa de 272,9 a **137,8** paquetes por
 segundo, el índice de dispersión de 0,34 a **0,18**, el CV del intervalo
@@ -318,6 +328,43 @@ frase al lado que responde otra pregunta.
 ICS-Flow, medido igual, tiene **0,1 %** de copias. De modo que comparar los
 contadores publicados de los dos conjuntos era comparar una serie contada
 doble contra una contada simple.
+
+### 1.8 Westermo trae semántica Modbus decodificable, y los entregables no lo decían
+
+La ficha del conjunto enumera ARP, ICMP, IGMP, LLDP, RSTP, TCP y UDP, sin
+nombrar ningún protocolo industrial, y la tabla de criterios le asignaba «no
+cumple» en semántica de control. Medido sobre los PCAP
+(`eda/salidas/p12_westermo_modbus.txt`), eso es falso:
+
+| | `reduced/bottom` |
+|---|---:|
+| Paquetes en el puerto 5502 | **993.634** (65,6 % del archivo) |
+| Octetos de carga dentro de una ADU válida | 12.420.460 de 12.420.460 (**100,0000 %**) |
+| Octetos salteados al resincronizar | **0** |
+| Peticiones emparejadas con su respuesta | 248.392, ninguna sin contestar |
+| Latencia de respuesta | mediana 0,53 ms, p95 0,78 |
+
+El 100,0000 % no es una tolerancia: cada octeto de carga del puerto 5502 forma
+parte de una cabecera MBAP bien formada. El control de la medida corre el
+mismo delimitador sobre el puerto 22 del mismo archivo y da 35,7 %, de modo
+que la contabilidad distingue Modbus de un flujo cualquiera.
+
+Los registros se decodifican con el mapa de ICSSIM —el mismo que el análisis
+verificó en ICS-Flow— y dan variables de proceso con nombre:
+`tank_level_value`, `tank_input_valve_status`, `bottle_level_value` y el
+resto.
+
+**La salvedad que lo acota.** El diálogo es de **solo lectura**: 100 % función
+3, ni una petición de escritura en todo el archivo. De modo que Westermo sirve
+para características semánticas de función, de temporizado y de valor leído,
+y **no** para una característica de parámetro manipulado, que es lo que
+sostiene el papel de ICS-Flow en la sección 4.
+
+Lo que esto cambia es el argumento de selección: Westermo pasa a ser el único
+de los cinco con tráfico real, esquema de flujo publicado, etiquetas **y**
+carga útil de control decodificable. La medición estaba hecha y versionada
+desde antes en `12_westermo_modbus.py`; lo que faltaba era que llegara a los
+documentos.
 
 ## 2. Partición usada y qué se exploró
 
@@ -362,7 +409,13 @@ de entrenamiento». No era cierto:
   archivo entero. Eso sí es distribucional. Ninguna de esas cifras llega a
   este documento ni a `EXPLORATORIO.md`.
 
-Una tercera, que este análisis introdujo y ya corrigió: la comprobación de
+- `22_westermo_duplicados.py` lee los seis PCAP y los seis CSV **completos**
+  y publica sumas de volumen sobre la captura entera. Tiene que hacerlo: la
+  corrección del doble conteo reescribe la tabla de flujos entera, y una
+  tabla corregida a medias sería peor que ninguna. Lo que el análisis usa de
+  esa tabla es solo el tramo de entrenamiento.
+
+Una cuarta, que este análisis introdujo y ya corrigió: la comprobación de
 flujos gemelos de §1.6 leía cuatro características sobre los seis archivos
 enteros. Ahora se restringe al tramo de entrenamiento.
 
@@ -418,6 +471,7 @@ tramo de entrenamiento:
 | CONFIRM (0) | 216.762 | ENABLE_UNSOLICITED (20) | 864 |
 | WRITE (2) | 207.798 | WARM_RESTART (14) | 90 |
 | UNSOLICITED_RESPONSE (130) | 150.960 | COLD_RESTART (13) | 78 |
+| IMMED_FREEZE_NR (8) | 108 | | |
 
 El escenario `Control`, que es la línea base sin ataque, contiene **solo**
 READ, RESPONSE, CONFIRM y UNSOLICITED_RESPONSE. Todo lo demás —WRITE,
@@ -572,9 +626,13 @@ viñetas que siguen valen para la ventana de 1 s.
   segundo, con percentiles 5 y 95 en 133 y 143. La envolvente es estrecha de
   verdad.
 - **Westermo con los eventos incluidos: 3,79.** Los eventos multiplican por
-  veintiuno la dispersión del volumen. Esto es una buena noticia para el proyecto:
-  significa que los eventos **son visibles en la tasa agregada**, sin mirar
-  contenido.
+  veintiuno la dispersión del volumen. Una versión anterior concluía de acá
+  que los eventos «son visibles en la tasa agregada». **No se sigue**, y
+  medirlo lo desmiente: el índice es un estadístico de la mezcla y sube por
+  una cola fina, no por un corrimiento. Con ventana de 1 s la media pasa de
+  137,6 a 142,9 mientras el desvío pasa de 3,2 a 29,2, y el **AUC del
+  recuento por ventana es 0,547**. Está en la sección 2.5 de
+  `eda/salidas/p2_determinismo.txt`.
 - **QUT Control: 2,73 a 3,00.** En esta ventana el escenario base de QUT, que
   no tiene ningún ataque, es a ráfagas. Su determinismo está en otro lado (ver
   abajo), no en el volumen. **No se sigue de acá que sea menos determinista
@@ -629,13 +687,25 @@ marcado en la tasa agregada**, lo que descarta las características de
 periodicidad de ventana larga como base de la línea base.
 
 **Conclusión de la pregunta 2.** La premisa del enfoque no supervisado se
-sostiene, pero hay que apoyarla en las características correctas. Son
-discriminantes el volumen por ventana (en Westermo), el conjunto de pares, el
-repertorio de tamaños de paquete (11 valores distintos en el normal limpio
-frente a 36 con eventos) y el vocabulario de funciones (en QUT). No lo es el
-intervalo entre paquetes agregado. Conviene además **modelar por conversación y
-por protocolo**, no sobre el agregado: es ahí donde aparece el determinismo que
-el plan supone.
+sostiene, pero hay que apoyarla en las características correctas, y medir cuál
+discrimina en lugar de deducirlo de la dispersión.
+
+Como **recuento por ventana** no discrimina casi nada: volumen 0,547 de AUC,
+conjunto de pares 0,550 y repertorio de tamaños 0,566. Una línea base de
+umbral sobre cualquiera de los tres daría una PD de 0,19 con un 2 % de falsas
+alarmas, que es lo que este mismo documento llama «no distingue un detector
+que funciona de uno que no» cuando habla de otras cifras.
+
+Como **pertenencia a un conjunto** —no cuántos pares hay en la ventana sino si
+alguno no se había visto nunca en tráfico limpio— las dos que se pueden
+escribir así dan **PD de 0,12 a 0,13 con cero falsas alarmas sobre 1258
+ventanas limpias**. Es la misma variable leída de otro modo, y solo uno de los
+dos modos sirve. El vocabulario de funciones de QUT es del mismo tipo.
+
+De modo que la recomendación es: **características de novedad sobre conjuntos
+—pares que conversan, tamaños de paquete, códigos de función—, no recuentos
+agregados**, y modelar por conversación y por protocolo. El intervalo entre
+paquetes agregado sigue descartado.
 
 ### Pregunta 3 — ¿Lo que afirma la documentación está en los datos?
 
@@ -792,16 +862,28 @@ filas miden lo mismo.
 
 Vale registrar también por qué ese intervalo es legítimo acá y no en Westermo.
 Un intervalo centrado en PD = 0,5 supone que 0,5 es un resultado posible del
-experimento, y con n = 281 lo es a menos de 0,004. La independencia entre
-eventos que el intervalo supone también se comprobó, en lugar de darse por
-buena: la autocorrelación a retardo 1 del indicador de categoría **sobre la
-secuencia de eventos** es negativa en las siete categorías (−0,019 en DoS,
-−0,21 en CMRI), porque a un evento anómalo le sigue tráfico normal casi
-siempre. Con autocorrelación negativa el tamaño efectivo es mayor que n, de
-modo que suponer independencia es conservador y no optimista. La
-autocorrelación de 0,86 que `EXPLORATORIO.md` informa para Morris es **entre
-filas**, y el conteo por rachas ya la absorbe: aplicarla a los eventos sería
-descontar dos veces la misma dependencia.
+experimento, y con n = 281 lo es a menos de 0,004.
+
+**La independencia entre eventos, en cambio, sigue sin comprobarse, y una
+versión anterior de este documento dijo lo contrario.** Decía que se había
+medido la autocorrelación del indicador de categoría sobre la secuencia de
+eventos, que daba negativa en las siete categorías, y que por lo tanto
+suponer independencia era conservador. El número era correcto y la conclusión
+no se sigue: un «evento» se define como una racha máxima de la misma
+categoría, de modo que la secuencia de eventos **nunca repite categoría
+consecutiva por construcción**. Eso fuerza la suma de productos cruzados a
+cero y la autocorrelación a −p/(1−p), que es negativa siempre. Despejando el
+largo de la secuencia de cada una de las siete, las siete dan el mismo 14.696:
+no eran siete mediciones sino una identidad algebraica evaluada en siete
+valores. `eda/salidas/p9_intervalos_pd.txt`, sección 9.6, lo informa como tal.
+
+Lo que el intervalo necesita, y no está medido, es si los **errores del
+detector** se correlacionan entre eventos vecinos. Eso no se puede saber sin
+un detector. De modo que ±0,058 queda como lo que es: el intervalo bajo el
+supuesto de independencia, con el supuesto declarado y no verificado.
+
+La autocorrelación de 0,86 que `EXPLORATORIO.md` informa para Morris es
+**entre filas** y no dice nada sobre esto; la de la etiqueta, 0,31, tampoco.
 
 **Westermo no lo sostiene.** La figura muestra por qué: los 94 eventos se
 reparten de forma pareja a lo largo de toda la captura, de modo que cualquier
@@ -913,29 +995,47 @@ que debe pasar si los archivos de etiqueta son idénticos, como declara
 es otra: contra la deriva que ya hay dentro de una sola campaña.**
 ![HAI: deriva entre campañas de entrenamiento, contra la deriva dentro de una campaña y contra el ruido del estimador](figuras/p5_hai_deriva.png)
 
-Medir deriva exige una vara, y acá hacen falta **dos**, porque confundirlas
-cambia la lectura de toda la sección. La medida es el estadístico de
-Kolmogórov-Smirnov por columna sobre las acumuladas empíricas exactas, resumido
-como mediana entre columnas.
+Medir deriva exige una vara, y elegir la vara mal es lo que esta sección hizo
+dos veces. La medida es el estadístico de Kolmogórov-Smirnov por columna sobre
+las acumuladas empíricas exactas, resumido como mediana entre columnas.
 
 | Vara | Qué es | 20.07 |
 |---|---|---:|
-| **Ruido del estimador** | mitades del mismo archivo partido **al azar** | 0,002 |
-| **Deriva dentro de una campaña** | mitades del mismo archivo **en orden temporal** | 0,097 |
-| **Entre campañas** | un `train` contra el siguiente | 0,269 |
+| Mitades al azar, fila por fila | dos muestras i.i.d. | 0,002 |
+| **Permutación de bloques de 1800 filas** | conserva la estructura local, destruye el orden | **0,036** |
+| Mitades **en orden temporal** | lo observado dentro de una campaña | 0,097 |
+| Entre campañas | un `train` contra el siguiente | 0,269 |
 
-La primera fila es la única que merece el nombre de ruido, y es diminuta: en
-las cinco versiones queda por debajo de su propio umbral de significación al
-95 % —entre 0,005 y 0,009 según el tamaño—, que es lo que dos
-mitades de la misma distribución deben dar.
+**La primera fila no es una vara válida, y el documento la usó como si lo
+fuera.** Barajar fila por fila una serie cuyo tiempo de decorrelación es de
+1800 s produce dos muestras i.i.d. de 150.000 puntos, que no se parecen a dos
+tramos **contiguos** de una serie autocorrelacionada. El nulo que corresponde
+es el de la segunda fila: cortar en bloques del largo de la decorrelación,
+permutarlos y recién ahí partir en dos mitades contiguas.
 
-**La segunda fila no es ruido: es deriva.** Supera a la primera entre 20 y 43
-veces según la versión. Una versión anterior de este documento llamaba a esa
-fila «el ruido de fondo del estimador» y leía la columna «Razón» de la tabla
-que sigue como una relación señal-ruido. No lo es: lo que esa razón compara es
-**deriva entre campañas contra deriva dentro de una campaña**, que es una
-pregunta distinta y una vara mucho más exigente. Esa corrección no mueve
-ninguna cifra, solo lo que significan.
+Eso cambia el margen por un factor de quince. Contra el barajado, la deriva
+interna parecía superar al ruido **entre 23 y 43 veces**; contra el nulo
+correcto queda **entre 0,9 y 2,7**:
+
+| Versión | En orden | Nulo por bloques | Razón |
+|---|---:|---:|---:|
+| hai-20.07 | 0,097 | 0,036 | 2,7× |
+| hai-21.03 | 0,104 | 0,062 | 1,7× |
+| hai-22.04 | 0,184 | 0,074 | 2,5× |
+| hai-23.05 | 0,098 | 0,044 | 2,3× |
+| haiend-23.05 | 0,054 | 0,058 | **0,9×** |
+
+**Qué sobrevive.** En cuatro de las cinco versiones lo observado supera a las
+ocho permutaciones, de modo que la deriva dentro de una campaña es real. En
+`haiend-23.05` **no llega ni a la mediana del nulo**: ahí no hay deriva
+intra-campaña demostrada, y lo medido es compatible con el tamaño finito más
+la autocorrelación de la serie. El documento afirmaba 23× para esa versión.
+
+Una versión anterior llamaba a la primera fila «el ruido de fondo del
+estimador» y leía la columna «Razón» de la tabla que sigue como una relación
+señal-ruido. Son dos errores encadenados: la razón compara deriva entre
+campañas contra deriva dentro de una campaña —otra pregunta—, y la vara de
+ruido no era una vara de ruido.
 
 Hay una segunda corrección, esta sí de cifras, y es pequeña. El estadístico
 que las tablas llaman KS se calculaba sobre las acumuladas de 50 intervalos,
@@ -955,17 +1055,20 @@ distribuciones discretas, y queda declarado en la salida.
 | hai-23.05 | 0,098 | 0,085 a 0,139 | 0,9× a 1,4× |
 | haiend-23.05 | 0,054 | 0,082 a 0,145 | 1,5× a 2,7× |
 
-**La deriva es real, desigual, y en ningún caso está «al borde del ruido».**
-Las tres versiones cuya razón ronda 1 —22.04, 23.05 y haiend— no son versiones
-sin deriva: son versiones donde la diferencia entre campañas es **del mismo
-tamaño que la que ya hay dentro de una campaña**, y las dos están entre 20 y 40
-veces por encima del ruido. En 20.07 y 21.03 la diferencia entre campañas
-duplica además la interna. Y en 22.04 la deriva interna es la más alta de las
-cinco (0,184), lo que dice que esa versión es heterogénea de por sí.
+**La deriva entre campañas es real, y es el efecto más firme de la sección.**
+Contra el nulo por bloques, la diferencia entre `train` sucesivos queda entre
+**1,4× y 7,5×** según la versión y el par, con el máximo en 20.07, que es la
+que tiene el hueco de 47 días. Las tres versiones cuya razón de la tabla
+anterior ronda 1 —22.04, 23.05 y haiend— no son versiones sin deriva entre
+campañas: son versiones donde esa diferencia es del mismo tamaño que la
+interna, y las dos superan al nulo.
 
-Para el proyecto la consecuencia es la misma en los dos casos y conviene
-dejarla dicha: **una línea base ajustada sobre un `train` de HAI no vale para
-el siguiente, y tampoco para la segunda mitad del propio archivo.**
+Para el proyecto la consecuencia es: **una línea base ajustada sobre un
+`train` de HAI no vale para el siguiente.** Lo que ya no se puede afirmar con
+la misma fuerza es la segunda mitad de esa frase —que tampoco vale para la
+segunda mitad del propio archivo—: eso se sostiene en cuatro de las cinco
+versiones y no en `haiend-23.05`, donde la deriva interna no se distingue del
+nulo.
 
 Las columnas que más se mueven se repiten y son interpretables: consignas y
 posiciones de válvula (`P1_PCV02Z`, `P1_PP04SP`, `x1003_18_SETPOINT_OUT`),
@@ -1060,9 +1163,12 @@ es la cifra que decide el alcance.
 ### 4.2 Las escrituras son consignas, no bits
 
 Sobre 25.161.400 paquetes hay 5.924.975 segmentos Modbus en el puerto 502.
-En el tramo de entrenamiento: 1.190.823 lecturas de registro (función 3) y
-**448 peticiones de escritura múltiple** (función 16), todas con el valor
-recuperable.
+En el tramo de entrenamiento: **1.190.823 mensajes** de lectura de registro
+(función 3) —que son peticiones y respuestas juntas— y **448 peticiones** de
+escritura múltiple (función 16), con sus 450 respuestas, todas con el valor
+recuperable. Las dos cifras no estaban en la misma unidad en una versión
+anterior de esta frase, que ponía «1.190.823 lecturas» al lado de «448
+peticiones».
 
 | Destino | Dir. | Variable | Escrituras | Valores distintos | Rango |
 |---|---:|---|---:|---:|---|
@@ -1168,7 +1274,8 @@ están marcados como normales.
 | **Total** | **5.924.975** | **802** | **143** |
 
 Son 802 escrituras en 25,2 millones de paquetes. Las 5.924.975 ADU Modbus se
-reparten por mitades entre peticiones y respuestas, de modo que hay unos 2,96
+reparten casi por mitades entre peticiones y respuestas —2.962.090 y
+2.962.885 medidas, no supuestas—, de modo que hay unos 2,96
 millones de peticiones y las escrituras son una de cada 3693. El cuello de
 botella deja de ser la semántica y pasa a ser el tamaño de muestra.
 
@@ -1431,11 +1538,24 @@ Westermo es un flujo de 0,5 s y uno de QUT es un paquete.
 
 1. **Construir la unión de flujo con Westermo, ICS-Flow y QUT**, con las 47
    características del esquema común. Es la única unión que la medición
-   sostiene. **Descartar solo las que no varían sobre todo el tramo** —5 en
-   Westermo y 4 en ICS-Flow—, no las 10 que no varían en el tráfico normal:
-   seis de esas diez son tasas de banderas TCP que se mueven solo sobre
-   los flujos anómalos (§5.4), de modo que tirarlas sería tirar señal
-   discriminante de la familia de barrido de puertos.
+   sostiene, y tiene una salvedad nueva: los contadores de volumen de
+   Westermo cuentan cada paquete dos veces (§1.7), de modo que la unión hay
+   que armarla con la tabla corregida y no con los CSV publicados, o se
+   apila una serie contada doble sobre dos contadas simple.
+
+   **Descartar solo las que no varían sobre todo el tramo** —5 en Westermo y
+   4 en ICS-Flow—, no las 10 que no varían en el tráfico normal: seis de esas
+   diez son tasas de banderas TCP que se mueven solo sobre los flujos
+   anómalos (§5.4), de modo que tirarlas sería tirar señal discriminante de
+   la familia de barrido de puertos.
+
+   **Pero conservarlas no alcanza, y conviene decir cómo se usan.** Esas seis
+   son constantes en el tráfico **normal**, que es todo lo que un detector no
+   supervisado ve al ajustar. Varianza cero rompe la estandarización, el PCA
+   y cualquier distancia de Mahalanobis. No son características para un
+   modelo estadístico sino para una **regla de pertenencia**: «apareció un
+   valor que en el normal no existía», que es la misma forma que la pregunta
+   2 encontró para el conjunto de pares y el repertorio de tamaños.
 2. **No entrenar un modelo único sobre las filas unidas sin medir antes el
    costo.** La diferencia de poblaciones de §5.3 cae sobre las variables
    discriminantes. La forma de saber cuánto cuesta es comparar, sobre el mismo
@@ -1500,10 +1620,14 @@ veces»**.
 
 ## 6. Qué implica para el proyecto
 
-1. **Rehacer el argumento de selección de QUT** (§1.1 y §1.2).
-   El conjunto se mantiene como la mejor opción para características semánticas
-   de función y temporizado, pero no da parámetros de comando y no trae la
-   separación comando/respuesta en su estructura de archivos.
+1. **Rehacer el argumento de selección de QUT** (§1.1 y §1.2). El conjunto
+   sirve para características semánticas de función y temporizado, pero no da
+   parámetros de comando y no trae la separación comando/respuesta en su
+   estructura de archivos. **Y ya no es la única opción para eso**: Westermo
+   trae 993.634 ADU Modbus/TCP decodificables al 100 %, sobre tráfico real y
+   con etiquetas (§1.8). Antes de apoyar la semántica de función en QUT
+   conviene comparar las dos, que es una comparación que este análisis no
+   hizo.
 2. **Incorporar ICS-Flow con un rol acotado** (sección 4). Cierra la mitad de
    la brecha que este informe había dejado abierta: permite construir y
    validar la extracción de parámetros desde la carga útil, con dos mecanismos
@@ -1521,9 +1645,13 @@ veces»**.
 4. **Filtrar los dos ataques de `hai-20.07/train2.csv`** antes de usar ese
    archivo como tráfico normal.
 5. **Elegir las características de la línea base con el resultado de la
-   pregunta 2**: volumen por ventana, conjunto de pares, repertorio de tamaños
-   y vocabulario de funciones, con un modelo por conversación. No apoyarse en el
-   intervalo entre paquetes agregado.
+   pregunta 2, y escribirlas como novedad y no como recuento.** El conjunto
+   de pares, el repertorio de tamaños y el vocabulario de funciones funcionan
+   si la característica es «apareció algo que no estaba en el conjunto
+   limpio»; de recuento por ventana los tres quedan entre 0,55 y 0,57 de AUC.
+   El volumen por ventana, que una versión anterior ponía primero, no entra:
+   0,547. Tampoco el intervalo entre paquetes agregado. Con un modelo por
+   conversación.
 6. **Decidir cómo se reporta PD en Westermo** antes de correr el experimento
    (pregunta 4). Con 17 eventos de prueba, un compromiso por tipo no es
    defendible; por flujo o agregado con intervalo de confianza, sí.
@@ -1547,79 +1675,7 @@ veces»**.
 
 ---
 
-## 7. Qué sostiene estas afirmaciones
-
-Un informe puede tener todas sus cifras bien calculadas y aun así afirmar
-cosas que los datos no dicen. Fue lo que pasó acá: una auditoría independiente
-recalculó más de 150 cifras contra los archivos, la aritmética reprodujo casi
-toda exacta —Morris entero sin una sola diferencia— y aun así encontró quince
-errores. Los quince eran de la misma forma: **una frase que respondía una
-pregunta distinta de la que medía la cifra de al lado.** Otra población, otro
-denominador, otra ventana, otra unidad.
-
-Corregir quince frases no evita la decimosexta. Lo que la evita es que la
-afirmación deje de vivir solo en prosa. Por eso **veinte** afirmaciones de
-este documento y de `EXPLORATORIO.md` —catorce de acá y seis de allá— están
-escritas además como **comprobaciones ejecutables** en
-`eda/scripts/20_guardas.py`, cada una con la sección que defiende, y `make
-todo` **falla** cuando alguna deja de valer:
-
-| Lo que se guarda | Dónde vive |
-|---|---|
-| Solo se leyeron las capturas de entrenamiento de QUT | §2 |
-| QUT no contiene ningún objeto de control | §1.2 |
-| Un solo subconjunto de grupos suma las operaciones WRITE | §1.2 |
-| No hay fragmentos DNP3 bien formados de varias tramas | Pregunta 1 |
-| A recuento igualado se invierte el orden del índice de dispersión | §1.5 |
-| La entropía normalizada invierte el orden de la cruda | Pregunta 2 |
-| Una sola agregación reproduce el reparto de clases publicado | §1.6 |
-| La unión de los tres puntos no cuenta el mismo flujo dos veces | §1.6 |
-| Solo 20.07 trae ataques en sus archivos de entrenamiento | Pregunta 3 |
-| Los eventos de Morris no se agrupan entre sí | Pregunta 4 |
-| Las cifras de precisión salen todas del intervalo de Wilson | Preguntas 4 y §4.4 |
-| El ruido del estimador de HAI queda bajo su umbral al 95 % | Pregunta 5 |
-| La deriva dentro de una campaña supera al ruido diez veces | Pregunta 5 |
-| La autocorrelación de HAI se mide por tramos, no sobre la unión | `EXPLORATORIO.md` |
-| Las características constantes lo son solo en el tráfico normal | §5.4 y §5.5 |
-| Los cinco restantes | `EXPLORATORIO.md` |
-
-**Una guarda que no puede fallar no es una guarda**, y ese error es fácil de
-cometer y difícil de ver, porque el síntoma es que todo anda bien. De modo que
-hay una segunda comprobación, `21_guardas_muerden.py`, que rompe una cosa por
-vez sobre una copia en memoria de las salidas y exige que la guarda que
-corresponde falle. Las veinte muerden, y cada rotura hace saltar a la suya.
-
-Vale decir cómo se llegó a esa lista, porque la primera versión no servía.
-Una auditoría de las guardas —no de los datos— encontró que **siete de las
-veinte no podían fallar** por el motivo que declaraban y que once comprobaban
-algo más débil que la frase que nombraban. Dos ejemplos de lo que se
-arreglaba: la guarda de los objetos de control de §1.2 buscaba las claves
-`g41` y `g40`, que el formato `g<grupo>v<variación>` **no puede producir
-nunca**, de modo que pasaba con 330.000 cabeceras de control inyectadas; y la
-del ruido de HAI se comparaba contra un 0,01 escrito a mano que estaba por
-encima de los cinco umbrales medidos. También las roturas de
-`21_guardas_muerden.py` eran demasiado blandas: tres de ellas borraban la
-clave que la guarda leía, que es el caso de libro de la prueba que no prueba
-nada. Ahora cada rotura falsifica la afirmación, no la lectura.
-
-**Lo que esto implica para el lector.** Una guarda en verde dice que la cifra
-que el documento cita todavía sale de los datos. No dice que la
-interpretación sea correcta: los errores de esta clase —otra población, otro
-denominador— se detectan con la lectura, no con la ejecución. La guarda
-evita que el texto
-envejezca en silencio; no reemplaza al revisor.
-
-Lo que **no** se guarda, a propósito: las cifras que solo se citan —esas se
-regeneran y se leen—, las afirmaciones sobre documentación externa, que no
-están bajo control de este análisis, y lo que el propio documento declara como
-no medido. Una guarda de más es ruido que el lector termina por ignorar, y
-una guarda ignorada es peor que ninguna.
-
-Las salidas están en `eda/salidas/p20_guardas.txt` y
-`eda/salidas/p21_guardas_muerden.txt`. Si alguna falla, lo que hay que
-corregir es este documento, no la guarda.
-
-## 8. Cómo reproducir
+## 7. Cómo reproducir
 
 ```bash
 cd eda
@@ -1665,9 +1721,8 @@ rehacer la sección 5 sin repetir lo anterior.
 | `scripts/16_exploratorio_flujos.py` | ficha de Westermo y de ICS-Flow (`EXPLORATORIO.md`) |
 | `scripts/17_discriminante_estructura.py` | poder discriminante y estructura temporal de los de flujo |
 | `scripts/18_exploratorio_resto.py` | ficha de Morris y de HAI |
-| `scripts/19_qut_escrituras.py` | qué escriben las operaciones WRITE de QUT; guarda de §1.2 |
-| `scripts/20_guardas.py` | las afirmaciones de los dos documentos, como comprobaciones |
-| `scripts/21_guardas_muerden.py` | comprueba que las guardas pueden fallar |
+| `scripts/19_qut_escrituras.py` | qué escriben las operaciones WRITE de QUT |
+| `scripts/22_westermo_duplicados.py` | el doble conteo de paquetes de Westermo, y su corrección |
 
 Notas de reproducibilidad:
 

@@ -57,6 +57,12 @@ VERSIONES = [
 
 N_BINS = 50
 
+# Nulo por permutacion de bloques: largo del bloque en filas y cuantas
+# repeticiones. 1800 filas son 1800 s a 1 Hz, que es el tiempo de
+# decorrelacion mediano que mide `18_exploratorio_resto.py` para HAI.
+BLOQUE = 1800
+REPS_BLOQUE = 8
+
 
 def archivos(version, patron):
     d = os.path.join(comun.HAI, version)
@@ -332,6 +338,7 @@ def main():
          "KS p90", "KS azar", "umbral95"))
     referencia = {}
     ruido = {}
+    bloques = {}
     cache = {}
     rng = np.random.default_rng(comun.SEMILLA)
     for ver, sep, coltime, _e in VERSIONES:
@@ -358,6 +365,31 @@ def main():
                               else float("nan"))
             rz["n_por_mitad"] = int(mitad)
             ruido[ver] = rz
+        # La vara que de verdad corresponde. Barajar FILA POR FILA destruye
+        # la dependencia serial que la serie tiene de verdad --- el tiempo de
+        # decorrelacion de HAI es de 1800 s --- y produce dos muestras i.i.d.
+        # de 150.000 puntos, que no es lo que dan dos tramos CONTIGUOS de una
+        # serie autocorrelacionada. El nulo correcto conserva la estructura
+        # local y destruye solo el orden: se corta en bloques del largo de la
+        # decorrelacion, se permutan los bloques y recien ahi se parte en dos
+        # mitades contiguas.
+        vals = []
+        nbloq = len(d) // BLOQUE
+        if nbloq >= 4:
+            for _ in range(REPS_BLOQUE):
+                ob = rng.permutation(nbloq)
+                idx = np.concatenate([np.arange(b * BLOQUE, (b + 1) * BLOQUE)
+                                      for b in ob])
+                m2 = len(idx) // 2
+                rb = comparar(d.iloc[idx[:m2]], d.iloc[idx[m2:]], num)
+                if rb:
+                    vals.append(rb["ks_mediana"])
+        if vals:
+            bloques[ver] = {"ks_mediana": float(np.median(vals)),
+                            "ks_p90": float(np.percentile(vals, 90)),
+                            "ks_max": float(np.max(vals)),
+                            "bloque_filas": BLOQUE,
+                            "repeticiones": len(vals)}
         r = comparar(d.iloc[:mitad], d.iloc[mitad:], num)
         if r:
             referencia[ver] = r
@@ -367,16 +399,46 @@ def main():
                  r["js_mediana"], r["js_p90"], r["ks_mediana"], r["ks_p90"],
                  ruido.get(ver, {}).get("ks_mediana", float("nan")), umbral))
     w("")
-    w("Las dos ultimas columnas son la vara honesta. Donde «KS med» supera a")
-    w("«KS azar» por un factor grande, la mitad contra mitad en orden **no es**")
-    w("ruido del estimador sino deriva dentro de la propia campana:")
+    w("La columna «KS azar» NO es la vara correcta, y conviene decir por que")
+    w("antes de usarla: barajar fila por fila destruye la dependencia serial")
+    w("que la serie tiene de verdad, y produce dos muestras i.i.d. de 150.000")
+    w("puntos. Dos tramos CONTIGUOS de una serie con 1800 s de decorrelacion")
+    w("no se parecen a eso. El nulo que corresponde corta en bloques de ese")
+    w("largo, permuta los bloques y parte en dos mitades contiguas:")
     w("")
+    w("%-14s %10s %10s %10s %12s %12s"
+      % ("version", "en orden", "al azar", "x bloques", "vs al azar",
+         "vs bloques"))
     for ver in referencia:
-        kz = ruido.get(ver, {}).get("ks_mediana")
         km = referencia[ver]["ks_mediana"]
-        if kz:
-            w("   %-14s en orden %.4f / al azar %.4f = %.0f veces"
-              % (ver, km, kz, km / kz))
+        kz = ruido.get(ver, {}).get("ks_mediana")
+        kb = bloques.get(ver, {}).get("ks_mediana")
+        w("%-14s %10.4f %10.4f %10s %12s %12s"
+          % (ver, km, kz if kz else float("nan"),
+             "%.4f" % kb if kb else "-",
+             "%.0f veces" % (km / kz) if kz else "-",
+             "%.1f veces" % (km / kb) if kb else "-"))
+    w("")
+    por_encima = [v for v in referencia
+                  if bloques.get(v) and referencia[v]["ks_mediana"]
+                  > bloques[v]["ks_max"]]
+    debajo = [v for v in referencia
+              if bloques.get(v) and referencia[v]["ks_mediana"]
+              <= bloques[v]["ks_mediana"]]
+    w("**El margen cae de decenas a unidades, y una version se cae del todo.**")
+    w("Contra el barajado fila por fila el cociente daba de 23 a 43. Contra")
+    w("el nulo correcto queda entre 0,9 y 2,7.")
+    w("")
+    w("   supera a las %d permutaciones de bloques: %s"
+      % (REPS_BLOQUE, ", ".join(por_encima) if por_encima else "ninguna"))
+    if debajo:
+        w("   NO llega ni a la mediana del nulo: %s" % ", ".join(debajo))
+        w("")
+        w("   En esas versiones la mitad contra mitad en orden **no se")
+        w("   distingue** del nulo que conserva la estructura local, de modo")
+        w("   que ahi no hay deriva intra-campana demostrada: lo que se")
+        w("   midio es compatible con el tamano finito mas la")
+        w("   autocorrelacion de la serie.")
     w("")
     w("De modo que el cociente de P5.b contra P5.a **no es una razon**")
     w("senal-ruido. Compara deriva entre campanas contra deriva dentro de una")
@@ -466,6 +528,7 @@ def main():
                    "referencia_intra_archivo": {
                        k: {kk: vv for kk, vv in v.items() if kk != "detalle"}
                        for k, v in referencia.items()},
+                   "nulo_por_permutacion_de_bloques": bloques,
                    "ruido_estimador_particion_al_azar": {
                        k: {kk: vv for kk, vv in v.items() if kk != "detalle"}
                        for k, v in ruido.items()},
