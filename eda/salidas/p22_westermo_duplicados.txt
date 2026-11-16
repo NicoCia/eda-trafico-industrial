@@ -122,3 +122,31 @@ microsegundo tiran el minimo y el promedio hacia abajo.
 Los minimos y maximos de octetos y de carga util no hacen falta
 corregirlos: el minimo y el maximo de un conjunto no cambian al
 quitarle copias exactas.
+
+## 22.4 `duration` no se corrige, y para algunas filas es un artefacto
+
+`duration` es del conjunto y no se toca: es el intervalo entre el
+primero y el ultimo paquete de la fila, copias incluidas. Para una
+fila cuyo contenido real es UN SOLO paquete, eso no es una duracion
+sino la separacion entre sus dos copias, del orden del microsegundo,
+y cualquier tasa dividida por ella sale disparada.
+
+No es algo que introduzca esta correccion: ya esta en el conjunto
+publicado, donde los flujos de un solo paquete traen `duration` de
+1 us y `sLoad` del orden de 10^8 bit/s. Lo que la correccion hace es
+volverlo visible, porque ahora se sabe cuantas filas tienen un solo
+paquete de verdad.
+
+captura                filas    1 paq.  % del total   mediana dur.
+reduced/bottom         35404      2976         8.4 %      0.000005 s
+reduced/left            8533      3032        35.5 %      0.000005 s
+reduced/right           4720      2973        63.0 %      0.000003 s
+extended/bottom        55425      3023         5.5 %      0.000005 s
+extended/left           8555      3054        35.7 %      0.000005 s
+extended/right          4749      2995        63.1 %      0.000003 s
+
+**Para esas filas `sLoad`, `rLoad` y los intervalos entre paquetes no
+son usables**, y el valor extremo que traen es del instrumento y no
+del trafico. Es la excepcion a la regla de no descartar extremos que
+`EXPLORATORIO.md` enuncia: ahi el extremo no es la rafaga ni el
+escaneo, es la grabadora.

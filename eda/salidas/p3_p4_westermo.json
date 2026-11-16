@@ -182,32 +182,38 @@
   "duplicacion_entre_puntos": {
    "reduced/bottom": {
     "flujos": 21080,
-    "con_gemelo_en_otro_punto": 160,
+    "con_gemelo_en_otro_punto": 2686,
+    "control_espurios_adentro": 0,
     "repetidos_dentro_del_punto": 0
    },
    "reduced/left": {
     "flujos": 4800,
-    "con_gemelo_en_otro_punto": 158,
+    "con_gemelo_en_otro_punto": 3044,
+    "control_espurios_adentro": 0,
     "repetidos_dentro_del_punto": 0
    },
    "reduced/right": {
     "flujos": 2862,
-    "con_gemelo_en_otro_punto": 10,
+    "con_gemelo_en_otro_punto": 2272,
+    "control_espurios_adentro": 0,
     "repetidos_dentro_del_punto": 0
    },
    "extended/bottom": {
     "flujos": 33108,
-    "con_gemelo_en_otro_punto": 160,
+    "con_gemelo_en_otro_punto": 2702,
+    "control_espurios_adentro": 0,
     "repetidos_dentro_del_punto": 0
    },
    "extended/left": {
     "flujos": 4816,
-    "con_gemelo_en_otro_punto": 159,
+    "con_gemelo_en_otro_punto": 3060,
+    "control_espurios_adentro": 0,
     "repetidos_dentro_del_punto": 0
    },
    "extended/right": {
     "flujos": 2878,
-    "con_gemelo_en_otro_punto": 11,
+    "con_gemelo_en_otro_punto": 2288,
+    "control_espurios_adentro": 0,
     "repetidos_dentro_del_punto": 0
    }
   }

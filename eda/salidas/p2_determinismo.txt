@@ -304,17 +304,31 @@ ventana      limpias  c/evento       AUC   media L   media E
 ### Las otras dos caracteristicas, y una distincion que decide como
 ### se las escribe
 
-Como RECUENTO por ventana:
-   pares distintos    AUC 0.550
-   tamanos distintos  AUC 0.566
+Como RECUENTO por ventana, las tres con la misma regla de dos colas
+al 2 por ciento:
 
-Como NOVEDAD, es decir pertenencia al conjunto visto en limpio:
-   par nunca visto              PFA 0.0000  PD 0.130
-   tamano nunca visto           PFA 0.0000  PD 0.118
+                               AUC   PD a 2 %
+   recuento de paquetes      0.547      0.189
+   pares distintos           0.550      0.073
+   tamanos distintos         0.566      0.088
 
-**Esa es la distincion que importa.** De recuento, las tres
-caracteristicas que la pregunta 2 recomienda dan entre 0,55 y 0,57 de
-AUC, que es casi nada. De pertenencia, el conjunto de pares y el
-repertorio de tamanos dan PD de 0,12 a 0,13 con CERO falsas alarmas
-sobre 1258 ventanas limpias. Son la misma variable leida de dos modos, y
-solo uno de los dos sirve.
+Como NOVEDAD, es decir pertenencia al conjunto visto en limpio. El
+conjunto de referencia se arma con las primeras 754 ventanas limpias y
+la PFA se mide sobre las 504 restantes, que no entraron en el:
+
+                                 PFA         PD      IC 95 % de la PFA
+   par nunca visto            0.0040      0.132      [0.0011, 0.0144]
+   tamano nunca visto         0.0000      0.118      [0.0000, 0.0076]
+
+**Y al mismo punto de operacion el recuento da lo mismo.** Esta es la
+comparacion que falta hacer antes de preferir una forma sobre la
+otra: poner las dos al mismo PFA en lugar de comparar una a un PFA
+elegido contra otra a un PFA que es cero por construccion.
+
+   al PFA de «par nunca visto» (0.0040): recuento PD 0.128 contra novedad PD 0.132
+   tamano nunca visto     PFA fuera de muestra 0: no hay punto que igualar
+
+De modo que **no se sostiene** decir que una de las dos formas sirve
+y la otra no. Lo que se sostiene es que ninguna de las tres
+caracteristicas, de ninguna de las dos formas, pasa de una PD de
+0,13 a una PFA del orden del medio por ciento.

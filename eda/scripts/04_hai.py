@@ -61,7 +61,10 @@ N_BINS = 50
 # repeticiones. 1800 filas son 1800 s a 1 Hz, que es el tiempo de
 # decorrelacion mediano que mide `18_exploratorio_resto.py` para HAI.
 BLOQUE = 1800
-REPS_BLOQUE = 8
+# Con 8 permutaciones el p-valor minimo alcanzable es 1/9 = 0,111, que no
+# llega al 5 % convencional: superar a las ocho no es significacion. Con 60
+# el minimo es 1/61 = 0,016.
+REPS_BLOQUE = 60
 
 
 def archivos(version, patron):
@@ -429,8 +432,9 @@ def main():
     w("Contra el barajado fila por fila el cociente daba de 23 a 43. Contra")
     w("el nulo correcto queda entre 0,9 y 2,7.")
     w("")
-    w("   supera a las %d permutaciones de bloques: %s"
-      % (REPS_BLOQUE, ", ".join(por_encima) if por_encima else "ninguna"))
+    w("   supera a las %d permutaciones de bloques (p <= %.3f): %s"
+      % (REPS_BLOQUE, 1.0 / (REPS_BLOQUE + 1),
+         ", ".join(por_encima) if por_encima else "ninguna"))
     if debajo:
         w("   NO llega ni a la mediana del nulo: %s" % ", ".join(debajo))
         w("")

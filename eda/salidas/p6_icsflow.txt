@@ -41,6 +41,21 @@ destino            dir.   variable nombre                           escrit. dist
 192.168.0.11          8          4 tank_level_max                       116       110     5.5258     9.5714
 192.168.0.12         22         11 bottle_level_max                     166       147     1.0037     1.8869
 
+### El mismo repertorio, separando quien escribe
+
+La tabla de arriba mezcla las escrituras del HMI con las del
+atacante, y eso importa para quien la use como referencia de lo
+normal: dos de los tres maximos **son** valores manipulados. Quien
+arme desde ahi una regla de pertenencia --- «aparecio un valor que en
+el normal no existia» --- mete las consignas del ataque dentro del
+conjunto de referencia y la caracteristica queda ciega justo para la
+familia que se quiere detectar.
+
+destino            dir. variable                        HMI (n, min, max) atacante (n, min, max)
+192.168.0.11          6 tank_level_min                148, 1.0026, 4.4992     18, 1.9456, 4.6667
+192.168.0.11          8 tank_level_max                111, 5.5258, 8.9944      5, 9.2716, 9.5714
+192.168.0.12         22 bottle_level_max              149, 1.0037, 1.8869     17, 1.1696, 1.8612
+
 Las escrituras usan funcion 16 con cantidad 2: ICSSIM reparte cada
 variable en dos registros de 16 bits, el mas significativo primero, y
 el valor fisico es el entero de 32 bits dividido por 10000.
@@ -57,14 +72,17 @@ escrituras. Es el repertorio que hace falta para la familia MPCI.
 Contraste con los registros de proceso, que es lo que confirma la
 interpretacion de la escala y del mapa de registros:
 
-variable                       rango escrito (entren.) rango en el snapshot  
-tank_level_min(3)              1.0026 - 4.6667        1.0026 - 4.6666       
-tank_level_max(4)              5.5258 - 9.5714        5.5258 - 9.5714       
-bottle_level_max(11)           1.0037 - 1.8869        1.0025 - 1.8959       
+variable                 escrito (entren.)    snapshot (ventana)   snapshot (entero)   
+tank_level_min(3)        1.0026 - 4.6667      1.0026 - 4.6666      1.0026 - 4.6666     
+tank_level_max(4)        5.5258 - 9.5714      5.5258 - 9.5714      5.5258 - 9.5714     
+bottle_level_max(11)     1.0037 - 1.8869      1.0037 - 1.8869      1.0025 - 1.8959     
 
-Los rangos se corresponden, de modo que la consigna escrita por la red
-es la que el PLC aplica: una manipulacion de ese valor tiene efecto
-observable sobre el proceso, y no se queda en la trama.
+Puestos los dos lados en la MISMA ventana los rangos se corresponden
+en los dos extremos de las tres variables, de modo que la consigna
+escrita por la red es la que el PLC aplica: una manipulacion de ese
+valor tiene efecto observable sobre el proceso, y no se queda en la
+trama. Sobre la captura entera el extremo de `bottle_level_max` no
+coincide, pero eso es mezclar ventanas y no una propiedad del banco.
 
 ## 6.3 El ataque de intermediario, se ve en la carga util?
 

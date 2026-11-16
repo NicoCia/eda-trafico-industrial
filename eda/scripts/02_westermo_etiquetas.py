@@ -28,9 +28,12 @@ VARIANTES = ["reduced", "extended"]
 PUNTOS = ["bottom", "left", "right"]
 
 # Tolerancia, en segundos, para considerar que dos flujos de puntos de captura
-# distintos son el MISMO flujo observado dos veces. Es holgada a proposito: lo
-# que se quiere es una cota alta de la duplicacion, no contarla justa.
-TOL_GEMELO = 1.0
+# distintos son el MISMO flujo observado dos veces. Estricta: el mismo flujo
+# visto en dos taps no se corre un segundo. Con una tolerancia de 1 s el
+# control interno --- buscar gemelos DENTRO de un punto --- daba 20,5 % en
+# `bottom`, es decir que la clave encontraba coincidencias espurias; con
+# 0,05 s ese control da cero y lo que queda son gemelos de verdad.
+TOL_GEMELO = 0.05
 
 # Agrupacion de la cifra publicada: normal / malas config. y SSH malicioso /
 # ataques. GOOD-SSH es trafico legitimo, va con el normal.
@@ -235,8 +238,13 @@ def main():
       % TOL_GEMELO)
     w("observado en dos puntos a la vez.")
     w("")
+    # Se agregan las cargas utiles: con ellas el resultado no cambia --- los
+    # gemelos coinciden tambien en carga util ---, lo que es la evidencia de
+    # que son el mismo flujo y no una colision de clave. NO se agrega
+    # `duration`: entre dos taps difiere por microsegundos (mediana 1 us) y
+    # rechazaria gemelos legitimos.
     CMP = ["sAddress", "rAddress", "protocol", "sPackets", "rPackets",
-           "sBytesSum", "rBytesSum"]
+           "sBytesSum", "rBytesSum", "sPayloadSum", "rPayloadSum"]
     dup = {}
     for var in VARIANTES:
         tablas = {}
@@ -250,7 +258,14 @@ def main():
                 # de conteo que declara la seccion 2 de INFORME.md. Una version
                 # anterior leia los seis archivos enteros, y eso era abrir los
                 # tramos de calibracion y de prueba.
-                d = pd.read_csv(ruta)
+                # CON LOS CONTADORES CORREGIDOS. Una version anterior leia
+                # el CSV publicado, y como el factor de inflacion del doble
+                # conteo es DISTINTO en cada punto --- 1,95 en bottom, 1,84
+                # en left, 1,13 en right --- el mismo flujo visto en dos
+                # taps traia numeros distintos y la igualdad fallaba por
+                # construccion. Daba 0,8 / 3,3 / 0,3 % de gemelos, que es un
+                # artefacto del instrumento y no una propiedad de la red.
+                d = comun.westermo_flujos(var, pt)
                 tablas[pt] = d[d["startOffset"] < comun.WESTERMO_CORTES[0]] \
                     .reset_index(drop=True)
         if len(tablas) < 2:
@@ -278,22 +293,51 @@ def main():
                         if 0 <= jj < len(v) and abs(v[jj] - float(s)) <= TOL_GEMELO:
                             marcados.add(i)
                             break
-            # duplicados DENTRO del propio punto, que es lo que el README
-            # describe a nivel de paquete
+            # CONTROL: la misma busqueda DENTRO del propio punto, sin
+            # contar la fila consigo misma. Es el piso de coincidencias
+            # espurias de la clave; sin el, el numero de gemelos no se puede
+            # leer. Si el control no da cero, la clave no discrimina.
+            por_prop = {}
+            for k, s in zip(ka, d["start"]):
+                por_prop.setdefault(k, []).append(float(s))
+            for v in por_prop.values():
+                v.sort()
+            espurios = 0
+            for k, s in zip(ka, d["start"]):
+                v = por_prop.get(k, [])
+                j = np.searchsorted(v, float(s))
+                for jj in (j - 1, j, j + 1):
+                    if 0 <= jj < len(v) and abs(v[jj] - float(s)) < 1e-12:
+                        continue
+                    if 0 <= jj < len(v) and abs(v[jj] - float(s)) <= TOL_GEMELO:
+                        espurios += 1
+                        break
             kd = list(map(tuple, d[CMP + ["start"]].itertuples(index=False,
                                                                name=None)))
             w("     %-8s %6d flujos; con gemelo en otro punto %5d (%.1f %%);"
-              " repetidos dentro del punto %d"
+              " control adentro %d (%.1f %%); filas repetidas %d"
               % (pt, len(d), len(marcados), 100.0 * len(marcados) / len(d),
+                 espurios, 100.0 * espurios / len(d),
                  len(kd) - len(set(kd))))
             dup["%s/%s" % (var, pt)] = {
                 "flujos": len(d), "con_gemelo_en_otro_punto": len(marcados),
+                "control_espurios_adentro": espurios,
                 "repetidos_dentro_del_punto": len(kd) - len(set(kd))}
     w("")
-    w("La duplicacion que el README describe es de PAQUETES y no sobrevive al")
-    w("armado de flujos: dentro de cada punto no hay un solo flujo repetido, y")
-    w("entre puntos el solape es de pocos puntos porcentuales. De modo que la")
-    w("union es una poblacion de flujos, no trafico contado tres veces.")
+    tot_f = sum(v["flujos"] for k, v in dup.items() if k.startswith("reduced"))
+    tot_g = sum(v["con_gemelo_en_otro_punto"] for k, v in dup.items()
+                if k.startswith("reduced"))
+    w("**La union SI reobserva los mismos flujos.** Sobre `reduced`, %d de"
+      % tot_g)
+    w("las %d observaciones del tramo de entrenamiento --- el %.1f %% --- tienen"
+      % (tot_f, 100.0 * tot_g / max(1, tot_f)))
+    w("un gemelo en otro punto, con el control interno en cero. Los gemelos")
+    w("coinciden tambien en carga util, y su `duration` difiere por")
+    w("microsegundos: es el mismo flujo visto desde dos taps.")
+    w("")
+    w("De modo que la union de los tres puntos **no triplica la evidencia**:")
+    w("re-observa. Tratarla como muestras independientes deja cualquier")
+    w("intervalo demasiado angosto.")
     w("")
 
     w("## P3.d Cuantas agregaciones candidatas hay, y cuantas coinciden")

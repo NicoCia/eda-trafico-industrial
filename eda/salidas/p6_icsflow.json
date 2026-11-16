@@ -95,6 +95,94 @@
   }
  },
  "manipulacion": {
+  "repertorio_por_origen": {
+   "192.168.0.11:6": {
+    "hmi": {
+     "n": 148,
+     "min": 1.0026,
+     "max": 4.4992
+    },
+    "atacante": {
+     "n": 18,
+     "min": 1.9456,
+     "max": 4.6667
+    }
+   },
+   "192.168.0.11:8": {
+    "hmi": {
+     "n": 111,
+     "min": 5.5258,
+     "max": 8.9944
+    },
+    "atacante": {
+     "n": 5,
+     "min": 9.2716,
+     "max": 9.5714
+    }
+   },
+   "192.168.0.12:22": {
+    "hmi": {
+     "n": 149,
+     "min": 1.0037,
+     "max": 1.8869
+    },
+    "atacante": {
+     "n": 17,
+     "min": 1.1696,
+     "max": 1.8612
+    }
+   }
+  },
+  "rangos_contra_snapshot": {
+   "tank_level_min(3)": {
+    "escrito": [
+     1.0026,
+     4.6667
+    ],
+    "snapshot_ventana": [
+     1.0026,
+     4.6666
+    ],
+    "snapshot_entero": [
+     1.0026,
+     4.6666
+    ],
+    "filas_en_ventana": 24442,
+    "filas": 39302
+   },
+   "tank_level_max(4)": {
+    "escrito": [
+     5.5258,
+     9.5714
+    ],
+    "snapshot_ventana": [
+     5.5258,
+     9.5714
+    ],
+    "snapshot_entero": [
+     5.5258,
+     9.5714
+    ],
+    "filas_en_ventana": 24442,
+    "filas": 39302
+   },
+   "bottle_level_max(11)": {
+    "escrito": [
+     1.0037,
+     1.8869
+    ],
+    "snapshot_ventana": [
+     1.0037,
+     1.8869
+    ],
+    "snapshot_entero": [
+     1.0025,
+     1.8959
+    ],
+    "filas_en_ventana": 24727,
+    "filas": 40633
+   }
+  },
   "factor": 1.1,
   "alteradas_en_entrenamiento": 15,
   "parejas_relay_con_valor_distinto": 15

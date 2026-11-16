@@ -242,6 +242,47 @@ def main():
             "min": float(v.min() / ESCALA), "max": float(v.max() / ESCALA),
         }
     w("")
+    w("### El mismo repertorio, separando quien escribe")
+    w("")
+    w("La tabla de arriba mezcla las escrituras del HMI con las del")
+    w("atacante, y eso importa para quien la use como referencia de lo")
+    w("normal: dos de los tres maximos **son** valores manipulados. Quien")
+    w("arme desde ahi una regla de pertenencia --- «aparecio un valor que en")
+    w("el normal no existia» --- mete las consignas del ataque dentro del")
+    w("conjunto de referencia y la caracteristica queda ciega justo para la")
+    w("familia que se quiere detectar.")
+    w("")
+    macs_atk = sorted(set(eventos[eventos["attack"] == "mitm"]["attackerMAC"]))
+    if macs_atk:
+        w("%-16s %6s %-26s %22s %22s"
+          % ("destino", "dir.", "variable", "HMI (n, min, max)",
+             "atacante (n, min, max)"))
+        por_origen = {}
+        for (dst, direccion), g in esc.groupby(["dst", "direccion"]):
+            idx, nombre = variable_de(direccion)
+            v = g.dropna(subset=["valor32"])
+            if v.empty:
+                continue
+            atk = v[v["src_mac"].isin(macs_atk)]
+            hmi = v[~v["src_mac"].isin(macs_atk)]
+            def _r(x):
+                if x.empty:
+                    return "-"
+                return "%3d, %.4f, %.4f" % (len(x), x["valor32"].min() / ESCALA,
+                                            x["valor32"].max() / ESCALA)
+            w("%-16s %6d %-26s %22s %22s"
+              % (dst, direccion, nombre or "?", _r(hmi), _r(atk)))
+            por_origen["%s:%d" % (dst, direccion)] = {
+                "hmi": {"n": int(len(hmi)),
+                        "min": float(hmi["valor32"].min() / ESCALA) if len(hmi) else None,
+                        "max": float(hmi["valor32"].max() / ESCALA) if len(hmi) else None},
+                "atacante": {"n": int(len(atk)),
+                             "min": float(atk["valor32"].min() / ESCALA) if len(atk) else None,
+                             "max": float(atk["valor32"].max() / ESCALA) if len(atk) else None}}
+        MANIPULACION["repertorio_por_origen"] = por_origen
+    else:
+        w("(no se identificaron las MAC del atacante)")
+    w("")
     w("Las escrituras usan funcion 16 con cantidad 2: ICSSIM reparte cada")
     w("variable en dos registros de 16 bits, el mas significativo primero, y")
     w("el valor fisico es el entero de 32 bits dividido por %d." % int(ESCALA))
@@ -264,12 +305,27 @@ def main():
     w("Contraste con los registros de proceso, que es lo que confirma la")
     w("interpretacion de la escala y del mapa de registros:")
     w("")
-    w("%-30s %-22s %-22s" % ("variable", "rango escrito (entren.)",
-                             "rango en el snapshot"))
+    # El snapshot se restringe a la MISMA ventana que las escrituras. Una
+    # version anterior comparaba el rango escrito del tramo de entrenamiento
+    # contra el rango del snapshot sobre la captura ENTERA, y de ahi salia
+    # una falsa discrepancia en un extremo --- y ademas era una lectura
+    # distribucional fuera del tramo, que la seccion 2 no declaraba.
+    w("%-24s %-20s %-20s %-20s"
+      % ("variable", "escrito (entren.)", "snapshot (ventana)",
+         "snapshot (entero)"))
+    rangos = {}
     for plc, archivo in (("PLC1", "snapshots_PLC1.csv"),
                          ("PLC2", "snapshots_PLC2.csv")):
-        s = pd.read_csv(os.path.join(ICSFLOW, archivo))
+        ruta = os.path.join(ICSFLOW, archivo)
+        if not os.path.exists(ruta):
+            continue
+        s = pd.read_csv(ruta)
         s.columns = [c.strip() for c in s.columns]
+        ep = pd.to_datetime(s["time"], errors="coerce").astype("int64") / 1e9
+        # El reloj del snapshot va corrido respecto del epoch del PCAP: se
+        # alinea su primera fila con el inicio de la captura.
+        des = t0 - float(ep.min())
+        en_ventana = (ep + des) < corte60
         for col in s.columns:
             if "(" not in col:
                 continue
@@ -277,14 +333,27 @@ def main():
             sel = esc[esc["direccion"] == 2 * idx]["valor32"].dropna()
             if sel.empty:
                 continue
-            v = pd.to_numeric(s[col], errors="coerce").dropna()
-            w("%-30s %-22s %-22s"
-              % (col, "%.4f - %.4f" % (sel.min() / ESCALA, sel.max() / ESCALA),
+            v = pd.to_numeric(s[col], errors="coerce")
+            vw = v[en_ventana].dropna()
+            v = v.dropna()
+            w("%-24s %-20s %-20s %-20s"
+              % (col,
+                 "%.4f - %.4f" % (sel.min() / ESCALA, sel.max() / ESCALA),
+                 "%.4f - %.4f" % (vw.min(), vw.max()) if len(vw) else "-",
                  "%.4f - %.4f" % (v.min(), v.max())))
+            rangos[col] = {
+                "escrito": [float(sel.min() / ESCALA), float(sel.max() / ESCALA)],
+                "snapshot_ventana": [float(vw.min()), float(vw.max())] if len(vw) else None,
+                "snapshot_entero": [float(v.min()), float(v.max())],
+                "filas_en_ventana": int(en_ventana.sum()), "filas": int(len(s))}
+    MANIPULACION["rangos_contra_snapshot"] = rangos
     w("")
-    w("Los rangos se corresponden, de modo que la consigna escrita por la red")
-    w("es la que el PLC aplica: una manipulacion de ese valor tiene efecto")
-    w("observable sobre el proceso, y no se queda en la trama.")
+    w("Puestos los dos lados en la MISMA ventana los rangos se corresponden")
+    w("en los dos extremos de las tres variables, de modo que la consigna")
+    w("escrita por la red es la que el PLC aplica: una manipulacion de ese")
+    w("valor tiene efecto observable sobre el proceso, y no se queda en la")
+    w("trama. Sobre la captura entera el extremo de `bottle_level_max` no")
+    w("coincide, pero eso es mezclar ventanas y no una propiedad del banco.")
     w("")
 
     # ---------------- 2. Intermediario ----------------

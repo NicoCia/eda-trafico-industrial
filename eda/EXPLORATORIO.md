@@ -79,7 +79,7 @@ La detección tiene que ser multivariada; no hay un indicador único que sirva
 de alarma.
 
 **2. Y los dos conjuntos no son igual de difíciles.** La mejor combinación
-lineal de todas las características separa con AUC **0,585 en Westermo** y
+lineal de todas las características separa con AUC **0,584 en Westermo** y
 **0,993 en ICS-Flow**, las dos medidas sobre los mismos datos con que se
 ajustaron, o sea cotas superiores. La diferencia es demasiado grande para ser
 optimismo del ajuste: a nivel de características de flujo, Westermo es un
@@ -135,7 +135,7 @@ publican.
 
 - 21.080 flujos en el tramo de entrenamiento, 64 columnas
 - 13 identificadores, 47 características, 4 etiquetas
-- Sin filas duplicadas exactas; 2705 flujos (12,8 %) repiten los valores de
+- Sin filas duplicadas exactas; 2663 flujos (12,6 %) repiten los valores de
   las 47 características, lo que es esperable en tráfico periódico
 - Protocolos: `IPV4-TCP` 17.750, `ARP` 1804, `IPV4-2` 1009, `LLDP` 324,
   `IPV4-UDP` 193
@@ -143,11 +143,12 @@ publican.
 **Y debajo de ese `IPV4-TCP` hay Modbus**, que ni la ficha del conjunto ni
 una versión anterior de este documento mencionaban. Medido sobre los PCAP en
 `eda/salidas/p12_westermo_modbus.txt`: el **65,6 %** de los paquetes del punto
-inferior —993.634— son Modbus/TCP sobre el puerto 5502, y el **100,00 %** de
-sus 12.420.460 octetos de carga cae dentro de una ADU bien formada, sin un
-solo octeto salteado al resincronizar. El emparejamiento de petición y
-respuesta cierra en 248.392 pares sin ninguna petición sin contestar, con
-latencia mediana de 0,53 ms.
+inferior —993.634 observaciones, que con el 50,0 % de copias del punto de
+captura son unos **496.800 mensajes distintos**— son Modbus/TCP sobre el
+puerto 5502, y el **100,00 %** de sus 12.420.460 octetos de carga cae dentro
+de una ADU bien formada, sin un solo octeto salteado al resincronizar. El
+emparejamiento de petición y respuesta cierra en 248.392 pares sin ninguna
+petición sin contestar, con latencia mediana de 0,53 ms.
 
 El diálogo es de **solo lectura**: 100 % función 3, y ni una petición de
 escritura en todo el archivo. Los registros leídos se decodifican con el mapa
@@ -225,7 +226,7 @@ De las 47 características, **5 son constantes** —`sttl`, `sUrgRate`,
 `rUrgRate`, `sFragmentRate`, `rFragmentRate`— y 6 más toman un mismo valor en
 al menos el 99 % de las filas. Ninguna aporta a un modelo.
 
-De las 42 no constantes, hay 83 pares con correlación de Spearman por encima
+De las 42 no constantes, hay 86 pares con correlación de Spearman por encima
 de 0,8. Agrupados por transitividad —si A va con B y B con C, las tres son el
 mismo eje— quedan seis grupos:
 
@@ -251,23 +252,38 @@ izquierda, son las veinte columnas de volumen.*
 
 ### Cómo se distribuyen
 
-Sobre las 42 no constantes: 4 simétricas, 5 de asimetría moderada y **33 de
+Sobre las 42 no constantes: 2 simétricas, 6 de asimetría moderada y **34 de
 asimetría alta**. Las más extremas son las de volumen y carga:
 
 | Campo | Asimetría | Curtosis | Fuera del rango intercuartílico |
 |---|---:|---:|---:|
-| `sLoad` | 9,51 | 135,9 | 23,1 % |
-| `rInterPacketAvg` | 1,14 | 12,6 | 20,0 % |
-| `rLoad` | 85,38 | 8805,5 | 16,4 % |
+| `sLoad` | 5,84 | 42,3 | 23,0 % |
+| `rInterPacketAvg` | 0,50 | 3,4 | 16,4 % |
+| `rLoad` | 66,71 | 5732,3 | 17,0 % |
 | `sBytesAvg` | 8,37 | 77,7 | 8,4 % |
 
 Con esas formas, la media no representa el centro: corresponde mediana, y
 escala logarítmica si se escala.
 
-**Sobre los valores extremos.** El 23,1 % de `sLoad` cae fuera del rango
-intercuartílico, pero en tráfico de red un valor extremo rara vez es un error
-de carga: es la ráfaga, el escaneo o el evento. Son el fenómeno a detectar. No
-se eliminan, y conviene no tratarlos con un criterio automático.
+**Sobre los valores extremos.** El 23,0 % de `sLoad` cae fuera del rango
+intercuartílico, y en tráfico de red un valor extremo rara vez es un error de
+carga: suele ser la ráfaga, el escaneo o el evento. Son el fenómeno a
+detectar y no se eliminan.
+
+**Con una excepción medida, que hay que conocer antes de aplicar esa regla.**
+`sLoad` y `rLoad` son un cociente por `duration`, y para **2976 flujos
+de `bottom` —el 8,4 %, y hasta el 63 % en `right`—** el contenido real es un
+solo paquete: su `duration` publicada es la separación entre las dos copias
+que deja el equipo que graba, del orden de **5 µs**. En esas filas `sLoad`
+tiene una mediana de 9,6·10⁷ bit/s contra 1,75·10⁴ en el resto, y componen el
+**62,7 %** del decil superior.
+
+Ahí el extremo no es la ráfaga: es la grabadora. No es algo que introduzca la
+corrección de §1.7 de `INFORME.md` —el conjunto publicado ya trae 1393 flujos
+de un solo paquete con `sLoad` del orden de 10⁸—, pero recién se puede
+identificar cuáles son una vez que se sabe cuántos paquetes reales tiene cada
+fila. El recuento está en `eda/salidas/p22_westermo_duplicados.txt`,
+sección 22.4.
 
 ### Poder discriminante
 
@@ -349,7 +365,7 @@ etiqueta vale sobre 2618 observaciones, no sobre 21.080.
 
 ### ¿Conviene reducir la dimensión?
 
-PCA sobre las 41 características no constantes, estandarizadas, con las 17.586
+PCA sobre las 41 características no constantes, estandarizadas, con las 17.582
 filas completas (83 % del tramo; no se imputa, porque los faltantes son
 estructurales).
 
@@ -366,7 +382,7 @@ diez dimensiones y no de cuarenta y siete.
 conjuntos llegan al 90 % con nueve y diez componentes.*
 
 El LDA, que busca la mejor dirección lineal para separar las clases, alcanza
-**AUC 0,585** sobre los mismos datos con los que se ajustó. Es una cota
+**AUC 0,584** sobre los mismos datos con los que se ajustó. Es una cota
 superior y aun así apenas supera el azar, lo que confirma el resultado del
 poder discriminante: en Westermo la señal no está en una combinación lineal de
 las características de flujo.
@@ -565,7 +581,7 @@ PCA sobre las 42 características no constantes, con las 23.828 filas completas
 
 El LDA alcanza **AUC 0,993** sobre los datos de ajuste. Es una cota superior,
 y además optimista por partida doble, porque el tamaño de muestra efectivo es
-la mitad del nominal. Pero la distancia con el 0,585 de Westermo es demasiado
+la mitad del nominal. Pero la distancia con el 0,584 de Westermo es demasiado
 grande para atribuirla al optimismo: **a nivel de características de flujo,
 ICS-Flow es un problema mucho más fácil que Westermo.**
 
@@ -1012,7 +1028,7 @@ sino lo que la descripción deja fijado.
    anomalías.
 11. **No esperar que una sola variable alcance.** Ninguna característica llega
    a 0,70 de AUC en ninguno de los dos conjuntos, y en Westermo la mejor
-   combinación lineal queda en 0,585. Cualquier línea base que dependa de un
+   combinación lineal queda en 0,584. Cualquier línea base que dependa de un
    umbral sobre una variable va a fallar.
 12. **Sobre reducir la dimensión.** Nueve y diez componentes bastan para el
    90 % de la varianza, de modo que el PCA comprime bien. Pero comprime sin

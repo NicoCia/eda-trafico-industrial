@@ -209,6 +209,38 @@
    "inflacion_paquetes": 1.1319523918516823,
    "copias": 3459,
    "paquetes_leidos": 35124
+  },
+  "filas_con_un_solo_paquete_real": {
+   "reduced/bottom": {
+    "filas": 35404,
+    "un_solo_paquete_real": 2976,
+    "fraccion": 0.08405829849734493
+   },
+   "reduced/left": {
+    "filas": 8533,
+    "un_solo_paquete_real": 3032,
+    "fraccion": 0.3553263799367163
+   },
+   "reduced/right": {
+    "filas": 4720,
+    "un_solo_paquete_real": 2973,
+    "fraccion": 0.6298728813559322
+   },
+   "extended/bottom": {
+    "filas": 55425,
+    "un_solo_paquete_real": 3023,
+    "fraccion": 0.054542174109156516
+   },
+   "extended/left": {
+    "filas": 8555,
+    "un_solo_paquete_real": 3054,
+    "fraccion": 0.35698421975452954
+   },
+   "extended/right": {
+    "filas": 4749,
+    "un_solo_paquete_real": 2995,
+    "fraccion": 0.6306590861233944
+   }
   }
  },
  "fallos": 0,

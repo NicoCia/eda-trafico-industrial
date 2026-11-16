@@ -1827,15 +1827,36 @@
    "sd_limpia": 88.97795601489484,
    "sd_evento": 208.87139338597805
   },
+  "pd_dos_colas_por_caracteristica": {
+   "recuento_paquetes": 0.18933731938216244,
+   "pares_distintos": 0.07324364723467862,
+   "tamanos_distintos": 0.08769307424015944
+  },
   "pares_recuento_auc": 0.5497729330491135,
   "tamanos_recuento_auc": 0.5656111796312271,
-  "pares_novedad": {
-   "pfa": 0.0,
-   "pd": 0.13004484304932734
+  "novedad_fuera_de_muestra": {
+   "par nunca visto": {
+    "pfa": 0.003968253968253968,
+    "pd": 0.13203786746387644,
+    "k": 2,
+    "n": 504,
+    "ic95": [
+     0.001088913759171098,
+     0.014351847692057216
+    ]
+   },
+   "tamano nunca visto": {
+    "pfa": 0.0,
+    "pd": 0.11758844045839562,
+    "k": 0,
+    "n": 504,
+    "ic95": [
+     0.0,
+     0.007564287542838141
+    ]
+   }
   },
-  "tamanos_novedad": {
-   "pfa": 0.0,
-   "pd": 0.11758844045839562
-  }
+  "ventanas_referencia": 754,
+  "ventanas_retenidas": 504
  }
 }

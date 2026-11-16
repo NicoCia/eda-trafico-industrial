@@ -397,6 +397,43 @@ def main():
     w("corregirlos: el minimo y el maximo de un conjunto no cambian al")
     w("quitarle copias exactas.")
     w("")
+    w("## 22.4 `duration` no se corrige, y para algunas filas es un artefacto")
+    w("")
+    w("`duration` es del conjunto y no se toca: es el intervalo entre el")
+    w("primero y el ultimo paquete de la fila, copias incluidas. Para una")
+    w("fila cuyo contenido real es UN SOLO paquete, eso no es una duracion")
+    w("sino la separacion entre sus dos copias, del orden del microsegundo,")
+    w("y cualquier tasa dividida por ella sale disparada.")
+    w("")
+    w("No es algo que introduzca esta correccion: ya esta en el conjunto")
+    w("publicado, donde los flujos de un solo paquete traen `duration` de")
+    w("1 us y `sLoad` del orden de 10^8 bit/s. Lo que la correccion hace es")
+    w("volverlo visible, porque ahora se sabe cuantas filas tienen un solo")
+    w("paquete de verdad.")
+    w("")
+    w("%-18s %9s %9s %12s %14s"
+      % ("captura", "filas", "1 paq.", "% del total", "mediana dur."))
+    art_tot = {}
+    for clave, r in res.items():
+        csv = r["csv"]
+        tot = r["crudo"]["sPackets"] + r["crudo"]["rPackets"]
+        uni = r["unico"]["sPackets"] + r["unico"]["rPackets"]
+        art = (uni == 1) & (tot > 1)
+        dur = csv["duration"].to_numpy(dtype=float)[art]
+        w("%-18s %9d %9d %11.1f %% %13.6f s"
+          % (clave, len(csv), int(art.sum()), 100.0 * art.mean(),
+             float(np.median(dur)) if art.sum() else float("nan")))
+        art_tot[clave] = {"filas": int(len(csv)),
+                          "un_solo_paquete_real": int(art.sum()),
+                          "fraccion": float(art.mean())}
+    w("")
+    w("**Para esas filas `sLoad`, `rLoad` y los intervalos entre paquetes no")
+    w("son usables**, y el valor extremo que traen es del instrumento y no")
+    w("del trafico. Es la excepcion a la regla de no descartar extremos que")
+    w("`EXPLORATORIO.md` enuncia: ahi el extremo no es la rafaga ni el")
+    w("escaneo, es la grabadora.")
+    salida["filas_con_un_solo_paquete_real"] = art_tot
+    w("")
 
     comun.escribir("p22_westermo_duplicados.txt", "\n".join(L))
     import json

@@ -120,10 +120,10 @@ que es 1,36*raiz(2/n) con n el tamano de cada mitad.
 
 version        archivo             cols    JS med   JS p90    KS med   KS p90   KS azar  umbral95
 hai-20.07      train1.csv            50    0.1062   0.5437    0.0967   0.4186    0.0023   0.00489
-hai-21.03      train1.csv            57    0.0988   0.5943    0.1041   0.3071    0.0031   0.00585
-hai-22.04      train1.csv            60    0.2349   0.7592    0.1838   0.4711    0.0044   0.00889
-hai-23.05      hai-train1.csv        66    0.1461   0.7704    0.0983   0.4200    0.0026   0.00513
-haiend-23.05   end-train1.csv        67    0.1047   0.5732    0.0542   0.4077    0.0024   0.00513
+hai-21.03      train1.csv            57    0.0988   0.5943    0.1041   0.3071    0.0035   0.00585
+hai-22.04      train1.csv            60    0.2349   0.7592    0.1838   0.4711    0.0046   0.00889
+hai-23.05      hai-train1.csv        66    0.1461   0.7704    0.0983   0.4200    0.0027   0.00513
+haiend-23.05   end-train1.csv        67    0.1047   0.5732    0.0542   0.4077    0.0028   0.00513
 
 La columna «KS azar» NO es la vara correcta, y conviene decir por que
 antes de usarla: barajar fila por fila destruye la dependencia serial
@@ -133,24 +133,17 @@ no se parecen a eso. El nulo que corresponde corta en bloques de ese
 largo, permuta los bloques y parte en dos mitades contiguas:
 
 version          en orden    al azar  x bloques   vs al azar   vs bloques
-hai-20.07          0.0967     0.0023     0.0360     43 veces    2.7 veces
-hai-21.03          0.1041     0.0031     0.0617     34 veces    1.7 veces
-hai-22.04          0.1838     0.0044     0.0742     42 veces    2.5 veces
-hai-23.05          0.0983     0.0026     0.0435     38 veces    2.3 veces
-haiend-23.05       0.0542     0.0024     0.0578     23 veces    0.9 veces
+hai-20.07          0.0967     0.0023     0.0380     43 veces    2.5 veces
+hai-21.03          0.1041     0.0035     0.0588     30 veces    1.8 veces
+hai-22.04          0.1838     0.0046     0.0768     40 veces    2.4 veces
+hai-23.05          0.0983     0.0027     0.0441     37 veces    2.2 veces
+haiend-23.05       0.0542     0.0028     0.0436     19 veces    1.2 veces
 
 **El margen cae de decenas a unidades, y una version se cae del todo.**
 Contra el barajado fila por fila el cociente daba de 23 a 43. Contra
 el nulo correcto queda entre 0,9 y 2,7.
 
-   supera a las 8 permutaciones de bloques: hai-20.07, hai-21.03, hai-22.04, hai-23.05
-   NO llega ni a la mediana del nulo: haiend-23.05
-
-   En esas versiones la mitad contra mitad en orden **no se
-   distingue** del nulo que conserva la estructura local, de modo
-   que ahi no hay deriva intra-campana demostrada: lo que se
-   midio es compatible con el tamano finito mas la
-   autocorrelacion de la serie.
+   supera a las 60 permutaciones de bloques (p <= 0.016): hai-20.07, hai-21.03, hai-22.04, hai-23.05
 
 De modo que el cociente de P5.b contra P5.a **no es una razon**
 senal-ruido. Compara deriva entre campanas contra deriva dentro de una

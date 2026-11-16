@@ -36,6 +36,11 @@ import comun  # noqa: E402
 # periodicas identicas (1 a 10 s). Medido en 22_westermo_duplicados.py.
 DEDUP_US = 1000.0
 
+# Fraccion de las ventanas limpias que arma el conjunto de referencia de las
+# caracteristicas de novedad. El resto se retiene para medir la PFA, que de
+# otro modo da cero por construccion.
+FRAC_REFERENCIA = 0.6
+
 VENTANA = 1.0          # segundos por ventana para la tasa
 VENTANA_PARES = 10.0   # segundos para la estabilidad del conjunto de pares
 LAG_MAX = 180          # retardo maximo de la autocorrelacion, en ventanas
@@ -48,6 +53,16 @@ RECUENTOS_BARRIDO = (5, 50, 273)
 
 LINEA_EV = re.compile(
     r"^\[(\d+\.\d+) -- ([\d\- :]+) -- (-?[\d.]+)\] \[([A-Z0-9\-]+)\](.*)$")
+
+
+def _wilson(k, n, z=1.959963984540054):
+    """Intervalo de Wilson al 95 %, para no citar una PFA de cero a secas."""
+    if not n:
+        return float("nan"), float("nan")
+    den = n + z * z
+    centro = (k + z * z / 2.0) / den
+    semi = (z / den) * ((k * (n - k) / float(n) + z * z / 4.0) ** 0.5)
+    return max(0.0, centro - semi), min(1.0, centro + semi)
 
 
 def entropia(contador):
@@ -716,6 +731,8 @@ def main():
         tam_v.setdefault(i, set()).add(sz)
     centros = (np.arange(nb) + 0.5) * vent
     y = np.array([en_intervalo(c, iv_tr) for c in centros])
+    # El recuento de ESTA ventana: `cuenta` quedo con el del ultimo barrido.
+    cuenta_v, _ = np.histogram(off_u, bins=np.arange(nb + 1) * vent)
 
     def _auc(v):
         r = pd.Series(v).rank().to_numpy()
@@ -723,40 +740,85 @@ def main():
         a = (r[y].sum() - n1 * (n1 + 1) / 2) / (n1 * n0)
         return float(max(a, 1 - a))
 
-    a_par = _auc(np.array([len(pares_v.get(i, ())) for i in range(nb)]))
-    a_tam = _auc(np.array([len(tam_v.get(i, ())) for i in range(nb)]))
-    w("Como RECUENTO por ventana:")
-    w("   pares distintos    AUC %.3f" % a_par)
-    w("   tamanos distintos  AUC %.3f" % a_tam)
+    v_par = np.array([len(pares_v.get(i, ())) for i in range(nb)])
+    v_tam = np.array([len(tam_v.get(i, ())) for i in range(nb)])
+    a_par, a_tam = _auc(v_par), _auc(v_tam)
+
+    def _pd_dos_colas(v, pc=0.02):
+        lo, hi = np.quantile(v[~y], [pc / 2, 1 - pc / 2])
+        return float(((v[y] < lo) | (v[y] > hi)).mean())
+
+    # La PD de CADA UNA, con la misma regla. Una version anterior media la
+    # del recuento de paquetes y escribia «sobre cualquiera de los tres»,
+    # que generaliza el resultado de una a las tres.
+    w("Como RECUENTO por ventana, las tres con la misma regla de dos colas")
+    w("al 2 por ciento:")
     w("")
-    vistos_p = set().union(*[pares_v.get(i, set())
-                             for i in range(nb) if not y[i]]) or set()
-    vistos_t = set().union(*[tam_v.get(i, set())
-                             for i in range(nb) if not y[i]]) or set()
-    nv_p = np.array([bool(pares_v.get(i, set()) - vistos_p)
-                     for i in range(nb)])
-    nv_t = np.array([bool(tam_v.get(i, set()) - vistos_t)
-                     for i in range(nb)])
-    w("Como NOVEDAD, es decir pertenencia al conjunto visto en limpio:")
-    w("   %-28s PFA %.4f  PD %.3f"
-      % ("par nunca visto", nv_p[~y].mean(), nv_p[y].mean()))
-    w("   %-28s PFA %.4f  PD %.3f"
-      % ("tamano nunca visto", nv_t[~y].mean(), nv_t[y].mean()))
+    w("   %-22s %8s %10s" % ("", "AUC", "PD a 2 %"))
+    w("   %-22s %8.3f %10.3f" % ("recuento de paquetes", 0.547,
+                                 _pd_dos_colas(cuenta_v)))
+    w("   %-22s %8.3f %10.3f" % ("pares distintos", a_par,
+                                 _pd_dos_colas(v_par)))
+    w("   %-22s %8.3f %10.3f" % ("tamanos distintos", a_tam,
+                                 _pd_dos_colas(v_tam)))
+    sep["pd_dos_colas_por_caracteristica"] = {
+        "recuento_paquetes": _pd_dos_colas(cuenta_v),
+        "pares_distintos": _pd_dos_colas(v_par),
+        "tamanos_distintos": _pd_dos_colas(v_tam)}
     w("")
-    w("**Esa es la distincion que importa.** De recuento, las tres")
-    w("caracteristicas que la pregunta 2 recomienda dan entre 0,55 y 0,57 de")
-    w("AUC, que es casi nada. De pertenencia, el conjunto de pares y el")
-    w("repertorio de tamanos dan PD de 0,12 a 0,13 con CERO falsas alarmas")
-    w("sobre %d ventanas limpias. Son la misma variable leida de dos modos, y"
-      % int((~y).sum()))
-    w("solo uno de los dos sirve.")
+    # FUERA DE MUESTRA. Armar el conjunto de referencia con TODAS las
+    # ventanas limpias y medir la PFA sobre esas mismas ventanas da cero por
+    # construccion: los valores de una ventana limpia estan en el conjunto
+    # que ella misma ayudo a formar. Eso no es una medicion. Se parte: el
+    # conjunto se arma con las primeras limpias y la PFA se mide sobre las
+    # que quedan.
+    limpias = np.where(~y)[0]
+    corte = int(FRAC_REFERENCIA * len(limpias))
+    ref_idx, val_idx = limpias[:corte], limpias[corte:]
+    w("Como NOVEDAD, es decir pertenencia al conjunto visto en limpio. El")
+    w("conjunto de referencia se arma con las primeras %d ventanas limpias y"
+      % len(ref_idx))
+    w("la PFA se mide sobre las %d restantes, que no entraron en el:"
+      % len(val_idx))
+    w("")
+    w("   %-22s %10s %10s %22s" % ("", "PFA", "PD", "IC 95 % de la PFA"))
+    nov = {}
+    for nom, conj in (("par nunca visto", pares_v),
+                      ("tamano nunca visto", tam_v)):
+        vistos = set().union(*[conj.get(i, set()) for i in ref_idx]) or set()
+        nv = np.array([bool(conj.get(i, set()) - vistos) for i in range(nb)])
+        k, nn = int(nv[val_idx].sum()), len(val_idx)
+        pfa, pdd = k / nn if nn else float("nan"), float(nv[y].mean())
+        lo, hi = _wilson(k, nn)
+        w("   %-22s %10.4f %10.3f      [%.4f, %.4f]"
+          % (nom, pfa, pdd, lo, hi))
+        nov[nom] = {"pfa": pfa, "pd": pdd, "k": k, "n": nn,
+                    "ic95": [lo, hi]}
+    w("")
+    w("**Y al mismo punto de operacion el recuento da lo mismo.** Esta es la")
+    w("comparacion que falta hacer antes de preferir una forma sobre la")
+    w("otra: poner las dos al mismo PFA en lugar de comparar una a un PFA")
+    w("elegido contra otra a un PFA que es cero por construccion.")
+    w("")
+    for nom, v in nov.items():
+        if v["pfa"] <= 0:
+            w("   %-22s PFA fuera de muestra 0: no hay punto que igualar"
+              % nom)
+            continue
+        u = np.quantile(cuenta_v[~y], 1 - v["pfa"])
+        w("   al PFA de «%s» (%.4f): recuento PD %.3f contra novedad PD %.3f"
+          % (nom, v["pfa"], float((cuenta_v[y] > u).mean()), v["pd"]))
+    w("")
+    w("De modo que **no se sostiene** decir que una de las dos formas sirve")
+    w("y la otra no. Lo que se sostiene es que ninguna de las tres")
+    w("caracteristicas, de ninguna de las dos formas, pasa de una PD de")
+    w("0,13 a una PFA del orden del medio por ciento.")
     w("")
     sep["pares_recuento_auc"] = a_par
     sep["tamanos_recuento_auc"] = a_tam
-    sep["pares_novedad"] = {"pfa": float(nv_p[~y].mean()),
-                            "pd": float(nv_p[y].mean())}
-    sep["tamanos_novedad"] = {"pfa": float(nv_t[~y].mean()),
-                              "pd": float(nv_t[y].mean())}
+    sep["novedad_fuera_de_muestra"] = nov
+    sep["ventanas_referencia"] = len(ref_idx)
+    sep["ventanas_retenidas"] = len(val_idx)
     resultados["separabilidad_por_ventana"] = sep
 
     comun.escribir("p2_determinismo.txt", "\n".join(L))

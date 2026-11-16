@@ -53,22 +53,27 @@ union de los tres puntos no seria una poblacion sino trafico inflado,
 y el reparto no significaria nada. Se mide.
 
 Gemelo = mismo par de direcciones, protocolo, numero de paquetes y de
-bytes en los dos sentidos, y comienzo dentro de 1 s. Es un flujo
+bytes en los dos sentidos, y comienzo dentro de 0.05 s. Es un flujo
 observado en dos puntos a la vez.
 
    reduced:
-     bottom    21080 flujos; con gemelo en otro punto   160 (0.8 %); repetidos dentro del punto 0
-     left       4800 flujos; con gemelo en otro punto   158 (3.3 %); repetidos dentro del punto 0
-     right      2862 flujos; con gemelo en otro punto    10 (0.3 %); repetidos dentro del punto 0
+     bottom    21080 flujos; con gemelo en otro punto  2686 (12.7 %); control adentro 0 (0.0 %); filas repetidas 0
+     left       4800 flujos; con gemelo en otro punto  3044 (63.4 %); control adentro 0 (0.0 %); filas repetidas 0
+     right      2862 flujos; con gemelo en otro punto  2272 (79.4 %); control adentro 0 (0.0 %); filas repetidas 0
    extended:
-     bottom    33108 flujos; con gemelo en otro punto   160 (0.5 %); repetidos dentro del punto 0
-     left       4816 flujos; con gemelo en otro punto   159 (3.3 %); repetidos dentro del punto 0
-     right      2878 flujos; con gemelo en otro punto    11 (0.4 %); repetidos dentro del punto 0
+     bottom    33108 flujos; con gemelo en otro punto  2702 (8.2 %); control adentro 0 (0.0 %); filas repetidas 0
+     left       4816 flujos; con gemelo en otro punto  3060 (63.5 %); control adentro 0 (0.0 %); filas repetidas 0
+     right      2878 flujos; con gemelo en otro punto  2288 (79.5 %); control adentro 0 (0.0 %); filas repetidas 0
 
-La duplicacion que el README describe es de PAQUETES y no sobrevive al
-armado de flujos: dentro de cada punto no hay un solo flujo repetido, y
-entre puntos el solape es de pocos puntos porcentuales. De modo que la
-union es una poblacion de flujos, no trafico contado tres veces.
+**La union SI reobserva los mismos flujos.** Sobre `reduced`, 8002 de
+las 28742 observaciones del tramo de entrenamiento --- el 27.8 % --- tienen
+un gemelo en otro punto, con el control interno en cero. Los gemelos
+coinciden tambien en carga util, y su `duration` difiere por
+microsegundos: es el mismo flujo visto desde dos taps.
+
+De modo que la union de los tres puntos **no triplica la evidencia**:
+re-observa. Tratarla como muestras independientes deja cualquier
+intervalo demasiado angosto.
 
 ## P3.d Cuantas agregaciones candidatas hay, y cuantas coinciden
 

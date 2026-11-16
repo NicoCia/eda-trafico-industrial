@@ -66,9 +66,9 @@ sirve; lo que no sirve es confiar en los nombres de archivo.
 ### 1.2 QUT DNP3 no contiene comandos de control con parámetros
 
 Sobre las 2.318.092 cabeceras de objeto DNP3 extraídas de los 42 PCAP
-agregados del tramo de entrenamiento —que son el 51 % de ese tramo por
-volumen; el §3, pregunta 1, explica cuál es el resto—, **no aparece ni un
-solo objeto de control**:
+agregados del tramo de entrenamiento —el 53,4 % del árbol por volumen; el
+resto son capturas por episodio que, por lo que se pudo muestrear, repiten el
+mismo tráfico (§3, pregunta 1)—, **no aparece ni un solo objeto de control**:
 
 | Objeto | Qué es | Apariciones |
 |---|---|---:|
@@ -237,20 +237,32 @@ desvío máximo entre las tres proporciones. **Cierra una sola: la que el
 documento nombra, a 0,5 pp. La siguiente queda a 2,1 pp**, cuatro veces más
 lejos. No es una coincidencia entre muchas parecidas.
 
-**¿La unión cuenta el mismo tráfico tres veces?** El README del conjunto avisa
-que un paquete que entra y sale del equipo que graba aparece dos veces, lo que
-haría de la unión tráfico inflado y no una población. Medido sobre los flujos,
-a nivel de **filas** no: dentro de cada punto no hay un solo flujo repetido,
-y los flujos con gemelo en otro punto —mismo par de direcciones, protocolo,
-paquetes y bytes en los dos sentidos, y comienzo dentro de un segundo— son el
-0,8 % en `bottom`, el 3,3 % en `left` y el 0,3 % en `right`, medido sobre el
-tramo de entrenamiento.
+**¿La unión cuenta el mismo tráfico tres veces?** Sí, en buena medida, y dos
+versiones anteriores de este documento dijeron que no.
 
-**Pero eso no cierra la pregunta, y una versión anterior de este documento
-creyó que sí.** Que no haya filas repetidas no quiere decir que no haya
-duplicación: la hay, dentro de cada fila, y los contadores de volumen la
-cuentan. Está en §1.7. Lo que esta medición establece es solo que la unión de
-los tres puntos no apila la misma fila tres veces.
+Medido sobre el tramo de entrenamiento con los contadores corregidos de §1.7,
+los flujos con gemelo en otro punto —mismo par de direcciones, protocolo,
+paquetes, octetos y carga útil en los dos sentidos, y comienzo dentro de
+50 ms— son:
+
+| Punto | Flujos | Con gemelo en otro punto | Control: gemelo dentro del punto |
+|---|---:|---:|---:|
+| `bottom` | 21.080 | 2686 (**12,7 %**) | 0 |
+| `left` | 4800 | 3044 (**63,4 %**) | 0 |
+| `right` | 2862 | 2272 (**79,4 %**) | 0 |
+
+En total, **8002 de las 28.742 observaciones de la unión —el 27,8 %— son
+re-observaciones**. El control importa: buscar gemelos dentro de un mismo
+punto da cero, de modo que no son colisiones de clave. Y los gemelos
+coinciden también en carga útil, con `duration` que difiere por microsegundos
+—mediana 1 µs—, que es la firma de un mismo flujo visto desde dos taps.
+
+**Por qué las versiones anteriores daban 0,8 / 3,3 / 0,3 %.** La comparación
+usaba los contadores **publicados**, y el factor de inflación del doble conteo
+es distinto en cada punto: 1,95 en `bottom`, 1,84 en `left`, 1,13 en `right`
+(§1.7). El mismo flujo visto en dos taps traía números distintos, de modo que
+la igualdad fallaba por construcción. Era un artefacto del instrumento
+presentado como una propiedad de la red.
 
 Queda una salvedad que la unión no borra, y vale tenerla a la vista: los tres
 puntos ven repartos **muy** distintos —82,4 / 15,0 / 2,6 en `bottom` contra
@@ -307,7 +319,10 @@ versión anterior de esta sección decía que «la validación es lo que hace
 confiable al resto». Es un salto: la validación es necesaria y no suficiente.
 Lo que sostiene la ventana de 1 ms es la bimodalidad medida más arriba.
 
-**Qué cambia.** La tasa de Westermo pasa de 272,9 a **137,8** paquetes por
+**Qué cambia.** Lo que sigue es lo que la corrección mueve en los dos
+documentos; la lista de una versión anterior se quedaba en cuatro cifras y
+dejaba afuera la entropía y la ficha entera de `EXPLORATORIO.md`. La tasa de
+Westermo pasa de 272,9 a **137,8** paquetes por
 segundo, el índice de dispersión de 0,34 a **0,18**, el CV del intervalo
 entre paquetes de 4,49 a **3,18** y el intervalo mediano de 0,047 a **0,492
 ms**. En §5.3 el volumen se cae del tope de la tabla: `rBytesSum` baja de
@@ -336,13 +351,21 @@ nombrar ningún protocolo industrial, y la tabla de criterios le asignaba «no
 cumple» en semántica de control. Medido sobre los PCAP
 (`eda/salidas/p12_westermo_modbus.txt`), eso es falso:
 
-| | `reduced/bottom` |
-|---|---:|
-| Paquetes en el puerto 5502 | **993.634** (65,6 % del archivo) |
-| Octetos de carga dentro de una ADU válida | 12.420.460 de 12.420.460 (**100,0000 %**) |
-| Octetos salteados al resincronizar | **0** |
-| Peticiones emparejadas con su respuesta | 248.392, ninguna sin contestar |
-| Latencia de respuesta | mediana 0,53 ms, p95 0,78 |
+| | `reduced/bottom` | Unidad |
+|---|---:|---|
+| Paquetes capturados en el puerto 5502 | 993.634 (65,6 % del archivo) | con copias |
+| Mensajes Modbus distintos | **≈ 496.800** | únicos |
+| Octetos de carga dentro de una ADU válida | 12.420.460 de 12.420.460 (**100,0000 %**) | con copias |
+| Octetos salteados al resincronizar | **0** | — |
+| Peticiones emparejadas con su respuesta | 248.392, ninguna sin contestar | únicos |
+| Latencia de respuesta, solo entrenamiento | mediana 0,53 ms, p95 0,77 | únicos |
+
+**Las dos unidades van declaradas a propósito.** El punto de captura duplica
+el 50,0 % de los paquetes del puerto 5502 (§1.7), de modo que los 993.634 y
+los 12.420.460 octetos son observaciones y los 248.392 pares son mensajes.
+Como número de diálogos, lo que hay son unos 496.800. Una versión anterior
+de esta tabla ponía las dos clases de cifra juntas sin decirlo, que es el
+error que §1.7 define.
 
 El 100,0000 % no es una tolerancia: cada octeto de carga del puerto 5502 forma
 parte de una cabecera MBAP bien formada. El control de la medida corre el
@@ -409,6 +432,18 @@ de entrenamiento». No era cierto:
   archivo entero. Eso sí es distribucional. Ninguna de esas cifras llega a
   este documento ni a `EXPLORATORIO.md`.
 
+- `07_morris_fuga_presion.py` **no filtra la partición**: lee el ARFF entero,
+  y de ahí salen la distribución de presión por clase, el mejor umbral único
+  y los conteos de fuera de rango de §3. Los denominadores lo delatan —68.888
+  filas con presión y una clase mayoritaria de 0,6977 son las cifras del
+  archivo completo—. Restringido al tramo de entrenamiento son 41.085 filas,
+  mayoritaria 0,7051 y mejor umbral 0,8499 contra el 0,8497 publicado: la
+  conclusión no cambia, pero la cifra que el documento cita como cota
+  superior salió de un cálculo que abarca también el tramo de prueba.
+- `06_icsflow_escrituras.py` publica, al lado del rango del snapshot en la
+  ventana de entrenamiento, el mismo rango sobre la captura **entera**. Lo
+  segundo es una lectura distribucional fuera del tramo, y está para mostrar
+  que la discrepancia aparente venía de mezclar ventanas (§4.2).
 - `22_westermo_duplicados.py` lee los seis PCAP y los seis CSV **completos**
   y publica sumas de volumen sobre la captura entera. Tiene que hacerlo: la
   corrección del doble conteo reescribe la tabla de flujos entera, y una
@@ -443,17 +478,23 @@ Se leyeron **42 PCAP** (master, slave y attacker de los 14 escenarios de
 entrenamiento), 3,46 GB, con un lector DNP3 propio escrito sobre `dpkt`
 (`eda/scripts/dnp3.py`), sin `tshark`.
 
-**Y eso no es todo el tramo de entrenamiento, aunque este documento lo llamó
-así.** Bajo `*/training/` hay **1506 PCAP y 6,79 GB**: además de los 42
+**Y eso no es todo el árbol de `training/`, aunque este documento lo llamó
+así.** Bajo `*/training/` hay **1506 PCAP y 6,95 GB**: además de los 42
 agregados por rol, cada escenario guarda un subdirectorio con una captura por
-episodio de ataque, que son 1464 archivos y 3,02 GB. `Control` no tiene
-ninguno. Los 1464 **no se abrieron**, de modo que todo censo de esta sección
-—las tramas de enlace, las cabeceras de objeto, el reparto de funciones— está
-medido sobre los 42 agregados, que son el 51 % del tramo por volumen.
+episodio de ataque, que son 1464 archivos y 3,24 GB. `Control` no tiene
+ninguno. Los 42 agregados son el **53,4 %** del árbol por volumen; una
+versión anterior decía 51 %, que salía de dividir una cifra en GiB por otra
+en GB.
 
-Eso no cambia la conclusión de §1.2 pero sí su alcance declarado, y conviene
-decir cuál es: lo que está establecido es que no hay objetos de control en
-los 42 archivos agregados.
+**Pero el 46,6 % restante no es contenido sin revisar: es el mismo tráfico
+publicado otra vez.** Las capturas por episodio son subconjuntos de los
+agregados. Comprobado por muestreo: de un episodio de 16 paquetes, los 16
+están en `frequent/slave.pcap` con la misma marca de tiempo al microsegundo,
+y ninguno en `infrequent/slave.pcap`. No lo verifiqué para los 1464.
+
+De modo que el alcance declarado es: los censos de esta sección están medidos
+sobre los 42 agregados, que contienen —por lo que se pudo muestrear— el mismo
+tráfico que los archivos por episodio, repartido de otro modo.
 
 **Capa DNP3 y puerto.** Hay capa DNP3 reconocible en los siete escenarios,
 sobre **TCP 20000**. Se encontraron **2.372.794 tramas de enlace** y **0
@@ -546,7 +587,7 @@ argumentos con los que se justificó la elección de QUT son incorrectos (§1.1 
 §1.2) y hay que rehacerlos.
 
 **Un hallazgo lateral que conviene registrar.** El escenario `Control` dura
-**24,02 horas continuas** (86.486 s, sin ningún hueco mayor a 1 s), por
+**24,02 horas continuas** (86.486 s, con un hueco máximo de 1,004 s), por
 captura y por partición. La duración de QUT estaba sin medir, y con esto queda
 medida: alcanza para mirar deriva dentro de un día. Lo que no se midió es
 cuántos modos de operación distintos atraviesa ese día, que es la otra mitad
@@ -595,7 +636,7 @@ fuera—, así que la segunda columna equivale a quedarse solo con el TCP.
 | Índice de dispersión (var/media) | **0,18** | 3,79 | 3,00 | 2,73 |
 | CV del intervalo entre paquetes | 3,18 | 3,16 | 1,26 | 1,98 |
 | Nodos / pares distintos | 31 / 32 | 40 / 51 | 17 / 16 | 2 / 2 |
-| Entropía de la IP origen (bits / normalizada / distintas) | 1,73 / 0,38 / 24 | 1,85 / 0,37 / 32 | 1,78 / 0,54 / 10 | **0,96** / 0,96 / **2** |
+| Entropía de la IP origen (bits / normalizada / distintas) | 1,79 / 0,39 / 24 | 1,97 / 0,39 / 32 | 1,78 / 0,54 / 10 | **0,96** / 0,96 / **2** |
 | Jaccard del conjunto de pares (10 s) | 0,81 | 0,82 | 0,80 | **1,00** |
 | Tamaños de paquete distintos | 11 | 36 | 21 | 13 |
 
@@ -690,22 +731,41 @@ periodicidad de ventana larga como base de la línea base.
 sostiene, pero hay que apoyarla en las características correctas, y medir cuál
 discrimina en lugar de deducirlo de la dispersión.
 
-Como **recuento por ventana** no discrimina casi nada: volumen 0,547 de AUC,
-conjunto de pares 0,550 y repertorio de tamaños 0,566. Una línea base de
-umbral sobre cualquiera de los tres daría una PD de 0,19 con un 2 % de falsas
-alarmas, que es lo que este mismo documento llama «no distingue un detector
-que funciona de uno que no» cuando habla de otras cifras.
+Como **recuento por ventana** no discrimina casi nada, y con la misma regla
+de dos colas al 2 % de falsas alarmas:
+
+| Característica | AUC | PD a 2 % |
+|---|---:|---:|
+| recuento de paquetes | 0,547 | 0,189 |
+| pares distintos | 0,550 | **0,073** |
+| tamaños distintos | 0,566 | **0,088** |
+
+Una versión anterior escribía «una línea base de umbral sobre cualquiera de
+los tres daría una PD de 0,19», que es la cifra de una sola de las tres y
+sobreestima las otras dos por un factor de 2,2 a 2,6. Ninguna de las tres
+llega a lo que este mismo documento llama «distinguir un detector que
+funciona de uno que no».
 
 Como **pertenencia a un conjunto** —no cuántos pares hay en la ventana sino si
-alguno no se había visto nunca en tráfico limpio— las dos que se pueden
-escribir así dan **PD de 0,12 a 0,13 con cero falsas alarmas sobre 1258
-ventanas limpias**. Es la misma variable leída de otro modo, y solo uno de los
-dos modos sirve. El vocabulario de funciones de QUT es del mismo tipo.
+alguno no se había visto nunca en tráfico limpio— dan PD de 0,118 y 0,132 con
+una PFA de 0 y 2 sobre 504 ventanas limpias **retenidas**, que no entraron en
+el conjunto de referencia.
 
-De modo que la recomendación es: **características de novedad sobre conjuntos
-—pares que conversan, tamaños de paquete, códigos de función—, no recuentos
-agregados**, y modelar por conversación y por protocolo. El intervalo entre
-paquetes agregado sigue descartado.
+**Y al mismo punto de operación las dos formas dan lo mismo.** Al PFA de 0,4 %
+que deja la novedad de pares, el recuento da PD 0,128 contra 0,132. Una
+versión anterior de esta sección decía que «solo uno de los dos modos sirve»,
+y comparaba el recuento a un PFA elegido del 2 % contra una novedad cuya PFA
+era **cero por construcción**: el conjunto de referencia se armaba con todas
+las ventanas limpias y la PFA se medía sobre esas mismas ventanas, de modo que
+no podía dar otra cosa. Medida fuera de muestra no es cero, y el intervalo al
+95 % de la de pares es [0,0011, 0,0144].
+
+De modo que lo que se sostiene es más modesto: **ninguna de las tres
+características, de ninguna de las dos formas, pasa de una PD de 0,13 a una
+PFA del orden del medio por ciento.** La forma de pertenencia es todavía la
+más razonable de escribir —no necesita umbral ni supone una distribución, y
+es la única posible para las características constantes en el normal (§5.5)—
+pero eso es un argumento de diseño, no una ventaja medida.
 
 ### Pregunta 3 — ¿Lo que afirma la documentación está en los datos?
 
@@ -792,9 +852,19 @@ filas, sobre el que serían 0,37 %. No era una cifra inventada sino un error de
 denominador, que es distinto y vale la pena distinguir.
 
 Se probaron otros criterios de «fuera de rango» por si la cifra venía de otra
-definición: fuera del rango observado de la clase normal son 12.155 ataques,
-el 20,2 % de los ataques; por encima de 100, son 1270. El único criterio que
-da 1,7 % es el de 10⁶, y sobre los ataques.
+definición: fuera del rango observado de la clase normal son 12.155 ataques y
+por encima de 100 son 1270. El único criterio que da 1,7 % es el de 10⁶, y
+sobre los 60.048 ataques.
+
+**Pero ese denominador solo sirve para identificar la cifra publicada, no para
+describir el conjunto.** Doce líneas más arriba este documento dice que la
+presión existe en una cuarta parte de las filas; de los 60.048 ataques, solo
+**20.828** traen valor de presión. Sobre los que la traen, los 1020 absurdos
+son el **4,9 %** y los 12.155 fuera del rango normal son el **58,4 %**, no el
+20,2 %. La segunda cifra cambia la lectura: entre los ataques donde la presión
+se puede mirar, más de la mitad cae fuera del rango normal. Es el mismo error
+de denominador que este párrafo documenta como lección, cometido en la frase
+siguiente.
 
 El tratamiento completo, con el conjunto original como control positivo, está
 en `eda/scripts/07_morris_fuga_presion.py`.
@@ -973,8 +1043,13 @@ Qué hacer, en orden de preferencia:
    de captura y **una** variante, y la unión de los tres puntos de la variante
    reducida son 48.657 flujos con el 24,5 % anómalo. El costo, en los dos
    casos, es que los flujos de un mismo evento no son independientes.
-2. **Usar los tres puntos de captura a la vez.** Triplica la evidencia por
-   evento y resuelve el problema de visibilidad.
+2. **Usar los tres puntos de captura a la vez**, para resolver el problema de
+   visibilidad: hay eventos que un punto no ve. Pero **no triplica la
+   evidencia**: el 79,4 % de los flujos de `right` y el 63,4 % de los de
+   `left` son re-observaciones de flujos que ya están en otro punto (§1.6).
+   La unión sirve para *ver* más eventos, no para tener más muestras
+   independientes, y cualquier intervalo calculado sobre ella como si lo
+   fueran sale demasiado angosto.
 3. **Comprometer el punto de operación por familia solo sobre Morris**, y
    reportar Westermo de forma agregada con intervalo de confianza explícito.
 
@@ -1155,10 +1230,12 @@ Westermo, acá sí hay un tramo normal limpio y largo, lo que lo vuelve mucho
 más cómodo para ajustar un modelo no supervisado.
 
 El PCAP se leyó entero una vez, pero **el detalle solo se extrajo del 60 %
-inicial**. Lo único que se midió fuera de ese tramo son cantidades: cuántas
-ADU Modbus y cuántas escrituras hay por partición, y cuántas caen dentro de
-una ventana de intermediario. Es la excepción de dimensionamiento del brief, y
-es la cifra que decide el alcance.
+inicial**. Fuera de ese tramo se midieron cantidades —cuántas ADU Modbus y
+cuántas escrituras hay por partición, y cuántas caen dentro de una ventana de
+intermediario, que es la excepción de dimensionamiento del brief—, y una cosa
+más que conviene declarar: el rango de las tres variables de proceso en el
+registro del PLC sobre la captura entera, que §4.2 muestra al lado del de la
+ventana para explicar por qué los dos no coinciden.
 
 ### 4.2 Las escrituras son consignas, no bits
 
@@ -1170,11 +1247,20 @@ recuperable. Las dos cifras no estaban en la misma unidad en una versión
 anterior de esta frase, que ponía «1.190.823 lecturas» al lado de «448
 peticiones».
 
-| Destino | Dir. | Variable | Escrituras | Valores distintos | Rango |
-|---|---:|---|---:|---:|---|
-| 192.168.0.11 (PLC1) | 6 | `tank_level_min` | 166 | 145 | 1,0026 – 4,6667 |
-| 192.168.0.11 (PLC1) | 8 | `tank_level_max` | 116 | 110 | 5,5258 – 9,5714 |
-| 192.168.0.12 (PLC2) | 22 | `bottle_level_max` | 166 | 147 | 1,0037 – 1,8869 |
+| Destino | Dir. | Variable | Escrituras | Valores distintos | Rango del HMI | Rango del atacante |
+|---|---:|---|---:|---:|---|---|
+| 192.168.0.11 (PLC1) | 6 | `tank_level_min` | 166 | 145 | 1,0026 – 4,4992 | 1,9456 – **4,6667** |
+| 192.168.0.11 (PLC1) | 8 | `tank_level_max` | 116 | 110 | 5,5258 – 8,9944 | 9,2716 – **9,5714** |
+| 192.168.0.12 (PLC2) | 22 | `bottle_level_max` | 166 | 147 | 1,0037 – 1,8869 | 1,1696 – 1,8612 |
+
+**Las dos últimas columnas van separadas porque la diferencia decide un uso.**
+De las 448 escrituras del tramo, 40 son del atacante, y **dos de los tres
+máximos son suyos**: el 4,6667 y el 9,5714 son consignas multiplicadas, no
+tráfico normal. Una versión anterior publicaba una sola columna de rango con
+las dos poblaciones mezcladas. Quien arme desde ahí la regla de pertenencia
+que la pregunta 2 y §5.5 recomiendan —«apareció un valor que en el normal no
+existía»— mete las consignas del ataque en el conjunto de referencia y la
+característica queda ciega justo para la familia que quiere detectar.
 
 **Una corrección sobre cómo se leyeron estos registros al principio.** Una
 medición previa los describió como pares de registro de control y registro de
@@ -1196,14 +1282,18 @@ Dos comprobaciones sostienen la interpretación:
 2. **La escala y el efecto.** Al dividir por 10.000, el rango escrito coincide
    con el de la variable en el registro de proceso:
 
-| Variable | Rango escrito (entrenamiento) | Rango en el snapshot |
-|---|---|---|
-| `tank_level_min(3)` | 1,0026 – 4,6667 | 1,0026 – 4,6666 |
-| `tank_level_max(4)` | 5,5258 – 9,5714 | 5,5258 – 9,5714 |
-| `bottle_level_max(11)` | 1,0037 – 1,8869 | 1,0025 – 1,8959 |
+| Variable | Rango escrito (entrenamiento) | Snapshot, misma ventana | Snapshot, captura entera |
+|---|---|---|---|
+| `tank_level_min(3)` | 1,0026 – 4,6667 | 1,0026 – 4,6666 | 1,0026 – 4,6666 |
+| `tank_level_max(4)` | 5,5258 – 9,5714 | 5,5258 – 9,5714 | 5,5258 – 9,5714 |
+| `bottle_level_max(11)` | 1,0037 – 1,8869 | **1,0037 – 1,8869** | 1,0025 – 1,8959 |
 
-La coincidencia es exacta en los extremos inferiores de las tres variables y
-en el superior de dos. **La consigna que viaja por la red es la que el PLC
+La coincidencia es exacta en **los dos extremos de las tres variables** cuando
+los dos lados se miden en la misma ventana. Una versión anterior comparaba el
+rango escrito del tramo de entrenamiento contra el rango del snapshot sobre la
+captura **entera**, y de ahí salía la salvedad «en el superior de dos»: era el
+efecto de mezclar ventanas, no una propiedad del banco. El resultado real es
+más fuerte que el que se publicaba. **La consigna que viaja por la red es la que el PLC
 aplica**: manipularla tiene efecto observable sobre el proceso y no se queda
 en la trama.
 
@@ -1624,7 +1714,8 @@ veces»**.
    sirve para características semánticas de función y temporizado, pero no da
    parámetros de comando y no trae la separación comando/respuesta en su
    estructura de archivos. **Y ya no es la única opción para eso**: Westermo
-   trae 993.634 ADU Modbus/TCP decodificables al 100 %, sobre tráfico real y
+   trae cerca de 496.800 mensajes Modbus/TCP decodificables al 100 %, sobre
+   tráfico real y
    con etiquetas (§1.8). Antes de apoyar la semántica de función en QUT
    conviene comparar las dos, que es una comparación que este análisis no
    hizo.
