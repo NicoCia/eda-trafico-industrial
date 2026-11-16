@@ -97,22 +97,49 @@ def g_particion_qut(S):
     tramos de prueba es lo que sostiene que el analisis no contamino el
     protocolo, y es justo el que nadie nota cuando se rompe.
     """
+    import posixpath
     rutas = rutas_qut()
-    fuera = [r for r in rutas if "/training" not in r or "testing" in r]
-    esc = [k for k in S["p1"] if not k.startswith("_")]
-    ok = not fuera and len(esc) == len(rutas)
-    return ok, ("las %d rutas del script 01 apuntan a training/, y hay %d "
-                "escenarios en la salida" % (len(rutas), len(esc))
-                if ok else "RUTAS FUERA DE training/: %s" % fuera)
+    # Una prueba de subcadena deja pasar `trainingAndEvaluation` y cualquier
+    # ruta que salga con `..`. Se normaliza y se exige que el ultimo tramo
+    # sea exactamente `training`.
+    fuera = []
+    for r in rutas:
+        n = posixpath.normpath(r)
+        if n.startswith("..") or "/../" in r or n.split("/")[-1] != "training":
+            fuera.append(r)
+    if fuera:
+        return False, "RUTAS QUE NO TERMINAN EN training/: %s" % fuera
+    # Y los nombres de escenario, no su cantidad: contar siete no detecta
+    # que uno se llame distinto.
+    esperados = {n for n, _rel in __import__("01_qut_payload").ESCENARIOS}
+    esc = {k for k in S["p1"] if not k.startswith("_")}
+    if esc != esperados:
+        return False, ("los escenarios de la salida no son los del script: "
+                       "sobran %s, faltan %s"
+                       % (sorted(esc - esperados), sorted(esperados - esc)))
+    return True, ("las %d rutas del script 01 terminan en training/, y los "
+                  "escenarios de la salida son esos mismos" % len(rutas))
 
 
 def g_qut_sin_control(S):
     """QUT no contiene ni un objeto de control: g12v1, g41 ni g40."""
+    import re
     obj = S["p19"]["objetos"]
-    presentes = {g: obj.get(g, 0) for g in ("g12v1", "g41", "g40")
-                 if obj.get(g, 0)}
-    return not presentes, ("ninguno presente" if not presentes
-                           else "APARECIERON: %s" % presentes)
+    # Por GRUPO. Las claves son "g<grupo>v<variacion>", de modo que buscar
+    # la cadena "g41" no encuentra nunca nada: es un nombre que ese formato
+    # no puede producir. Esa era la guarda anterior, y pasaba con 330.000
+    # cabeceras de control inyectadas.
+    por_grupo = {}
+    for k, v in obj.items():
+        m = re.match(r"g(\d+)v(\d+)$", k)
+        if m:
+            g = int(m.group(1))
+            por_grupo[g] = por_grupo.get(g, 0) + v
+    presentes = {g: por_grupo[g] for g in (12, 40, 41) if por_grupo.get(g)}
+    return not presentes, (
+        "ningun objeto de los grupos 12, 40 ni 41 entre los %d grupos "
+        "presentes" % len(por_grupo) if not presentes
+        else "APARECIERON: %s" % presentes)
 
 
 def g_qut_subconjunto_unico(S):
@@ -132,7 +159,13 @@ def g_qut_fragmentos(S):
     la seccion --- o escribir el reensamblado.
     """
     f = S["p1"]["_fragmentado"]["total"]
-    ok = f["frag_primero"] == 0 and f["frag_ultimo"] == 0
+    con_t = S["p1"]["_fragmentado"]["con_octeto_de_transporte"]
+    # Tambien las intermedias: el documento afirma que son el 0,008 % y que
+    # por eso no reensamblar no cuesta nada. Con el 21 % dejaria de ser
+    # cierto aunque no apareciera ninguna apertura.
+    frac = f["frag_intermedio"] / max(1, con_t)
+    ok = (f["frag_primero"] == 0 and f["frag_ultimo"] == 0
+          and frac < 0.001)
     return ok, "apertura=%d cierre=%d intermedias=%d sobre %d con transporte" \
         % (f["frag_primero"], f["frag_ultimo"], f["frag_intermedio"],
            S["p1"]["_fragmentado"]["con_octeto_de_transporte"])
@@ -145,16 +178,24 @@ def g_hai_ruido_bajo_umbral(S):
     Si la superara, no estaria midiendo ruido y toda la lectura de la
     pregunta 5 se cae.
     """
-    malas = []
-    for ver, r in S["p5"]["ruido_estimador_particion_al_azar"].items():
-        ref = S["p5"]["referencia_intra_archivo"].get(ver, {})
-        n = ref.get("columnas")
-        if not n:
-            continue
-        if r["ks_mediana"] > 0.01:      # cota holgada: los umbrales van de
-            malas.append((ver, r["ks_mediana"]))   # 0,0049 a 0,0089
-    return not malas, ("todas por debajo de 0,01" if not malas
-                       else "POR ENCIMA: %s" % malas)
+    ruido = S["p5"]["ruido_estimador_particion_al_azar"]
+    ref = S["p5"]["referencia_intra_archivo"]
+    # Contra el UMBRAL DE CADA VERSION, que el script 04 ahora guarda en el
+    # JSON. La guarda anterior comparaba contra un 0,01 escrito a mano que
+    # estaba POR ENCIMA de los cinco umbrales medidos (0,0049 a 0,0089), de
+    # modo que un ruido que falsificaba la afirmacion la atravesaba.
+    sin_umbral = [v for v in ruido if not ruido[v].get("umbral95")]
+    if sin_umbral:
+        return False, ("falta el umbral medido en %s; el script 04 tiene que "
+                       "guardarlo" % ", ".join(sin_umbral))
+    faltan = sorted(set(ref) - set(ruido))
+    if faltan:
+        return False, "sin medicion de ruido: %s" % ", ".join(faltan)
+    malas = [(v, round(r["ks_mediana"], 5), round(r["umbral95"], 5))
+             for v, r in ruido.items() if r["ks_mediana"] > r["umbral95"]]
+    return not malas, ("las %d versiones por debajo de su propio umbral al "
+                       "95 %%" % len(ruido) if not malas
+                       else "POR ENCIMA DE SU UMBRAL: %s" % malas)
 
 
 def g_hai_deriva_no_es_ruido(S):
@@ -172,8 +213,10 @@ def g_hai_deriva_no_es_ruido(S):
         razon = ref["ks_mediana"] / rz["ks_mediana"]
         if peor is None or razon < peor[1]:
             peor = (ver, razon)
-    ok = peor is not None and peor[1] >= 10.0
-    return ok, "peor cociente: %s = %.0f veces (minimo exigido 10)" % peor
+    # El documento afirma "entre 20 y 43 veces segun la version". Exigir 10
+    # dejaba pasar un 12, que ya desmiente la frase que la guarda defiende.
+    ok = peor is not None and peor[1] >= 18.0
+    return ok, "peor cociente: %s = %.0f veces (minimo exigido 18)" % peor
 
 
 def g_hai_serie_segmentada(S):
@@ -183,9 +226,23 @@ def g_hai_serie_segmentada(S):
     Si alguien volviera a concatenar, `segmentos` dejaria de estar o valdria 1.
     """
     a = S["p18"]["HAI"]["autocorrelacion"]
-    ok = a.get("segmentos", 0) >= 2
-    return ok, "segmentos=%s, tau=%.0f s" % (a.get("segmentos"),
-                                             a["tau_decorrelacion_s"])
+    c = S["p18"]["HAI"].get("autocorrelacion_concatenando") or {}
+    # `segmentos` solo es el numero de archivos: no dice como se calculo
+    # nada, y con el solo la guarda pasaba aunque tau cambiara de 1800 s a
+    # 3 s. Se exige ademas que esten LAS DOS mediciones --- la segmentada y
+    # la concatenada ---, que es lo que el script produce cuando mide por
+    # tramos y deja la version mal hecha al lado para comparar.
+    faltan = [k for k in ("tau_s", "columnas_que_cambian") if k not in c]
+    if faltan:
+        return False, ("falta la comparacion contra el metodo concatenado "
+                       "(%s): sin ella no se sabe si se midio por tramos"
+                       % ", ".join(faltan))
+    if a.get("segmentos", 0) < 2:
+        return False, "segmentos=%s" % a.get("segmentos")
+    return True, ("%s segmentos; tau %.0f s por tramos contra %.0f s "
+                  "concatenando, %s columnas cambian"
+                  % (a["segmentos"], a["tau_decorrelacion_s"], c["tau_s"],
+                     c["columnas_que_cambian"]))
 
 
 def g_westermo_union_unica(S):
@@ -256,9 +313,17 @@ def g_auc_poblacion_completa(S):
     if None in (w, i, m):
         return False, ("falta alguna: Westermo=%s ICS-Flow=%s Morris=%s"
                        % (w, i, m))
+    # Los valores que los documentos citan, no solo su orden: con el orden
+    # solo, 0,10 / 0,20 / 0,30 pasaba.
+    CITADAS = {"Westermo": 0.544, "Morris": 0.611, "ICS-Flow": 0.647}
+    medidas = {"Westermo": w, "Morris": m, "ICS-Flow": i}
+    malas = [(k, round(v, 3), CITADAS[k]) for k, v in medidas.items()
+             if abs(v - CITADAS[k]) > 0.002]
+    if malas:
+        return False, "NO REPRODUCEN: %s" % malas
     ok = (w < m < i) and i < 0.70
-    return ok, ("orden Westermo %.3f < Morris %.3f < ICS-Flow %.3f, "
-                "y ninguno llega a 0,70" % (w, m, i))
+    return ok, ("Westermo %.3f < Morris %.3f < ICS-Flow %.3f, los tres como "
+                "los citan los documentos y ninguno llega a 0,70" % (w, m, i))
 
 
 def g_ninguna_variable_sola(S):
@@ -272,6 +337,11 @@ def g_ninguna_variable_sola(S):
         "ICS-Flow": S["p17"]["ICS-Flow"]["discriminante"]["auc_max"],
         "Morris": S["p18"]["Morris"]["discriminante"]["auc_absoluto"],
     }
+    evaluadas = (S["p17"]["Westermo"]["discriminante"]["evaluadas"]
+                 + S["p17"]["ICS-Flow"]["discriminante"]["evaluadas"])
+    if evaluadas < 80:
+        return False, ("solo %d caracteristicas evaluadas entre los dos "
+                       "conjuntos de flujo; el documento dice 85" % evaluadas)
     altos = {k: v for k, v in maximos.items() if v >= 0.70}
     return not altos, ("ningun maximo llega a 0,70: %s"
                        % {k: round(v, 3) for k, v in maximos.items()}
@@ -284,11 +354,20 @@ def g_cv_por_bloques(S):
     Lo que defiende: la recomendacion de particionar por bloques temporales.
     Si la autocorrelacion de la etiqueta cayera, la recomendacion sobraria.
     """
+    # El argumento de la recomendacion 8 no es solo que rho sea alto: es que
+    # un evento deja CENTENARES de flujos contiguos de la misma clase, y que
+    # el tamano efectivo cae un orden de magnitud. Con rho = 0,51, rachas de
+    # 2 y n efectivo casi igual a n, la guarda anterior pasaba y el argumento
+    # ya no existia.
     malas = []
     for conj in ("Westermo", "ICS-Flow"):
         a = S["p17"][conj]["autocorrelacion_objetivo"]["objetivo"]
-        if a["rho_lag1"] < 0.5:
-            malas.append((conj, round(a["rho_lag1"], 3)))
+        if a["rho_lag1"] < 0.6:
+            malas.append((conj, "rho", round(a["rho_lag1"], 3)))
+        if a.get("racha_mas_larga", 0) < 100:
+            malas.append((conj, "racha", a.get("racha_mas_larga")))
+        if a.get("n_efectivo", 0) > 0.3 * a.get("n", 1):
+            malas.append((conj, "n_efectivo", round(a.get("n_efectivo", 0))))
     rho = {c: S["p17"][c]["autocorrelacion_objetivo"]["objetivo"]["rho_lag1"]
            for c in ("Westermo", "ICS-Flow")}
     return not malas, ("Westermo %.3f e ICS-Flow %.3f, las dos por encima de "
@@ -307,17 +386,41 @@ def g_eventos_independientes(S):
     ac = S["p9"].get("autocorrelacion_entre_eventos")
     if not ac:
         return False, "el script 09 no la midio"
+    if len(ac) != 7:
+        return False, ("se midieron %d categorias; Morris tiene siete "
+                       "familias de anomalia" % len(ac))
     pos = [(f["categoria"], round(f["rho"], 3)) for f in ac if f["rho"] >= 0]
-    return not pos, ("las %d categorias con autocorrelacion negativa" % len(ac)
+    return not pos, ("las siete categorias con autocorrelacion negativa"
                      if not pos else "POSITIVAS: %s" % pos)
 
 
 def g_un_solo_estadistico(S):
     """Las cifras de precision salen todas del mismo estadistico."""
     casos = S["p9"]["casos"]
+    if len(casos) < 6:
+        return False, "solo %d casos: la tabla de 9.5 tiene siete" % len(casos)
     faltan = [c["caso"] for c in casos if "wilson_95" not in c]
-    return not faltan, ("%d casos, todos con Wilson al 95 %%" % len(casos)
-                        if not faltan else "SIN WILSON: %s" % faltan)
+    if faltan:
+        return False, "SIN WILSON: %s" % faltan
+    # Las cifras que los documentos citan, contra las que el script calcula.
+    # Comprobar que la CLAVE exista no comprueba nada: el script 09 la
+    # escribe siempre. Hay que comparar los valores publicados.
+    CITADAS = {"Morris, DoS (prueba)": 0.058,
+               "Morris, MPCI (prueba)": 0.023,
+               "ICS-Flow, escrituras bajo MITM (prueba)": 0.132,
+               "Westermo, tipo con 3 eventos (prueba)": 0.375,
+               "ICS-Flow, eventos de MITM (prueba)": 0.330}
+    malas = []
+    for c in casos:
+        esperado = CITADAS.get(c["caso"])
+        if esperado is None:
+            continue
+        medido = c["wilson_95"]["semiancho"]
+        if abs(medido - esperado) > 0.001:
+            malas.append((c["caso"], round(medido, 4), esperado))
+    return not malas, ("%d casos, y los %d semianchos que citan los "
+                       "documentos reproducen" % (len(casos), len(CITADAS))
+                       if not malas else "NO REPRODUCEN: %s" % malas)
 
 
 def g_ventana_invierte_orden(S):
@@ -330,8 +433,11 @@ def g_ventana_invierte_orden(S):
     v1 = S["p2"]["sensibilidad_ventana"]["ventana_1_s"]
     r5 = S["p2"]["sensibilidad_ventana"]["recuento_5"]
     w, q = "Westermo limpio", "QUT Control"
-    ok = v1[w] < v1[q] and r5[w] > r5[q]
-    return ok, ("ventana 1 s: %.2f < %.2f ; recuento 5: %.2f > %.2f"
+    # Con el signo solo, 2,99 contra 3,08 pasaba, y el argumento de 1.5 vive
+    # de que la inversion sea grande: se exige un factor 3 en cada direccion.
+    ok = (v1[w] * 3 < v1[q]) and (r5[w] > 3 * r5[q])
+    return ok, ("ventana 1 s: %.2f contra %.2f ; recuento 5: %.2f contra "
+                "%.2f (se exige un factor 3 en cada direccion)"
                 % (v1[w], v1[q], r5[w], r5[q]))
 
 
@@ -342,6 +448,8 @@ def g_entropia_invierte_orden(S):
     invertirse, la advertencia sobraria y habria que quitarla.
     """
     e = S["p2"]["entropia_cruda_vs_normalizada"]
+    if len(e) != 4:
+        return False, "se midieron %d series; la tabla compara cuatro" % len(e)
     por_h = sorted(e, key=lambda s: e[s]["H"])
     por_hn = sorted(e, key=lambda s: e[s]["Hn"])
     ok = por_h[0] == por_hn[-1]
@@ -350,7 +458,7 @@ def g_entropia_invierte_orden(S):
 
 
 def g_identidades_inventario(S):
-    """Las identidades del inventario se cumplen, salvo las tres declaradas.
+    """Las identidades del inventario se cumplen, salvo las cuatro declaradas.
 
     Lo que defiende: la afirmacion sobre coherencia interna. El documento
     nombra las tres excepciones una por una; si apareciera una cuarta, esa
@@ -359,6 +467,7 @@ def g_identidades_inventario(S):
     PERMITIDAS = ("sLoad", "rLoad", "sAckDelayMax <= duration",
                   "sInterPacketAvg")
     malas, total = [], 0
+    ESPERADAS = 17        # por conjunto; si cambia, cambia el texto
     for conj in ("westermo", "icsflow"):
         for nombre, d in S["p10"][conj]["identidades"].items():
             if not d.get("evaluadas"):
@@ -367,8 +476,14 @@ def g_identidades_inventario(S):
             if d["fraccion"] < 0.9999 and not any(p in nombre
                                                   for p in PERMITIDAS):
                 malas.append((conj, nombre, round(100 * d["fraccion"], 2)))
+    # Sin este corte la guarda pasaba con CERO identidades evaluadas, e
+    # imprimia "0 evaluadas, sin excepciones" como mensaje de exito.
+    if total < 2 * ESPERADAS:
+        return False, ("solo %d identidades evaluadas; se esperan %d por "
+                       "conjunto" % (total, ESPERADAS))
+    exactas = total - len(malas) - 2 * len(PERMITIDAS)
     return not malas, ("%d identidades evaluadas entre los dos conjuntos, sin "
-                       "excepciones fuera de las tres declaradas" % total
+                       "excepciones fuera de las cuatro declaradas" % total
                        if not malas else "NUEVAS EXCEPCIONES: %s" % malas)
 
 
@@ -383,8 +498,12 @@ def g_hai_sin_anomalias_en_train(S):
     return ok, "versiones con ataques en train: %s" % (vers or "ninguna")
 
 
-def g_morris_constantes(S):
+def g_constantes_solo_en_normal(S):
     """Las caracteristicas constantes lo son solo en el trafico normal.
+
+    Es sobre WESTERMO e ICS-FLOW, no sobre Morris: una version anterior de
+    esta funcion se llamaba `g_morris_constantes` y su docstring hablaba de
+    Morris, aunque lee `p11["westermo_icsflow"]` y defiende 5.4 y 5.5.
 
     Lo que defiende: la recomendacion 1 de la seccion 5.5, que se habia
     escrito al reves. Si las 10 pasaran a ser constantes en todo el tramo, la
@@ -402,9 +521,13 @@ def g_morris_constantes(S):
     # constantes, varias SI varian sobre los flujos anomalos, de modo que
     # descartar las 10 tira senal. Se exige que siga habiendo alguna que
     # varie, y que las que no varian en todo el tramo sigan siendo menos.
-    ok = len(solo_normal) > 0 and n_w is not None and n_w < 10
-    return ok, ("%d de las 10 varian sobre los flujos anomalos; sin variacion "
-                "en todo el tramo quedan %s en Westermo y %s en ICS-Flow"
+    # Las cifras que la recomendacion 1 de 5.5 usa: 6 varian, y quedan 5 y 4
+    # sin variar. La guarda anterior pedia "al menos una" y "menos de diez",
+    # y pasaba con 1 / 9 / 9, que serian tres recomendaciones distintas.
+    ok = len(solo_normal) == 6 and n_w == 5 and n_i == 4
+    return ok, ("%d de las 10 varian sobre los flujos anomalos (publicado 6); "
+                "sin variacion en todo el tramo quedan %s en Westermo "
+                "(publicado 5) y %s en ICS-Flow (publicado 4)"
                 % (len(solo_normal), n_w, n_i))
 
 
@@ -465,11 +588,11 @@ GUARDAS = [
      "La entropia normalizada invierte el orden de la cruda",
      "INFORME.md pregunta 2", g_entropia_invierte_orden),
     ("identidades",
-     "Las identidades del inventario se cumplen salvo las tres declaradas",
+     "Las identidades del inventario se cumplen salvo las cuatro declaradas",
      "EXPLORATORIO.md coherencia interna", g_identidades_inventario),
     ("constantes-solo-en-normal",
      "Las caracteristicas constantes lo son solo en el trafico normal",
-     "INFORME.md 5.4 y 5.5", g_morris_constantes),
+     "INFORME.md 5.4 y 5.5", g_constantes_solo_en_normal),
 ]
 
 

@@ -10,7 +10,7 @@ Facultad de Ingeniería de la Universidad de Buenos Aires.
 Lo que hay acá son mediciones sobre los archivos. El punto de partida fue una
 selección de conjuntos escrita a partir de la documentación publicada de cada
 uno, antes de abrir ninguno. El análisis la contrastó contra los datos, y
-cuatro de los seis hallazgos principales contradicen lo que la documentación de
+cinco de los siete hallazgos principales contradicen lo que la documentación de
 los conjuntos o su descripción corriente dan por sentado. Cada contradicción
 está en [`INFORME.md`](eda/INFORME.md) con el número que la sostiene y el
 script que lo calcula.
@@ -22,7 +22,7 @@ script que lo calcula.
    mecanismo, redundancia, poder discriminante, estructura temporal, balance de
    clases y datos sensibles. Se lee primero porque describe los datos sin
    discutir todavía qué hacer con ellos.
-2. **[`eda/INFORME.md`](eda/INFORME.md)** — qué implican. Los seis hallazgos
+2. **[`eda/INFORME.md`](eda/INFORME.md)** — qué implican. Los siete hallazgos
    que cambian cómo se usan estos conjuntos, las cinco preguntas que el
    análisis tenía que responder, el papel de ICS-Flow y si los cinco se pueden
    unir en un conjunto integrado.

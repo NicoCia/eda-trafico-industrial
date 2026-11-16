@@ -1,0 +1,124 @@
+# Pregunta 22 - Westermo cuenta cada paquete dos veces
+
+Los contadores de volumen de los CSV de flujo publicados cuentan las
+copias que deja el equipo que graba al capturar la trama al entrar y
+al salir. Aca se recuentan sobre paquetes unicos, **conservando la
+fila de flujo publicada**: lo unico que cambia es que cada paquete se
+cuenta una vez.
+
+Regla: dos paquetes son la misma captura si son identicos octeto a
+octeto y estan separados por menos de 1000 us.
+
+## 22.1 Validacion: el recuento crudo reproduce el CSV publicado?
+
+Si esto no reproduce, la asignacion paquete-fila esta mal y nada de
+lo que sigue significa algo. El script termina con codigo distinto de
+cero en ese caso.
+
+captura            campo           filas ok     razon
+reduced/bottom     sPackets           99.9%    1.0000
+reduced/bottom     rPackets           99.9%    1.0000
+reduced/bottom     sBytesSum          99.9%    1.0000
+reduced/bottom     rBytesSum          99.9%    1.0000
+reduced/bottom     sPayloadSum        99.9%    1.0000
+reduced/bottom     rPayloadSum        99.9%    1.0000
+reduced/left       sPackets           99.9%    0.9996
+reduced/left       rPackets          100.0%    1.0000
+reduced/left       sBytesSum          99.9%    0.9996
+reduced/left       rBytesSum         100.0%    1.0000
+reduced/left       sPayloadSum        99.9%    0.9993
+reduced/left       rPayloadSum       100.0%    1.0000
+reduced/right      sPackets          100.0%    1.0000
+reduced/right      rPackets          100.0%    1.0000
+reduced/right      sBytesSum         100.0%    1.0000
+reduced/right      rBytesSum         100.0%    1.0000
+reduced/right      sPayloadSum       100.0%    1.0000
+reduced/right      rPayloadSum       100.0%    1.0000
+extended/bottom    sPackets           97.9%    0.9982
+extended/bottom    rPackets           99.9%    1.0000
+extended/bottom    sBytesSum          97.9%    0.9973
+extended/bottom    rBytesSum          99.9%    0.9999
+extended/bottom    sPayloadSum        97.9%    0.9920
+extended/bottom    rPayloadSum        99.9%    0.9998
+extended/left      sPackets           99.9%    0.9996
+extended/left      rPackets          100.0%    1.0000
+extended/left      sBytesSum          99.9%    0.9996
+extended/left      rBytesSum         100.0%    1.0000
+extended/left      sPayloadSum        99.9%    0.9993
+extended/left      rPayloadSum       100.0%    1.0000
+extended/right     sPackets          100.0%    0.9996
+extended/right     rPackets          100.0%    0.9999
+extended/right     sBytesSum         100.0%    0.9996
+extended/right     rBytesSum         100.0%    0.9998
+extended/right     sPayloadSum       100.0%    0.9993
+extended/right     rPayloadSum       100.0%    0.9993
+
+Reproduce en las 6 capturas. La asignacion paquete-fila es correcta.
+
+## 22.2 Cuanto infla el doble conteo
+
+captura             paquetes    copias % copias factor de inflacion
+reduced/bottom       1513815    731226    48.3%              1.951x
+reduced/left          281105    124453    44.3%              1.838x
+reduced/right          35067      3436     9.8%              1.131x
+extended/bottom      4384183   2163897    49.4%              1.983x
+extended/left         281197    124522    44.3%              1.839x
+extended/right         35124      3459     9.8%              1.132x
+
+## 22.3 El efecto campo por campo
+
+captura            campo               publicado          unico    razon
+reduced/bottom     sPackets               681616         344788   0.5058
+reduced/bottom     rPackets               818591         424193   0.5182
+reduced/bottom     sBytesSum            42609953       21722458   0.5098
+reduced/bottom     rBytesSum            49323444       25742758   0.5219
+reduced/bottom     sPayloadSum           7098026        3742695   0.5273
+reduced/bottom     rPayloadSum           6902068        3832814   0.5553
+reduced/left       sPackets                61508          29178   0.4744
+reduced/left       rPackets               211408         119285   0.5642
+reduced/left       sBytesSum             6103744        2894908   0.4743
+reduced/left       rBytesSum            13294965        7282923   0.5478
+reduced/left       sPayloadSum           2797452        1328348   0.4748
+reduced/left       rPayloadSum           3559805        1813771   0.5095
+reduced/right      sPackets                11054           7636   0.6908
+reduced/right      rPackets                18568          18550   0.9990
+reduced/right      sBytesSum             1008359         712133   0.7062
+reduced/right      rBytesSum             1101647        1097615   0.9963
+reduced/right      sPayloadSum            376500         274410   0.7288
+reduced/right      rPayloadSum            254583         251119   0.9864
+extended/bottom    sPackets              2566451        1287400   0.5016
+extended/bottom    rPackets              1799488         914642   0.5083
+extended/bottom    sBytesSum           176130876       88490506   0.5024
+extended/bottom    rBytesSum           125985882       64074007   0.5086
+extended/bottom    sPayloadSum          42610501       21500587   0.5046
+extended/bottom    rPayloadSum          32552806       16658187   0.5117
+extended/left      sPackets                61600          29201   0.4740
+extended/left      rPackets               211408         119285   0.5642
+extended/left      sBytesSum             6109264        2896288   0.4741
+extended/left      rBytesSum            13294965        7282923   0.5478
+extended/left      sPayloadSum           2797452        1328348   0.4748
+extended/left      rPayloadSum           3559805        1813771   0.5095
+extended/right     sPackets                11100           7659   0.6900
+extended/right     rPackets                18573          18555   0.9990
+extended/right     sBytesSum             1011119         713513   0.7057
+extended/right     rBytesSum             1101947        1097915   0.9963
+extended/right     sPayloadSum            376500         274410   0.7288
+extended/right     rPayloadSum            254583         251119   0.9864
+
+Tabla corregida escrita en `eda/derivados/westermo_*_unico.csv`, con
+las mismas filas y columnas del CSV publicado y:
+
+  - los 6 contadores de volumen recontados sobre paquetes unicos:
+    sPackets, rPackets, sBytesSum, rBytesSum, sPayloadSum, rPayloadSum
+  - los 8 derivados recalculados con la definicion del conjunto a
+    partir de esos contadores: sBytesAvg, rBytesAvg, sPayloadAvg, rPayloadAvg, sLoad, rLoad, sInterPacketAvg, rInterPacketAvg
+
+**Lo que NO se corrige**, y hay que tenerlo a la vista: sAckDelayMin, sAckDelayMax, sAckDelayAvg, rAckDelayMin, rAckDelayMax, rAckDelayAvg.
+Reconstruir el retardo de ACK exige seguir el emparejamiento TCP de
+cada flujo, que es otro trabajo. Esos seis campos siguen calculados
+sobre el flujo con copias, donde los pares separados por un
+microsegundo tiran el minimo y el promedio hacia abajo.
+
+Los minimos y maximos de octetos y de carga util no hacen falta
+corregirlos: el minimo y el maximo de un conjunto no cambian al
+quitarle copias exactas.

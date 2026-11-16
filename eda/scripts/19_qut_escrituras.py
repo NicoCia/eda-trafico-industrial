@@ -38,6 +38,7 @@ Uso:  python eda/scripts/19_qut_escrituras.py
 
 import itertools
 import json
+import re
 import os
 import sys
 
@@ -51,8 +52,16 @@ FUENTE = os.path.join(comun.SALIDAS, "p1_qut_payload.json")
 # barata (2**n). Con los 11 grupos de QUT son 2047 subconjuntos.
 MAX_GRUPOS = 20
 
-# Los tres objetos de control: si alguno apareciera, la seccion 1.2 cambia.
-CONTROL = ("g12v1", "g41", "g40")
+# Los GRUPOS de control: si apareciera cualquier variacion de alguno, la
+# seccion 1.2 cambia.
+#
+# CUIDADO con la forma de esta constante. Una version anterior decia
+# ("g12v1", "g41", "g40") y se comparaba contra las claves del JSON, que el
+# script 01 escribe siempre como "g<grupo>v<variacion>". "g41" y "g40" son
+# cadenas que ese formato NO PUEDE PRODUCIR NUNCA, de modo que dos de los
+# tres objetos de control se vigilaban con una clave inexistente y la tabla
+# publicada informaba "g41: 0" sin haber mirado nada. Se comparan grupos.
+CONTROL_GRUPOS = (12, 40, 41)
 
 
 def agregar(datos):
@@ -124,13 +133,23 @@ def main():
 
     w("## 19.2 Los objetos de control no aparecen")
     w("")
-    presentes = [g for g in CONTROL if objetos.get(g, 0) > 0]
-    for g in CONTROL:
-        w("   %-8s %12d" % (g, objetos.get(g, 0)))
+    por_grupo = {}
+    for k, v in objetos.items():
+        m = re.match(r"g(\d+)v(\d+)$", k)
+        if m:
+            por_grupo.setdefault(int(m.group(1)), 0)
+            por_grupo[int(m.group(1))] += v
+    presentes = [g for g in CONTROL_GRUPOS if por_grupo.get(g, 0) > 0]
+    for g in CONTROL_GRUPOS:
+        variaciones = sorted(k for k in objetos
+                             if re.match(r"g%dv\d+$" % g, k))
+        w("   grupo %-4d %12d  %s"
+          % (g, por_grupo.get(g, 0),
+             ", ".join(variaciones) if variaciones else "(ninguna variacion)"))
     w("")
     if presentes:
-        w("**Aparecio un objeto de control: %s.** La seccion 1.2 de"
-          % ", ".join(presentes))
+        w("**Aparecio un objeto de control: grupo %s.** La seccion 1.2 de"
+          % ", ".join(str(g) for g in presentes))
         w("INFORME.md se apoya en que no aparece ninguno, de modo que hay que")
         w("rehacerla.")
         comun.escribir("p19_qut_escrituras.txt", "\n".join(L))

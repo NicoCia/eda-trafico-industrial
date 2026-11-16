@@ -37,6 +37,13 @@
    "n": 163823,
    "n_efectivo": 12060.035774682581
   },
+  "autocorrelacion_objetivo": {
+   "rho_lag1": 0.31399207990860184,
+   "n": 163823,
+   "n_efectivo": 85528.57906186946,
+   "rachas": 38048,
+   "racha_mas_larga": 3
+  },
   "filas_completas": 0,
   "balance": {
    "normal": 128457,

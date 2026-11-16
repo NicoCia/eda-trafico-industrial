@@ -6,6 +6,7 @@ corren desde cualquier directorio sin depender de rutas absolutas de la maquina.
 
 import os
 import random
+import sys
 
 import numpy as np
 
@@ -32,6 +33,41 @@ WESTERMO_DURACION = 5442.0
 MORRIS_T0 = 1418682163
 MORRIS_T1 = 1418957854
 MORRIS_CORTES = (MORRIS_T0 + 165415, MORRIS_T0 + 165415 + 55138)
+
+
+def westermo_flujos(variante="reduced", punto="bottom", unico=True,
+                    **kwargs):
+    """Los flujos de Westermo, con los contadores de volumen corregidos.
+
+    EL EQUIPO QUE GRABA CUENTA CADA PAQUETE DOS VECES. El README del conjunto
+    avisa que captura la trama al entrar y al salir, y los contadores de
+    volumen de los CSV publicados cuentan esas copias: medido en
+    `22_westermo_duplicados.py`, `reduced/bottom` viene inflado 1,95 veces.
+
+    Por eso **ningun script debe abrir `output_*.csv` directamente** para
+    nada que use volumen. Esta funcion devuelve la tabla con las mismas filas
+    y columnas del conjunto y los seis contadores de volumen recontados sobre
+    paquetes unicos, que es lo que escribe el script 22 en `eda/derivados/`.
+
+    Con `unico=False` devuelve el CSV publicado tal cual, que sirve para
+    comparar las dos versiones y para lo que no depende del volumen.
+
+    Si la tabla corregida no esta, avisa por `stderr` y cae al publicado:
+    preferible a romper, pero el aviso tiene que verse.
+    """
+    import pandas as pd
+
+    pub = os.path.join(WESTERMO, variante, "flows", "output_%s.csv" % punto)
+    if not unico:
+        return pd.read_csv(pub, **kwargs)
+    corr = os.path.join(DERIVADOS,
+                        "westermo_%s_%s_unico.csv" % (variante, punto))
+    if os.path.exists(corr):
+        return pd.read_csv(corr, **kwargs)
+    print("AVISO: falta %s; se usa el CSV publicado, con los contadores de "
+          "volumen inflados por el doble conteo. Correr antes "
+          "`make -C eda duplicados`." % rel(corr), file=sys.stderr)
+    return pd.read_csv(pub, **kwargs)
 
 
 def preparar():

@@ -191,20 +191,20 @@ conjuntos solo significa algo si supera ese nivel.
 Flujos normales comparados: 17456 de Westermo y 22856 de ICS-Flow.
 
 campo                  ref. West. ref. ICS-F    cruzado    razon
-rBytesSum                   0.013      0.013      0.538    40.7x
-rPackets                    0.012      0.013      0.538    42.7x
-sPayloadSum                 0.010      0.009      0.534    56.2x
-rInterPacketAvg             0.240      0.038      0.515     2.1x
-rPayloadSum                 0.011      0.009      0.505    45.9x
-sInterPacketAvg             0.158      0.029      0.442     2.8x
-rLoad                       0.194      0.043      0.383     2.0x
-sLoad                       0.152      0.028      0.373     2.5x
+rLoad                       0.194      0.043      0.644     3.3x
+rInterPacketAvg             0.241      0.038      0.619     2.6x
 rAckDelayAvg                0.022      0.028      0.349    12.5x
-sBytesSum                   0.013      0.012      0.339    25.3x
+rBytesSum                   0.013      0.013      0.332    25.2x
 sAckDelayAvg                0.022      0.081      0.318     3.9x
-sPackets                    0.013      0.012      0.309    23.4x
+rPayloadSum                 0.011      0.009      0.309    28.0x
+rPackets                    0.011      0.013      0.308    24.4x
+sPayloadSum                 0.010      0.009      0.296    31.1x
 rAckDelayMax                0.023      0.021      0.284    12.1x
+sPackets                    0.013      0.012      0.275    20.9x
+sBytesSum                   0.013      0.012      0.274    20.8x
 duration                    0.200      0.031      0.250     1.3x
+sInterPacketAvg             0.172      0.029      0.247     1.4x
+sLoad                       0.153      0.028      0.236     1.5x
 sAckDelayMax                0.018      0.058      0.215     3.7x
 sPayloadAvg                 0.013      0.009      0.160    11.9x
 sPayloadMax                 0.003      0.001      0.140    53.3x
@@ -214,8 +214,8 @@ sBytesAvg                   0.010      0.009      0.100    10.4x
 rPshRate                    0.008      0.016      0.080     4.8x
 sWinTCP                     0.008      0.006      0.069     8.8x
 sPshRate                    0.013      0.008      0.067     5.1x
-rBytesAvg                   0.009      0.017      0.066     3.9x
-rPayloadAvg                 0.009      0.017      0.066     3.9x
+rBytesAvg                   0.009      0.017      0.067     4.0x
+rPayloadAvg                 0.009      0.017      0.067     3.9x
 sPayloadMin                 0.003      0.007      0.066     9.9x
 rWinTCP                     0.007      0.002      0.059     8.2x
 sBytesMin                   0.003      0.007      0.050     7.5x
@@ -239,10 +239,10 @@ rRstRate                    0.000      0.000      0.000      inf
 sFragmentRate               0.000      0.000      0.000      inf
 rFragmentRate               0.000      0.000      0.000      inf
 
-Mediana del KS cruzado: **0.066** sobre 47 campos con al menos 50
+Mediana del KS cruzado: **0.067** sobre 47 campos con al menos 50
 observaciones en los dos conjuntos.
 Mediana del nivel de referencia interno: **0.007**.
-Campos con KS cruzado por encima de 0,5: **5 de 47**.
+Campos con KS cruzado por encima de 0,5: **2 de 47**.
 Campos con KS cruzado igual a 1,00 (distribuciones disjuntas): **0**.
 Campos sin variacion **en el trafico normal** de los dos conjuntos:
 **10 de 47**.
@@ -280,20 +280,14 @@ discriminante.
 
 ### 2.5 Donde esta la diferencia, en magnitudes
 
-Los 5 campos con KS cruzado por encima de 0,5, con sus cuantiles en cada
+Los 2 campos con KS cruzado por encima de 0,5, con sus cuantiles en cada
 conjunto, para que la diferencia se lea en unidades y no en estadisticos:
 
 campo                conjunto           p05      mediana          p95
-rBytesSum            Westermo             0         1496         2112
-                     ICS-Flow           348          933         1648
-rPackets             Westermo             0           26           36
-                     ICS-Flow             6           15           28
-sPayloadSum          Westermo             0          208          294
-                     ICS-Flow            39          130          208
-rInterPacketAvg      Westermo     0.0002665      0.01615      0.02936
+rLoad                Westermo             0    1.487e+04    8.835e+05
+                     ICS-Flow      1.11e+04    1.849e+04    2.229e+06
+rInterPacketAvg      Westermo     0.0005597      0.03354      0.06238
                      ICS-Flow     0.0002546       0.0287      0.04545
-rPayloadSum          Westermo             0          192          306
-                     ICS-Flow            36          120          192
 
 **Conclusion de las secciones 2.1 a 2.5.** Los dos conjuntos comparten la
 definicion de las caracteristicas: la cabecera es la misma byte a byte,
@@ -304,9 +298,9 @@ explicadas por campos degenerados. **Como esquema, son el mismo
 conjunto.**
 
 Como poblacion, no. La diferencia no es dramatica --- ninguna
-distribucion es disjunta y la mediana del KS cruzado es 0.066 ---, pero
+distribucion es disjunta y la mediana del KS cruzado es 0.067 ---, pero
 supera el nivel de referencia interno por un factor mediano de 4 y se
-concentra justo donde duele: los 5 campos que mas difieren son de
+concentra justo donde duele: los 2 campos que mas difieren son de
 **volumen y de temporizado**, que son las caracteristicas que la
 pregunta 2 de INFORME.md identifico como discriminantes. Entrenar
 sobre la union de las filas ensancha la envolvente del 'normal' en
@@ -314,7 +308,7 @@ exactamente las variables que llevan la senal.
 
 Hay una asimetria que conviene registrar: el nivel de referencia interno
 de Westermo en los campos de temporizado (`duration` 0.200,
-`sInterPacketAvg` 0.158, `rLoad` 0.194) es entre cinco y diez veces el de
+`sInterPacketAvg` 0.172, `rLoad` 0.194) es entre cinco y diez veces el de
 ICS-Flow. El propio tramo de entrenamiento de Westermo es mas
 heterogeneo en el tiempo que el de ICS-Flow, de modo que parte de lo que
 se mediria como diferencia entre conjuntos es variabilidad interna de

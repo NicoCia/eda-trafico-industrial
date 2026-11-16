@@ -12,8 +12,8 @@ guarda                         resultado  que se rompe
 qut-sin-control                ok         aparece un objeto de control g12v1 en QUT
 qut-subconjunto-unico          ok         cierra un segundo subconjunto de grupos
 qut-fragmentos                 ok         aparece una trama de apertura de fragmento multiple
-hai-ruido                      ok (+1)    el ruido del estimador sube por encima del umbral
-hai-deriva-no-es-ruido         ok         la deriva interna deja de superar al ruido diez veces
+hai-ruido                      ok         el ruido queda apenas por encima de su umbral (0,0099 contra 0,0089)
+hai-deriva-no-es-ruido         ok         el cociente cae a 12, que ya desmiente el «entre 20 y 43»
 hai-segmentada                 ok         la autocorrelacion vuelve a medirse sobre la union
 hai-train-sucio                ok         otra version trae ataques en entrenamiento
 westermo-union-unica           ok         dos agregaciones caen dentro de 2 pp
@@ -23,11 +23,11 @@ auc-poblacion-completa         ok         se invierte el orden entre conjuntos
 ninguna-variable-sola          ok         una caracteristica sola llega a 0,72
 cv-por-bloques                 ok         la etiqueta deja de estar autocorrelacionada
 eventos-independientes         ok         una categoria de Morris se agrupa
-un-solo-estadistico            ok         un caso se publica sin el intervalo de Wilson
-ventana-invierte               ok         deja de invertirse el orden a recuento igualado
-entropia-invierte              ok         la normalizada deja de invertir el orden
+un-solo-estadistico            ok         un semiancho deja de reproducir la cifra que cita el documento
+ventana-invierte               ok         la inversion queda en 3,08 contra 3,07, que es ruido
+entropia-invierte              ok         Westermo pasa a tener menos entropia cruda que QUT solo DNP3
 identidades                    ok         una identidad nueva deja de cumplirse
-constantes-solo-en-normal      ok         las diez vuelven a ser constantes en todo el tramo
+constantes-solo-en-normal      ok         pasan a quedar 9 sin variar en lugar de 5 (otra recomendacion)
 ------------------------------------------------------------------------------
 
 particion-qut                  ok         una ruta apunta a testing/

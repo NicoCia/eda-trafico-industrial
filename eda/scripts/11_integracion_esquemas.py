@@ -340,7 +340,11 @@ def seccion_2(w, J, esq):
     # 2.3 vocabulario de protocol
     w("### 2.3 El vocabulario del campo `protocol`")
     w("")
-    dwf = pd.read_csv(pw)
+    # Contadores de volumen corregidos: el doble conteo del punto de captura
+    # inflaba justo los campos que esta seccion compara contra ICS-Flow, que
+    # no lo tiene (0,1 % de copias). Comparar los publicados era comparar una
+    # serie contada doble contra una contada simple.
+    dwf = comun.westermo_flujos("reduced", "bottom")
     dif = pd.read_csv(pi)
     trw = dwf[dwf["startOffset"] < comun.WESTERMO_CORTES[0]]
     t0, t1 = float(dif["start"].min()), float(dif["end"].max())

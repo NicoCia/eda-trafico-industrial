@@ -47,9 +47,9 @@ materia en `eda/derivados/reporte_westermo.md` y
 inventario `eda/salidas/p10_inventario.txt` verifica **diecisiete** identidades
 entre campos sobre cada archivo —que `duration` sea el intervalo declarado,
 que los promedios sean el cociente de suma y cuenta, que el mínimo no supere
-al máximo, que las catorce tasas caigan en [0, 1]—. **Quince se cumplen en el
-100 % de las filas de los dos conjuntos.** Las excepciones conviene nombrarlas
-una por una, porque no son todas del mismo tamaño:
+al máximo, que las catorce tasas caigan en [0, 1]—. **Trece se cumplen en el
+100 % de las filas de los dos conjuntos, y cuatro tienen alguna excepción.**
+Conviene nombrarlas una por una, porque no son todas del mismo tamaño:
 
 | Identidad | Westermo | ICS-Flow |
 |---|---:|---:|
@@ -73,7 +73,7 @@ Seis hallazgos antes del detalle, porque cambian cómo hay que prepararlos.
 **1. Ninguna característica discrimina por sí sola.** El mejor AUC de una
 característica tomada sola es **0,563 en Westermo** y **0,669 en ICS-Flow**,
 contra el 0,5 de no discriminar; si se exige que la característica exista en
-todas las filas, baja a **0,558 y 0,647**. Ninguna de las 85
+todas las filas, baja a **0,544 y 0,647**. Ninguna de las 85
 evaluadas entre los dos conjuntos llega a 0,70 con ninguna de las dos bases.
 La detección tiene que ser multivariada; no hay un indicador único que sirva
 de alarma.
@@ -260,9 +260,9 @@ discriminar:
 |---|---:|---:|---:|---:|
 | `sWinTCP` | 0,563 | **0,563** | 0,026 | 83,8 % |
 | `rAckDelayMax` | 0,440 | 0,560 | 0,036 | 83,8 % |
-| `sPackets` | 0,442 | **0,558** | 0,013 | **100 %** |
 | `rAckRate` | 0,444 | 0,556 | 0,023 | 84,2 % |
 | `rSynRate` | 0,556 | 0,556 | 0,015 | 84,2 % |
+| `sLoad` | 0,456 | **0,544** | 0,036 | **100 %** |
 
 El AUC plegado trata igual a las que discriminan con el signo invertido. De
 las 42 evaluadas, **ninguna llega a 0,70 y 37 quedan por debajo de 0,55**. Con
@@ -271,7 +271,7 @@ el etiquetado `IT` el mejor cae a 0,515, casi el azar.
 La cobertura importa para comparar con los otros conjuntos: el máximo, 0,563,
 es de un campo que falta en el 16,2 % de los flujos —los que no son TCP—, de
 modo que está medido sobre otra población. Sobre las filas completas el mejor
-es `sPackets` con **0,558**. La diferencia es de milésimas acá, pero la
+es `sLoad` con **0,544**. La diferencia es de centésimas acá, pero la
 costumbre de citar el máximo sin su cobertura sí cambió una conclusión en
 Morris, de modo que conviene declararla en los tres.
 
@@ -632,13 +632,13 @@ distintas y hay que decir cuál se cita.
 
 | Conjunto | Mejor sobre población completa | Mejor absoluto, y sobre qué fracción |
 |---|---|---|
-| Westermo | 0,558 (`sPackets`, 100 %) | 0,563 (`sWinTCP`, **83,8 %**) |
+| Westermo | 0,544 (`sLoad`, 100 %) | 0,563 (`sWinTCP`, **83,8 %**) |
 | ICS-Flow | 0,647 (`sPayloadSum`, 100 %) | 0,669 (`rPayloadMax`, 99,0 %) |
 | Morris | 0,611 (`crc rate`, 100 %) | 0,684 (`pressure measurement`, **25,1 %**) |
 
 **El orden entre conjuntos depende de la base, y por eso hay que declararla.**
 Sobre población completa es ICS-Flow (0,647), después Morris (0,611) y después
-Westermo (0,558). Sobre el máximo absoluto es Morris (0,684), ICS-Flow (0,669)
+Westermo (0,544). Sobre el máximo absoluto es Morris (0,684), ICS-Flow (0,669)
 y Westermo (0,563). Una versión anterior citaba los máximos absolutos sin
 decirlo y concluía que Morris quedaba primero «porque sus atributos son
 semánticos»: con la base comparable queda segundo, y la explicación sobraba.
@@ -661,6 +661,21 @@ Es una sola secuencia de transacciones, no varias conversaciones en paralelo.
 Con 0,86 a retardo 1, las 163.823 transacciones equivalen a **12.060**, el
 7 %. El lazo de control repite el mismo ciclo, así que vale la advertencia de
 ICS-Flow: validación por bloques y nunca al azar.
+
+**Pero la etiqueta es otra cosa, y es la que decide cuántas observaciones hay
+para estimar una PD.** Medida aparte:
+
+| | Características | Etiqueta |
+|---|---:|---:|
+| Autocorrelación a retardo 1 | 0,86 | **0,31** |
+| Observaciones equivalentes | 12.060 | **85.528** |
+| Racha anómala más larga | — | **3 filas** |
+
+Las inyecciones de Morris son aisladas —uno o dos registros, el comando y su
+respuesta—, no campañas: por eso la etiqueta alterna y su autocorrelación es
+baja aunque los atributos se repitan. Para una validación cruzada hay que
+mirar la primera columna, y para el tamaño de muestra de una PD, la segunda.
+Son dos preguntas distintas sobre el mismo conjunto.
 
 ### ¿Conviene reducir la dimensión?
 
@@ -800,7 +815,8 @@ Del tramo de entrenamiento:
 
 | Tipo de archivo | Archivos | En disco |
 |---|---:|---:|
-| PCAP (`master`, `slave`, `attacker`) | 42 | 3713 MB |
+| PCAP agregados (`master`, `slave`, `attacker`) | 42 | 3713 MB |
+| PCAP por episodio, en subdirectorios | 1464 | 3022 MB |
 | `master.csv` / `slave.csv` | 24 | 9,5 MB |
 | `tshark/*.csv` | 180 | 115 MB |
 
@@ -847,9 +863,9 @@ ICS-Flow.
 | Componentes para el 90 % | 9 | 10 | no aplica | 13 | — |
 | Asimetría alta | 33 de 42 | 35 de 43 | 9 de 16 | 11 de 51 | — |
 | Autocorr. de las características | **−0,04** | 0,37 | 0,86 | **1,00** | — |
-| Autocorr. de la etiqueta | 0,78 | 0,73 | 0,86 | no medible | — |
-| Obs. independientes, por la etiqueta | 2618 | 4049 | 12.060 | **≈ 306** | — |
-| Mejor AUC de una variable, población completa | 0,558 | **0,647** | 0,611 | no medible | — |
+| Autocorr. de la etiqueta | 0,78 | 0,73 | **0,31** | no medible | — |
+| Obs. independientes, por la etiqueta | 2618 | 4049 | **85.528** | **≈ 306** | — |
+| Mejor AUC de una variable, población completa | 0,544 | **0,647** | 0,611 | no medible | — |
 | Mejor AUC absoluto, y su cobertura | 0,563 *(83,8 %)* | 0,669 *(99,0 %)* | **0,684** *(25,1 %)* | no medible | — |
 | Anomalías en entrenamiento | sí | sí | sí | **no** | sí |
 | Licencia | CC BY 4.0 | CC BY-NC-SA 4.0 | sin declarar | CC BY-SA 4.0 | sin declarar |
@@ -866,12 +882,22 @@ Tres lecturas que solo aparecen al poner los cinco en la misma tabla.
 
 **El tamaño nominal engaña.** HAI parece el conjunto más grande con 550.800
 muestras y es el más chico en observaciones independientes: unas trescientas.
-Westermo parece el más chico y es el único cuyas filas resultan
-independientes. Ordenar los conjuntos por número de filas da el orden
-equivocado.
+Morris es el caso inverso: sus *características* están muy autocorrelacionadas
+—0,86, porque el lazo de control repite el mismo ciclo— pero su *etiqueta* no
+—0,31, con rachas anómalas de hasta tres filas—, de modo que para estimar una
+PD vale como 85.528 observaciones y no como 12.060. Ordenar los conjuntos por
+número de filas da el orden equivocado, y ordenarlos por la autocorrelación de
+las características también.
+
+Las dos filas de esa tabla miden cosas distintas y conviene no cruzarlas. Una
+versión anterior ponía en la fila de la etiqueta de Morris la cifra de sus
+características —0,86 y 12.060—, que es la confusión misma que el
+hallazgo 5 levanta como hallazgo. Castigaba a Morris por un factor siete, y
+Morris es el único conjunto sobre el que el proyecto se compromete a dar PD
+por tipo.
 
 **Ninguna variable alcanza sola, en ninguno.** Sobre población completa el
-mejor AUC de los tres conjuntos donde se puede medir va de 0,558 a 0,647, y
+mejor AUC de los tres conjuntos donde se puede medir va de 0,544 a 0,647, y
 los máximos absolutos, medidos cada uno sobre las filas en que su atributo
 existe, de 0,563 a 0,684. Con cualquiera de las dos bases no hay un indicador
 único que sirva de alarma en ninguna de las tres fuentes, y eso es un

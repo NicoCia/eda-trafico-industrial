@@ -13,11 +13,11 @@ guarda                         estado  afirmacion
 ------------------------------------------------------------------------------
 particion-qut                  ok      Solo se leyeron las capturas de entrenamiento de QUT
                                        (INFORME.md seccion 2)
-                                       las 7 rutas del script 01 apuntan a training/, y hay 7 escenarios en la salida
+                                       las 7 rutas del script 01 terminan en training/, y los escenarios de la salida son esos mismos
 
 qut-sin-control                ok      QUT no contiene ningun objeto de control (g12v1, g41, g40)
                                        (INFORME.md 1.2)
-                                       ninguno presente
+                                       ningun objeto de los grupos 12, 40 ni 41 entre los 7 grupos presentes
 
 qut-subconjunto-unico          ok      Un solo subconjunto de grupos suma las operaciones WRITE
                                        (INFORME.md 1.2)
@@ -29,15 +29,15 @@ qut-fragmentos                 ok      No hay fragmentos DNP3 bien formados de v
 
 hai-ruido                      ok      El ruido del estimador de HAI queda por debajo de su umbral al 95 %
                                        (INFORME.md pregunta 5)
-                                       todas por debajo de 0,01
+                                       las 5 versiones por debajo de su propio umbral al 95 %
 
 hai-deriva-no-es-ruido         ok      La deriva dentro de una campana supera al ruido diez veces o mas
                                        (INFORME.md pregunta 5)
-                                       peor cociente: haiend-23.05 = 20 veces (minimo exigido 10)
+                                       peor cociente: haiend-23.05 = 20 veces (minimo exigido 18)
 
 hai-segmentada                 ok      La autocorrelacion de HAI se mide por tramos y no sobre la union
                                        (EXPLORATORIO.md HAI)
-                                       segmentos=2, tau=1800 s
+                                       2 segmentos; tau 1800 s por tramos contra 1800 s concatenando, 0 columnas cambian
 
 hai-train-sucio                ok      Solo 20.07 trae ataques etiquetados en sus archivos de entrenamiento
                                        (INFORME.md pregunta 3)
@@ -57,7 +57,7 @@ faltantes-estructurales        ok      El reparto de patrones de faltantes se ma
 
 auc-poblacion-completa         ok      El mejor AUC de los tres se compara sobre poblacion completa
                                        (EXPLORATORIO.md hallazgo 1)
-                                       orden Westermo 0.558 < Morris 0.611 < ICS-Flow 0.647, y ninguno llega a 0,70
+                                       Westermo 0.544 < Morris 0.611 < ICS-Flow 0.647, los tres como los citan los documentos y ninguno llega a 0,70
 
 ninguna-variable-sola          ok      Ninguna caracteristica sola llega a 0,70 de AUC en ningun conjunto
                                        (EXPLORATORIO.md hallazgo 1)
@@ -69,27 +69,27 @@ cv-por-bloques                 ok      La etiqueta esta autocorrelacionada: una 
 
 eventos-independientes         ok      Los eventos de Morris no se agrupan entre si
                                        (INFORME.md pregunta 4)
-                                       las 7 categorias con autocorrelacion negativa
+                                       las siete categorias con autocorrelacion negativa
 
 un-solo-estadistico            ok      Las cifras de precision salen todas del intervalo de Wilson
                                        (INFORME.md preguntas 4 y 4.4)
-                                       7 casos, todos con Wilson al 95 %
+                                       7 casos, y los 5 semianchos que citan los documentos reproducen
 
 ventana-invierte               ok      A recuento igualado se invierte el orden del indice de dispersion
                                        (INFORME.md 1.5)
-                                       ventana 1 s: 0.34 < 3.00 ; recuento 5: 30.80 > 3.07
+                                       ventana 1 s: 0.18 contra 3.00 ; recuento 5: 16.48 contra 3.07 (se exige un factor 3 en cada direccion)
 
 entropia-invierte              ok      La entropia normalizada invierte el orden de la cruda
                                        (INFORME.md pregunta 2)
                                        menor en bits = QUT solo DNP3 ; mayor normalizada = QUT solo DNP3
 
-identidades                    ok      Las identidades del inventario se cumplen salvo las tres declaradas
+identidades                    ok      Las identidades del inventario se cumplen salvo las cuatro declaradas
                                        (EXPLORATORIO.md coherencia interna)
-                                       34 identidades evaluadas entre los dos conjuntos, sin excepciones fuera de las tres declaradas
+                                       34 identidades evaluadas entre los dos conjuntos, sin excepciones fuera de las cuatro declaradas
 
 constantes-solo-en-normal      ok      Las caracteristicas constantes lo son solo en el trafico normal
                                        (INFORME.md 5.4 y 5.5)
-                                       6 de las 10 varian sobre los flujos anomalos; sin variacion en todo el tramo quedan 5 en Westermo y 4 en ICS-Flow
+                                       6 de las 10 varian sobre los flujos anomalos (publicado 6); sin variacion en todo el tramo quedan 5 en Westermo (publicado 5) y 4 en ICS-Flow (publicado 4)
 
 ------------------------------------------------------------------------------
 

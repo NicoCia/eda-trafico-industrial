@@ -46,8 +46,10 @@ def cargar():
     Deja cada tramo escrito en `eda/derivados/`, porque es lo que consume el
     reporte generico de la materia, que toma un archivo y no un DataFrame.
     """
-    W = pd.read_csv(os.path.join(comun.WESTERMO, "reduced", "flows",
-                                 "output_bottom.csv"))
+    # Con los contadores de volumen corregidos: el equipo que graba cuenta
+    # cada paquete dos veces y los CSV publicados cuentan las copias. Ver
+    # `22_westermo_duplicados.py`.
+    W = comun.westermo_flujos("reduced", "bottom")
     W.columns = [c.strip() for c in W.columns]
     W = W[W["startOffset"] < comun.WESTERMO_CORTES[0]].reset_index(drop=True)
 

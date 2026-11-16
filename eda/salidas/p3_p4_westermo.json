@@ -181,33 +181,33 @@
   "dentro_de_2pp": 1,
   "duplicacion_entre_puntos": {
    "reduced/bottom": {
-    "flujos": 35404,
-    "con_gemelo_en_otro_punto": 272,
+    "flujos": 21080,
+    "con_gemelo_en_otro_punto": 160,
     "repetidos_dentro_del_punto": 0
    },
    "reduced/left": {
-    "flujos": 8533,
-    "con_gemelo_en_otro_punto": 257,
+    "flujos": 4800,
+    "con_gemelo_en_otro_punto": 158,
     "repetidos_dentro_del_punto": 0
    },
    "reduced/right": {
-    "flujos": 4720,
-    "con_gemelo_en_otro_punto": 22,
+    "flujos": 2862,
+    "con_gemelo_en_otro_punto": 10,
     "repetidos_dentro_del_punto": 0
    },
    "extended/bottom": {
-    "flujos": 55425,
-    "con_gemelo_en_otro_punto": 273,
+    "flujos": 33108,
+    "con_gemelo_en_otro_punto": 160,
     "repetidos_dentro_del_punto": 0
    },
    "extended/left": {
-    "flujos": 8555,
-    "con_gemelo_en_otro_punto": 258,
+    "flujos": 4816,
+    "con_gemelo_en_otro_punto": 159,
     "repetidos_dentro_del_punto": 0
    },
    "extended/right": {
-    "flujos": 4749,
-    "con_gemelo_en_otro_punto": 24,
+    "flujos": 2878,
+    "con_gemelo_en_otro_punto": 11,
     "repetidos_dentro_del_punto": 0
    }
   }

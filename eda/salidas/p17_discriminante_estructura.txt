@@ -16,28 +16,28 @@ un campo con faltantes estructurales se evalua sobre otra poblacion
 que uno presente en todas las filas.
 
 campo                    AUC AUC pleg. F de ANOVA inf. mutua   cob.%   pos.%
-sWinTCP                0.563     0.563       1557     0.026    83.8    16.5
-rAckDelayMax           0.440     0.560        102     0.036    83.8    16.5
-sPackets               0.442     0.558         96     0.013   100.0    17.2
-rAckRate               0.444     0.556       1131     0.023    84.2    16.9
-rSynRate               0.556     0.556       1131     0.015    84.2    16.9
-rPshRate               0.450     0.550        245     0.018    84.2    16.9
-sLoad                  0.451     0.549          3     0.036   100.0    17.2
-sBytesSum              0.451     0.549         60     0.019   100.0    17.2
-rttl                   0.453     0.547        860     0.019    84.2    16.9
-sSynRate               0.543     0.543        718     0.020    83.8    16.5
-rInterPacketAvg        0.542     0.542        158     0.034    84.5    17.2
-sPayloadSum            0.461     0.539         20     0.026   100.0    17.2
+sWinTCP                0.563     0.563       1557     0.021    83.8    16.5
+rAckDelayMax           0.440     0.560        102     0.033    83.8    16.5
+rSynRate               0.556     0.556       1131     0.014    84.2    16.9
+rAckRate               0.444     0.556       1131     0.024    84.2    16.9
+rPshRate               0.450     0.550        245     0.013    84.2    16.9
+rttl                   0.453     0.547        860     0.020    84.2    16.9
+sLoad                  0.456     0.544          5     0.031   100.0    17.2
+sPackets               0.456     0.544         49     0.011   100.0    17.2
+sSynRate               0.543     0.543        718     0.018    83.8    16.5
+sPayloadSum            0.462     0.538        186     0.027   100.0    17.2
+sPshRate               0.463     0.537        162     0.029    83.8    16.5
+rWinTCP                0.537     0.537        657     0.023    84.2    16.9
 
 Mejor AUC plegado sobre poblacion completa (cobertura >= 99 %):
-**0.558** (`sPackets`, cobertura 100.0 %). Esa es la cifra comparable
+**0.544** (`sLoad`, cobertura 100.0 %). Esa es la cifra comparable
 entre conjuntos; el maximo de la tabla puede estar medido sobre
 una subpoblacion.
 Aca difieren: el maximo es 0.563 (`sWinTCP`) sobre el 83.8 % de
 las filas.
 
 De las 42 características evaluadas: **0** alcanzan AUC plegado
-≥ 0,70 y **37** quedan por debajo de 0,55, es decir que no
+≥ 0,70 y **38** quedan por debajo de 0,55, es decir que no
 discriminan por sí solas.
 
 Con el etiquetado `IT_B_Label` como objetivo, el mejor AUC plegado pasa
@@ -49,8 +49,8 @@ tan separable es el problema, no solo su balance.
 Autocorrelación dentro de cada conversación, ponderada por su largo
 (7 conversaciones con al menos 200 flujos).
 
-La información mutua más alta de las 42 es **rAckDelayMax** con
-**0.0365**; la más baja, sAckDelayMin con 0.0000. La tabla de arriba está
+La información mutua más alta de las 42 es **sInterPacketAvg** con
+**0.0351**; la más baja, sAckDelayMin con 0.0005. La tabla de arriba está
 ordenada por AUC, de modo que la de mayor MI no tiene por qué
 aparecer en ella.
 
@@ -62,7 +62,7 @@ retardo     mediana        p90 con |ac|>0,3
 
 La autocorrelación mediana a retardo 1 es **-0.04**, de modo
 que la corrección AR(1) del tamaño de muestra es inmaterial:
-las 21080 filas valen como 22755.
+las 21080 filas valen como 22757.
 
 Las **características** de filas sucesivas traen casi toda su
 información: la corrección AR(1) sobre ellas es inmaterial.
@@ -93,15 +93,15 @@ baja: son dos preguntas distintas y no se deducen una de otra.
 ### Reducción de dimensión
 
 PCA sobre las 41 características no constantes, estandarizadas,
-con las 17586 filas completas (83 % del tramo; no se imputa, porque
+con las 17582 filas completas (83 % del tramo; no se imputa, porque
 los faltantes son estructurales).
 
 - Componentes para el 90 % de la varianza: **9** de 41
 - Componentes para el 95 % de la varianza: **12**
-- La primera componente explica el 28.3 %
+- La primera componente explica el 29.9 %
 
 LDA con dos clases da una sola dirección discriminante, que separa
-con AUC 0.585 sobre los mismos datos con los que se ajustó, de modo
+con AUC 0.584 sobre los mismos datos con los que se ajustó, de modo
 que es una cota superior y no una estimación honesta.
 
 ### Identificadores de red publicados

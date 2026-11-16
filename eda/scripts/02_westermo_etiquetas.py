@@ -244,7 +244,15 @@ def main():
             ruta = os.path.join(comun.WESTERMO, var, "flows",
                                 "output_%s.csv" % pt)
             if os.path.exists(ruta):
-                tablas[pt] = pd.read_csv(ruta)
+                # SOLO EL TRAMO DE ENTRENAMIENTO. Esta comparacion usa cuatro
+                # CARACTERISTICAS --- paquetes y octetos de los dos lados ---,
+                # no columnas de etiqueta, de modo que no entra en la excepcion
+                # de conteo que declara la seccion 2 de INFORME.md. Una version
+                # anterior leia los seis archivos enteros, y eso era abrir los
+                # tramos de calibracion y de prueba.
+                d = pd.read_csv(ruta)
+                tablas[pt] = d[d["startOffset"] < comun.WESTERMO_CORTES[0]] \
+                    .reset_index(drop=True)
         if len(tablas) < 2:
             continue
         w("   %s:" % var)

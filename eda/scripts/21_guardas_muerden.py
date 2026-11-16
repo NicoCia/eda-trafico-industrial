@@ -13,11 +13,11 @@ esta conectado.
 
 NO TOCA LAS SALIDAS REALES
 --------------------------
-Trabaja sobre una copia de `eda/salidas/` en un directorio temporal que borra
-al terminar. El script 20 acepta un directorio alternativo justamente para
-esto. La unica guarda que no lee un JSON --- `particion-qut`, que mira el
-codigo del script 01 --- se prueba sustituyendo la funcion que devuelve las
-rutas, sin tocar el archivo.
+Carga los JSON una vez y rompe una **copia en memoria** (`copy.deepcopy`) por
+cada caso: los archivos de `eda/salidas/` no se abren para escritura en
+ningun momento. La unica guarda que no lee un JSON --- `particion-qut`, que
+mira el codigo del script 01 --- se prueba sustituyendo la funcion que
+devuelve las rutas, sin tocar el archivo.
 
 Uso:  eda/.venv/bin/python -I eda/scripts/21_guardas_muerden.py
 """
@@ -25,9 +25,7 @@ Uso:  eda/.venv/bin/python -I eda/scripts/21_guardas_muerden.py
 import copy
 import json
 import os
-import shutil
 import sys
-import tempfile
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -56,20 +54,26 @@ CASOS = [
     ("qut-fragmentos", "aparece una trama de apertura de fragmento multiple",
      lambda S: S["p1"]["_fragmentado"]["total"].update({"frag_primero": 4})),
 
-    ("hai-ruido", "el ruido del estimador sube por encima del umbral",
-     lambda S: S["p5"]["ruido_estimador_particion_al_azar"]["hai-20.07"]
-     .update({"ks_mediana": 0.08})),
+    ("hai-ruido",
+     "el ruido queda apenas por encima de su umbral (0,0099 contra 0,0089)",
+     lambda S: S["p5"]["ruido_estimador_particion_al_azar"]["hai-22.04"]
+     .update({"ks_mediana": 0.0099})),
 
     ("hai-deriva-no-es-ruido",
-     "la deriva interna deja de superar al ruido diez veces",
-     lambda S: S["p5"]["referencia_intra_archivo"]["hai-20.07"]
-     .update({"ks_mediana": 0.004})),
+     "el cociente cae a 12, que ya desmiente el «entre 20 y 43»",
+     lambda S: [
+         r.update({"ks_mediana":
+                   S["p5"]["ruido_estimador_particion_al_azar"][v]["ks_mediana"]
+                   * 12.0})
+         for v, r in S["p5"]["referencia_intra_archivo"].items()]),
 
     ("hai-segmentada", "la autocorrelacion vuelve a medirse sobre la union",
      lambda S: S["p18"]["HAI"]["autocorrelacion"].update({"segmentos": 1})),
 
     ("hai-train-sucio", "otra version trae ataques en entrenamiento",
-     lambda S: S["p5"]["ataques_en_entrenamiento"].update({"hai-22.04": []})),
+     lambda S: S["p5"]["ataques_en_entrenamiento"].update(
+         {"hai-22.04": [{"archivo": "train1.csv", "filas": 500,
+                         "eventos": 2}]})),
 
     ("westermo-union-unica", "dos agregaciones caen dentro de 2 pp",
      lambda S: S["p3p4w"]["union_de_puntos"].update({"dentro_de_2pp": 2})),
@@ -98,25 +102,29 @@ CASOS = [
     ("eventos-independientes", "una categoria de Morris se agrupa",
      lambda S: S["p9"]["autocorrelacion_entre_eventos"][0].update({"rho": 0.44})),
 
-    ("un-solo-estadistico", "un caso se publica sin el intervalo de Wilson",
-     lambda S: S["p9"]["casos"][0].pop("wilson_95", None)),
+    ("un-solo-estadistico",
+     "un semiancho deja de reproducir la cifra que cita el documento",
+     lambda S: S["p9"]["casos"][0]["wilson_95"].update({"semiancho": 0.031})),
 
-    ("ventana-invierte", "deja de invertirse el orden a recuento igualado",
+    ("ventana-invierte",
+     "la inversion queda en 3,08 contra 3,07, que es ruido",
      lambda S: S["p2"]["sensibilidad_ventana"]["recuento_5"]
-     .update({"Westermo limpio": 1.4})),
+     .update({"Westermo limpio": 3.08})),
 
-    ("entropia-invierte", "la normalizada deja de invertir el orden",
-     lambda S: S["p2"]["entropia_cruda_vs_normalizada"]["QUT solo DNP3"]
-     .update({"Hn": 0.11})),
+    ("entropia-invierte",
+     "Westermo pasa a tener menos entropia cruda que QUT solo DNP3",
+     lambda S: S["p2"]["entropia_cruda_vs_normalizada"]["Westermo limpio"]
+     .update({"H": 0.5, "Hn": 0.11})),
 
     ("identidades", "una identidad nueva deja de cumplirse",
      lambda S: S["p10"]["westermo"]["identidades"]["duration == end - start"]
      .update({"fraccion": 0.72})),
 
     ("constantes-solo-en-normal",
-     "las diez vuelven a ser constantes en todo el tramo",
-     lambda S: S["p11"]["westermo_icsflow"]
-     .update({"campos_constantes_solo_en_normal": []})),
+     "pasan a quedar 9 sin variar en lugar de 5 (otra recomendacion)",
+     lambda S: S["p11"]["westermo_icsflow"].update(
+         {"campos_sin_variacion_en_todo_el_tramo": {"westermo": 9,
+                                                    "icsflow": 9}})),
 ]
 
 

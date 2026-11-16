@@ -351,6 +351,12 @@ def main():
         perm = rng.permutation(len(d))
         rz = comparar(d.iloc[perm[:mitad]], d.iloc[perm[mitad:]], num)
         if rz:
+            # El umbral de significacion viaja CON la medicion: si queda solo
+            # impreso en el .txt, cualquier guarda que diga compararse contra
+            # el tiene que inventarse una constante.
+            rz["umbral95"] = (1.36 * np.sqrt(2.0 / mitad) if mitad
+                              else float("nan"))
+            rz["n_por_mitad"] = int(mitad)
             ruido[ver] = rz
         r = comparar(d.iloc[:mitad], d.iloc[mitad:], num)
         if r:

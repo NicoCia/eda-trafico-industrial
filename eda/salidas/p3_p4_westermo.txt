@@ -57,13 +57,13 @@ bytes en los dos sentidos, y comienzo dentro de 1 s. Es un flujo
 observado en dos puntos a la vez.
 
    reduced:
-     bottom    35404 flujos; con gemelo en otro punto   272 (0.8 %); repetidos dentro del punto 0
-     left       8533 flujos; con gemelo en otro punto   257 (3.0 %); repetidos dentro del punto 0
-     right      4720 flujos; con gemelo en otro punto    22 (0.5 %); repetidos dentro del punto 0
+     bottom    21080 flujos; con gemelo en otro punto   160 (0.8 %); repetidos dentro del punto 0
+     left       4800 flujos; con gemelo en otro punto   158 (3.3 %); repetidos dentro del punto 0
+     right      2862 flujos; con gemelo en otro punto    10 (0.3 %); repetidos dentro del punto 0
    extended:
-     bottom    55425 flujos; con gemelo en otro punto   273 (0.5 %); repetidos dentro del punto 0
-     left       8555 flujos; con gemelo en otro punto   258 (3.0 %); repetidos dentro del punto 0
-     right      4749 flujos; con gemelo en otro punto    24 (0.5 %); repetidos dentro del punto 0
+     bottom    33108 flujos; con gemelo en otro punto   160 (0.5 %); repetidos dentro del punto 0
+     left       4816 flujos; con gemelo en otro punto   159 (3.3 %); repetidos dentro del punto 0
+     right      2878 flujos; con gemelo en otro punto    11 (0.4 %); repetidos dentro del punto 0
 
 La duplicacion que el README describe es de PAQUETES y no sobrevive al
 armado de flujos: dentro de cada punto no hay un solo flujo repetido, y

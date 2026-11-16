@@ -22,9 +22,9 @@ objetos         2318092  (en 11 grupos distintos)
 
 ## 19.2 Los objetos de control no aparecen
 
-   g12v1               0
-   g41                 0
-   g40                 0
+   grupo 12              0  (ninguna variacion)
+   grupo 40              0  (ninguna variacion)
+   grupo 41              0  (ninguna variacion)
 
 Ninguno de los tres. Es lo que sostiene la seccion 1.2: sobre QUT no
 hay parametros de comando que extraer.

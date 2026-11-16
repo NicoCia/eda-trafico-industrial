@@ -2109,52 +2109,16 @@
   },
   "ks": [
    {
-    "campo": "rBytesSum",
-    "ref_westermo": 0.013061411549037505,
-    "ref_icsflow": 0.013213160658032908,
-    "cruzado": 0.5378805718471075
-   },
-   {
-    "campo": "rPackets",
-    "ref_westermo": 0.011571952337305236,
-    "ref_icsflow": 0.01260063003150158,
-    "cruzado": 0.5376514242760717
-   },
-   {
-    "campo": "sPayloadSum",
-    "ref_westermo": 0.009509624197983513,
-    "ref_icsflow": 0.009450472523626186,
-    "cruzado": 0.5342254796057859
-   },
-   {
-    "campo": "rInterPacketAvg",
-    "ref_westermo": 0.24007974881971927,
-    "ref_icsflow": 0.03777738640366335,
-    "cruzado": 0.5147417144190718
-   },
-   {
-    "campo": "rPayloadSum",
-    "ref_westermo": 0.010999083409715893,
-    "ref_icsflow": 0.00892544627231362,
-    "cruzado": 0.5045809262277963
-   },
-   {
-    "campo": "sInterPacketAvg",
-    "ref_westermo": 0.15786948176583493,
-    "ref_icsflow": 0.029293094220037286,
-    "cruzado": 0.44211990224338943
-   },
-   {
     "campo": "rLoad",
     "ref_westermo": 0.19431714023831348,
     "ref_icsflow": 0.04278963948197412,
-    "cruzado": 0.382547773699409
+    "cruzado": 0.6444384633301325
    },
    {
-    "campo": "sLoad",
-    "ref_westermo": 0.15226856095325392,
-    "ref_icsflow": 0.028088904445222163,
-    "cruzado": 0.3731158888375216
+    "campo": "rInterPacketAvg",
+    "ref_westermo": 0.24050461204557788,
+    "ref_icsflow": 0.03777738640366335,
+    "cruzado": 0.6191654226257517
    },
    {
     "campo": "rAckDelayAvg",
@@ -2163,10 +2127,10 @@
     "cruzado": 0.3487332242631714
    },
    {
-    "campo": "sBytesSum",
-    "ref_westermo": 0.0134051329055912,
-    "ref_icsflow": 0.01163808190409521,
-    "cruzado": 0.3392362961411133
+    "campo": "rBytesSum",
+    "ref_westermo": 0.01294683776351968,
+    "ref_icsflow": 0.013213160658032908,
+    "cruzado": 0.33236700217229015
    },
    {
     "campo": "sAckDelayAvg",
@@ -2175,10 +2139,22 @@
     "cruzado": 0.3177601168965511
    },
    {
-    "campo": "sPackets",
-    "ref_westermo": 0.01317598533455544,
-    "ref_icsflow": 0.011988099404970254,
-    "cruzado": 0.30872945171089905
+    "campo": "rPayloadSum",
+    "ref_westermo": 0.010999083409715893,
+    "ref_icsflow": 0.00892544627231362,
+    "cruzado": 0.3085075226492764
+   },
+   {
+    "campo": "rPackets",
+    "ref_westermo": 0.0114573785517873,
+    "ref_icsflow": 0.01260063003150158,
+    "cruzado": 0.3080290758350933
+   },
+   {
+    "campo": "sPayloadSum",
+    "ref_westermo": 0.009509624197983513,
+    "ref_icsflow": 0.009450472523626186,
+    "cruzado": 0.29612787926289075
    },
    {
     "campo": "rAckDelayMax",
@@ -2187,10 +2163,34 @@
     "cruzado": 0.2843218251765056
    },
    {
+    "campo": "sPackets",
+    "ref_westermo": 0.01317598533455544,
+    "ref_icsflow": 0.011988099404970254,
+    "cruzado": 0.27501514282863543
+   },
+   {
+    "campo": "sBytesSum",
+    "ref_westermo": 0.01317598533455544,
+    "ref_icsflow": 0.01163808190409521,
+    "cruzado": 0.2742131263300103
+   },
+   {
     "campo": "duration",
     "ref_westermo": 0.19958753437213572,
     "ref_icsflow": 0.03053902695134758,
     "cruzado": 0.250448109023233
+   },
+   {
+    "campo": "sInterPacketAvg",
+    "ref_westermo": 0.17241379310344834,
+    "ref_icsflow": 0.029293094220037286,
+    "cruzado": 0.246607058840965
+   },
+   {
+    "campo": "sLoad",
+    "ref_westermo": 0.15284142988084326,
+    "ref_icsflow": 0.028088904445222163,
+    "cruzado": 0.23626355756376277
    },
    {
     "campo": "sAckDelayMax",
@@ -2250,13 +2250,13 @@
     "campo": "rBytesAvg",
     "ref_westermo": 0.008809975603144449,
     "ref_icsflow": 0.01681997371879107,
-    "cruzado": 0.06642101798542316
+    "cruzado": 0.06675986320092875
    },
    {
     "campo": "rPayloadAvg",
     "ref_westermo": 0.008809975603144449,
     "ref_icsflow": 0.01690757774857643,
-    "cruzado": 0.0662615128710125
+    "cruzado": 0.0666003580865181
    },
    {
     "campo": "sPayloadMin",
@@ -2391,9 +2391,9 @@
     "cruzado": 0.0
    }
   ],
-  "ks_mediana_cruzado": 0.06642101798542316,
+  "ks_mediana_cruzado": 0.06675986320092875,
   "ks_mediana_referencia": 0.0066532434561848985,
-  "ks_mayor_05": 5,
+  "ks_mayor_05": 2,
   "ks_igual_1": 0,
   "campos_constantes_en_ambos": [
    "sttl",
@@ -2482,64 +2482,28 @@
    "icsflow": 4
   },
   "cuantiles_campos_fuertes": {
-   "rBytesSum": {
+   "rLoad": {
     "Westermo": [
      0.0,
-     1496.0,
-     2112.0
+     14866.464148532015,
+     883507.7494459278
     ],
     "ICS-Flow": [
-     348.0,
-     933.0,
-     1648.0
-    ]
-   },
-   "rPackets": {
-    "Westermo": [
-     0.0,
-     26.0,
-     36.0
-    ],
-    "ICS-Flow": [
-     6.0,
-     15.0,
-     28.0
-    ]
-   },
-   "sPayloadSum": {
-    "Westermo": [
-     0.0,
-     208.0,
-     294.0
-    ],
-    "ICS-Flow": [
-     39.0,
-     130.0,
-     208.0
+     11099.14875,
+     18494.589500000002,
+     2228523.386
     ]
    },
    "rInterPacketAvg": {
     "Westermo": [
-     0.00026645151774082,
-     0.0161475888613996,
-     0.029357006970573783
+     0.00055970052878053,
+     0.033544580141703195,
+     0.0623835027217865
     ],
     "ICS-Flow": [
      0.00025459887489437497,
      0.02869956833975655,
      0.04545029726895412
-    ]
-   },
-   "rPayloadSum": {
-    "Westermo": [
-     0.0,
-     192.0,
-     306.0
-    ],
-    "ICS-Flow": [
-     36.0,
-     120.0,
-     192.0
     ]
    }
   }

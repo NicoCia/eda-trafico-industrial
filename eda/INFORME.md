@@ -28,7 +28,7 @@ ellos se contrasta está transcrito acá, al lado de la medición.
 
 ---
 
-## 1. Seis hallazgos que cambian cómo se usan estos conjuntos
+## 1. Siete hallazgos que cambian cómo se usan estos conjuntos
 
 Van primero porque son el resultado más importante del análisis, y porque
 cuatro de ellos contradicen lo que la documentación de los propios conjuntos
@@ -65,8 +65,10 @@ sirve; lo que no sirve es confiar en los nombres de archivo.
 
 ### 1.2 QUT DNP3 no contiene comandos de control con parámetros
 
-Sobre las 2.318.092 cabeceras de objeto DNP3 extraídas de todo el tramo de
-entrenamiento, **no aparece ni un solo objeto de control**:
+Sobre las 2.318.092 cabeceras de objeto DNP3 extraídas de los 42 PCAP
+agregados del tramo de entrenamiento —que son el 51 % de ese tramo por
+volumen; el §3, pregunta 1, explica cuál es el resto—, **no aparece ni un
+solo objeto de control**:
 
 | Objeto | Qué es | Apariciones |
 |---|---|---:|
@@ -173,28 +175,32 @@ ficha ya está corregida.
 Los dos conjuntos suelen describirse como tráfico industrial determinista.
 Medirlo exige elegir una ventana, y **la elección decide el resultado**: el
 índice de dispersión es invariante de escala solo para un proceso de Poisson,
-de modo que entre series de tasas muy distintas —273 paquetes por segundo en
+de modo que entre series de tasas muy distintas —138 paquetes por segundo en
 Westermo contra 4,9 en QUT— una ventana fija no compara la misma cosa.
+
+Las cifras de Westermo de esta sección están medidas sobre **paquetes
+únicos**: el equipo que graba captura cada trama al entrar y al salir, y
+contar las copias duplicaba la tasa. El §1.7 lo trata.
 
 Medido con varias ventanas, en la salida de la pregunta 2
 (`eda/salidas/p2_determinismo.txt`, sección 2.3):
 
 | Ventana | Westermo limpio | QUT Control | QUT solo DNP3 |
 |---|---:|---:|---:|
-| 0,1 s | **32,63** | 2,37 | 1,78 |
-| 0,5 s | 1,16 | 2,95 | 2,63 |
-| 1 s | **0,34** | **3,00** | **2,73** |
-| 10 s | 0,23 | 3,90 | 1,04 |
+| 0,1 s | **16,13** | 2,37 | 1,78 |
+| 0,5 s | 0,61 | 2,95 | 2,63 |
+| 1 s | **0,18** | **3,00** | **2,73** |
+| 10 s | 0,12 | 3,90 | 1,04 |
 
 Y a recuento esperado por ventana igualado, que es la comparación que el
 índice admite, **el orden se invierte**: con 5 paquetes por ventana Westermo
-da 30,80 contra 3,07 de QUT Control.
+da 16,48 contra 3,07 de QUT Control.
 
 De modo que la lectura defendible no es que uno sea determinista y el otro no.
 Es que **Westermo es de una regularidad notable en la escala del segundo y a
 ráfagas por debajo de los 0,5 s**, y QUT es a ráfagas en todas las escalas
 medidas, sin llegar al extremo de ninguna de las dos caras de Westermo. El CV del intervalo entre paquetes, más abajo, ordena las
-dos series al revés que la ventana de 1 s —4,49 en Westermo contra 1,26 en
+dos series al revés que la ventana de 1 s —3,18 en Westermo contra 1,26 en
 QUT—, que es otra cara de lo mismo.
 
 Lo que esto descarta es una **sola calificación comparativa** de determinismo
@@ -234,11 +240,17 @@ lejos. No es una coincidencia entre muchas parecidas.
 **¿La unión cuenta el mismo tráfico tres veces?** El README del conjunto avisa
 que un paquete que entra y sale del equipo que graba aparece dos veces, lo que
 haría de la unión tráfico inflado y no una población. Medido sobre los flujos,
-no: **dentro de cada punto no hay un solo flujo repetido**, y los flujos con
-gemelo en otro punto —mismo par de direcciones, protocolo, paquetes y bytes en
-los dos sentidos, y comienzo dentro de un segundo— son el 0,8 % en `bottom`,
-el 3,0 % en `left` y el 0,5 % en `right`. La duplicación que el README describe
-es de paquetes y no sobrevive al armado de flujos.
+a nivel de **filas** no: dentro de cada punto no hay un solo flujo repetido,
+y los flujos con gemelo en otro punto —mismo par de direcciones, protocolo,
+paquetes y bytes en los dos sentidos, y comienzo dentro de un segundo— son el
+0,8 % en `bottom`, el 3,3 % en `left` y el 0,3 % en `right`, medido sobre el
+tramo de entrenamiento.
+
+**Pero eso no cierra la pregunta, y una versión anterior de este documento
+creyó que sí.** Que no haya filas repetidas no quiere decir que no haya
+duplicación: la hay, dentro de cada fila, y los contadores de volumen la
+cuentan. Está en §1.7. Lo que esta medición establece es solo que la unión de
+los tres puntos no apila la misma fila tres veces.
 
 Queda una salvedad que la unión no borra, y vale tenerla a la vista: los tres
 puntos ven repartos **muy** distintos —82,4 / 15,0 / 2,6 en `bottom` contra
@@ -246,6 +258,66 @@ puntos ven repartos **muy** distintos —82,4 / 15,0 / 2,6 en `bottom` contra
 el 72,8 % de sus flujos. La cifra de la unión no es una propiedad de la red
 sino del reparto de volumen entre puntos de captura. El detalle está en las
 secciones P3.c y P3.d de `eda/salidas/p3_p4_westermo.txt`.
+
+### 1.7 Westermo cuenta cada paquete dos veces, y sus contadores de volumen lo heredan
+
+El `README` del conjunto avisa que el equipo que graba captura la trama al
+entrar y al salir, «de modo que hay muchos paquetes duplicados». Lo que no
+estaba medido —y lo que este análisis afirmó al revés— es que **los
+contadores de volumen de los CSV de flujo publicados cuentan esas copias**.
+
+Medido sobre `reduced/bottom`, en `eda/salidas/p22_westermo_duplicados.txt`:
+
+| Captura | Paquetes | Copias | Factor de inflación |
+|---|---:|---:|---:|
+| `reduced/bottom` | 1.513.815 | 731.226 (48,3 %) | **1,95×** |
+| `reduced/left` | 281.105 | 124.453 (44,3 %) | **1,84×** |
+| `reduced/right` | 35.067 | 3436 (9,8 %) | 1,13× |
+| `extended/bottom` | 4.384.183 | 2.163.897 (49,4 %) | **1,98×** |
+
+Dos paquetes son la misma captura si son **idénticos octeto a octeto** y
+están separados por menos de 1 ms. La ventana no es arbitraria: la separación
+entre apariciones de una misma firma es de una bimodalidad nítida —la mediana de
+las copias es de 1,0 µs y las balizas periódicas idénticas reaparecen entre 1
+y 10 s—, y entre 100 µs y 1 ms no hay casi nada. Un deduplicado sin ventana
+borraría las balizas, que son tráfico legítimo: hay firmas que aparecen 3189
+veces.
+
+**Qué se corrigió y cómo.** No se rearmaron los flujos: hacerlo con un
+armador propio cambiaría a la vez el conteo —que es lo que hay que corregir—
+y la definición de flujo —que no—, y rompería la comparabilidad con ICS-Flow,
+que sale del mismo generador y es lo que sostiene toda la sección 5. Se
+conserva la fila publicada, con sus límites y su asignación de emisor y
+receptor, y se recuentan sus seis contadores de volumen: cada paquete del
+PCAP se asigna a la fila que le corresponde.
+
+Eso se puede validar, y la validación es lo que hace confiable al resto:
+si se recuenta **sin** deduplicar, el resultado reproduce el CSV publicado
+fila por fila en las seis capturas —entre el 99 % y el 100 % de las filas exactas
+en los seis campos—. Si esa reproducción se degrada, el script termina con
+código distinto de cero y no publica ninguna corrección.
+
+**Qué cambia.** La tasa de Westermo pasa de 272,9 a **137,8** paquetes por
+segundo, el índice de dispersión de 0,34 a **0,18**, el CV del intervalo
+entre paquetes de 4,49 a **3,18** y el intervalo mediano de 0,047 a **0,492
+ms**. En §5.3 el volumen se cae del tope de la tabla: `rBytesSum` baja de
+0,538 a 0,332 de divergencia cruzada, y lo que queda arriba es temporizado.
+Las conclusiones estructurales se sostienen —la inversión de §1.5 sigue en
+pie, con 16,48 contra 3,07—, pero ninguna de las cifras anteriores era una
+propiedad del tráfico.
+
+**Y una lección de método, porque este análisis se equivocó hacia el lado
+cómodo.** Una versión anterior de §1.6 decía: «la duplicación que el README
+describe es de paquetes y no sobrevive al armado de flujos». Lo que estaba
+medido era que no hay **filas** de flujo repetidas, que es cierto. De ahí se
+concluyó que no hay duplicación en los datos, que es falso, y se usó esa
+conclusión para habilitar la unión de §5.5. Es el mismo error que este
+documento corrige en otros lados: una medición correcta con una
+frase al lado que responde otra pregunta.
+
+ICS-Flow, medido igual, tiene **0,1 %** de copias. De modo que comparar los
+contadores publicados de los dos conjuntos era comparar una serie contada
+doble contra una contada simple.
 
 ## 2. Partición usada y qué se exploró
 
@@ -270,10 +342,33 @@ declarar.** La verificación del reparto 75 / 18,5 / 6,5 (§1.6) y la comparaci�
 entre las estrategias IT y NST (pregunta 3) son proporciones sobre los seis CSV
 **completos**, no sobre el tramo de entrenamiento: la cifra publicada se
 refiere al conjunto entero y no se podría contrastar de otro modo. Son conteos
-de las cuatro columnas de etiqueta y nada más; ninguna de las 60 características
-de flujo se miró fuera del tramo de entrenamiento. Todo lo que alimenta
+de las cuatro columnas de etiqueta y nada más. Todo lo que alimenta
 decisiones de modelado —la pregunta 2 completa, incluido el análisis de flujos
 con `NST_B_Label`— se calculó solo con `startOffset` < 3265 s.
+
+**Y dos lecturas de características fuera del tramo, que hay que declarar en
+lugar de afirmar que no las hay.** Una versión anterior de este documento
+decía que «ninguna de las 60 características de flujo se miró fuera del tramo
+de entrenamiento». No era cierto:
+
+- `11_integracion_esquemas.py` deriva el número de decimales publicados y la
+  cardinalidad de cada campo sobre los dos CSV **completos**. Son
+  metadatos de formato —cuántos decimales trae el archivo, cuántos valores
+  distintos hay—, no distribuciones, y ninguna decisión de modelado se apoya
+  en ellos, pero son lecturas de característica fuera del tramo.
+- `12_westermo_modbus.py` lee los seis PCAP completos y publica, además de la
+  versión restringida al entrenamiento, el reparto de códigos de función, los
+  percentiles de latencia y los extremos de cada variable de proceso sobre el
+  archivo entero. Eso sí es distribucional. Ninguna de esas cifras llega a
+  este documento ni a `EXPLORATORIO.md`.
+
+Una tercera, que este análisis introdujo y ya corrigió: la comprobación de
+flujos gemelos de §1.6 leía cuatro características sobre los seis archivos
+enteros. Ahora se restringe al tramo de entrenamiento.
+
+Lo que importa de esta lista no es su gravedad —es baja— sino que la
+declaración categórica era falsa, y es la frase en la que un lector se apoya
+para creer que el protocolo quedó limpio.
 
 **Una advertencia sobre el tramo de entrenamiento de Westermo.** Los eventos
 están activos durante 2003 s de los 3265 s del tramo, es decir el **61,4 %**,
@@ -295,6 +390,18 @@ Se leyeron **42 PCAP** (master, slave y attacker de los 14 escenarios de
 entrenamiento), 3,46 GB, con un lector DNP3 propio escrito sobre `dpkt`
 (`eda/scripts/dnp3.py`), sin `tshark`.
 
+**Y eso no es todo el tramo de entrenamiento, aunque este documento lo llamó
+así.** Bajo `*/training/` hay **1506 PCAP y 6,79 GB**: además de los 42
+agregados por rol, cada escenario guarda un subdirectorio con una captura por
+episodio de ataque, que son 1464 archivos y 3,02 GB. `Control` no tiene
+ninguno. Los 1464 **no se abrieron**, de modo que todo censo de esta sección
+—las tramas de enlace, las cabeceras de objeto, el reparto de funciones— está
+medido sobre los 42 agregados, que son el 51 % del tramo por volumen.
+
+Eso no cambia la conclusión de §1.2 pero sí su alcance declarado, y conviene
+decir cuál es: lo que está establecido es que no hay objetos de control en
+los 42 archivos agregados.
+
 **Capa DNP3 y puerto.** Hay capa DNP3 reconocible en los siete escenarios,
 sobre **TCP 20000**. Se encontraron **2.372.794 tramas de enlace** y **0
 errores de CRC de cabecera** en los 42 archivos; los 2.546.545 CRC de bloque de
@@ -310,7 +417,7 @@ tramo de entrenamiento:
 | READ (1) | 821.203 | RECORD_CURRENT_TIME (24) | 1002 |
 | CONFIRM (0) | 216.762 | ENABLE_UNSOLICITED (20) | 864 |
 | WRITE (2) | 207.798 | WARM_RESTART (14) | 90 |
-| UNSOLICITED_RESPONSE (130) | 151.146 | COLD_RESTART (13) | 78 |
+| UNSOLICITED_RESPONSE (130) | 150.960 | COLD_RESTART (13) | 78 |
 
 El escenario `Control`, que es la línea base sin ataque, contiene **solo**
 READ, RESPONSE, CONFIRM y UNSOLICITED_RESPONSE. Todo lo demás —WRITE,
@@ -337,10 +444,19 @@ lugar de interpretarlas. Medido sobre el tramo de entrenamiento: de las
 2.371.922 son fragmento único y 186 —el 0,008 %— son de continuación**. Las
 686 restantes son tramas de solo enlace, que por diseño no llevan capa de
 aplicación. Las 186 estaban mal leídas, siempre como `UNSOLICITED_RESPONSE`
-con una cabecera `g2v1` falsa. El arreglo mueve dos cifras de este documento:
-las cabeceras de objeto bajan de 2.318.278 a **2.318.092** y `g2v1` de 162.802
-a **162.616**. Nada más: el recuento de WRITE no cambia, los objetos de control
-siguen en cero y el subconjunto que cierra en §1.2 se mantiene único.
+con una cabecera `g2v1` falsa. El arreglo mueve **tres** cifras de este
+documento: las cabeceras de objeto bajan de 2.318.278 a **2.318.092**, `g2v1`
+de 162.802 a **162.616**, y `UNSOLICITED_RESPONSE` de 151.146 a **150.960**
+—los 186 mensajes que el lector inventaba—. El recuento de WRITE no cambia,
+los objetos de control siguen en cero y el subconjunto que cierra en §1.2 se
+mantiene único.
+
+Vale anotar cómo se encontró la tercera, porque el error es instructivo: una
+versión anterior de este párrafo decía «mueve dos cifras … nada más», y el
+propio párrafo explicaba dos líneas más abajo que las 186 tramas se leían
+«siempre como `UNSOLICITED_RESPONSE`». La consecuencia estaba escrita al lado
+de la afirmación que la negaba, y la tabla de códigos de función quedó sin
+actualizar.
 
 Dos detalles que vale registrar porque dicen qué eran esas tramas. No hay **ni
 una** trama de apertura de fragmento múltiple ni de cierre, solo intermedias,
@@ -419,11 +535,11 @@ fuera—, así que la segunda columna equivale a quedarse solo con el TCP.
 
 | Medida | Westermo normal limpio | Westermo con eventos | QUT Control | QUT solo DNP3 *(subconjunto)* |
 |---|---:|---:|---:|---:|
-| Paquetes | 344.636 | 898.597 | 419.803 | 97.277 |
-| Tasa media (pps) | 272,9 | 275,2 | 4,9 | 1,1 |
+| Paquetes únicos | 173.831 | 459.994 | 419.803 | 97.277 |
+| Tasa media (pps) | 137,8 | 140,9 | 4,9 | 1,1 |
 | CV de la tasa por ventana de 1 s | **0,04** | 0,10 | 0,79 | 1,56 |
-| Índice de dispersión (var/media) | **0,34** | 2,83 | 3,00 | 2,73 |
-| CV del intervalo entre paquetes | 4,49 | 4,40 | 1,26 | 1,98 |
+| Índice de dispersión (var/media) | **0,18** | 3,79 | 3,00 | 2,73 |
+| CV del intervalo entre paquetes | 3,18 | 3,16 | 1,26 | 1,98 |
 | Nodos / pares distintos | 31 / 32 | 40 / 51 | 17 / 16 | 2 / 2 |
 | Entropía de la IP origen (bits / normalizada / distintas) | 1,73 / 0,38 / 24 | 1,85 / 0,37 / 32 | 1,78 / 0,54 / 10 | **0,96** / 0,96 / **2** |
 | Jaccard del conjunto de pares (10 s) | 0,81 | 0,82 | 0,80 | **1,00** |
@@ -451,11 +567,12 @@ valores de una misma ventana no son comparables entre sí. La sección 2.3 de
 `eda/salidas/p2_determinismo.txt` mide esa sensibilidad y §1.5 la resume; las
 viñetas que siguen valen para la ventana de 1 s.
 
-- **Westermo, tráfico normal limpio: 0,34.** Por debajo de 1, es decir **más
-  regular que el azar**. El volumen es 272,9 ± 9,6 paquetes por segundo, con
-  percentiles 5 y 95 en 263 y 282. La envolvente es estrecha de verdad.
-- **Westermo con los eventos incluidos: 2,83.** Los eventos multiplican por
-  ocho la dispersión del volumen. Esto es una buena noticia para el proyecto:
+- **Westermo, tráfico normal limpio: 0,18.** Por debajo de 1, es decir **más
+  regular que el azar**. El volumen es 137,7 ± 4,9 paquetes únicos por
+  segundo, con percentiles 5 y 95 en 133 y 143. La envolvente es estrecha de
+  verdad.
+- **Westermo con los eventos incluidos: 3,79.** Los eventos multiplican por
+  veintiuno la dispersión del volumen. Esto es una buena noticia para el proyecto:
   significa que los eventos **son visibles en la tasa agregada**, sin mirar
   contenido.
 - **QUT Control: 2,73 a 3,00.** En esta ventana el escenario base de QUT, que
@@ -463,11 +580,11 @@ viñetas que siguen valen para la ventana de 1 s.
   abajo), no en el volumen. **No se sigue de acá que sea menos determinista
   que Westermo**: a recuento igualado el orden se invierte (§1.5).
 
-El **CV del intervalo entre paquetes** está entre 1,26 y 4,49 en los cuatro
+El **CV del intervalo entre paquetes** está entre 1,26 y 3,18 en los cuatro
 casos: por encima de 1 en todos, es decir más disperso que Poisson. **El
 tráfico normal no es periódico a nivel de paquete en ninguno de los dos
 conjuntos.** Conviene notar que esta medida **ordena las dos series al revés**
-que el índice de dispersión con ventana de 1 s: por el CV, Westermo (4,49) es
+que el índice de dispersión con ventana de 1 s: por el CV, Westermo (3,18) es
 más disperso que QUT (1,26). No es una contradicción, son dos escalas: el
 intervalo entre paquetes mira la separación de llegadas sucesivas y la ventana
 de 1 s mira el volumen agregado. Un detector que modele el intervalo entre paquetes agregado va a
@@ -670,7 +787,7 @@ intervalo al 95 %, de modo que las dos no se podían poner en la misma tabla.
 `eda/scripts/09_intervalos_pd.py` recalcula las cuatro cifras de precisión del
 análisis con **un solo estadístico** y es la fuente de las de esta sección; la
 salida está en `eda/salidas/p9_intervalos_pd.txt`. La conclusión no cambia
-—±0,058 contra ±0,38 es un factor de 6,5—, pero ahora las dos
+—±0,058 contra ±0,37 es un factor de 6,5—, pero ahora las dos
 filas miden lo mismo.
 
 Vale registrar también por qué ese intervalo es legítimo acá y no en Westermo.
@@ -704,7 +821,7 @@ corte temporal deja pocos de cada tipo a cada lado.
 | BAD-PORTSCAN1 | 8 | 5 | 2 | **1** |
 | **Total** | **94** | **57** | **20** | **17** |
 
-Con 3 eventos por tipo el semiancho al 95 % es de **±0,38** (Wilson; ±0,45 con
+Con 3 eventos por tipo el semiancho al 95 % es de **±0,37** (Wilson; ±0,45 con
 Clopper-Pearson): el resultado no distingue un detector que funciona de uno
 que no. Y el peor tipo no es ese: **BAD-PORTSCAN1 deja 1 solo evento**.
 
@@ -1204,11 +1321,11 @@ solo significa algo si supera ese nivel.
 
 | Campo | Referencia Westermo | Referencia ICS-Flow | Cruzado | Razón |
 |---|---:|---:|---:|---:|
-| `rBytesSum` | 0,013 | 0,013 | 0,538 | 41× |
-| `rPackets` | 0,012 | 0,013 | 0,538 | 43× |
-| `sPayloadSum` | 0,010 | 0,009 | 0,534 | 56× |
-| `rInterPacketAvg` | 0,240 | 0,038 | 0,515 | 2,1× |
-| `rPayloadSum` | 0,011 | 0,009 | 0,505 | 46× |
+| `rLoad` | 0,194 | 0,043 | 0,644 | 3,3× |
+| `rInterPacketAvg` | 0,241 | 0,038 | 0,619 | 2,6× |
+| `rAckDelayAvg` | 0,022 | 0,028 | 0,349 | 12,5× |
+| `rBytesSum` | 0,013 | 0,013 | 0,332 | 25,2× |
+| `sAckDelayAvg` | 0,022 | 0,081 | 0,318 | 3,9× |
 
 Sobre las 37 características que sí varían, el estadístico cruzado
 tiene mediana **0,124**, y la razón entre el cruzado y el mayor de los dos
@@ -1222,10 +1339,23 @@ la misma distinción que la pregunta 5 hace para HAI. Sobre el factor cabe una
 advertencia que no cabe sobre la mediana, y está en §5.6.
 
 Ninguna distribución es disjunta, así que la diferencia no es dramática, pero
-**se concentra en volumen y temporizado**, que son las características que la
-pregunta 2 identificó como las que llevan la señal. Entrenar sobre la unión de
-las filas ensancha la envolvente del normal en las variables que discriminan,
-sin excepción.
+**se concentra en el temporizado**: cuatro de las cinco que encabezan la
+tabla son tasas de carga, intervalos entre paquetes y retardos de ACK. Entrenar sobre la
+unión de las filas ensancha la envolvente del normal en esas variables.
+
+Esa atribución cambió al corregir el doble conteo de §1.7, y conviene dejar
+dicho cómo. Con los contadores publicados, las tres primeras filas de esta
+tabla eran de **volumen** —`rBytesSum` y `rPackets` con 0,538, `sPayloadSum`
+con 0,534— y el documento concluía que la diferencia se concentraba en
+volumen y temporizado. Sobre paquetes únicos, `rBytesSum` baja a 0,332 y el
+volumen se cae del tope: cerca del 40 % de esa divergencia era el instrumento
+de Westermo contándose a sí mismo, no una diferencia entre las dos redes.
+
+Lo que **no** cambió son los resúmenes: la mediana del cruzado sobre las 37
+que varían es todavía 0,124 y el factor 7,5, porque la mayoría de los
+campos no son de volumen. De modo que la conclusión de alcance —que los dos
+conjuntos no son la misma población— se sostiene igual; lo que no se sostenía
+era decir en qué se concentra la diferencia.
 
 Conviene registrar una asimetría: el nivel de referencia interno de Westermo
 en los campos de temporizado —`duration` 0,200, `rLoad` 0,194,
@@ -1400,7 +1530,7 @@ veces»**.
 7. **Dos criterios de comparabilidad cambian con estas mediciones, y uno de
    los dos cambia de forma distinta a la que parecía.** El determinismo no
    admite una sola calificación comparativa salida del índice de dispersión:
-   con ventana de 1 s Westermo da 0,34 y QUT 2,73 a 3,00, pero a recuento
+   con ventana de 1 s Westermo da 0,18 y QUT 2,73 a 3,00, pero a recuento
    igualado el orden se invierte, y el CV del intervalo entre paquetes ordena
    al revés desde el principio (§1.5). Lo que hay que calificar es la escala
    en la que cada conjunto es regular, con la ventana declarada; calificar
@@ -1428,10 +1558,11 @@ pregunta distinta de la que medía la cifra de al lado.** Otra población, otro
 denominador, otra ventana, otra unidad.
 
 Corregir quince frases no evita la decimosexta. Lo que la evita es que la
-afirmación deje de vivir solo en prosa. Por eso las veinte afirmaciones que
-sostienen alguna conclusión de este documento están escritas además como
-**comprobaciones ejecutables** en `eda/scripts/20_guardas.py`, cada una con la
-sección que defiende, y `make todo` **falla** cuando alguna deja de valer:
+afirmación deje de vivir solo en prosa. Por eso **veinte** afirmaciones de
+este documento y de `EXPLORATORIO.md` —catorce de acá y seis de allá— están
+escritas además como **comprobaciones ejecutables** en
+`eda/scripts/20_guardas.py`, cada una con la sección que defiende, y `make
+todo` **falla** cuando alguna deja de valer:
 
 | Lo que se guarda | Dónde vive |
 |---|---|
@@ -1455,8 +1586,28 @@ sección que defiende, y `make todo` **falla** cuando alguna deja de valer:
 **Una guarda que no puede fallar no es una guarda**, y ese error es fácil de
 cometer y difícil de ver, porque el síntoma es que todo anda bien. De modo que
 hay una segunda comprobación, `21_guardas_muerden.py`, que rompe una cosa por
-vez sobre una copia de las salidas y exige que la guarda que corresponde
-falle. Las veinte muerden, y cada rotura hace saltar a la suya.
+vez sobre una copia en memoria de las salidas y exige que la guarda que
+corresponde falle. Las veinte muerden, y cada rotura hace saltar a la suya.
+
+Vale decir cómo se llegó a esa lista, porque la primera versión no servía.
+Una auditoría de las guardas —no de los datos— encontró que **siete de las
+veinte no podían fallar** por el motivo que declaraban y que once comprobaban
+algo más débil que la frase que nombraban. Dos ejemplos de lo que se
+arreglaba: la guarda de los objetos de control de §1.2 buscaba las claves
+`g41` y `g40`, que el formato `g<grupo>v<variación>` **no puede producir
+nunca**, de modo que pasaba con 330.000 cabeceras de control inyectadas; y la
+del ruido de HAI se comparaba contra un 0,01 escrito a mano que estaba por
+encima de los cinco umbrales medidos. También las roturas de
+`21_guardas_muerden.py` eran demasiado blandas: tres de ellas borraban la
+clave que la guarda leía, que es el caso de libro de la prueba que no prueba
+nada. Ahora cada rotura falsifica la afirmación, no la lectura.
+
+**Lo que esto implica para el lector.** Una guarda en verde dice que la cifra
+que el documento cita todavía sale de los datos. No dice que la
+interpretación sea correcta: los errores de esta clase —otra población, otro
+denominador— se detectan con la lectura, no con la ejecución. La guarda
+evita que el texto
+envejezca en silencio; no reemplaza al revisor.
 
 Lo que **no** se guarda, a propósito: las cifras que solo se citan —esas se
 regeneran y se leen—, las afirmaciones sobre documentación externa, que no

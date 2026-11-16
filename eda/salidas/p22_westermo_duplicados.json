@@ -1,0 +1,216 @@
+{
+ "validacion": {
+  "reduced/bottom": {
+   "sPackets": {
+    "filas_exactas": 0.9994915828719919,
+    "razon_crudo_publicado": 1.0,
+    "razon_unico_crudo": 0.5058390648106852
+   },
+   "rPackets": {
+    "filas_exactas": 0.9985877301999774,
+    "razon_crudo_publicado": 1.0,
+    "razon_unico_crudo": 0.5181989540564214
+   },
+   "sBytesSum": {
+    "filas_exactas": 0.9994915828719919,
+    "razon_crudo_publicado": 1.0,
+    "razon_unico_crudo": 0.5097977460805929
+   },
+   "rBytesSum": {
+    "filas_exactas": 0.9985877301999774,
+    "razon_crudo_publicado": 1.0,
+    "razon_unico_crudo": 0.5219172854190798
+   },
+   "sPayloadSum": {
+    "filas_exactas": 0.9994915828719919,
+    "razon_crudo_publicado": 1.0,
+    "razon_unico_crudo": 0.5272867414123307
+   },
+   "rPayloadSum": {
+    "filas_exactas": 0.9990396565359846,
+    "razon_crudo_publicado": 1.0,
+    "razon_unico_crudo": 0.555313856658613
+   },
+   "inflacion_paquetes": 1.9509025580606023,
+   "copias": 731226,
+   "paquetes_leidos": 1513815
+  },
+  "reduced/left": {
+   "sPackets": {
+    "filas_exactas": 0.9991796554552912,
+    "razon_crudo_publicado": 0.999577469366529,
+    "razon_unico_crudo": 0.47437731677180206
+   },
+   "rPackets": {
+    "filas_exactas": 1.0,
+    "razon_crudo_publicado": 1.0,
+    "razon_unico_crudo": 0.5642407099069099
+   },
+   "sBytesSum": {
+    "filas_exactas": 0.9991796554552912,
+    "razon_crudo_publicado": 0.999557189384074,
+    "razon_unico_crudo": 0.47428398045527465
+   },
+   "rBytesSum": {
+    "filas_exactas": 1.0,
+    "razon_crudo_publicado": 1.0,
+    "razon_unico_crudo": 0.5477955752422063
+   },
+   "sPayloadSum": {
+    "filas_exactas": 0.9991796554552912,
+    "razon_crudo_publicado": 0.9992941415174814,
+    "razon_unico_crudo": 0.4748421063167482
+   },
+   "rPayloadSum": {
+    "filas_exactas": 1.0,
+    "razon_crudo_publicado": 1.0,
+    "razon_unico_crudo": 0.509514144735456
+   },
+   "inflacion_paquetes": 1.8382762034985147,
+   "copias": 124453,
+   "paquetes_leidos": 281105
+  },
+  "reduced/right": {
+   "sPackets": {
+    "filas_exactas": 1.0,
+    "razon_crudo_publicado": 1.0,
+    "razon_unico_crudo": 0.6907906640130269
+   },
+   "rPackets": {
+    "filas_exactas": 1.0,
+    "razon_crudo_publicado": 1.0,
+    "razon_unico_crudo": 0.9990305902628177
+   },
+   "sBytesSum": {
+    "filas_exactas": 1.0,
+    "razon_crudo_publicado": 1.0,
+    "razon_unico_crudo": 0.7062296265516547
+   },
+   "rBytesSum": {
+    "filas_exactas": 1.0,
+    "razon_crudo_publicado": 1.0,
+    "razon_unico_crudo": 0.9963400254346447
+   },
+   "sPayloadSum": {
+    "filas_exactas": 1.0,
+    "razon_crudo_publicado": 1.0,
+    "razon_unico_crudo": 0.7288446215139442
+   },
+   "rPayloadSum": {
+    "filas_exactas": 1.0,
+    "razon_crudo_publicado": 1.0,
+    "razon_unico_crudo": 0.9863934355396865
+   },
+   "inflacion_paquetes": 1.1312151531352632,
+   "copias": 3436,
+   "paquetes_leidos": 35067
+  },
+  "extended/bottom": {
+   "sPackets": {
+    "filas_exactas": 0.9791249436175011,
+    "razon_crudo_publicado": 0.9982279317014695,
+    "razon_unico_crudo": 0.5016265652451576
+   },
+   "rPackets": {
+    "filas_exactas": 0.9987370320252593,
+    "razon_crudo_publicado": 0.9999555448863283,
+    "razon_unico_crudo": 0.5082790215883629
+   },
+   "sBytesSum": {
+    "filas_exactas": 0.9791249436175011,
+    "razon_crudo_publicado": 0.9973327808591336,
+    "razon_unico_crudo": 0.5024133644801722
+   },
+   "rBytesSum": {
+    "filas_exactas": 0.9987370320252593,
+    "razon_crudo_publicado": 0.9999315843162744,
+    "razon_unico_crudo": 0.5085808503527404
+   },
+   "sPayloadSum": {
+    "filas_exactas": 0.9791249436175011,
+    "razon_crudo_publicado": 0.992003812267034,
+    "razon_unico_crudo": 0.5045842338253662
+   },
+   "rPayloadSum": {
+    "filas_exactas": 0.9990257104194858,
+    "razon_crudo_publicado": 0.999804049155283,
+    "razon_unico_crudo": 0.5117281441114477
+   },
+   "inflacion_paquetes": 1.9826774421196327,
+   "copias": 2163897,
+   "paquetes_leidos": 4384183
+  },
+  "extended/left": {
+   "sPackets": {
+    "filas_exactas": 0.9991817650496786,
+    "razon_crudo_publicado": 0.999578100152533,
+    "razon_unico_crudo": 0.4740422077922078
+   },
+   "rPackets": {
+    "filas_exactas": 1.0,
+    "razon_crudo_publicado": 1.0,
+    "razon_unico_crudo": 0.5642407099069099
+   },
+   "sBytesSum": {
+    "filas_exactas": 0.9991817650496786,
+    "razon_crudo_publicado": 0.9995575893067503,
+    "razon_unico_crudo": 0.4740813296004232
+   },
+   "rBytesSum": {
+    "filas_exactas": 1.0,
+    "razon_crudo_publicado": 1.0,
+    "razon_unico_crudo": 0.5477955752422063
+   },
+   "sPayloadSum": {
+    "filas_exactas": 0.9991817650496786,
+    "razon_crudo_publicado": 0.9992941415174814,
+    "razon_unico_crudo": 0.4748421063167482
+   },
+   "rPayloadSum": {
+    "filas_exactas": 1.0,
+    "razon_crudo_publicado": 1.0,
+    "razon_unico_crudo": 0.509514144735456
+   },
+   "inflacion_paquetes": 1.838611047506162,
+   "copias": 124522,
+   "paquetes_leidos": 281197
+  },
+  "extended/right": {
+   "sPackets": {
+    "filas_exactas": 0.9995788587070963,
+    "razon_crudo_publicado": 0.9996397694524496,
+    "razon_unico_crudo": 0.69
+   },
+   "rPackets": {
+    "filas_exactas": 0.9997894293535481,
+    "razon_crudo_publicado": 0.9998923283983849,
+    "razon_unico_crudo": 0.9990308512356647
+   },
+   "sBytesSum": {
+    "filas_exactas": 0.9995788587070963,
+    "razon_crudo_publicado": 0.9996243199449529,
+    "razon_unico_crudo": 0.705666692051084
+   },
+   "rBytesSum": {
+    "filas_exactas": 0.9997894293535481,
+    "razon_crudo_publicado": 0.9997967647488457,
+    "razon_unico_crudo": 0.9963410218458782
+   },
+   "sPayloadSum": {
+    "filas_exactas": 0.9995788587070963,
+    "razon_crudo_publicado": 0.9992886869373195,
+    "razon_unico_crudo": 0.7288446215139442
+   },
+   "rPayloadSum": {
+    "filas_exactas": 0.9997894293535481,
+    "razon_crudo_publicado": 0.9993405325199901,
+    "razon_unico_crudo": 0.9863934355396865
+   },
+   "inflacion_paquetes": 1.1319523918516823,
+   "copias": 3459,
+   "paquetes_leidos": 35124
+  }
+ },
+ "fallos": 0,
+ "dedup_us": 1000.0
+}

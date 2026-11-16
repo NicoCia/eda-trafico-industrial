@@ -17,7 +17,16 @@ FIGURAS  := figuras
 # `guardas` va ULTIMO y a proposito: necesita las salidas de todo lo anterior,
 # y si una afirmacion de los documentos dejo de sostenerse contra los datos,
 # la regeneracion completa tiene que fallar en lugar de terminar en verde.
-todo: p1 p2 p3 p4 p5 icsflow verificaciones exploratorio guarda-tabla guardas
+# `duplicados` va PRIMERO entre los de Westermo: produce la tabla de flujos
+# con los contadores de volumen recontados sobre paquetes unicos, que es la
+# que usan el 11, el 16 y el 17. Sin ella esos tres caen al CSV publicado,
+# avisan por stderr, y sus cifras de volumen quedan infladas al doble.
+duplicados: $(PY)
+	$(PY) -I $(SCRIPTS)/22_westermo_duplicados.py
+
+.PHONY: duplicados
+
+todo: duplicados p1 p2 p3 p4 p5 icsflow verificaciones exploratorio guarda-tabla guardas
 	@echo ""
 	@echo "Analisis completo. Salidas en $(SALIDAS)/ y figuras en $(FIGURAS)/."
 

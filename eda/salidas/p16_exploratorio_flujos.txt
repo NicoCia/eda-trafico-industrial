@@ -8,8 +8,8 @@ Solo tramo de entrenamiento.
 ### Panorama
 
 - Observaciones: **21080** · Variables: **64** (13 identificadores, 47 características, 4 etiquetas)
-- Filas duplicadas exactas: **0**; duplicadas en las 47 características: **2705** (12.8 %)
-- Celdas faltantes: 8.1 % del total; filas con al menos un nulo: 16.6 %
+- Filas duplicadas exactas: **0**; duplicadas en las 47 características: **2663** (12.6 %)
+- Celdas faltantes: 8.2 % del total; filas con al menos un nulo: 16.6 %
 - Protocolos: IPV4-TCP 17750, ARP 1804, IPV4-2 1009, LLDP 324, IPV4-UDP 193
 
 ### Faltantes: son estructurales
@@ -32,15 +32,15 @@ camp. faltan   condición que lo reproduce               campos
 3     3491     --- ninguna ---                          sAckDelayAvg, sAckDelayMin, sAckDelayMax
 3     3422     --- ninguna ---                          rAckDelayAvg, rAckDelayMin, rAckDelayMax
 1     3326     --- ninguna ---                          rFragmentRate
-1     3261     rPackets < 2                             rInterPacketAvg
+1     3268     rPackets < 2                             rInterPacketAvg
+1     2919     sPackets < 2                             sInterPacketAvg
 1     2223     --- ninguna ---                          sFragmentRate
-1     1079     sPackets < 2                             sInterPacketAvg
 
 **6 patrones, que cubren 30 de los 38 campos, cierran exactos.**
 Los otros 4 patrones, con 8 campos, **no**:
 
 - `sAckDelayAvg`, `sAckDelayMin`, `sAckDelayMax`: faltan 3491. La condición más cercana es «no TCP o sPackets < 2» y
-  difiere en **10** de las 21080 filas.
+  difiere en **11** de las 21080 filas.
 - `rAckDelayAvg`, `rAckDelayMin`, `rAckDelayMax`: faltan 3422. La condición más cercana es «no TCP o sPackets == 0» y
   difiere en **4** de las 21080 filas.
 - `rFragmentRate`: faltan 3326. La condición más cercana es «no TCP o rPackets == 0» y
@@ -67,10 +67,10 @@ lado medido, de modo que su falta crece al achicarse el flujo:
 
 sPackets         flujos    sin el dato
 0                    88           100 %
-1                    65            98 %
-2                    28            29 %
-3                    10             0 %
-más de 3          17559             0 %
+1                    72            93 %
+2                    46            11 %
+3                   258             0 %
+más de 3          17286             0 %
 
 **Consecuencia para la preparación**, y el alcance importa. Para
 los 30 campos cuyo patrón cierra exacto no corresponde imputar: el
@@ -96,23 +96,23 @@ cualquier cálculo que escale con el número de columnas.
 
 Sobre las 42 características no constantes:
 
-- asimetría simetrica   4
-- asimetría moderada    5
-- asimetría alta       33
+- asimetría simetrica   2
+- asimetría moderada    6
+- asimetría alta       34
 
-Las 33 de asimetría alta son las de volumen y temporizado, donde la
+Las 34 de asimetría alta son las de volumen y temporizado, donde la
 media no representa el centro: ahí corresponde mediana y, si se
 escala, escala logarítmica.
 
 Las diez con más valores fuera del rango intercuartílico:
 
 campo                   asim.  curtosis  fuera RIQ
-sLoad                    9.51     135.9      23.1 %
-rInterPacketAvg          1.14      12.6      20.0 %
-rLoad                   85.38    8805.5      16.4 %
+sLoad                    5.84      42.3      23.0 %
+rLoad                   66.71    5732.3      17.0 %
+rInterPacketAvg          0.50       3.4      16.4 %
 sBytesAvg                8.37      77.7       8.4 %
-rPackets                 0.53       6.1       3.2 %
-rBytesSum                0.05       1.8       3.0 %
+rBytesSum                2.48      25.4       3.6 %
+rPackets                 4.51      67.7       3.5 %
 rBytesMax               12.60     157.3       2.6 %
 rPayloadMax             12.60     157.3       2.6 %
 sBytesMin                8.46      79.9       2.4 %
@@ -123,7 +123,7 @@ carga: suele ser la ráfaga o el evento. No se eliminan.
 
 ### Redundancia entre características
 
-Pares con |Spearman| ≥ 0.8: **83**. Agrupados por transitividad, quedan **6** grupos de redundancia:
+Pares con |Spearman| ≥ 0.8: **86**. Agrupados por transitividad, quedan **6** grupos de redundancia:
 
 - `rBytesAvg`, `rBytesMax`, `rBytesSum`, `rPackets`, `rPayloadAvg`, `rPayloadMax`, `rPayloadSum`, `rPshRate`, `rWinTCP`, `sAckDelayAvg`, `sAckDelayMax`, `sBytesAvg`, `sBytesMin`, `sBytesSum`, `sPackets`, `sPayloadAvg`, `sPayloadMin`, `sPayloadSum`, `sPshRate`, `sWinTCP`
 - `duration`, `rAckDelayAvg`, `rAckDelayMax`, `rInterPacketAvg`, `rLoad`, `sLoad`

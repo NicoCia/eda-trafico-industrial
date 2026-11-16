@@ -18,6 +18,7 @@ Uso:  python eda/scripts/05_determinismo.py
 """
 
 import collections
+import hashlib
 import json
 import os
 import re
@@ -29,6 +30,11 @@ import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import comun  # noqa: E402
+
+# Ventana de deduplicacion de copias de captura, en microsegundos. Cae en el
+# valle entre la copia del instrumento (mediana 1,0 us) y las balizas
+# periodicas identicas (1 a 10 s). Medido en 22_westermo_duplicados.py.
+DEDUP_US = 1000.0
 
 VENTANA = 1.0          # segundos por ventana para la tasa
 VENTANA_PARES = 10.0   # segundos para la estabilidad del conjunto de pares
@@ -89,11 +95,25 @@ def en_intervalo(t, iv):
     return i >= 0 and t <= iv[i][1]
 
 
-def leer_paquetes(path, t_hasta=None, filtro=None):
-    """Devuelve un DataFrame de paquetes: t, src, dst, sport, dport, size, proto."""
+def leer_paquetes(path, t_hasta=None, filtro=None, dedup=False):
+    """Devuelve un DataFrame de paquetes: t, src, dst, sport, dport, size, proto.
+
+    Con `dedup=True` descarta las copias que deja el equipo que graba al
+    capturar la trama al entrar y al salir: dos paquetes identicos octeto a
+    octeto separados por menos de `DEDUP_US` microsegundos. Hace falta para
+    Westermo, donde cerca de la mitad de los paquetes son copias; sin eso la
+    tasa, el indice de dispersion y el intervalo entre paquetes miden el
+    instrumento y no el trafico. Ver `22_westermo_duplicados.py`.
+
+    La ventana no es arbitraria: la separacion entre apariciones de una misma
+    firma es bimodal, con la copia de captura por debajo de 100 us --- la
+    mediana es 1,0 us --- y las balizas periodicas identicas entre 1 y 10 s.
+    """
     import dpkt
     filas = []
     t0 = None
+    recientes = {}
+    descartados = 0
     with open(path, "rb") as fh:
         pcap = dpkt.pcap.Reader(fh)
         for ts, buf in pcap:
@@ -102,6 +122,13 @@ def leer_paquetes(path, t_hasta=None, filtro=None):
             t = ts - t0
             if t_hasta is not None and t > t_hasta:
                 break
+            if dedup:
+                h = hashlib.md5(buf).digest()
+                prev = recientes.get(h)
+                recientes[h] = ts
+                if prev is not None and (ts - prev) * 1e6 < DEDUP_US:
+                    descartados += 1
+                    continue
             try:
                 eth = dpkt.ethernet.Ethernet(buf)
             except Exception:
@@ -430,7 +457,7 @@ def main():
     w("      posible sobre esta captura.")
     w("")
     print("  leyendo %s" % comun.rel(pcap), file=sys.stderr)
-    df_todo = leer_paquetes(pcap, t_hasta=tr)
+    df_todo = leer_paquetes(pcap, t_hasta=tr, dedup=True)
     w("### (a) Westermo, todo el tramo de entrenamiento")
     ra = caracterizar(df_todo, "westermo_entrenamiento_todo", [(0.0, tr)])
     imprimir(ra, w)
@@ -500,7 +527,7 @@ def main():
         if not os.path.exists(p):
             continue
         print("  leyendo %s" % comun.rel(p), file=sys.stderr)
-        d = leer_paquetes(p)
+        d = leer_paquetes(p, dedup=True)
         w("### QUT Control / %s / master.pcap" % sub)
         span = [(float(d["t"].min()), float(d["t"].max()))]
         r = caracterizar(d, "qut_control_%s" % sub, span)

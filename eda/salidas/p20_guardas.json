@@ -94,7 +94,7 @@
   },
   {
    "clave": "identidades",
-   "afirmacion": "Las identidades del inventario se cumplen salvo las tres declaradas",
+   "afirmacion": "Las identidades del inventario se cumplen salvo las cuatro declaradas",
    "donde": "EXPLORATORIO.md coherencia interna"
   },
   {

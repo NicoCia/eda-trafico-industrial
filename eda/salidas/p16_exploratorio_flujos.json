@@ -3,7 +3,7 @@
   "filas": 21080,
   "columnas": 64,
   "duplicadas": 0,
-  "duplicadas_features": 2705,
+  "duplicadas_features": 2663,
   "patrones_faltantes": {
    "patrones": 10,
    "campos_con_hueco": 38,
@@ -14,7 +14,7 @@
     "sAckDelayAvg, sAckDelayMin, sAckDelayMax": {
      "faltan": 3491,
      "condicion_mas_cercana": "no TCP o sPackets < 2",
-     "filas_de_diferencia": 10
+     "filas_de_diferencia": 11
     },
     "rAckDelayAvg, rAckDelayMin, rAckDelayMax": {
      "faltan": 3422,
@@ -59,9 +59,9 @@
    "sRstRate"
   ],
   "asimetria": {
-   "simetrica": 4,
-   "moderada": 5,
-   "alta": 33
+   "simetrica": 2,
+   "moderada": 6,
+   "alta": 34
   },
   "grupos_redundancia": [
    [
@@ -113,7 +113,7 @@
     "sFinRate"
    ]
   ],
-  "pares_fuertes": 83,
+  "pares_fuertes": 86,
   "balance": {
    "IT_B_Label": {
     "normal": 7852,

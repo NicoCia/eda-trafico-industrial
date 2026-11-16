@@ -89,7 +89,7 @@ rate                        0.550      0.550      38398    23.4    23.9
 system mode                 0.547      0.547      38398    23.4    23.9
 
 Sobre **todo el tramo** (cobertura >= 99 %) el mejor es `crc rate` con AUC
-plegado **0.611**. Esa es la cifra comparable con 0.563 de Westermo y 0.669 de ICS-Flow,
+plegado **0.611**. Esa es la cifra comparable con 0.544 de Westermo y 0.647 de ICS-Flow,
 que son de población completa.
 
 El mejor absoluto es otro: `pressure measurement`, con **0.684**, pero medido sobre
@@ -120,6 +120,19 @@ Con 0.86 a retardo 1, las 163823 transacciones valen como **12060**, el 7 %.
 Las transacciones consecutivas se parecen porque el lazo de control
 repite el mismo ciclo, así que vale la misma advertencia que en
 ICS-Flow: validación por bloques y no al azar.
+
+La autocorrelación de la **etiqueta**, que es otra pregunta y la que
+decide si un corte al azar filtra:
+
+- a retardo 1: **0.314** (contra 0.863 de las características)
+- tamaño efectivo: **85529** sobre 163823
+- rachas: 38048 ; racha anómala más larga: 3 filas
+
+Es mucho más baja que la de las características, y la racha anómala
+más larga es de pocas filas: las inyecciones de Morris son aisladas,
+no campañas. De modo que el conjunto tiene **órdenes de magnitud más**
+observaciones útiles para estimar una PD de las que sugiere la fila de
+las características.
 
 ### ¿Conviene reducir la dimensión?
 

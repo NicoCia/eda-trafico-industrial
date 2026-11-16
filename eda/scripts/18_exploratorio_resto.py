@@ -270,7 +270,26 @@ def morris(w):
     COB_MIN = 99.0
     completos = dd[dd["cobertura"] >= COB_MIN]
     mejor_comp = completos.iloc[0] if len(completos) else None
-    otros = {"Westermo": 0.563, "ICS-Flow": 0.669}
+    # Se LEEN de la salida del script 17, no se escriben a mano. Una version
+    # anterior las traia fijas --- 0,563 y 0,669 --- con un comentario que
+    # afirmaba que eran de poblacion completa. No lo son: son los maximos
+    # absolutos, medidos sobre el 83,8 % y el 99,0 % de las filas. Comparar
+    # el mejor COMPLETO de Morris contra el maximo ABSOLUTO de los otros dos
+    # es el mismo error de base que esta seccion corrige.
+    otros = {}
+    p17 = os.path.join(comun.SALIDAS, "p17_discriminante_estructura.json")
+    if os.path.exists(p17):
+        with open(p17, encoding="utf-8") as fh:
+            d17 = json.load(fh)
+        for k, v in d17.items():
+            a = (v.get("discriminante") or {}).get("auc_max_poblacion_completa")
+            if a is not None:
+                otros[k] = float(a)
+    if not otros:
+        w("**Falta `p17_discriminante_estructura.json`**, de modo que la")
+        w("comparación entre conjuntos no se hace: las cifras de los otros")
+        w("dos se leen de esa salida y no se escriben a mano.")
+        w("")
     w("Sobre **todo el tramo** (cobertura >= %.0f %%) el mejor es `%s` con AUC"
       % (COB_MIN, mejor_comp.campo if mejor_comp is not None else "-"))
     w("plegado **%.3f**. Esa es la cifra comparable con %s,"
@@ -338,6 +357,40 @@ def morris(w):
     w("repite el mismo ciclo, así que vale la misma advertencia que en")
     w("ICS-Flow: validación por bloques y no al azar.")
     r["autocorrelacion"] = {"rho_lag1": ac1, "n": n, "n_efectivo": float(n_eff)}
+    w("")
+
+    # La autocorrelacion de la ETIQUETA es otra pregunta, y es la que decide
+    # si un corte al azar filtra. La tabla comparativa de EXPLORATORIO.md
+    # traia en esa fila, para Morris, la cifra de las CARACTERISTICAS ---
+    # 0,86 y 12.060 ---, que es justo la confusion que el hallazgo 5 de ese
+    # documento levanta como hallazgo. Se mide aparte.
+    y = (pd.to_numeric(tr["binary result"], errors="coerce") != 0).to_numpy()
+    ye = y.astype(float)
+    z = ye - ye.mean()
+    rho_y = float((z[:-1] * z[1:]).sum() / (z * z).sum()) if z.var() else 0.0
+    n_eff_y = n * (1 - rho_y) / (1 + rho_y)
+    cambios = int((y[1:] != y[:-1]).sum())
+    rachas = cambios + 1
+    mejor = act = 0
+    for v in y:
+        act = act + 1 if v else 0
+        mejor = max(mejor, act)
+    w("La autocorrelación de la **etiqueta**, que es otra pregunta y la que")
+    w("decide si un corte al azar filtra:")
+    w("")
+    w("- a retardo 1: **%.3f** (contra %.3f de las características)"
+      % (rho_y, ac1))
+    w("- tamaño efectivo: **%d** sobre %d" % (round(n_eff_y), n))
+    w("- rachas: %d ; racha anómala más larga: %d filas" % (rachas, mejor))
+    w("")
+    w("Es mucho más baja que la de las características, y la racha anómala")
+    w("más larga es de pocas filas: las inyecciones de Morris son aisladas,")
+    w("no campañas. De modo que el conjunto tiene **órdenes de magnitud más**")
+    w("observaciones útiles para estimar una PD de las que sugiere la fila de")
+    w("las características.")
+    r["autocorrelacion_objetivo"] = {
+        "rho_lag1": rho_y, "n": n, "n_efectivo": float(n_eff_y),
+        "rachas": rachas, "racha_mas_larga": mejor}
     FIG["ac_Morris"] = (num[utiles], None)
     w("")
 

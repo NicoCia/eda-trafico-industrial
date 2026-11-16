@@ -24,66 +24,66 @@ distintas y conviene no confundirlas:
       posible sobre esta captura.
 
 ### (a) Westermo, todo el tramo de entrenamiento
-  paquetes=898597  duracion util=3265 s en 1 tramo(s)  tasa=275.2 pps
-  tasa por ventana de 1 s : media=275.2  sd=27.9  CV=0.10  p05=262 p95=308
-  indice de dispersion (var/media) = 2.83  -> a rafagas
-  intervalo entre paquetes: mediana=0.2 ms  CV=4.40
-  autocorrelacion de la tasa (agrupada por tramo): lag1=0.62  pico en 1 s = 0.62
+  paquetes=459994  duracion util=3265 s en 1 tramo(s)  tasa=140.9 pps
+  tasa por ventana de 1 s : media=140.9  sd=23.1  CV=0.16  p05=132 p95=170
+  indice de dispersion (var/media) = 3.79  -> a rafagas
+  intervalo entre paquetes: mediana=0.5 ms  CV=3.16
+  autocorrelacion de la tasa (agrupada por tramo): lag1=0.74  pico en 1 s = 0.74
   entropia (bits / normalizada / distintos):
-     IP origen     1.85 / 0.37 / 32
-     IP destino    1.79 / 0.40 / 22
-     puerto org    2.34 / 0.26 / 512
-     puerto dst    1.81 / 0.17 / 1499
+     IP origen     1.97 / 0.39 / 32
+     IP destino    1.91 / 0.43 / 22
+     puerto org    2.46 / 0.27 / 512
+     puerto dst    2.01 / 0.19 / 1499
   interlocutores: 40 nodos, 51 pares, 52 conversaciones
   estabilidad del conjunto de pares (Jaccard entre ventanas de 10 s): mediana=0.82  p05=0.72
   pares nuevos por ventana en el ultimo tercio: 0.01
-  tamano de paquete: 36 valores distintos, H=1.80 bits, moda=78 B (33.2% de los paquetes)
-  mezcla de protocolos (6 categorias, suman 898597 de 898597 paquetes):
-     TCP=881086  ETH-0x0027=8164  ARP=6177
-     IP-2=1875  ETH-0x88cc=648  UDP=647
+  tamano de paquete: 36 valores distintos, H=1.90 bits, moda=78 B (32.4% de los paquetes)
+  mezcla de protocolos (6 categorias, suman 459994 de 459994 paquetes):
+     TCP=447439  ETH-0x0027=8164  ARP=2183
+     IP-2=1343  ETH-0x88cc=648  UDP=217
   conversaciones principales:
      origen            destino           proto  paquetes  dt med ms   dt CV  moda tam
-     198.18.134.11     198.18.134.12     TCP      227338        0.2    2.40    78 B (43%)
-     198.18.134.15     198.18.134.11     TCP      186012        0.2    4.76    78 B (55%)
-     198.18.134.12     198.18.134.11     TCP      163250        1.1    2.03    79 B (60%)
-     198.18.134.15     198.18.134.12     TCP      123230        0.2    4.06    78 B (52%)
-     198.18.134.11     198.18.134.15     TCP      103100        1.0    3.64    79 B (100%)
-     198.18.134.12     198.18.134.15     TCP       64360        0.9    2.94    79 B (100%)
+     198.18.134.11     198.18.134.12     TCP      113669        1.1    1.59    78 B (43%)
+     198.18.134.15     198.18.134.11     TCP       93007        0.8    3.39    78 B (55%)
+     198.18.134.12     198.18.134.11     TCP       81625        1.4    1.29    79 B (60%)
+     198.18.134.15     198.18.134.12     TCP       61615        0.7    2.89    78 B (52%)
+     198.18.134.11     198.18.134.15     TCP       51551        1.1    2.55    79 B (100%)
+     198.18.134.12     198.18.134.15     TCP       32180        1.1    2.03    79 B (100%)
      198.18.134.99     198.18.134.42     TCP        6108        3.4   55.40    62 B (99%)
-     b8:27:eb:15:88:9c ff:ff:ff:ff:ff:ff ARP        4788        0.0    1.87    60 B (100%)
      198.18.134.99     198.18.134.40     TCP        2070        0.0   29.10    62 B (97%)
      198.18.134.99     198.18.134.6      TCP        1666        1.2   18.14    66 B (42%)
+     00:07:7c:8c:43:6f 01:80:c2:00:00:00 ETH-0x0027     1633     2000.0    0.00    60 B (100%)
 
 ### (b) Westermo, solo los huecos entre eventos
-  paquetes=344636  duracion util=1262 s en 57 tramo(s)  tasa=273.1 pps
-  tasa por ventana de 1 s : media=272.9  sd=9.6  CV=0.04  p05=263 p95=282
-  indice de dispersion (var/media) = 0.34  -> mas regular que Poisson
-  intervalo entre paquetes: mediana=0.2 ms  CV=4.49
-  autocorrelacion de la tasa (agrupada por tramo): lag1=-0.27  pico en 6 s = 0.17
+  paquetes=173831  duracion util=1262 s en 57 tramo(s)  tasa=137.8 pps
+  tasa por ventana de 1 s : media=137.7  sd=4.9  CV=0.04  p05=133 p95=143
+  indice de dispersion (var/media) = 0.18  -> mas regular que Poisson
+  intervalo entre paquetes: mediana=0.5 ms  CV=3.18
+  autocorrelacion de la tasa (agrupada por tramo): lag1=-0.29  pico en 6 s = 0.18
   entropia (bits / normalizada / distintos):
-     IP origen     1.73 / 0.38 / 24
-     IP destino    1.65 / 0.41 / 16
+     IP origen     1.79 / 0.39 / 24
+     IP destino    1.69 / 0.42 / 16
      puerto org    2.18 / 0.63 / 11
      puerto dst    1.58 / 0.48 / 10
   interlocutores: 31 nodos, 32 pares, 32 conversaciones
   estabilidad del conjunto de pares (Jaccard entre ventanas de 10 s): mediana=0.81  p05=0.54
   pares nuevos por ventana en el ultimo tercio: 0.02
-  tamano de paquete: 11 valores distintos, H=1.70 bits, moda=79 B (33.7% de los paquetes)
-  mezcla de protocolos (6 categorias, suman 344636 de 344636 paquetes):
-     TCP=338402  ETH-0x0027=3160  ARP=1906
-     IP-2=707  ETH-0x88cc=243  UDP=218
+  tamano de paquete: 11 valores distintos, H=1.73 bits, moda=79 B (33.4% de los paquetes)
+  mezcla de protocolos (6 categorias, suman 173831 de 173831 paquetes):
+     TCP=169205  ETH-0x0027=3160  ARP=640
+     IP-2=509  ETH-0x88cc=243  UDP=74
   conversaciones principales:
      origen            destino           proto  paquetes  dt med ms   dt CV  moda tam
-     198.18.134.11     198.18.134.12     TCP       87856        0.2    2.41    78 B (43%)
-     198.18.134.15     198.18.134.11     TCP       73192        0.2    4.93    78 B (55%)
-     198.18.134.12     198.18.134.11     TCP       63094        1.1    2.04    79 B (60%)
-     198.18.134.15     198.18.134.12     TCP       48520        0.2    4.05    78 B (52%)
-     198.18.134.11     198.18.134.15     TCP       40446        1.0    3.77    79 B (100%)
-     198.18.134.12     198.18.134.15     TCP       25290        0.9    2.93    79 B (100%)
-     b8:27:eb:15:88:9c ff:ff:ff:ff:ff:ff ARP        1848        0.0    1.97    60 B (100%)
+     198.18.134.11     198.18.134.12     TCP       43928        1.1    1.59    78 B (43%)
+     198.18.134.15     198.18.134.11     TCP       36597        0.8    3.50    78 B (55%)
+     198.18.134.12     198.18.134.11     TCP       31547        1.4    1.29    79 B (60%)
+     198.18.134.15     198.18.134.12     TCP       24260        0.7    2.86    78 B (52%)
+     198.18.134.11     198.18.134.15     TCP       20224        1.1    2.63    79 B (100%)
+     198.18.134.12     198.18.134.15     TCP       12645        1.1    2.00    79 B (100%)
      00:07:7c:8c:43:6f 01:80:c2:00:00:00 ETH-0x0027      635     2000.0    0.00    60 B (100%)
      00:07:7c:8c:43:6e 01:80:c2:00:00:00 ETH-0x0027      635     2000.0    0.00    60 B (100%)
      00:07:7c:8c:43:6d 01:80:c2:00:00:00 ETH-0x0027      635     2000.0    0.00    60 B (100%)
+     00:07:7c:88:6e:8b 01:80:c2:00:00:00 ETH-0x0027      628     2000.0    0.00    60 B (100%)
 
 ### (c) Westermo a nivel de flujo, NST_B_Label = 0 (normal exacto)
 
@@ -213,17 +213,17 @@ Poisson. Para cualquier otro depende de cuantas llegadas caen en la
 ventana. Las tasas de estas series difieren por un factor grande, de
 modo que una ventana fija de 1 s no compara la misma cosa en las tres:
 
-   Westermo limpio    273.12 paq/s  ->   273.1 paquetes por ventana de 1 s
+   Westermo limpio    137.76 paq/s  ->   137.8 paquetes por ventana de 1 s
    QUT Control          4.85 paq/s  ->     4.9 paquetes por ventana de 1 s
    QUT solo DNP3        1.12 paq/s  ->     1.1 paquetes por ventana de 1 s
 
 ### (a) Barrido de la ventana
 
 ventana         Westermo limpio     QUT Control   QUT solo DNP3
-0.1 s                     32.63            2.37            1.78
-0.5 s                      1.16            2.95            2.63
-1 s                        0.34            3.00            2.73
-10 s                       0.23            3.90            1.04
+0.1 s                     16.13            2.37            1.78
+0.5 s                      0.61            2.95            2.63
+1 s                        0.18            3.00            2.73
+10 s                       0.12            3.90            1.04
 
 ### (b) A recuento por ventana igualado
 
@@ -231,9 +231,9 @@ La comparacion que el indice admite: se elige la ventana de cada serie
 para que el recuento esperado sea el mismo en todas.
 
 paq/ventana     Westermo limpio     QUT Control   QUT solo DNP3
-5                         30.80            3.07            2.28
-50                        24.41            3.87            0.25
-273                        0.36            0.83            0.09
+5                         16.48            3.07            2.28
+50                         5.17            3.87            0.25
+273                        0.18            0.83            0.09
 
 Lo que esto significa, y es una correccion a como se leyo antes esta
 medida: con la ventana de 1 s Westermo da el valor mas bajo de las tres
@@ -255,13 +255,13 @@ preguntas dan ordenes opuestos, y la normalizada es la enganosa de las
 dos para comparar series entre si.
 
 serie                      H (bits)    normalizada    distintos
-Westermo limpio                1.73           0.38           24
-Westermo con eventos           1.85           0.37           32
+Westermo limpio                1.79           0.39           24
+Westermo con eventos           1.97           0.39           32
 QUT Control                    1.78           0.54           10
 QUT solo DNP3                  0.96           0.96            2
 
-Orden por H cruda  (de menor a mayor): QUT solo DNP3 < Westermo limpio < QUT Control < Westermo con eventos
-Orden por H normal.(de menor a mayor): Westermo con eventos < Westermo limpio < QUT Control < QUT solo DNP3
+Orden por H cruda  (de menor a mayor): QUT solo DNP3 < QUT Control < Westermo limpio < Westermo con eventos
+Orden por H normal.(de menor a mayor): Westermo limpio < Westermo con eventos < QUT Control < QUT solo DNP3
 
 La serie de **menor** entropia cruda es «QUT solo DNP3» (0.96 bits con 2
 direcciones distintas), y por la normalizada queda la de
