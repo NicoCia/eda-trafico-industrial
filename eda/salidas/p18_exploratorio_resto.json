@@ -35,12 +35,164 @@
   "autocorrelacion": {
    "rho_lag1": 0.8628630018629851,
    "n": 163823,
-   "n_efectivo": 12060.035774682581
+   "n_efectivo": 12060.035774682581,
+   "n_efectivo_mediana_por_columna": 2858.7344262450824,
+   "columnas_sin_pares_contiguos": 10,
+   "por_columna": [
+    {
+     "columna": "address",
+     "cobertura": 1.0,
+     "rho": -0.00013053148936605617,
+     "n_propio": 163823,
+     "pares_contiguos": 163822,
+     "n_efectivo_propio": 163865.77370368005
+    },
+    {
+     "columna": "function",
+     "cobertura": 1.0,
+     "rho": 0.011321008415820918,
+     "n_propio": 163823,
+     "pares_contiguos": 163822,
+     "n_efectivo_propio": 160155.2396226887
+    },
+    {
+     "columna": "length",
+     "cobertura": 1.0,
+     "rho": -0.10339973346062856,
+     "n_propio": 163823,
+     "pares_contiguos": 163822,
+     "n_efectivo_propio": 201608.5219697879
+    },
+    {
+     "columna": "setpoint",
+     "cobertura": 0.23438711292065217,
+     "rho": 0.9147581702664824,
+     "n_propio": 38398,
+     "pares_contiguos": 0,
+     "n_efectivo_propio": 1709.4147077863513
+    },
+    {
+     "columna": "gain",
+     "cobertura": 0.23438711292065217,
+     "rho": 0.9442879128747446,
+     "n_propio": 38398,
+     "pares_contiguos": 0,
+     "n_efectivo_propio": 1100.2654016773556
+    },
+    {
+     "columna": "reset rate",
+     "cobertura": 0.23438711292065217,
+     "rho": 0.7553548681234858,
+     "n_propio": 38398,
+     "pares_contiguos": 0,
+     "n_efectivo_propio": 5351.558220154461
+    },
+    {
+     "columna": "deadband",
+     "cobertura": 0.23438711292065217,
+     "rho": 0.9499550901220943,
+     "n_propio": 38398,
+     "pares_contiguos": 0,
+     "n_efectivo_propio": 985.4711317333474
+    },
+    {
+     "columna": "cycle time",
+     "cobertura": 0.23438711292065217,
+     "rho": 0.9652342134282343,
+     "n_propio": 38398,
+     "pares_contiguos": 0,
+     "n_efectivo_propio": 679.2761207092665
+    },
+    {
+     "columna": "rate",
+     "cobertura": 0.23438711292065217,
+     "rho": 0.8109678334594879,
+     "n_propio": 38398,
+     "pares_contiguos": 0,
+     "n_efectivo_propio": 4008.054144703813
+    },
+    {
+     "columna": "system mode",
+     "cobertura": 0.23438711292065217,
+     "rho": 0.9704260604526667,
+     "n_propio": 38398,
+     "pares_contiguos": 0,
+     "n_efectivo_propio": 576.3119730956198
+    },
+    {
+     "columna": "control scheme",
+     "cobertura": 0.23438711292065217,
+     "rho": 0.9798550036680409,
+     "n_propio": 38398,
+     "pares_contiguos": 0,
+     "n_efectivo_propio": 390.69910055103287
+    },
+    {
+     "columna": "pump",
+     "cobertura": 0.23438711292065217,
+     "rho": 0.972696238888738,
+     "n_propio": 38398,
+     "pares_contiguos": 0,
+     "n_efectivo_propio": 531.4603426936269
+    },
+    {
+     "columna": "solenoid",
+     "cobertura": 0.23438711292065217,
+     "rho": 0.9725563526338215,
+     "n_propio": 38398,
+     "pares_contiguos": 0,
+     "n_efectivo_propio": 534.2210731569119
+    },
+    {
+     "columna": "pressure measurement",
+     "cobertura": 0.25078896125696637,
+     "rho": -0.0028107826924672124,
+     "n_propio": 41085,
+     "pares_contiguos": 44,
+     "n_efectivo_propio": 41316.61302772973
+    },
+    {
+     "columna": "crc rate",
+     "cobertura": 1.0,
+     "rho": -0.17274747151165232,
+     "n_propio": 163823,
+     "pares_contiguos": 163822,
+     "n_efectivo_propio": 232242.27477010316
+    },
+    {
+     "columna": "command response",
+     "cobertura": 1.0,
+     "rho": -0.9958638292095215,
+     "n_propio": 163823,
+     "pares_contiguos": 163822,
+     "n_efectivo_propio": 79050991.03868704
+    }
+   ]
   },
   "autocorrelacion_objetivo": {
    "rho_lag1": 0.31399207990860184,
    "n": 163823,
    "n_efectivo": 85528.57906186946,
+   "independientes": {
+    "n": 163823,
+    "rho1": 0.31399207990860184,
+    "n_ar1": 85528.57906186946,
+    "tau": 56,
+    "n_tau": 2925.410714285714,
+    "tau_censurado": false,
+    "tope_barrido": 400,
+    "rho10": 0.062326635157186144,
+    "ar1_predice10": 9.315087447587177e-06
+   },
+   "por_lag": {
+    "1": 0.31399207990860184,
+    "2": 0.068851451875282,
+    "3": 0.3088320742680522,
+    "4": 0.9425928241158812,
+    "8": 0.8960759045038715,
+    "16": 0.809605067404103,
+    "32": 0.6267828295669574
+   },
    "rachas": 38048,
    "racha_mas_larga": 3
   },

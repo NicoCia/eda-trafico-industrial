@@ -351,12 +351,58 @@ def morris(w):
     n = len(tr)
     n_eff = n * (1 - ac1) / (1 + ac1)
     w("")
-    w("Con %.2f a retardo 1, las %d transacciones valen como **%d**, el %.0f %%."
-      % (ac1, n, round(n_eff), 100 * n_eff / n))
+    w("**Pero el retardo 1 de la mayoría de estas columnas no es medible, y")
+    w("el número de arriba no es lo que parece.** El cálculo quita los")
+    w("ausentes y recién después empareja posiciones contiguas del arreglo")
+    w("compacto, de modo que para una columna presente en un cuarto de las")
+    w("filas «retardo 1» empareja filas que están a cuatro de distancia:")
+    w("")
+    w("   %-24s %7s %9s %10s %12s"
+      % ("columna", "cob.%", "rho", "n propio", "pares contig."))
+    det, nefs = [], []
+    for c in utiles:
+        v = pd.to_numeric(num[c], errors="coerce").to_numpy(float)
+        ok = np.isfinite(v)
+        if ok.sum() < 2 or v[ok].std() == 0:
+            continue
+        rr = autocorr_serie(v, 1)
+        nc = int(ok.sum())
+        par = int((ok[:-1] & ok[1:]).sum())
+        ne = nc * (1 - rr) / (1 + rr) if rr > -1 else float(nc)
+        det.append({"columna": c, "cobertura": float(ok.mean()), "rho": rr,
+                    "n_propio": nc, "pares_contiguos": par,
+                    "n_efectivo_propio": float(ne)})
+        nefs.append(ne)
+    for d_ in sorted(det, key=lambda x: x["cobertura"]):
+        w("   %-24s %7.1f %9.3f %10d %12d"
+          % (d_["columna"][:24], 100 * d_["cobertura"], d_["rho"],
+             d_["n_propio"], d_["pares_contiguos"]))
+    sin_par = [d_ for d_ in det if d_["pares_contiguos"] == 0]
+    med_ne = float(np.median(nefs)) if nefs else float("nan")
+    w("")
+    w("**%d de las %d columnas no tienen ni un par de filas contiguas con los"
+      % (len(sin_par), len(det)))
+    w("dos valores presentes**: los atributos de proceso vienen solo en las")
+    w("respuestas. Para ellas el retardo 1 entre filas no es estimable, y lo")
+    w("que se calcula es la autocorrelación de la subsecuencia, con un")
+    w("retardo efectivo de unas cuatro filas y sobre %d filas de un solo"
+      % (sin_par[0]["n_propio"] if sin_par else 0))
+    w("tipo de transacción. Las completas dan rho entre %.3f y %.3f."
+      % (min(d_["rho"] for d_ in det if d_["pares_contiguos"] > 0),
+         max(d_["rho"] for d_ in det if d_["pares_contiguos"] > 0)))
+    w("")
+    w("Encima el n efectivo de arriba usa las %d filas para todas. Con el n" % n)
+    w("propio de cada columna, la mediana del n efectivo es **%d**, no %d."
+      % (round(med_ne), round(n_eff)))
     w("Las transacciones consecutivas se parecen porque el lazo de control")
-    w("repite el mismo ciclo, así que vale la misma advertencia que en")
-    w("ICS-Flow: validación por bloques y no al azar.")
-    r["autocorrelacion"] = {"rho_lag1": ac1, "n": n, "n_efectivo": float(n_eff)}
+    w("repite el mismo ciclo, así que vale la advertencia de siempre")
+    w("—validación por bloques y no al azar— pero la magnitud de la")
+    w("corrección no es la que publicaba este cuadro.")
+    r["autocorrelacion"] = {
+        "rho_lag1": ac1, "n": n, "n_efectivo": float(n_eff),
+        "n_efectivo_mediana_por_columna": med_ne,
+        "columnas_sin_pares_contiguos": len(sin_par),
+        "por_columna": det}
     w("")
 
     # La autocorrelacion de la ETIQUETA es otra pregunta, y es la que decide
@@ -378,18 +424,45 @@ def morris(w):
     w("La autocorrelación de la **etiqueta**, que es otra pregunta y la que")
     w("decide si un corte al azar filtra:")
     w("")
+    ind_y = comun.observaciones_independientes(ye)
     w("- a retardo 1: **%.3f** (contra %.3f de las características)"
       % (rho_y, ac1))
-    w("- tamaño efectivo: **%d** sobre %d" % (round(n_eff_y), n))
     w("- rachas: %d ; racha anómala más larga: %d filas" % (rachas, mejor))
     w("")
-    w("Es mucho más baja que la de las características, y la racha anómala")
-    w("más larga es de pocas filas: las inyecciones de Morris son aisladas,")
-    w("no campañas. De modo que el conjunto tiene **órdenes de magnitud más**")
-    w("observaciones útiles para estimar una PD de las que sugiere la fila de")
-    w("las características.")
+    w("**Y acá el retardo 1 es justo donde no está la estructura.** La")
+    w("etiqueta alterna comando y respuesta, lo que fuerza los retardos 1 y 2")
+    w("hacia abajo y pone la dependencia en los múltiplos de 4:")
+    w("")
+    w("   %-10s %10s" % ("retardo", "rho"))
+    for lag in (1, 2, 3, 4, 8, 16, 32):
+        w("   %-10d %10.4f" % (lag, autocorr_serie(ye, lag)))
+    w("")
+    if ind_y:
+        _lags = (1, 2, 3, 4, 8, 16, 32)
+        _pico = max(_lags[1:], key=lambda k: autocorr_serie(ye, k))
+        w("De modo que la corrección AR(1) con rho(1) no corresponde: con")
+        w("rho(1) = %.3f un AR(1) predeciría rho(%d) = %.4f, y lo medido en"
+          % (ind_y["rho1"], _pico, ind_y["rho1"] ** _pico))
+        w("ese retardo es **%.4f**. Los dos estimadores dan:"
+          % autocorr_serie(ye, _pico))
+        w("")
+        w("- AR(1) con rho(1): %d de %d" % (round(ind_y["n_ar1"]), n))
+        w("- tiempo de decorrelación (último retardo con rho >= 1/e): "
+          "tau = %s filas -> **%d de %d**"
+          % ((">=%d" % ind_y["tau"]) if ind_y["tau_censurado"]
+             else "%d" % ind_y["tau"], round(ind_y["n_tau"]), n))
+        w("")
+        w("El segundo no supone ningún modelo y es el criterio que este")
+        w("trabajo ya usa para HAI, de modo que es el que hace comparable la")
+        w("fila entre los cuatro conjuntos. La lectura de fondo no cambia —la")
+        w("etiqueta de Morris es mucho menos dependiente que sus")
+        w("características— pero la ventaja es de un orden y no de tres.")
+    w("")
     r["autocorrelacion_objetivo"] = {
         "rho_lag1": rho_y, "n": n, "n_efectivo": float(n_eff_y),
+        "independientes": ind_y,
+        "por_lag": {str(k): float(autocorr_serie(ye, k))
+                    for k in (1, 2, 3, 4, 8, 16, 32)},
         "rachas": rachas, "racha_mas_larga": mejor}
     FIG["ac_Morris"] = (num[utiles], None)
     w("")

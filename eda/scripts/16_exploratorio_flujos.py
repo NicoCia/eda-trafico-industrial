@@ -128,8 +128,20 @@ def analizar(nombre, df, w):
     res["duplicadas"] = dup
     res["duplicadas_features"] = dup_f
     nul = df.isna().mean().mean() * 100
-    w("- Celdas faltantes: %.1f %% del total; filas con al menos un nulo: "
-      "%.1f %%" % (nul, 100.0 * df.isna().any(axis=1).mean()))
+    vac_id = int(df[ident].isna().sum().sum())
+    vac_f = int(df[feats].isna().sum().sum())
+    w("- Celdas faltantes: %.1f %% del cuadro entero; **%.1f %% si se cuentan "
+      "solo las %d características**, porque %d de los %d huecos estan en "
+      "identificadores"
+      % (nul, 100.0 * vac_f / (len(df) * len(feats)), len(feats),
+         vac_id, vac_id + vac_f))
+    w("- Filas con al menos un nulo: %.1f %%"
+      % (100.0 * df.isna().any(axis=1).mean()))
+    res["faltantes_denominador"] = {
+        "celdas_cuadro_pct": float(nul),
+        "celdas_caracteristicas_pct": 100.0 * vac_f / (len(df) * len(feats)),
+        "huecos_en_identificadores": vac_id,
+        "huecos_en_caracteristicas": vac_f}
     w("- Protocolos: %s"
       % ", ".join("%s %d" % kv for kv in df["protocol"].value_counts().items()))
     w("")
@@ -266,19 +278,40 @@ def analizar(nombre, df, w):
         tcp = df[~no_tcp]
         if "sAckDelayAvg" in df.columns and len(tcp):
             w("El retardo de ACK necesita además al menos dos paquetes del")
-            w("lado medido, de modo que su falta crece al achicarse el flujo:")
+            w("lado medido, de modo que su falta crece al achicarse el flujo.")
+            w("**La tabla es sobre las %d filas TCP**, que es la población"
+              % len(tcp))
+            w("donde la pregunta tiene sentido: un flujo que no es TCP no")
+            w("tiene ACK por protocolo, y contarlo acá mete en el residuo")
+            w("filas que la primera condición ya explica. Se informan las dos")
+            w("poblaciones para que no haya que adivinar cuál es cuál:")
             w("")
-            w("%-14s %8s %14s" % ("sPackets", "flujos", "sin el dato"))
-            for k in (0, 1, 2, 3):
-                s = tcp[tcp["sPackets"] == k]
-                if len(s):
-                    w("%-14d %8d %13.0f %%"
-                      % (k, len(s), 100 * s["sAckDelayAvg"].isna().mean()))
-            resto = tcp[tcp["sPackets"] > 3]
-            if len(resto):
-                w("%-14s %8d %13.0f %%"
-                  % ("más de 3", len(resto),
-                     100 * resto["sAckDelayAvg"].isna().mean()))
+            w("%-14s %10s %12s %12s %12s"
+              % ("sPackets", "TCP", "sin el dato", "todas", "sin el dato"))
+            tramos = [(k, df["sPackets"] == k) for k in (0, 1, 2)]
+            tramos.append(("3 o más", df["sPackets"] >= 3))
+            for etq, m in tramos:
+                mt = m & ~no_tcp
+                if not m.any():
+                    continue
+                w("%-14s %10d %11.1f %% %12d %11.1f %%"
+                  % (etq, int(mt.sum()),
+                     100 * df.loc[mt, "sAckDelayAvg"].isna().mean()
+                     if mt.any() else float("nan"),
+                     int(m.sum()),
+                     100 * df.loc[m, "sAckDelayAvg"].isna().mean()))
+            w("")
+            m3 = (df["sPackets"] >= 3) & df["sAckDelayAvg"].isna()
+            if m3.any():
+                rep = df.loc[m3, "protocol"].value_counts()
+                w("Las %d filas con tres o más paquetes y sin el dato son, por"
+                  % int(m3.sum()))
+                w("protocolo: %s."
+                  % ", ".join("%s %d" % (k, v) for k, v in rep.items()))
+                w("De TCP hay **%d**, de modo que la condición «no es TCP, o"
+                  % int((m3 & ~no_tcp).sum()))
+                w("menos de dos paquetes de ese lado» no deja residuo")
+                w("material sin caracterizar.")
         w("")
         w("**Consecuencia para la preparación**, y el alcance importa. Para")
         w("los %d campos cuyo patrón cierra exacto no corresponde imputar: el"
@@ -407,6 +440,90 @@ def analizar(nombre, df, w):
     return res
 
 
+def artefacto_duration(w):
+    """Las filas cuyo contenido real es UN paquete, punto por punto.
+
+    `duration` es un campo del conjunto y la correccion del doble conteo no lo
+    toca. Para una fila de un solo paquete real no es una duracion sino la
+    separacion entre sus dos copias de captura, de modo que todo cociente por
+    ella sale disparado. Esta seccion existe porque las cifras vivian en el
+    documento sin que ninguna salida las publicara.
+
+    El alcance es el tramo de entrenamiento y el criterio es «un paquete real»,
+    sin mas condiciones. La seccion 22.4 de `p22_westermo_duplicados.txt` mide
+    otra cosa sobre el archivo completo --- las filas que ADEMAS declaraban mas
+    de un paquete --- y las dos cifras no son comparables.
+    """
+    w("### `duration` y las filas de un solo paquete")
+    w("")
+    faltan = [pt for pt in ("bottom", "left", "right")
+              if not os.path.exists(os.path.join(
+                  comun.DERIVADOS, "westermo_reduced_%s_unico.csv" % pt))]
+    if faltan:
+        # Sin el recuento corregido, `westermo_flujos` devuelve la tabla
+        # publicada y «un paquete real» mediria «un paquete declarado», que es
+        # otra cosa. Mejor no publicar la seccion que publicarla midiendo mal.
+        w("**No se calcula**: falta el recuento de paquetes unicos de %s."
+          % ", ".join(faltan))
+        w("Correr antes `make -C eda duplicados`, que es lo que escribe")
+        w("`eda/derivados/westermo_*_unico.csv`. Sin eso, «un paquete real»")
+        w("mediria «un paquete declarado», que es la cifra equivocada.")
+        w("")
+        return None
+    w("Tramo de entrenamiento, variante `reduced`, criterio «un paquete real»:")
+    w("")
+    w("%-9s %8s %12s %7s %12s %12s %10s"
+      % ("punto", "filas", "1 paq. real", "%", "med. sLoad", "en el resto",
+         "% decil"))
+    out = {}
+    for pt in ("bottom", "left", "right"):
+        pub = comun.westermo_flujos("reduced", pt, unico=False)
+        uni = comun.westermo_flujos("reduced", pt, unico=True)
+        m = (pub["startOffset"] < comun.WESTERMO_CORTES[0]).to_numpy()
+        un = ((uni["sPackets"] + uni["rPackets"]) == 1).to_numpy()[m]
+        sl = pd.to_numeric(pub["sLoad"], errors="coerce").to_numpy(float)[m]
+        u9 = np.nanquantile(sl, 0.9)
+        dec = sl >= u9
+        frac = 100.0 * (dec & un).sum() / dec.sum() if dec.sum() else float("nan")
+        w("%-9s %8d %12d %6.1f %% %12.2g %12.2g %9.1f %%"
+          % (pt, int(m.sum()), int(un.sum()), 100.0 * un.mean(),
+             np.nanmedian(sl[un]), np.nanmedian(sl[~un]), frac))
+        # Las que ya venian con un paquete declarado en el conjunto publicado,
+        # en el tramo y en el archivo entero: 22.4 de p22 informa el archivo
+        # entero con otro criterio, y las dos cifras se citan juntas.
+        dec_tot = ((pub["sPackets"] + pub["rPackets"]) == 1).to_numpy()
+        dec_pub = dec_tot[m]
+        sl_tot = pd.to_numeric(pub["sLoad"], errors="coerce").to_numpy(float)
+        out[pt] = {"filas": int(m.sum()), "un_paquete_real": int(un.sum()),
+                   "archivo_entero_filas": int(len(pub)),
+                   "archivo_entero_un_paquete_declarado": int(dec_tot.sum()),
+                   "archivo_entero_de_esas_sobre_1e8":
+                       int((sl_tot[dec_tot] >= 1e8).sum()),
+                   "pct": 100.0 * float(un.mean()),
+                   "sLoad_mediana": float(np.nanmedian(sl[un])),
+                   "sLoad_mediana_resto": float(np.nanmedian(sl[~un])),
+                   "pct_del_decil": float(frac),
+                   "un_paquete_declarado_en_el_publicado": int(dec_pub.sum()),
+                   "de_esas_con_sLoad_sobre_1e8":
+                       int((sl[dec_pub] >= 1e8).sum())}
+    w("")
+    w("El decil superior de `sLoad` es practicamente entero de esas filas: el")
+    w("extremo no es la rafaga, es la grabadora. Y no lo introduce la")
+    w("correccion --- el conjunto publicado ya traia %d filas de `bottom` con"
+      % out["bottom"]["un_paquete_declarado_en_el_publicado"])
+    w("un paquete declarado, %d de ellas con `sLoad` por encima de 10^8 ---"
+      % out["bottom"]["de_esas_con_sLoad_sobre_1e8"])
+    w("pero recien con el recuento de paquetes reales se sabe cuales son.")
+    w("")
+    w("Sobre el archivo entero de `bottom`, que es el alcance con el que mide")
+    w("22.4 de `p22_westermo_duplicados.txt`, las filas con un paquete ya")
+    w("declarado son %d y %d de ellas traen `sLoad` del orden de 10^8."
+      % (out["bottom"]["archivo_entero_un_paquete_declarado"],
+         out["bottom"]["archivo_entero_de_esas_sobre_1e8"]))
+    w("")
+    return out
+
+
 def main():
     comun.preparar()
     L = []
@@ -419,6 +536,8 @@ def main():
     res = {}
     for nombre, df in cargar():
         res[nombre] = analizar(nombre, df, w)
+        if nombre.startswith("Westermo"):
+            res["_artefacto_duration"] = artefacto_duration(w)
         w("---")
         w("")
     comun.escribir("p16_exploratorio_flujos.txt", "\n".join(L))

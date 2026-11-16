@@ -428,13 +428,22 @@ def main():
     debajo = [v for v in referencia
               if bloques.get(v) and referencia[v]["ks_mediana"]
               <= bloques[v]["ks_mediana"]]
-    w("**El margen cae de decenas a unidades, y una version se cae del todo.**")
-    w("Contra el barajado fila por fila el cociente daba de 23 a 43. Contra")
-    w("el nulo correcto queda entre 0,9 y 2,7.")
+    raz_z = [referencia[v]["ks_mediana"] / ruido[v]["ks_mediana"]
+             for v in referencia
+             if ruido.get(v, {}).get("ks_mediana")]
+    raz_b = [referencia[v]["ks_mediana"] / bloques[v]["ks_mediana"]
+             for v in referencia
+             if bloques.get(v, {}).get("ks_mediana")]
+    w("**El margen cae de decenas a unidades.** Contra el barajado fila por")
+    if raz_z and raz_b:
+        w("fila el cociente daba de %.0f a %.0f. Contra el nulo correcto queda"
+          % (min(raz_z), max(raz_z)))
+        w("entre %.1f y %.1f." % (min(raz_b), max(raz_b)))
     w("")
     w("   supera a las %d permutaciones de bloques (p <= %.3f): %s"
       % (REPS_BLOQUE, 1.0 / (REPS_BLOQUE + 1),
          ", ".join(por_encima) if por_encima else "ninguna"))
+
     if debajo:
         w("   NO llega ni a la mediana del nulo: %s" % ", ".join(debajo))
         w("")
@@ -453,6 +462,7 @@ def main():
     w("%-14s %-28s %7s %9s %8s %9s %8s %7s"
       % ("version", "comparacion", "cols", "JS med", "JS p90", "KS med",
          "KS p90", "KS>0,2"))
+    J_ENTRE = []
     dentro = {}
     for ver, sep, coltime, _e in VERSIONES:
         tr = trains(ver)
@@ -496,6 +506,41 @@ def main():
                             for p in r["peores"])
             w("  %-14s %-28s %s" % (ver, nombre, top))
     w("")
+    # La razon de la deriva ENTRE campanas contra el mismo nulo por bloques.
+    # El documento la citaba y ninguna salida la traia.
+    ent = []
+    for ver, pares in dentro.items():
+        kb = bloques.get(ver, {}).get("ks_mediana")
+        if not kb:
+            continue
+        for par, x in pares.items():
+            ent.append((ver, par, x["ks_mediana"] / kb, x.get("columnas")))
+    w("")
+    w("### P5.b.2 La deriva entre campanas contra el nulo por bloques")
+    w("")
+    if not ent:
+        w("**No se pudo calcular**: falta la deriva intra-version o el nulo.")
+    else:
+        w("   %-14s %-28s %8s %7s" % ("version", "par", "razon", "cols"))
+        for ver, par, r, c in ent:
+            w("   %-14s %-28s %7.2fx %7s" % (ver, par, r, c))
+        w("")
+        w("   Rango: de %.1f a %.1f veces el nulo."
+          % (min(r for _a, _b, r, _c in ent), max(r for _a, _b, r, _c in ent)))
+        w("")
+        w("   **Salvedad de comparabilidad.** El numerador y el denominador no")
+        w("   se toman sobre el mismo conjunto de columnas: la mediana")
+        w("   intra-archivo se calcula sobre %s columnas segun la version,"
+          % ", ".join(str(referencia[v].get("columnas", "?"))
+                      for v in referencia))
+        w("   y la de entre campanas sobre %s."
+          % ", ".join(sorted({str(c) for *_x, c in ent})))
+        w("   Donde difieren, la razon no divide dos medianas de la misma")
+        w("   poblacion de columnas.")
+    w("")
+    J_ENTRE.extend({"version": v, "par": par, "razon": r, "columnas": c}
+                   for v, par, r, c in ent)
+
     w("### P5.c Entre versiones: cambio de banco, no deriva")
     w("")
     w("Las versiones no comparten el mismo conjunto de columnas ni el mismo")
@@ -537,6 +582,7 @@ def main():
                        k: {kk: vv for kk, vv in v.items() if kk != "detalle"}
                        for k, v in ruido.items()},
                    "deriva_intra_version": dentro,
+                   "deriva_entre_campanas_contra_nulo": J_ENTRE,
                    "columnas_por_version": {k: sorted(v)
                                             for k, v in juegos.items()}},
                   fh, indent=1, ensure_ascii=False)

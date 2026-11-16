@@ -14,7 +14,10 @@ El primer evento empieza a los 3661 s, o sea que los primeros 3661 s
 (43.7 % de la captura) son trafico normal sin ningun ataque activo.
 A diferencia de Westermo, aca si hay un tramo normal limpio y largo.
 
-**El PCAP se lee solo hasta el corte del 60 %.** Lo unico que se mira
+**El PCAP se lee entero una sola vez, y el detalle solo se extrae del
+60 % inicial.** El bucle recorre todas las ADU y cuenta, por
+particion, las ADU y las escrituras; recien despues se queda con el
+tramo de entrenamiento para todo lo demas. Lo unico que se mira
 fuera de ese tramo son conteos de etiqueta y el inventario de eventos.
 
 ## 6.2 Escrituras Modbus en el tramo de entrenamiento
@@ -202,8 +205,11 @@ calibracion           2593792          176                 48      27.3%
 prueba                2139462          178                 51      28.7%
 TOTAL                 5924975          802                143      17.8%
 
-Peticiones Modbus (la mitad de las ADU): 2962487, de las cuales 2961685 son
-lecturas. Hay una escritura cada 3693 lecturas.
+Peticiones y respuestas Modbus, **contadas y no supuestas**: 2962090 y 2962885,
+que suman las 5924975 ADU. De las peticiones, 2961288 son lecturas, de modo que
+hay una escritura cada 3692 lecturas.
+La mitad del total seria 2962487: la diferencia con el recuento es de 397
+ADU, chica pero no nula, y por eso se cuenta.
 
 Escrituras bajo intermediario en el tramo de prueba: **51**.
 Es la cifra que fija el alcance: son las instancias disponibles para
@@ -211,13 +217,18 @@ medir PD sobre manipulacion de parametros sin tocar el entrenamiento.
 
 ## 6.6 Con que alcance cierra la brecha
 
-Precision alcanzable para una PD cercana a 0,5, por aproximacion
-normal de una binomial:
+Precision alcanzable para una PD cercana a 0,5, con el intervalo de
+Wilson al 95 %, que es el criterio de `p9_intervalos_pd.txt`:
 
 unidad de medida                                      n      IC 95 %
-ICS-Flow, escritura manipulada (prueba)              51      +-0.137
-ICS-Flow, evento de intermediario (prueba)            5      +-0.438
+ICS-Flow, escrituras bajo ventana de mitm (prueba)       51      +-0.132
+ICS-Flow, evento de intermediario (prueba)            5      +-0.330
 Morris, evento MPCI (prueba)                       1808      +-0.023
+
+La primera fila dice **escrituras bajo una ventana de intermediario**,
+que no es lo mismo que escrituras manipuladas: la ventana es el
+intervalo declarado del ataque y no toda escritura que cae adentro
+esta alterada. Las alteradas medidas son las de 6.4.
 
 Lectura. ICS-Flow **si** cierra la mitad que faltaba: es el unico
 conjunto de los cinco donde se puede *calcular* una caracteristica
@@ -225,11 +236,14 @@ semantica de parametro desde la carga util y ademas ver la familia de
 manipulacion actuando sobre ella. Sirve para construir y validar el
 flujo de extraccion del requerimiento 2.3 sobre datos reales.
 
-Pero no reemplaza a Morris para medir. Con 51 escrituras manipuladas
+Pero no reemplaza a Morris para medir. Con 51 escrituras bajo ventana
 en el tramo de prueba, una PD por escritura queda con un intervalo de
-+-0.14, utilizable pero grueso; por evento, con solo 5 eventos, no es
-estimable. Morris sigue siendo el que sostiene el compromiso por
-familia, y no tiene carga util.
++-0.13, utilizable pero grueso; por evento, con solo 5 eventos, no es
+estimable. Morris es el mejor de los cinco para esto --- y por lejos ---
+pero no sostiene el compromiso por familia tal como se decia: contando
+episodios de ataque y no rachas de filas, sus tipos mas chicos quedan
+con una decena de episodios. Esta medido en 9.6.b de
+`p9_intervalos_pd.txt`.
 
 De modo que la division de roles no se resuelve: pasa de dos conjuntos
 a tres. QUT para el grueso de las caracteristicas semanticas de

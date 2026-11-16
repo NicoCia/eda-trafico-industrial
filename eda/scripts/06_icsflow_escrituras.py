@@ -19,7 +19,9 @@ Responde cinco cosas:
 
 Particion: el conjunto no trae una designada, asi que se define aqui por
 tiempo 60/20/20 sobre la marca del PCAP, con el mismo criterio que el resto
-del EDA. **El PCAP se lee solo hasta el corte del 60 %.** Los conteos por
+del EDA. **El PCAP se lee entero una sola vez, y el detalle solo se extrae
+del 60 % inicial**: el bucle cuenta ADU y escrituras de las tres particiones
+antes de quedarse con el tramo de entrenamiento. Los conteos por
 particion salen de las etiquetas de `Dataset.csv` y del inventario de eventos,
 que es la excepcion de dimensionamiento que admite el brief.
 
@@ -129,7 +131,10 @@ def main():
       % (100.0 * primer_evento / span))
     w("A diferencia de Westermo, aca si hay un tramo normal limpio y largo.")
     w("")
-    w("**El PCAP se lee solo hasta el corte del 60 %.** Lo unico que se mira")
+    w("**El PCAP se lee entero una sola vez, y el detalle solo se extrae del")
+    w("60 % inicial.** El bucle recorre todas las ADU y cuenta, por")
+    w("particion, las ADU y las escrituras; recien despues se queda con el")
+    w("tramo de entrenamiento para todo lo demas. Lo unico que se mira")
     w("fuera de ese tramo son conteos de etiqueta y el inventario de eventos.")
     w("")
 
@@ -164,6 +169,10 @@ def main():
             break
         part = particion(adu.ts)
         conteo[part]["adus"] += 1
+        # El reparto peticion/respuesta se cuenta en lugar de suponerse: una
+        # version anterior publicaba la mitad del total y lo decia en la
+        # etiqueta, pero el documento citaba la cifra como medida.
+        conteo[part]["peticiones" if adu.es_peticion else "respuestas"] += 1
         if adu.es_peticion and adu.es_escritura:
             conteo[part]["escrituras"] += 1
             if dentro_de_mitm(adu.ts):
@@ -577,14 +586,18 @@ def main():
     w("%-16s %12d %12d %18d %9.1f%%"
       % ("TOTAL", tot["adus"], e, m, 100.0 * m / e if e else 0.0))
     w("")
-    # Las ADU se reparten por mitades entre peticion y respuesta, asi que las
-    # peticiones son la mitad del total y las lecturas, el resto.
-    peticiones = tot["adus"] // 2
+    peticiones = tot["peticiones"]
+    respuestas = tot["respuestas"]
     lecturas_tot = peticiones - e
-    w("Peticiones Modbus (la mitad de las ADU): %d, de las cuales %d son"
-      % (peticiones, lecturas_tot))
-    w("lecturas. Hay una escritura cada %d lecturas."
+    w("Peticiones y respuestas Modbus, **contadas y no supuestas**: %d y %d,"
+      % (peticiones, respuestas))
+    w("que suman las %d ADU. De las peticiones, %d son lecturas, de modo que"
+      % (tot["adus"], lecturas_tot))
+    w("hay una escritura cada %d lecturas."
       % (round(lecturas_tot / e) if e else 0))
+    w("La mitad del total seria %d: la diferencia con el recuento es de %d"
+      % (tot["adus"] // 2, abs(peticiones - tot["adus"] // 2)))
+    w("ADU, chica pero no nula, y por eso se cuenta.")
     w("")
     w("Escrituras bajo intermediario en el tramo de prueba: **%d**."
       % conteo["prueba"]["escrituras_en_mitm"])
@@ -598,19 +611,36 @@ def main():
     n_pru = conteo["prueba"]["escrituras_en_mitm"]
     ev_pru = int(tab.loc["mitm", "prueba"]) if "mitm" in tab.index else 0
 
-    def semiancho(n):
-        return 1.96 * (0.25 / n) ** 0.5 if n else float("nan")
+    def semiancho(n, z=1.959963984540054):
+        """Semiancho de Wilson con PD = 0,5, que es el criterio de p9.
 
-    w("Precision alcanzable para una PD cercana a 0,5, por aproximacion")
-    w("normal de una binomial:")
+        La aproximacion normal (Wald) no sirve con n chico --- con n = 5 su
+        intervalo se sale de [0, 1] --- y este cuadro la usaba. Se cambia por
+        Wilson para no publicar dos intervalos distintos de la misma cantidad
+        en dos salidas del mismo repositorio.
+        """
+        if not n:
+            return float("nan")
+        k = n / 2.0
+        den = n + z * z
+        return (z / den) * (k * (n - k) / float(n) + z * z / 4.0) ** 0.5
+
+    w("Precision alcanzable para una PD cercana a 0,5, con el intervalo de")
+    w("Wilson al 95 %, que es el criterio de `p9_intervalos_pd.txt`:")
     w("")
     w("%-46s %8s %12s" % ("unidad de medida", "n", "IC 95 %"))
-    w("%-46s %8d %12s" % ("ICS-Flow, escritura manipulada (prueba)", n_pru,
-                          "+-%.3f" % semiancho(n_pru)))
+    w("%-46s %8d %12s"
+      % ("ICS-Flow, escrituras bajo ventana de mitm (prueba)", n_pru,
+         "+-%.3f" % semiancho(n_pru)))
     w("%-46s %8d %12s" % ("ICS-Flow, evento de intermediario (prueba)",
                           ev_pru, "+-%.3f" % semiancho(ev_pru)))
     w("%-46s %8d %12s" % ("Morris, evento MPCI (prueba)", 1808,
                           "+-%.3f" % semiancho(1808)))
+    w("")
+    w("La primera fila dice **escrituras bajo una ventana de intermediario**,")
+    w("que no es lo mismo que escrituras manipuladas: la ventana es el")
+    w("intervalo declarado del ataque y no toda escritura que cae adentro")
+    w("esta alterada. Las alteradas medidas son las de 6.4.")
     w("")
     w("Lectura. ICS-Flow **si** cierra la mitad que faltaba: es el unico")
     w("conjunto de los cinco donde se puede *calcular* una caracteristica")
@@ -618,13 +648,16 @@ def main():
     w("manipulacion actuando sobre ella. Sirve para construir y validar el")
     w("flujo de extraccion del requerimiento 2.3 sobre datos reales.")
     w("")
-    w("Pero no reemplaza a Morris para medir. Con %d escrituras manipuladas"
+    w("Pero no reemplaza a Morris para medir. Con %d escrituras bajo ventana"
       % n_pru)
     w("en el tramo de prueba, una PD por escritura queda con un intervalo de")
     w("+-%.2f, utilizable pero grueso; por evento, con solo %d eventos, no es"
       % (semiancho(n_pru), ev_pru))
-    w("estimable. Morris sigue siendo el que sostiene el compromiso por")
-    w("familia, y no tiene carga util.")
+    w("estimable. Morris es el mejor de los cinco para esto --- y por lejos ---")
+    w("pero no sostiene el compromiso por familia tal como se decia: contando")
+    w("episodios de ataque y no rachas de filas, sus tipos mas chicos quedan")
+    w("con una decena de episodios. Esta medido en 9.6.b de")
+    w("`p9_intervalos_pd.txt`.")
     w("")
     w("De modo que la division de roles no se resuelve: pasa de dos conjuntos")
     w("a tres. QUT para el grueso de las caracteristicas semanticas de")

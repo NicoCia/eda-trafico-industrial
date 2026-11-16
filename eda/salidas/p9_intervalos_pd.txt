@@ -197,12 +197,65 @@ MFCI                 646      -0.046          708        +-0.037
 Reconnaissance       477      -0.034          510        +-0.043
 DoS                  281      -0.019          292        +-0.057
 
-**Todas negativas.** Los eventos de una categoria no se agrupan:
-se alternan, porque a un evento anomalo le sigue trafico normal
-casi siempre. Con autocorrelacion negativa el tamano efectivo
-es MAYOR que n, de modo que suponer independencia es
-conservador y no optimista, y los intervalos de 9.5 no hay que
-ensancharlos por este motivo.
+**Todas negativas, y no es un dato: es una identidad.** Un evento
+se define como racha maxima de la misma categoria, de modo que dos
+eventos consecutivos NUNCA comparten categoria por construccion.
+Eso fuerza la suma de productos cruzados a cero y la
+autocorrelacion a -p/(1-p), que es negativa siempre. Despejando el
+largo de la secuencia, las 7 categorias dan el mismo numero:
+   14696, 14696, 14696, 14696, 14696, 14696, 14696
+De modo que esta columna **no mide agrupamiento** y no habilita la
+conclusion de que suponer independencia sea conservador. Queda
+informada para que no se la lea como medicion.
+
+### 9.6.b Lo que si se puede medir: rachas contra episodios
+
+La pregunta que importa es cuantos episodios de ataque **distintos**
+hay, porque es sobre episodios que se promedia una PD por familia. Y
+ahi la definicion por rachas sobreestima: en Morris las rachas
+sucesivas de una misma categoria estan separadas por tres o cuatro
+FILAS, es decir una o dos transacciones normales en medio, de modo que
+una sola inyeccion se parte en decenas de rachas.
+
+categoria        rachas  sep.med.s  filas entre    u=5s   u=10s   u=30s   u=60s  u=300s
+CMRI               2581       3.37            4     397     395     103      97      52
+MPCI               1808       3.21            3      75      75      75      73      54
+NMRI               1639       3.37            4     254     253      71      69      50
+MSCI                676       3.21            3      28      28      28      28      26
+MFCI                646      11.69            3     646     646      29      29      23
+Reconnaissance      477      11.72            3     477     477      25      25      19
+DoS                 281       3.20            3      13      13      13      13      11
+
+El umbral no cambia la lectura en el peor caso: con cualquier `u`
+entre 5 s y 60 s, un rango de doce veces, DoS da el mismo numero
+de episodios. Y el procedimiento discrimina en lugar de colapsar
+todo: a 5 s hay categorias cuyas rachas no se funden, porque su
+separacion mediana pasa de 11 s. Para esas dos la columna de 10 s
+es una cota superior: se agrupan recien por encima de su propia
+separacion, y a 30 s dan 29 y 25 episodios.
+
+Lo que esto le hace al intervalo, al umbral de 10 s:
+
+categoria         rachas       semi   episodios       semi  rejilla 1/n
+CMRI                2581      0.019         395      0.049       0.0025
+MPCI                1808      0.023          75      0.110       0.0133
+NMRI                1639      0.024         253      0.061       0.0040
+MSCI                 676      0.038          28      0.174       0.0357
+MFCI                 646      0.038         646      0.038       0.0015
+Reconnaissance       477      0.045         477      0.045       0.0021
+DoS                  281      0.058          13      0.239       0.0769
+
+**El peor tipo es DoS, con 13 episodios y un semiancho de +-0.24.**
+Con 13 episodios la PD solo puede tomar 14 valores espaciados
+1/13 = 0.077, de modo que 0,5 no es alcanzable: los dos valores mas
+cercanos son 0.4615 y 0.5385. Es la misma objecion que la pregunta 4
+levanta contra los tipos de Westermo con pocos eventos.
+
+De modo que **la afirmacion de que Morris sostiene un punto de
+operacion por familia vale contando rachas y no contando
+episodios**. Sigue siendo el mejor de los cinco conjuntos, y por
+lejos, pero el compromiso por familia no se sostiene para los
+tipos con pocos episodios.
 
 Reproducible con:
   eda/.venv/bin/python -I eda/scripts/09_intervalos_pd.py

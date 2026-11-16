@@ -95,6 +95,68 @@ def peor_wilson(n, z=Z95):
     return peor
 
 
+UMBRALES_EPISODIO = (5.0, 10.0, 30.0, 60.0, 300.0)
+
+
+def episodios_morris():
+    """Rachas contra EPISODIOS de ataque, por categoria, en el tramo de prueba.
+
+    Un evento definido como racha contigua de la misma categoria cuenta una
+    transaccion Modbus, no un episodio de ataque: el atacante inyecta sobre
+    transacciones consecutivas con una normal en medio, de modo que una sola
+    inyeccion se parte en muchas rachas. Aca se agrupan las rachas separadas
+    por menos de `u` segundos y se barre `u`, para que la eleccion quede a la
+    vista en lugar de escondida en el codigo.
+
+    Devuelve None si no se puede leer el ARFF.
+    """
+    try:
+        mor = importlib.import_module("03_morris")
+    except Exception:
+        return None
+    ruta = os.path.join(comun.MORRIS, "IanArffDataset.arff")
+    if not os.path.exists(ruta):
+        return None
+    df = mor.leer_arff(ruta)
+    df["time"] = pd.to_numeric(df["time"], errors="coerce")
+    df = df.sort_values("time", kind="mergesort").reset_index(drop=True)
+    pr = df[df["time"] >= comun.MORRIS_CORTES[1]].reset_index(drop=True)
+    if len(pr) < 10:
+        return None
+    cat = pr["categorized result"].astype(str).str.strip().to_numpy()
+    t = pr["time"].to_numpy(float)
+    filas = []
+    for k in sorted(set(cat)):
+        if k == "0":
+            continue
+        idx = np.flatnonzero(cat == k)
+        if len(idx) < 2:
+            continue
+        cortes = np.flatnonzero(np.diff(idx) > 1)
+        ini = np.concatenate(([0], cortes + 1))
+        fin = np.concatenate((cortes, [len(idx) - 1]))
+        rachas = [(idx[a], idx[b]) for a, b in zip(ini, fin)]
+        sep = [t[rachas[i][0]] - t[rachas[i - 1][1]]
+               for i in range(1, len(rachas))]
+        huecos = [rachas[i][0] - rachas[i - 1][1]
+                  for i in range(1, len(rachas))]
+        por_u = {}
+        for u in UMBRALES_EPISODIO:
+            g = 1
+            for i in range(1, len(rachas)):
+                if t[rachas[i][0]] - t[rachas[i - 1][1]] > u:
+                    g += 1
+            por_u["%g" % u] = g
+        nombre = mor.CATEGORIA.get(k, k).split("(")[0].strip() or k
+        filas.append({"categoria": nombre, "codigo": k,
+                      "rachas": len(rachas),
+                      "separacion_mediana_s": float(np.median(sep)) if sep else None,
+                      "filas_entre_rachas_mediana": float(np.median(huecos)) if huecos else None,
+                      "episodios": por_u})
+    filas.sort(key=lambda f: -f["rachas"])
+    return filas
+
+
 def autocorr_eventos_morris():
     """Autocorrelacion a retardo 1 del indicador de categoria, POR EVENTO.
 
@@ -487,21 +549,95 @@ def main():
               % (fila["categoria"], fila["eventos"], fila["rho"],
                  fila["n_efectivo"], "+-%.3f" % fila["ic95"]))
         w("")
-        negativas = [f for f in ac_ev if f["rho"] < 0]
-        if len(negativas) == len(ac_ev):
-            w("**Todas negativas.** Los eventos de una categoria no se agrupan:")
-            w("se alternan, porque a un evento anomalo le sigue trafico normal")
-            w("casi siempre. Con autocorrelacion negativa el tamano efectivo")
-            w("es MAYOR que n, de modo que suponer independencia es")
-            w("conservador y no optimista, y los intervalos de 9.5 no hay que")
-            w("ensancharlos por este motivo.")
-        else:
-            w("**Hay categorias con autocorrelacion positiva entre eventos:")
-            w("%s.** En esas el tamano efectivo es menor que n y el intervalo"
-              % ", ".join(f["categoria"] for f in ac_ev if f["rho"] >= 0))
-            w("de 9.5 es optimista: hay que usar la columna de n efectivo.")
+        w("**Todas negativas, y no es un dato: es una identidad.** Un evento")
+        w("se define como racha maxima de la misma categoria, de modo que dos")
+        w("eventos consecutivos NUNCA comparten categoria por construccion.")
+        w("Eso fuerza la suma de productos cruzados a cero y la")
+        w("autocorrelacion a -p/(1-p), que es negativa siempre. Despejando el")
+        w("largo de la secuencia, las %d categorias dan el mismo numero:"
+          % len(ac_ev))
+        largos = []
+        for f in ac_ev:
+            r = f["rho"]
+            pp = -r / (1.0 - r) if r < 0 else float("nan")
+            largos.append(f["eventos"] / pp if pp and pp == pp else float("nan"))
+        w("   %s" % ", ".join("%.0f" % x for x in largos))
+        w("De modo que esta columna **no mide agrupamiento** y no habilita la")
+        w("conclusion de que suponer independencia sea conservador. Queda")
+        w("informada para que no se la lea como medicion.")
         w("")
         J["autocorrelacion_entre_eventos"] = ac_ev
+        J["autocorrelacion_entre_eventos_es_identidad"] = {
+            "formula": "rho = -p/(1-p) con p = eventos/largo de la secuencia",
+            "largo_despejado": [float(x) for x in largos]}
+
+    w("### 9.6.b Lo que si se puede medir: rachas contra episodios")
+    w("")
+    w("La pregunta que importa es cuantos episodios de ataque **distintos**")
+    w("hay, porque es sobre episodios que se promedia una PD por familia. Y")
+    w("ahi la definicion por rachas sobreestima: en Morris las rachas")
+    w("sucesivas de una misma categoria estan separadas por tres o cuatro")
+    w("FILAS, es decir una o dos transacciones normales en medio, de modo que")
+    w("una sola inyeccion se parte en decenas de rachas.")
+    w("")
+    eps = episodios_morris()
+    if eps is None:
+        w("No se pudo leer el ARFF de Morris: queda sin medir.")
+        w("")
+    else:
+        cab = "".join("%8s" % ("u=%gs" % u) for u in UMBRALES_EPISODIO)
+        w("%-14s %8s %10s %12s%s"
+          % ("categoria", "rachas", "sep.med.s", "filas entre", cab))
+        for f in eps:
+            celdas = "".join("%8d" % f["episodios"]["%g" % u]
+                             for u in UMBRALES_EPISODIO)
+            w("%-14s %8d %10.2f %12.0f%s"
+              % (f["categoria"], f["rachas"],
+                 f["separacion_mediana_s"] or float("nan"),
+                 f["filas_entre_rachas_mediana"] or float("nan"), celdas))
+        w("")
+        w("El umbral no cambia la lectura en el peor caso: con cualquier `u`")
+        w("entre 5 s y 60 s, un rango de doce veces, DoS da el mismo numero")
+        w("de episodios. Y el procedimiento discrimina en lugar de colapsar")
+        w("todo: a 5 s hay categorias cuyas rachas no se funden, porque su")
+        w("separacion mediana pasa de 11 s. Para esas dos la columna de 10 s")
+        w("es una cota superior: se agrupan recien por encima de su propia")
+        w("separacion, y a 30 s dan 29 y 25 episodios.")
+        w("")
+        w("Lo que esto le hace al intervalo, al umbral de 10 s:")
+        w("")
+        w("%-14s %9s %10s %11s %10s %12s"
+          % ("categoria", "rachas", "semi", "episodios", "semi", "rejilla 1/n"))
+        peor = None
+        for f in eps:
+            nr, ne = f["rachas"], f["episodios"]["10"]
+            sr = wilson(nr / 2.0, nr)[3]
+            se = wilson(ne / 2.0, ne)[3]
+            w("%-14s %9d %10.3f %11d %10.3f %12.4f"
+              % (f["categoria"], nr, sr, ne, se, 1.0 / ne))
+            if peor is None or ne < peor[1]:
+                peor = (f["categoria"], ne, se)
+            f["semi_rachas"] = sr
+            f["semi_episodios"] = se
+        w("")
+        w("**El peor tipo es %s, con %d episodios y un semiancho de +-%.2f.**"
+          % (peor[0], peor[1], peor[2]))
+        w("Con %d episodios la PD solo puede tomar %d valores espaciados"
+          % (peor[1], peor[1] + 1))
+        w("1/%d = %.3f, de modo que 0,5 no es alcanzable: los dos valores mas"
+          % (peor[1], 1.0 / peor[1]))
+        w("cercanos son %.4f y %.4f. Es la misma objecion que la pregunta 4"
+          % ((peor[1] // 2) / peor[1], (peor[1] // 2 + 1) / peor[1]))
+        w("levanta contra los tipos de Westermo con pocos eventos.")
+        w("")
+        w("De modo que **la afirmacion de que Morris sostiene un punto de")
+        w("operacion por familia vale contando rachas y no contando")
+        w("episodios**. Sigue siendo el mejor de los cinco conjuntos, y por")
+        w("lejos, pero el compromiso por familia no se sostiene para los")
+        w("tipos con pocos episodios.")
+        w("")
+        J["episodios_morris"] = {"umbrales": list(UMBRALES_EPISODIO),
+                                 "por_categoria": eps}
 
     w("Reproducible con:")
     w("  eda/.venv/bin/python -I eda/scripts/09_intervalos_pd.py")

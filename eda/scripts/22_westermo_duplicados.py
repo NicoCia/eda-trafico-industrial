@@ -334,18 +334,28 @@ def main():
 
     w("## 22.2 Cuanto infla el doble conteo")
     w("")
-    w("%-18s %9s %9s %8s %s"
-      % ("captura", "paquetes", "copias", "% copias", "factor de inflacion"))
+    w("Las dos primeras columnas son del PCAP y las dos ultimas de los CSV")
+    w("de flujo, que no contabilizan todos los paquetes del archivo. Son dos")
+    w("poblaciones, de modo que el factor **no se deduce** de las copias que")
+    w("tiene al lado: se informan los dos.")
+    w("")
+    w("%-18s %9s %9s %8s %11s %11s"
+      % ("captura", "paquetes", "copias", "% copias",
+         "infl. paq.", "infl. CSV"))
     for clave, r in res.items():
         tot = r["crudo"]["sPackets"].sum() + r["crudo"]["rPackets"].sum()
         uni = r["unico"]["sPackets"].sum() + r["unico"]["rPackets"].sum()
         f = tot / uni if uni else float("nan")
-        w("%-18s %9d %9d %7.1f%% %18.3fx"
+        unicos_pcap = r["leidos"] - r["copias"]
+        f_pcap = r["leidos"] / unicos_pcap if unicos_pcap else float("nan")
+        w("%-18s %9d %9d %7.1f%% %10.3fx %10.3fx"
           % (clave, r["leidos"], r["copias"],
-             100.0 * r["copias"] / max(1, r["leidos"]), f))
-        salida[clave]["inflacion_paquetes"] = float(f)
+             100.0 * r["copias"] / max(1, r["leidos"]), f_pcap, f))
+        salida[clave]["inflacion_contadores_csv"] = float(f)
+        salida[clave]["inflacion_paquetes_pcap"] = float(f_pcap)
         salida[clave]["copias"] = int(r["copias"])
         salida[clave]["paquetes_leidos"] = int(r["leidos"])
+        salida[clave]["paquetes_contabilizados_en_csv"] = int(tot)
     w("")
 
     w("## 22.3 El efecto campo por campo")

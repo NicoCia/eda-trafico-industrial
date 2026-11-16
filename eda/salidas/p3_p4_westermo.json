@@ -254,5 +254,16 @@
    "calibracion": 2,
    "prueba": 2
   }
+ },
+ "gemelos_componentes": {
+  "observaciones": 28742,
+  "distintos": 23786,
+  "tamanos": {
+   "1": 20740,
+   "3": 1910,
+   "2": 1136
+  },
+  "con_gemelo": 8002,
+  "redundantes": 4956
  }
 }

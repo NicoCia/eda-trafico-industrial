@@ -278,6 +278,15 @@ def main():
     w("Si la separacion fuese comando/respuesta, master.pcap tendria solo")
     w("peticiones y slave.pcap solo respuestas. Se mide la mezcla en cada uno.")
     w("")
+    w("La particion es por codigo de funcion: menor que 128 cuenta como")
+    w("peticion. Eso pone **CONFIRM del lado de las peticiones**, y un")
+    w("CONFIRM no lleva respuesta por diseno, de modo que lo que la tabla")
+    w("mide es *lado maestro contra lado esclavo* y no peticiones contra")
+    w("respuestas. Para la conclusion da igual --- el CONFIRM lo manda el")
+    w("maestro, asi que el reparto sigue siendo por direccion --- pero la")
+    w("tasa de emparejamiento de 1.5 usa la otra definicion, y conviene no")
+    w("confundirlas.")
+    w("")
     w("%-14s %-11s %-9s %12s %12s %9s" % (
         "escenario", "sub", "rol", "peticiones", "respuestas", "% petic."))
     for nombre, subs in datos.items():

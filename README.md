@@ -10,7 +10,7 @@ Facultad de Ingeniería de la Universidad de Buenos Aires.
 Lo que hay acá son mediciones sobre los archivos. El punto de partida fue una
 selección de conjuntos escrita a partir de la documentación publicada de cada
 uno, antes de abrir ninguno. El análisis la contrastó contra los datos, y
-seis de los ocho hallazgos principales contradicen lo que la documentación de
+seis de los nueve hallazgos principales contradicen lo que la documentación de
 los conjuntos o su descripción corriente dan por sentado. Cada contradicción
 está en [`INFORME.md`](eda/INFORME.md) con el número que la sostiene y el
 script que lo calcula.
@@ -22,7 +22,7 @@ script que lo calcula.
    mecanismo, redundancia, poder discriminante, estructura temporal, balance de
    clases y datos sensibles. Se lee primero porque describe los datos sin
    discutir todavía qué hacer con ellos.
-2. **[`eda/INFORME.md`](eda/INFORME.md)** — qué implican. Los ocho hallazgos
+2. **[`eda/INFORME.md`](eda/INFORME.md)** — qué implican. Los nueve hallazgos
    que cambian cómo se usan estos conjuntos, las cinco preguntas que el
    análisis tenía que responder, el papel de ICS-Flow y si los cinco se pueden
    unir en un conjunto integrado.
@@ -47,13 +47,16 @@ archivo.
 texto lo dice en lugar de completarlo, y `INFORME.md` enumera las cifras que
 no salen de correr el código.
 
-Y eso no alcanzó, lo que también se deja dicho. Tres auditorías
+Y eso no alcanzó, lo que también se deja dicho. Cinco auditorías
 independientes recalcularon las cifras contra los archivos y encontraron
 errores que la aritmética no muestra: una frase que responde una pregunta
-distinta de la que mide la cifra de al lado —otra población, otro
-denominador, otra ventana—. Están corregidos, y los documentos registran en
-su lugar cuál era el error y qué lo reemplaza, porque esa historia es parte
-del resultado.
+distinta de la que mide la cifra de al lado —otra población, otro denominador,
+otra ventana—, y un estadístico que no contesta la pregunta que la oración
+afirma —un estimador que supone un modelo que la serie no cumple, un umbral
+calibrado sobre los datos donde después se mide el desempeño, un conteo
+forzado por cómo se definió el objeto que se cuenta—. Están corregidos, y los
+documentos registran en su lugar cuál era el error y qué lo reemplaza, porque
+esa historia es parte del resultado.
 
 ## Los datos no están acá
 

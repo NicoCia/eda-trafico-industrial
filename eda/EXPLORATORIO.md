@@ -91,8 +91,11 @@ patrones de faltantes distintos**. Seis de esos patrones, que cubren **30 de
 los 38 campos**, los reproduce **exacto** una condición estructural —no es TCP,
 o ese lado no tiene paquetes—: ahí el dato no está perdido, no existe, e
 imputarlo sería inventar un número donde el protocolo no define ninguno. Los
-otros **cuatro patrones, con 8 campos**, no los reproduce ninguna condición, y
-para esos el argumento de inexistencia no está hecho.
+otros **cuatro patrones, con 8 campos**, no los reproduce ninguna condición de
+forma exacta, y para esos el argumento de inexistencia no está hecho. Conviene
+graduarlo: a los seis `AckDelay` la condición más cercana les erra en 11 y en 4
+filas de 21.080, y restringidos a los flujos TCP cierran; a `sFragmentRate` le
+erra en 95, que es el único caso que queda sin caracterizar.
 
 **4. Las características son muchas menos de lo que parece.** Westermo declara
 47; de ellas 5 son constantes y las demás se agrupan por correlación en
@@ -108,9 +111,11 @@ ICS-Flow** y **−0,04 en Westermo**: eso dice cuánta información nueva trae
 cada fila. Lo que decide si un corte al azar filtra es la dependencia de la
 *etiqueta* en el orden temporal, y ahí los dos son altos: **0,78 en Westermo**
 y **0,73 en ICS-Flow**, porque un evento deja rachas de hasta 228 y 148 flujos
-contiguos de la misma clase. A efectos de precisión sobre la etiqueta, las
-21.080 filas de Westermo valen **2618** y las 25.620 de ICS-Flow, **4049**.
-**Las dos particiones tienen que ser por bloques temporales.**
+contiguos de la misma clase. A efectos de precisión sobre la etiqueta, y
+medido con el tiempo de decorrelación —el único estimador que vale acá, porque
+la dependencia no decae con el retardo—, las 21.080 filas de Westermo valen
+**319** y las 25.620 de ICS-Flow, **312**. **Las dos particiones tienen que
+ser por bloques temporales.**
 
 **6. El desbalance depende de una decisión, no del fenómeno.** La misma
 captura da 1,7:1 o 4,8:1 en Westermo según qué estrategia de etiquetado se
@@ -123,10 +128,18 @@ tomar antes de partir los datos.
 
 ### Qué es
 
-Tráfico de una red industrial real de doce dispositivos, capturado en tres
+Tráfico de una red industrial de doce dispositivos físicos, capturado en tres
 puntos a la vez durante unos 90 minutos. Lo publica Westermo Network
 Technologies bajo CC BY 4.0, que es el único de los conjuntos del trabajo con
 licencia explícita y permisiva.
+
+Lo que es físico acá es la red: los equipos, el cableado, los tres puntos de
+captura, el SSH y los escaneos. El **proceso** que los PLC simulan lo genera
+ICSSIM, el mismo marco que produce ICS-Flow, y el `README` del conjunto
+advierte que parte de ese tráfico no representa una fábrica; por eso publica
+dos variantes, y la `reduced` que usa este análisis excluye el tráfico del
+simulador del mundo físico. La distinción importa cada vez que se compara con
+ICS-Flow.
 
 El registro es un **flujo de 0,5 segundos**: una fila resume medio segundo de
 conversación entre dos direcciones, no un paquete. Las características las
@@ -155,15 +168,19 @@ escritura en todo el archivo. Los registros leídos se decodifican con el mapa
 de ICSSIM —`tank_level_value`, `tank_input_valve_status`, `bottle_level_value`
 y el resto—, que es el mismo mapa que el análisis verificó en ICS-Flow.
 
-Eso convierte a Westermo en el único de los cinco que tiene a la vez tráfico
-real, esquema de flujo publicado, etiquetas **y** carga útil de control
-decodificable. La salvedad que lo limita es la de solo lectura: no hay
+Eso convierte a Westermo en el único de los cinco que tiene a la vez red
+física, esquema de flujo publicado, etiquetas **y** carga útil de control
+decodificable. Esa carga útil es de ICSSIM: las consignas tienen un solo valor
+distinto en toda la captura —3,0; 7,0; 1,8— de modo que la semántica de
+control que aporta es simulada. La salvedad que lo limita es la de solo lectura: no hay
 escrituras de consigna, de modo que no sirve para construir una característica
 de parámetro manipulado, que es lo que aporta ICS-Flow.
 
 ### Qué falta, y por qué
 
-8,1 % de las celdas; 16,6 % de las filas tienen al menos un hueco. No es
+8,2 % de las celdas del cuadro entero —el 10,8 % si se cuentan solo las 47
+características, porque 4256 de los huecos están en dos identificadores,
+`sIPs` y `rIPs`—; 16,6 % de las filas tienen al menos un hueco. No es
 azar. La hipótesis del dominio es que un flujo que no es TCP no tiene banderas
 ni ventana, y que una dirección sin paquetes no tiene TTL que informar.
 
@@ -178,8 +195,8 @@ patrón, una condición que lo reproduzca si y solo si:
 | 8 (ídem del lado receptor) | 3333 | no es TCP, o `rPackets` = 0 |
 | 6 (bytes y carga útil, lado emisor) | 106 | `sPackets` = 0 |
 | 6 (ídem del lado receptor) | 3246 | `rPackets` = 0 |
-| 1 (`sInterPacketAvg`) | 1079 | `sPackets` < 2 |
-| 1 (`rInterPacketAvg`) | 3261 | `rPackets` < 2 |
+| 1 (`sInterPacketAvg`) | 2919 | `sPackets` < 2 |
+| 1 (`rInterPacketAvg`) | 3268 | `rPackets` < 2 |
 | 3 (`sAckDelay*`) | 3491 | **ninguna** |
 | 3 (`rAckDelay*`) | 3422 | **ninguna** |
 | 1 (`sFragmentRate`) | 2223 | **ninguna** |
@@ -187,23 +204,34 @@ patrón, una condición que lo reproduzca si y solo si:
 
 **Seis patrones, que cubren 30 de los 38 campos, cierran exactos.** Los otros
 cuatro no, y conviene mirar cuánto les falta: a los `AckDelay` la condición más
-cercana les erra en 10 y en 4 filas de 21.080, y a `rFragmentRate` en 7, de
+cercana les erra en 11 y en 4 filas de 21.080, y a `rFragmentRate` en 7, de
 modo que son casi estructurales; a `sFragmentRate` le erra en **95**, que ya es
 otra cosa.
 
 El caso de los `AckDelay` se entiende: medir un retardo exige al menos dos
-paquetes, pero el umbral no es nítido.
+paquetes del lado medido. Y exige también que el flujo sea TCP, que es la
+condición dominante y la que decide cómo se lee la tabla:
 
-| `sPackets` | Flujos | Sin `sAckDelayAvg` |
-|---:|---:|---:|
-| 0 | 106 | 100 % |
-| 1 | 973 | 99,9 % |
-| 2 | 139 | 86 % |
-| 3 o más | 19.862 | 11,5 % |
+| `sPackets` | Flujos TCP | Sin `sAckDelayAvg` | Todos los flujos | Sin `sAckDelayAvg` |
+|---:|---:|---:|---:|---:|
+| 0 | 88 | 100,0 % | 106 | 100,0 % |
+| 1 | 72 | 93,1 % | 2813 | 99,8 % |
+| 2 | 46 | 10,9 % | 491 | 91,6 % |
+| 3 o más | 17.544 | **0,0 %** | 17.670 | 0,7 % |
 
-Con dos paquetes falta el 86 % y con tres o más todavía el 11,5 %: **no es un
-«si y solo si»**, es una tendencia fuerte con excepciones. Y el 11,5 % de
-flujos bien poblados sin el dato es el residuo que ninguna condición explica.
+Las dos columnas van separadas a propósito. Sobre todos los flujos parece
+quedar un residuo con tres o más paquetes; restringido a TCP, que es la
+población donde la pregunta tiene sentido, **cierra exacto**. Las 127 filas
+con tres o más paquetes y sin el dato son, por protocolo, 108 de LLDP, 12 de
+ARP, 4 de IPV4-2, 2 de IPV4-UDP y **una** de TCP: no son un residuo sin
+explicar sino flujos que la primera mitad de la condición ya cubre.
+
+Una versión anterior publicaba esta tabla con las cifras de antes de corregir
+el doble conteo —106 / 973 / 139 / 19.862, con un 11,5 % en la última fila— y
+concluía que «no es un “si y solo si”, es una tendencia fuerte con
+excepciones». Eran dos errores encadenados: números de otra tabla, y un
+estadístico que condicionaba solo sobre `sPackets` cuando la condición que el
+propio análisis había encontrado incluye el protocolo.
 
 **Qué hacer con esto, y el alcance importa.** Para los 30 campos cuyo patrón
 cierra exacto, no imputar. El reporte automático propone «imputación simple»
@@ -217,8 +245,9 @@ tasas de fragmentación— el argumento de inexistencia no está hecho, de modo 
 no se puede usar para descartar la imputación. Ahí la bandera de ausencia no es
 una alternativa entre dos sino lo único defendible, porque el faltante quedó
 sin caracterizar. `sFragmentRate` es el caso que más conviene mirar antes de
-usarlo: su patrón no se parece a ninguna condición estructural y falta en el
-9,2 % de los flujos con tres o más paquetes.
+usarlo: su patrón no se parece a ninguna condición estructural, aunque su peso
+es chico —falta en el 0,7 % de los flujos con tres o más paquetes, y en
+ninguno de los TCP—.
 
 ### Qué variables hay en realidad
 
@@ -271,19 +300,34 @@ carga: suele ser la ráfaga, el escaneo o el evento. Son el fenómeno a
 detectar y no se eliminan.
 
 **Con una excepción medida, que hay que conocer antes de aplicar esa regla.**
-`sLoad` y `rLoad` son un cociente por `duration`, y para **2976 flujos
-de `bottom` —el 8,4 %, y hasta el 63 % en `right`—** el contenido real es un
-solo paquete: su `duration` publicada es la separación entre las dos copias
-que deja el equipo que graba, del orden de **5 µs**. En esas filas `sLoad`
-tiene una mediana de 9,6·10⁷ bit/s contra 1,75·10⁴ en el resto, y componen el
-**62,7 %** del decil superior.
+`sLoad` y `rLoad` son un cociente por `duration`, y para una parte de las filas
+el contenido real es un solo paquete: su `duration` publicada no es una
+duración sino la separación entre las dos copias que deja el equipo que graba,
+del orden de **5 µs**. Sobre el tramo de entrenamiento, con los tres puntos:
 
-Ahí el extremo no es la ráfaga: es la grabadora. No es algo que introduzca la
-corrección de §1.7 de `INFORME.md` —el conjunto publicado ya trae 1393 flujos
-de un solo paquete con `sLoad` del orden de 10⁸—, pero recién se puede
-identificar cuáles son una vez que se sabe cuántos paquetes reales tiene cada
-fila. El recuento está en `eda/salidas/p22_westermo_duplicados.txt`,
-sección 22.4.
+| Punto | Filas | De un paquete real | Mediana de `sLoad` ahí | En el resto | Del decil superior |
+|---|---:|---:|---:|---:|---:|
+| `bottom` | 21.080 | 2692 (**12,8 %**) | 3,0·10⁸ | 3,1·10⁴ | **100 %** |
+| `left` | 4800 | 2587 (53,9 %) | 3,8·10⁸ | 6,0·10⁴ | 99 % |
+| `right` | 2862 | 2382 (83,2 %) | 3,3·10⁸ | 3,2·10⁴ | **100 %** |
+
+El decil superior de `sLoad` es **entero** de esas filas: el extremo no es la
+ráfaga, es la grabadora. Cuatro órdenes de magnitud separan las dos medianas.
+
+Las cifras de `p22_westermo_duplicados.txt` §22.4 son otras —2976 filas en
+`bottom`, el 8,4 %— por dos motivos: son del **archivo completo** y el
+criterio es más estricto, porque cuentan solo las filas que además
+**declaraban** más de un paquete, que son las que la corrección vuelve
+visibles. Las demás ya venían con un paquete declarado en el conjunto
+publicado: sobre el archivo completo son 1393 en `bottom`, de las que 1387
+traen `sLoad` del orden de 10⁸; sobre el tramo de entrenamiento, 905 y 901. El
+alcance de cada cifra va dicho porque las cuatro aparecen en el mismo párrafo
+y ninguna mide la misma población que la otra.
+
+No es algo que introduzca la corrección de §1.7 de `INFORME.md`: el conjunto
+publicado ya traía esas filas con `sLoad` disparada. Lo que la corrección hace
+es volverlo identificable, porque recién con el recuento de paquetes reales se
+sabe cuáles son.
 
 ### Poder discriminante
 
@@ -294,14 +338,14 @@ discriminar:
 
 | Característica | AUC | AUC plegado | Información mutua | Cobertura |
 |---|---:|---:|---:|---:|
-| `sWinTCP` | 0,563 | **0,563** | 0,026 | 83,8 % |
-| `rAckDelayMax` | 0,440 | 0,560 | 0,036 | 83,8 % |
-| `rAckRate` | 0,444 | 0,556 | 0,023 | 84,2 % |
-| `rSynRate` | 0,556 | 0,556 | 0,015 | 84,2 % |
-| `sLoad` | 0,456 | **0,544** | 0,036 | **100 %** |
+| `sWinTCP` | 0,563 | **0,563** | 0,021 | 83,8 % |
+| `rAckDelayMax` | 0,440 | 0,560 | 0,033 | 83,8 % |
+| `rAckRate` | 0,444 | 0,556 | 0,024 | 84,2 % |
+| `rSynRate` | 0,556 | 0,556 | 0,014 | 84,2 % |
+| `sLoad` | 0,456 | **0,544** | 0,031 | **100 %** |
 
 El AUC plegado trata igual a las que discriminan con el signo invertido. De
-las 42 evaluadas, **ninguna llega a 0,70 y 37 quedan por debajo de 0,55**. Con
+las 42 evaluadas, **ninguna llega a 0,70 y 38 quedan por debajo de 0,55**. Con
 el etiquetado `IT` el mejor cae a 0,515, casi el azar.
 
 La cobertura importa para comparar con los otros conjuntos: el máximo, 0,563,
@@ -343,10 +387,16 @@ una cosa de la otra.** Lo que decide si un corte al azar filtra es la
 dependencia de la variable a predecir, que se mide aparte y en el orden
 temporal global, no dentro de conversaciones:
 
-| Etiqueta | ρ a retardo 1 | n efectivo | Rachas | Racha anómala más larga | Racha normal más larga |
-|---|---:|---:|---:|---:|---:|
-| `NST_B_Label` | **0,779** | 2618 de 21.080 | 663 | **228 flujos** | 1270 flujos |
-| `IT_B_Label` | **0,984** | 170 de 21.080 | 79 | **951 flujos** | 295 flujos |
+| Etiqueta | ρ a retardo 1 | ρ a retardo 10 | n efectivo AR(1) | n efectivo por τ | Rachas | Racha anómala más larga | Racha normal más larga |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| `NST_B_Label` | **0,779** | 0,743 | 2618 | **319** (τ = 66) | 663 | **228 flujos** | 1270 flujos |
+| `IT_B_Label` | **0,984** | 0,885 | 170 | 340 (τ = 62) | 79 | **951 flujos** | 295 flujos |
+
+La columna de AR(1) está para mostrar por qué no sirve. Un AR(1) con
+ρ(1) = 0,779 predice ρ(10) = 0,08 y lo medido es 0,74: la dependencia no cae
+con el retardo, se mantiene a lo largo del evento, que es justo lo que las
+rachas de 228 flujos dicen. El estimador que corresponde es el tiempo de
+decorrelación, el último retardo con ρ ≥ 1/e.
 
 Las dos últimas columnas van separadas a propósito. Una versión anterior
 publicaba una sola, «racha más larga», con 228 para NST y 295 para IT, y esas
@@ -361,16 +411,19 @@ Un evento deja centenares de flujos contiguos de la misma clase, de modo que
 una partición al azar pone vecinos del mismo evento a los dos lados del corte.
 **Es fuga, no una cuestión de precisión**, y pasa igual que en ICS-Flow. La
 partición tiene que ser por bloques temporales, y cualquier intervalo sobre la
-etiqueta vale sobre 2618 observaciones, no sobre 21.080.
+etiqueta vale sobre 319 observaciones, no sobre 21.080.
 
 ### ¿Conviene reducir la dimensión?
 
-PCA sobre las 41 características no constantes, estandarizadas, con las 17.582
-filas completas (83 % del tramo; no se imputa, porque los faltantes son
-estructurales).
+PCA sobre 41 características estandarizadas, con las 17.582 filas completas
+(83 % del tramo; no se imputa, porque los faltantes son estructurales). Son 41
+y no las 42 no constantes del tramo porque `rRstRate` queda constante dentro
+de las filas completas y el cálculo la descarta; conviene saberlo, porque es
+una de las seis que §5.4 de `INFORME.md` identifica como discriminantes del
+barrido de puertos.
 
 - **9 componentes** para el 90 % de la varianza, **12** para el 95 %
-- La primera explica el 28,3 %
+- La primera explica el 29,9 %
 
 Coincide con lo que dijo el análisis de redundancia por otro camino: doce ejes
 independientes, nueve componentes para el 90 %. El conjunto es, de hecho, de unas
@@ -432,6 +485,11 @@ PLC y varias interfaces de operador, más los registros de las variables de
 proceso. Lo publica el mismo grupo que la herramienta ICSFlowGenerator, y por
 eso **su esquema es idéntico al de Westermo**: los mismos 64 campos en el
 mismo orden.
+
+Y no es solo el esquema: el proceso de los dos conjuntos sale del mismo
+simulador, ICSSIM, con el mismo mapa de registros y la misma convención de
+32 bits. Lo que los separa es la red —física en Westermo, emulada acá— y no la
+planta.
 
 Se distribuye con licencia **CC BY-NC-SA 4.0**, que prohíbe el uso comercial y
 obliga a licenciar los derivados igual. Es una diferencia importante respecto
@@ -542,7 +600,10 @@ una sea siempre mayor que la otra.
 
 **Las filas no se pueden tratar como independientes.** Con una autocorrelación
 mediana de 0,37 a retardo 1 y todavía 0,25 diez flujos después, la corrección
-AR(1) deja las 25.620 filas en un equivalente de **11.848**, el 46 %.
+AR(1) deja las 25.620 filas en un equivalente de **11.848**, el 46 %. Ese es
+el número para las *características*; para la **etiqueta**, que es la que
+decide el tamaño de muestra de una PD, la corrección AR(1) no sirve y el
+tiempo de decorrelación deja 312 (ver la fila de la tabla comparativa).
 
 Esto tiene dos consecuencias prácticas. Cualquier validación cruzada sobre
 este conjunto tiene que ser **por bloques temporales**: con particiones al
@@ -554,12 +615,16 @@ Una versión anterior agregaba que eso «alcanza a los intervalos de PD de
 `INFORME.md`». **No los alcanza**, y la distinción es la misma que este
 documento levanta como hallazgo 5. Los siete intervalos de
 `eda/salidas/p9_intervalos_pd.txt` están calculados sobre **eventos** —281
-episodios de DoS, 3 eventos de un tipo de Westermo— o sobre **escrituras**
-—51 bajo ventana de intermediario—, no sobre filas de flujo. La
-autocorrelación de 0,37 entre filas no dice nada sobre si dos eventos vecinos
-se parecen. Lo que haría falta para corregir esos intervalos —la dependencia
-entre los errores de un detector en eventos sucesivos— no está medido, y
-`INFORME.md` lo declara como supuesto en lugar de darlo por bueno.
+rachas de DoS, 3 eventos de un tipo de Westermo— o sobre **escrituras** —51
+bajo ventana de intermediario—, no sobre filas de flujo. La autocorrelación de
+0,37 entre filas no dice nada sobre si dos eventos vecinos se parecen.
+
+Lo que sí hace falta para esos intervalos es otra cosa, y la pregunta 4 de
+`INFORME.md` la mide: cuántos **episodios de ataque distintos** hay detrás de
+esas rachas. Las 281 de DoS resultan ser 13 episodios, lo que ensancha su
+intervalo de ±0,058 a ±0,24. La dependencia entre los errores de un detector
+en episodios sucesivos sigue sin medirse, y `INFORME.md` lo declara como
+supuesto en lugar de darlo por bueno.
 
 La dispersión entre conversaciones es grande: la más larga llega a 0,82 de
 autocorrelación mediana, bastante por encima del 0,37 ponderado. El número que
@@ -573,8 +638,9 @@ como independientes.*
 
 ### ¿Conviene reducir la dimensión?
 
-PCA sobre las 42 características no constantes, con las 23.828 filas completas
-(93 % del tramo).
+PCA sobre 42 características, con las 23.828 filas completas (93 % del tramo).
+Igual que en Westermo, son 42 y no las 43 no constantes del tramo: `sAckRate`
+queda constante dentro de las filas completas y el cálculo la descarta.
 
 - **10 componentes** para el 90 % de la varianza, **12** para el 95 %
 - La primera explica el 25,6 %
@@ -663,7 +729,7 @@ son dieciséis ejes.
 ### Cómo se distribuyen
 
 3 simétricas, 4 de asimetría moderada y 9 de asimetría alta. Menos sesgado que
-los conjuntos de flujo, donde la proporción alta pasaba del 78 %.
+los conjuntos de flujo, donde la proporción alta es del 81 %.
 
 ### Poder discriminante
 
@@ -713,24 +779,51 @@ Es una sola secuencia de transacciones, no varias conversaciones en paralelo.
 | 5 | 0,71 | 11 |
 | 10 | 0,60 | 12 |
 
-Con 0,86 a retardo 1, las 163.823 transacciones equivalen a **12.060**, el
-7 %. El lazo de control repite el mismo ciclo, así que vale la advertencia de
-ICS-Flow: validación por bloques y nunca al azar.
+**Pero el retardo 1 de este cuadro no es lo que parece, y hay que decir por
+qué.** El cálculo quita los ausentes y recién después empareja posiciones
+contiguas del arreglo compacto, y diez de los dieciséis atributos vienen
+solo en las respuestas, con el 23,4 % de cobertura: para ellos **no existe ni
+un par de filas contiguas con los dos valores presentes**. Lo que se mide en
+esas diez es la autocorrelación de la subsecuencia, con un retardo efectivo de
+unas cuatro filas y sobre 38.398 filas de un solo tipo de transacción. Los
+seis completos dan entre −0,996 y 0,011, de modo que la mediana de 0,86 la
+fijan las diez compactadas.
 
-**Pero la etiqueta es otra cosa, y es la que decide cuántas observaciones hay
-para estimar una PD.** Medida aparte:
+Y el equivalente de 12.060 usa las 163.823 filas para todos los atributos.
+Con el n propio de cada uno, la mediana del equivalente es **2859**. El lazo
+de control repite el mismo ciclo, así que la advertencia vale igual
+—validación por bloques y nunca al azar— pero la magnitud no es la que
+publicaba este cuadro.
+
+**La etiqueta es otra cosa, y es la que decide cuántas observaciones hay para
+estimar una PD.** Ahí el problema es distinto: la etiqueta alterna comando y
+respuesta, lo que empuja los retardos 1 y 2 hacia abajo y pone la dependencia
+en los múltiplos de cuatro.
+
+| Retardo | 1 | 2 | 3 | **4** | 8 | 16 | 32 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| ρ | 0,31 | 0,07 | 0,31 | **0,94** | 0,90 | 0,81 | 0,63 |
+
+De modo que tomar ρ a retardo 1 es medir justo donde la estructura no está:
+un AR(1) con ρ(1) = 0,31 predice ρ(4) = 0,010 y lo medido es 0,94. La
+corrección AR(1) no corresponde, y con ella salían 85.528 observaciones
+equivalentes.
 
 | | Características | Etiqueta |
 |---|---:|---:|
-| Autocorrelación a retardo 1 | 0,86 | **0,31** |
-| Observaciones equivalentes | 12.060 | **85.528** |
+| Autocorrelación a retardo 1 | 0,86 | 0,31 |
+| Equivalentes, AR(1) sobre ρ(1) | 12.060 | 85.528 |
+| Equivalentes, con el n propio de cada columna | **2859** | — |
+| Equivalentes, por tiempo de decorrelación (τ = 56) | — | **2925** |
 | Racha anómala más larga | — | **3 filas** |
 
-Las inyecciones de Morris son aisladas —uno o dos registros, el comando y su
-respuesta—, no campañas: por eso la etiqueta alterna y su autocorrelación es
-baja aunque los atributos se repitan. Para una validación cruzada hay que
-mirar la primera columna, y para el tamaño de muestra de una PD, la segunda.
-Son dos preguntas distintas sobre el mismo conjunto.
+El tiempo de decorrelación —el último retardo con ρ ≥ 1/e— no supone ningún
+modelo, y es el criterio que esta misma ficha ya usa para HAI, de modo que es
+el que hace comparable la fila entre los cuatro conjuntos. La lectura de fondo
+no cambia: la etiqueta de Morris es mucho menos dependiente que sus atributos,
+y para una validación cruzada hay que mirar la primera columna y para el
+tamaño de muestra, la última. Lo que cambia es la magnitud: la ventaja es de
+un orden y no de tres.
 
 ### ¿Conviene reducir la dimensión?
 
@@ -871,9 +964,13 @@ Del tramo de entrenamiento:
 | Tipo de archivo | Archivos | En disco |
 |---|---:|---:|
 | PCAP agregados (`master`, `slave`, `attacker`) | 42 | 3713 MB |
-| PCAP por episodio, en subdirectorios | 1464 | 3022 MB |
+| PCAP por episodio, en subdirectorios | 1464 | 3239 MB |
 | `master.csv` / `slave.csv` | 24 | 9,5 MB |
 | `tshark/*.csv` | 180 | 115 MB |
+
+Esta tabla es la única del documento que no sale de un script: son recuentos
+del sistema de archivos bajo `datasets/qut-dnp3/*/*/training/`, con los
+tamaños en MB decimales. Se reproduce con `find` y `du`.
 
 ### Qué variables hay: ninguna publicada
 
@@ -913,13 +1010,14 @@ ICS-Flow.
 | Unidad del registro | flujo 0,5 s | flujo 0,5 s | transacción | proceso 1 s | paquete |
 | Registros de entrenamiento | 21.080 | 25.620 | 163.823 | 550.800 | — |
 | Variables publicadas | 47 | 47 | 16 | 59 | **0** |
-| Celdas faltantes, sobre todas las columnas | 8,1 % | 1,6 % | **42,0 %** | 0 % | — |
+| Celdas faltantes, sobre todas las columnas | 8,2 % | 1,6 % | **42,0 %** | 0 % | — |
 | Variables constantes | 5 | 4 | 0 | 8 | — |
 | Componentes para el 90 % | 9 | 10 | no aplica | 13 | — |
-| Asimetría alta | 33 de 42 | 35 de 43 | 9 de 16 | 11 de 51 | — |
+| Asimetría alta | 34 de 42 | 35 de 43 | 9 de 16 | 11 de 51 | — |
 | Autocorr. de las características | **−0,04** | 0,37 | 0,86 | **1,00** | — |
 | Autocorr. de la etiqueta | 0,78 | 0,73 | **0,31** | no medible | — |
-| Obs. independientes, por la etiqueta | 2618 | 4049 | **85.528** | **≈ 306** | — |
+| Obs. independientes, AR(1) sobre ρ(1) | 2618 | 4049 | 85.528 | — | — |
+| Obs. independientes, por tiempo de decorrelación | **319** | **312** | **2925** | **≈ 306** | — |
 | Mejor AUC de una variable, población completa | 0,544 | **0,647** | 0,611 | no medible | — |
 | Mejor AUC absoluto, y su cobertura | 0,563 *(83,8 %)* | 0,669 *(99,0 %)* | **0,684** *(25,1 %)* | no medible | — |
 | Anomalías en entrenamiento | sí | sí | sí | **no** | sí |
@@ -935,21 +1033,29 @@ explícita, que para una entrega es más incómodo que una cláusula restrictiva
 
 Tres lecturas que solo aparecen al poner los cinco en la misma tabla.
 
-**El tamaño nominal engaña.** HAI parece el conjunto más grande con 550.800
-muestras y es el más chico en observaciones independientes: unas trescientas.
-Morris es el caso inverso: sus *características* están muy autocorrelacionadas
-—0,86, porque el lazo de control repite el mismo ciclo— pero su *etiqueta* no
-—0,31, con rachas anómalas de hasta tres filas—, de modo que para estimar una
-PD vale como 85.528 observaciones y no como 12.060. Ordenar los conjuntos por
-número de filas da el orden equivocado, y ordenarlos por la autocorrelación de
-las características también.
+**El tamaño nominal engaña, y la fila que lo muestra necesita un solo
+estimador.** Las dos filas de observaciones independientes están a propósito.
+La primera usa la corrección AR(1) sobre ρ a retardo 1, que es lo que este
+documento publicaba, y **no vale para ninguna de estas series**: en Westermo,
+ρ(10) medido es 0,74 donde un AR(1) con ese ρ(1) predice 0,08, y en ICS-Flow
+0,64 contra 0,04. La dependencia no se apaga con el retardo porque un evento
+deja muchas filas contiguas de la misma clase. La segunda usa el tiempo de
+decorrelación, que no supone ningún modelo y es el criterio que este trabajo
+ya aplicaba a HAI; usarlo en los cuatro hace la fila comparable.
 
-Las dos filas de esa tabla miden cosas distintas y conviene no cruzarlas. Una
-versión anterior ponía en la fila de la etiqueta de Morris la cifra de sus
-características —0,86 y 12.060—, que es la confusión misma que el
-hallazgo 5 levanta como hallazgo. Castigaba a Morris por un factor siete, y
-Morris es el único conjunto sobre el que el proyecto se compromete a dar PD
-por tipo.
+Con un solo criterio, los cuatro quedan entre 306 y 2925, y **los tres
+conjuntos de registro fino están todos en el orden de las trescientas
+observaciones independientes**: 319, 312 y 306. Morris sigue primero, pero por
+un factor de nueve y no de doscientos ochenta. Ordenar los conjuntos por
+número de filas da el orden equivocado; ordenarlos por la autocorrelación de
+las características, también; y ordenarlos por el n efectivo de un AR(1) que
+no es AR(1), también.
+
+Lo que sigue en pie es la distinción entre las dos preguntas. Una versión
+anterior ponía en la fila de la etiqueta de Morris la cifra de sus
+características —0,86 y 12.060—, que es la confusión misma que el hallazgo 5
+levanta como hallazgo. Castigaba a Morris por un factor siete, y Morris es el
+conjunto sobre el que el proyecto más se apoya para dar PD por tipo.
 
 **Ninguna variable alcanza sola, en ninguno.** Sobre población completa el
 mejor AUC de los tres conjuntos donde se puede medir va de 0,544 a 0,647, y
@@ -990,8 +1096,9 @@ sino lo que la descripción deja fijado.
 2. **Descartar las degeneradas antes de cualquier cálculo**: 5 constantes en
    Westermo y 4 en ICS-Flow, más las casi constantes según el umbral que se
    adopte.
-3. **Usar mediana y considerar escala logarítmica**, porque entre el 78 % y el
-   81 % de las características tienen asimetría alta.
+3. **Usar mediana y considerar escala logarítmica**, porque el 81 % de las
+   características de los dos conjuntos de flujo tiene asimetría alta —34 de
+   42 en Westermo y 35 de 43 en ICS-Flow—.
 4. **No tratar los valores extremos como errores.** Son el fenómeno a
    detectar.
 5. **Tener en cuenta la redundancia al elegir características.** Doce y
@@ -1012,14 +1119,18 @@ sino lo que la descripción deja fijado.
    vecino de cada fila de validación dentro del ajuste. Vale para los dos: la
    autocorrelación baja de las características de Westermo no autoriza un
    corte al azar, porque mide otra cosa.
-9. **Ensanchar los intervalos que se calculen sobre filas de flujo.** El
-   tamaño efectivo por la etiqueta es 2618 de 21.080 en Westermo, lo que
-   ensancha el intervalo por un factor de **2,8**, y 4049 de 25.620 en
-   ICS-Flow, un factor de **2,5**. Para un estadístico descriptivo de una
-   característica el factor de ICS-Flow es 1,5 y el de Westermo es
-   despreciable. **Esto no se aplica a los intervalos de PD de
-   `INFORME.md`**, que son sobre eventos y sobre escrituras: esa dependencia
-   es otra y no está medida.
+9. **Ensanchar los intervalos que se calculen sobre filas de flujo, y por
+   bastante más de lo que parecía.** Con el tiempo de decorrelación, el tamaño
+   efectivo por la etiqueta es 319 de 21.080 en Westermo y 312 de 25.620 en
+   ICS-Flow, lo que ensancha el intervalo por un factor de **8,1** y **9,1**.
+   Una versión anterior usaba la corrección AR(1) sobre ρ a retardo 1 —2618 y
+   4049, factores 2,8 y 2,5— y ese estimador no vale acá: supone que la
+   dependencia se apaga con el retardo, y lo medido es que se mantiene a lo largo
+   del evento. Para un estadístico descriptivo de una característica el factor
+   de ICS-Flow es 1,5 y el de Westermo es despreciable. **Esto no se aplica a
+   los intervalos de PD de `INFORME.md`**, que son sobre eventos y sobre
+   escrituras: esa dependencia es otra, y la pregunta 4 de ese documento la
+   mide aparte.
 10. **No confundir el valor extremo con la anomalía.** El rango
    intercuartílico mira la distribución marginal e ignora el tiempo. Una
    anomalía contextual —la familia que más le importa a este proyecto— es un valor

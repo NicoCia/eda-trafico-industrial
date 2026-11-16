@@ -71,6 +71,21 @@ un gemelo en otro punto, con el control interno en cero. Los gemelos
 coinciden tambien en carga util, y su `duration` difiere por
 microsegundos: es el mismo flujo visto desde dos taps.
 
+**Y «tener gemelo» no es lo mismo que «ser una re-observacion».**
+La relacion es simetrica: un flujo visto en dos taps aporta dos
+observaciones y UNA copia redundante, y uno visto en los tres
+aporta tres y dos. Contando componentes conexas del grafo de
+gemelos:
+
+   vistos en 1 punto(s):  20740 flujos
+   vistos en 2 punto(s):   1136 flujos
+   vistos en 3 punto(s):   1910 flujos
+
+   observaciones de la union         28742
+   flujos distintos                  23786
+   con al menos un gemelo             8002  (27.8 %)
+   RE-OBSERVACIONES redundantes       4956  (17.2 %)
+
 De modo que la union de los tres puntos **no triplica la evidencia**:
 re-observa. Tratarla como muestras independientes deja cualquier
 intervalo demasiado angosto.

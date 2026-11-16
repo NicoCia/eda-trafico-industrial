@@ -70,6 +70,49 @@ def westermo_flujos(variante="reduced", punto="bottom", unico=True,
     return pd.read_csv(pub, **kwargs)
 
 
+def observaciones_independientes(serie, maxlag=400):
+    """Cuantas observaciones independientes vale una serie, por dos caminos.
+
+    La correccion `n(1-rho)/(1+rho)` es la de un AR(1), y una etiqueta que
+    marca eventos no lo es: la dependencia no decae geometricamente sino que
+    se mantiene a lo largo del evento. Por eso se informan las dos cosas y
+    ademas el diagnostico que decide cual vale --- rho a retardo 10 contra lo
+    que un AR(1) con ese rho(1) predeciria para ese retardo.
+
+    El tiempo de decorrelacion es el ultimo retardo con rho >= 1/e; no supone
+    ningun modelo y es el criterio que este trabajo ya usaba para HAI, de modo
+    que usarlo en los cuatro conjuntos hace la fila comparable.
+
+    Devuelve un diccionario con rho1, n_ar1, tau, n_tau, rho10 y ar1_predice10.
+    """
+    import numpy as np
+    v = np.asarray(serie, dtype=float)
+    v = v[np.isfinite(v)]
+    n = len(v)
+    if n < 20 or v.std() == 0:
+        return None
+
+    def ac(lag):
+        z = v - v.mean()
+        return float((z[:-lag] * z[lag:]).sum() / (z * z).sum())
+
+    r1 = ac(1)
+    tau = 0
+    tope = min(maxlag, n // 4)
+    for L in range(1, tope + 1):
+        if ac(L) >= 1.0 / np.e:
+            tau = L
+    r10 = ac(10) if n > 40 else float("nan")
+    return {"n": n, "rho1": r1,
+            "n_ar1": n * (1 - r1) / (1 + r1) if r1 > -1 else float(n),
+            "tau": tau, "n_tau": (n / tau) if tau else float(n),
+            # Si tau toca el tope del barrido, es una cota inferior de tau y
+            # n/tau es una cota SUPERIOR de las observaciones independientes.
+            "tau_censurado": bool(tau >= tope),
+            "tope_barrido": int(tope),
+            "rho10": r10, "ar1_predice10": r1 ** 10}
+
+
 def preparar():
     """Fija la semilla y crea los directorios de salida."""
     random.seed(SEMILLA)

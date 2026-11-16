@@ -752,6 +752,92 @@
    }
   }
  },
+ "deriva_entre_campanas_contra_nulo": [
+  {
+   "version": "hai-20.07",
+   "par": "train1 -> train2",
+   "razon": 7.074829940606927,
+   "columnas": 51
+  },
+  {
+   "version": "hai-21.03",
+   "par": "train1 -> train2",
+   "razon": 3.695768965466405,
+   "columnas": 57
+  },
+  {
+   "version": "hai-21.03",
+   "par": "train2 -> train3",
+   "razon": 2.7778698618784663,
+   "columnas": 57
+  },
+  {
+   "version": "hai-22.04",
+   "par": "train1 -> train2",
+   "razon": 2.7228960531352815,
+   "columnas": 66
+  },
+  {
+   "version": "hai-22.04",
+   "par": "train2 -> train3",
+   "razon": 3.5000725112740128,
+   "columnas": 68
+  },
+  {
+   "version": "hai-22.04",
+   "par": "train3 -> train4",
+   "razon": 2.6621200463650982,
+   "columnas": 66
+  },
+  {
+   "version": "hai-22.04",
+   "par": "train4 -> train5",
+   "razon": 1.690424796247395,
+   "columnas": 66
+  },
+  {
+   "version": "hai-22.04",
+   "par": "train5 -> train6",
+   "razon": 1.3625997142893267,
+   "columnas": 68
+  },
+  {
+   "version": "hai-23.05",
+   "par": "hai-train1 -> hai-train2",
+   "razon": 2.6415556960908755,
+   "columnas": 66
+  },
+  {
+   "version": "hai-23.05",
+   "par": "hai-train2 -> hai-train3",
+   "razon": 1.9158893119899063,
+   "columnas": 66
+  },
+  {
+   "version": "hai-23.05",
+   "par": "hai-train3 -> hai-train4",
+   "razon": 3.156505642663961,
+   "columnas": 66
+  },
+  {
+   "version": "haiend-23.05",
+   "par": "end-train1 -> end-train2",
+   "razon": 1.869176114890399,
+   "columnas": 67
+  },
+  {
+   "version": "haiend-23.05",
+   "par": "end-train2 -> end-train3",
+   "razon": 2.1372230212720003,
+   "columnas": 67
+  },
+  {
+   "version": "haiend-23.05",
+   "par": "end-train3 -> end-train4",
+   "razon": 3.3262358865624173,
+   "columnas": 67
+  }
+ ],
  "columnas_por_version": {
   "hai-20.07": [
    "P1_B2004",

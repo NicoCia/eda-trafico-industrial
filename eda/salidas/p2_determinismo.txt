@@ -23,6 +23,15 @@ distintas y conviene no confundirlas:
   (b) SOLO los huecos entre eventos, que es el normal mas estricto
       posible sobre esta captura.
 
+Deduplicado con ventana de 1000 us: se descartaron 438603 copias y quedan
+447753 firmas distintas. **La ventana no puede ser infinita**, y esta es la
+medicion que lo dice: la firma mas repetida del tramo aparece **4788
+veces**, de modo que un deduplicado sin ventana borraria las balizas
+periodicas identicas, que son trafico legitimo. La separacion entre
+apariciones de una misma firma es bimodal --- la copia de captura por
+debajo de 100 us, mediana 1,0 us, y las balizas entre 1 y 10 s --- y
+entre esos dos modos casi no hay nada.
+
 ### (a) Westermo, todo el tramo de entrenamiento
   paquetes=459994  duracion util=3265 s en 1 tramo(s)  tasa=140.9 pps
   tasa por ventana de 1 s : media=140.9  sd=23.1  CV=0.16  p05=132 p95=170
@@ -320,15 +329,26 @@ la PFA se mide sobre las 504 restantes, que no entraron en el:
    par nunca visto            0.0040      0.132      [0.0011, 0.0144]
    tamano nunca visto         0.0000      0.118      [0.0000, 0.0076]
 
-**Y al mismo punto de operacion el recuento da lo mismo.** Esta es la
-comparacion que falta hacer antes de preferir una forma sobre la
-otra: poner las dos al mismo PFA en lugar de comparar una a un PFA
-elegido contra otra a un PFA que es cero por construccion.
+**Y el recuento hay que medirlo con la misma regla.** Comparar la
+novedad medida fuera de muestra contra un recuento cuyo umbral sale
+del cuantil de TODAS las ventanas limpias deja un lado calibrado
+dentro de muestra y el otro no. Aca el umbral se calcula sobre las
+754 ventanas de referencia y la PFA se mide sobre las 504 retenidas,
+que es exactamente lo que se hizo con la novedad:
 
-   al PFA de «par nunca visto» (0.0040): recuento PD 0.128 contra novedad PD 0.132
-   tamano nunca visto     PFA fuera de muestra 0: no hay punto que igualar
+                                     PFA         PD      IC 95 % de la PFA
+   recuento, objetivo 0.4 %       0.0000      0.128      [0.0000, 0.0076]
+   recuento, objetivo 2.0 %       0.0000      0.135      [0.0000, 0.0076]
 
-De modo que **no se sostiene** decir que una de las dos formas sirve
-y la otra no. Lo que se sostiene es que ninguna de las tres
+Con las tres medidas asi, el recuento llega a PD **0.135** con 0
+falsas alarmas en 504 ventanas, y la mejor de las dos formas de
+pertenencia a PD 0.132 con 2. De modo que **la comparacion honesta no
+favorece a la pertenencia**: el recuento no queda descartado, y la
+version anterior de esta seccion lo descartaba comparando un PFA
+nominal contra un PFA medido.
+
+Lo que si se sostiene es la cota: ninguna de las tres
 caracteristicas, de ninguna de las dos formas, pasa de una PD de
-0,13 a una PFA del orden del medio por ciento.
+0,14. Y con 504 ventanas retenidas la PFA mas chica que se puede
+resolver es 1/504 = 0.0020, de modo que un «cero falsas alarmas» aca
+significa «por debajo del 2.0 por mil», no cero.

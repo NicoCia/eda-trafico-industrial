@@ -1841,6 +1841,61 @@
    "x1003_24_SUM_OUT"
   ]
  },
+ "sin_artefacto_duration": {
+  "filas_quitadas_westermo": 2304,
+  "filas_quitadas_icsflow": 34,
+  "ks_mediana_varian": 0.07821721387828234,
+  "factor_mediano_varian": 5.085080538685005,
+  "por_campo": {
+   "duration": 0.3518396169538332,
+   "sPackets": 0.22444726725365594,
+   "rPackets": 0.24364033916772176,
+   "sBytesSum": 0.22352329682070982,
+   "rBytesSum": 0.28302315463404076,
+   "sBytesMax": 0.01881436493266438,
+   "rBytesMax": 0.037879924082687255,
+   "sBytesMin": 0.034121656101516185,
+   "rBytesMin": 0.006090614319516257,
+   "sBytesAvg": 0.07821721387828234,
+   "rBytesAvg": 0.06675215138054774,
+   "sLoad": 0.3393589542020116,
+   "rLoad": 0.6136269751014625,
+   "sPayloadSum": 0.25804291062265367,
+   "rPayloadSum": 0.2626042663681471,
+   "sPayloadMax": 0.01972084026561647,
+   "rPayloadMax": 0.037879924082687255,
+   "sPayloadMin": 0.03119681312076672,
+   "rPayloadMin": 0.0002711680564029262,
+   "sPayloadAvg": 0.08154017376203057,
+   "rPayloadAvg": 0.06652480069334993,
+   "sInterPacketAvg": 0.246607058840965,
+   "rInterPacketAvg": 0.6191654226257517,
+   "sttl": 0.0,
+   "rttl": 4.4085879292862495e-05,
+   "sAckRate": 0.0,
+   "rAckRate": 8.817175858572499e-05,
+   "sUrgRate": 0.0,
+   "rUrgRate": 0.0,
+   "sFinRate": 0.0,
+   "rFinRate": 0.0,
+   "sPshRate": 0.06728273953995255,
+   "rPshRate": 0.07967575507100721,
+   "sSynRate": 8.817953353024155e-05,
+   "rSynRate": 8.817175858577553e-05,
+   "sRstRate": 0.0,
+   "rRstRate": 0.0,
+   "sWinTCP": 0.06912928823335279,
+   "rWinTCP": 0.05909350144326009,
+   "sFragmentRate": 0.0,
+   "rFragmentRate": 0.0,
+   "sAckDelayMax": 0.21535747391370264,
+   "rAckDelayMax": 0.2843218251765056,
+   "sAckDelayMin": 0.13445360794075145,
+   "rAckDelayMin": 0.005833214007657683,
+   "sAckDelayAvg": 0.3177601168965511,
+   "rAckDelayAvg": 0.3487332242631714
+  }
+ },
  "westermo_icsflow": {
   "cabecera_identica": true,
   "md5_cabecera": {
@@ -2407,14 +2462,7 @@
    "sFragmentRate",
    "rFragmentRate"
   ],
-  "campos_constantes_solo_en_normal": [
-   "sttl",
-   "sAckRate",
-   "sFinRate",
-   "rFinRate",
-   "sRstRate",
-   "rRstRate"
-  ],
+  "campos_constantes_solo_en_normal": "[ True  True  True  True  True  True  True  True  True  True  True  True\n  True  True  True  True  True  True  True  True  True  True  True  True\n  True  True  True  True  True  True  True  True  True  True  True  True\n  True False False False False False False False False False False]",
   "campos_constantes_reparto_por_clase": {
    "sttl": {
     "westermo_normal": 1,

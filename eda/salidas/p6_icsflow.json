@@ -80,16 +80,22 @@
  "conteo_por_particion": {
   "entrenamiento": {
    "adus": 1191721,
+   "peticiones": 595792,
+   "respuestas": 595929,
    "escrituras": 448,
    "escrituras_en_mitm": 44
   },
   "calibracion": {
    "adus": 2593792,
+   "peticiones": 1296618,
+   "respuestas": 1297174,
    "escrituras": 176,
    "escrituras_en_mitm": 48
   },
   "prueba": {
    "adus": 2139462,
+   "peticiones": 1069680,
+   "respuestas": 1069782,
    "escrituras": 178,
    "escrituras_en_mitm": 51
   }

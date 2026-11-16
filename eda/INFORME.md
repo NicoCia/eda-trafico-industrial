@@ -28,11 +28,13 @@ ellos se contrasta está transcrito acá, al lado de la medición.
 
 ---
 
-## 1. Ocho hallazgos que cambian cómo se usan estos conjuntos
+## 1. Nueve hallazgos que cambian cómo se usan estos conjuntos
 
-Van primero porque son el resultado más importante del análisis, y porque
-cuatro de ellos contradicen lo que la documentación de los propios conjuntos
-o la literatura dan por sentado. Cada uno está medido sobre los archivos.
+Van primero porque son el resultado más importante del análisis. Seis
+contradicen lo que la documentación de los propios conjuntos, la literatura o
+la selección previa dan por sentado —§1.1 a §1.5 y §1.8—, uno corrige los
+contadores que un conjunto publica —§1.7— y dos corrigen conclusiones de este
+mismo análisis —§1.6 y §1.9—. Cada uno está medido sobre los archivos.
 
 ### 1.1 `master.pcap` y `slave.pcap` no separan comando de respuesta
 
@@ -44,15 +46,23 @@ nada. **No es así.**
 Medido sobre los 14 escenarios de entrenamiento, cada uno de los dos archivos
 contiene las dos direcciones del diálogo, en proporciones casi idénticas:
 
-| Escenario (training) | master: peticiones / respuestas | slave: peticiones / respuestas |
+| Escenario (training) | master: lado maestro / lado esclavo | slave: lado maestro / lado esclavo |
 |---|---|---|
-| Control / frequent | 34.800 / 32.373 (51,8 % pet.) | 34.800 / 32.373 (51,8 %) |
+| Control / frequent | 34.800 / 32.373 (51,8 %) | 34.800 / 32.373 (51,8 %) |
 | Injection / frequent | 35.242 / 32.703 (51,9 %) | 35.048 / 32.834 (51,6 %) |
-| Replay / frequent | 34.934 / 32.393 (51,9 %) | 35.427 / 32.732 (52,0 %) |
+| Replay / frequent | 34.934 / 32.375 (51,9 %) | 35.427 / 32.732 (52,0 %) |
 
-En los 28 pares medidos la proporción de peticiones cae siempre entre 51,0 % y
-55,9 %. No hay ningún archivo que contenga solo comandos ni ninguno que
-contenga solo respuestas. En el escenario `Control` las dos capturas registran
+El reparto es por **dirección del diálogo** y no por petición contra
+respuesta, y conviene decirlo porque el corte está en el código de función:
+menor que 128 cuenta del lado maestro, lo que pone ahí también los CONFIRM
+—5706 de los 34.800 de `Control / frequent`—. Un CONFIRM no lleva respuesta
+por diseño, de modo que para la tasa de emparejamiento hace falta la otra
+definición, que es la que usa la pregunta 1. Para lo que esta sección afirma
+da igual, porque el CONFIRM lo manda el maestro.
+
+En los 28 pares medidos la proporción del lado maestro cae siempre entre
+51,0 % y 55,9 %. No hay ningún archivo que contenga solo comandos ni ninguno
+que contenga solo respuestas. En el escenario `Control` las dos capturas registran
 **la misma conversación, tramo por tramo**: la secuencia de pares (código de
 función, número de secuencia) coincide en 20.000 de 20.000 tramas comparadas.
 Son dos puntos de captura del mismo enlace, no una partición por rol.
@@ -251,11 +261,19 @@ paquetes, octetos y carga útil en los dos sentidos, y comienzo dentro de
 | `left` | 4800 | 3044 (**63,4 %**) | 0 |
 | `right` | 2862 | 2272 (**79,4 %**) | 0 |
 
-En total, **8002 de las 28.742 observaciones de la unión —el 27,8 %— son
-re-observaciones**. El control importa: buscar gemelos dentro de un mismo
-punto da cero, de modo que no son colisiones de clave. Y los gemelos
-coinciden también en carga útil, con `duration` que difiere por microsegundos
-—mediana 1 µs—, que es la firma de un mismo flujo visto desde dos taps.
+En total, **8002 de las 28.742 observaciones de la unión —el 27,8 %— tienen
+gemelo en otro punto**. Eso no es lo mismo que decir que el 27,8 % sean
+re-observaciones, y la distinción cambia la cifra: la relación de gemelo es
+simétrica, de modo que un flujo visto en dos taps aporta dos observaciones y
+**una** copia redundante, y uno visto en los tres aporta tres y dos. Armado el
+grafo de gemelos, la unión tiene 20.740 flujos vistos en un solo punto, 1136
+en dos y 1910 en los tres: **23.786 flujos distintos, y 4956 observaciones
+redundantes, el 17,2 %**.
+
+El control importa: buscar gemelos dentro de un mismo punto da cero, de modo
+que no son colisiones de clave. Y los gemelos coinciden también en carga útil,
+con `duration` que difiere por microsegundos —mediana 1 µs—, que es la firma
+de un mismo flujo visto desde dos taps.
 
 **Por qué las versiones anteriores daban 0,8 / 3,3 / 0,3 %.** La comparación
 usaba los contadores **publicados**, y el factor de inflación del doble conteo
@@ -280,20 +298,29 @@ contadores de volumen de los CSV de flujo publicados cuentan esas copias**.
 
 Medido sobre `reduced/bottom`, en `eda/salidas/p22_westermo_duplicados.txt`:
 
-| Captura | Paquetes | Copias | Factor de inflación |
-|---|---:|---:|---:|
-| `reduced/bottom` | 1.513.815 | 731.226 (48,3 %) | **1,95×** |
-| `reduced/left` | 281.105 | 124.453 (44,3 %) | **1,84×** |
-| `reduced/right` | 35.067 | 3436 (9,8 %) | 1,13× |
-| `extended/bottom` | 4.384.183 | 2.163.897 (49,4 %) | **1,98×** |
+| Captura | Paquetes | Copias | Inflación de paquetes | Inflación de los contadores |
+|---|---:|---:|---:|---:|
+| `reduced/bottom` | 1.513.815 | 731.226 (48,3 %) | 1,93× | **1,95×** |
+| `reduced/left` | 281.105 | 124.453 (44,3 %) | 1,79× | **1,84×** |
+| `reduced/right` | 35.067 | 3436 (9,8 %) | 1,11× | 1,13× |
+| `extended/bottom` | 4.384.183 | 2.163.897 (49,4 %) | 1,97× | **1,98×** |
+
+Las dos columnas de factor van separadas porque son de dos poblaciones. La
+primera es del PCAP —paquetes leídos sobre paquetes únicos— y la segunda de los
+contadores de los CSV de flujo, que no contabilizan todos los paquetes del
+archivo: en `bottom` son 1.500.207 de 1.513.815. La segunda es la que importa
+para corregir, porque es la que entra en las características. Una versión
+anterior publicaba solo esa y la ponía al lado de las dos columnas del PCAP,
+como si se dedujera de ellas.
 
 Dos paquetes son la misma captura si son **idénticos octeto a octeto** y
 están separados por menos de 1 ms. La ventana no es arbitraria: la separación
 entre apariciones de una misma firma es de una bimodalidad nítida —la mediana de
 las copias es de 1,0 µs y las balizas periódicas idénticas reaparecen entre 1
 y 10 s—, y entre 100 µs y 1 ms no hay casi nada. Un deduplicado sin ventana
-borraría las balizas, que son tráfico legítimo: hay firmas que aparecen 3189
-veces.
+borraría las balizas, que son tráfico legítimo: en el tramo de entrenamiento de
+`reduced/bottom` la firma más repetida aparece **4788 veces**, sobre 447.753
+firmas distintas.
 
 **Qué se corrigió y cómo.** No se rearmaron los flujos: hacerlo con un
 armador propio cambiaría a la vez el conteo —que es lo que hay que corregir—
@@ -377,6 +404,23 @@ verificó en ICS-Flow— y dan variables de proceso con nombre:
 `tank_level_value`, `tank_input_valve_status`, `bottle_level_value` y el
 resto.
 
+**Y ahí está el límite del hallazgo, que conviene declarar junto con él.** Que
+el mapa de ICSSIM sirva no es una coincidencia: el `README` del propio
+conjunto dice que los equipos corrían «the physical world simulator of
+ICSSIM» y que «some of this traffic is not representative of a factory». Por
+eso publica dos variantes, y `reduced` —la que usa este análisis— excluye el
+tráfico del simulador del mundo físico. De modo que lo
+real en este conjunto es la **red**: los equipos, los tres puntos de captura,
+el SSH y los escaneos. El **plano de control** lo produce el mismo simulador
+que genera ICS-Flow, con el mismo mapa de registros y la misma convención de
+32 bits, y sus consignas tienen un solo valor distinto en toda la captura
+—`tank_level_min` vale 3,0; `tank_level_max`, 7,0; `bottle_level_max`, 1,8—.
+
+Eso acota dos cosas. La semántica de control que el conjunto aporta es
+simulada, no capturada de una planta. Y la contraposición con ICS-Flow —banco
+emulado contra red real— no vale en la capa que §5.3 compara: los dos
+conjuntos comparten el generador de flujos *y* el simulador de proceso.
+
 **La salvedad que lo acota.** El diálogo es de **solo lectura**: 100 % función
 3, ni una petición de escritura en todo el archivo. De modo que Westermo sirve
 para características semánticas de función, de temporizado y de valor leído,
@@ -384,10 +428,37 @@ y **no** para una característica de parámetro manipulado, que es lo que
 sostiene el papel de ICS-Flow en la sección 4.
 
 Lo que esto cambia es el argumento de selección: Westermo pasa a ser el único
-de los cinco con tráfico real, esquema de flujo publicado, etiquetas **y**
-carga útil de control decodificable. La medición estaba hecha y versionada
+de los cinco con red y topología físicas, esquema de flujo publicado,
+etiquetas **y** carga útil de control decodificable —simulada, con la
+salvedad de arriba—. La medición estaba hecha y versionada
 desde antes en `12_westermo_modbus.py`; lo que faltaba era que llegara a los
 documentos.
+
+### 1.9 Los «eventos» de Morris no son episodios de ataque, y el peor tipo deja trece
+
+Es el hallazgo que cambia un compromiso del proyecto, de modo que va acá y no
+solo en la pregunta 4, donde está el tratamiento completo.
+
+Un «evento» de Morris se definía como una racha contigua de filas de la misma
+categoría, y con esa definición el peor tipo del tramo de prueba
+—DoS— deja 281 eventos y un intervalo de ±0,058. Medido: **las rachas
+sucesivas de una misma categoría están separadas por tres o cuatro filas**, es
+decir por una o dos transacciones normales. No son inyecciones aisladas sino
+una sola inyección partida en decenas de rachas por la definición del objeto
+que se cuenta.
+
+Agrupadas las rachas separadas por menos de 10 s, DoS deja **13 episodios**, y
+el semiancho del intervalo pasa de ±0,058 a **±0,24**. Con 13 episodios la PD
+solo puede tomar catorce valores espaciados 1/13, de modo que **0,5 no es
+alcanzable**. MSCI queda en 28 episodios y MPCI en 75.
+
+La consecuencia: **Morris es todavía el mejor de los cinco conjuntos para
+medir PD por tipo, y por lejos, pero el compromiso de un punto de operación
+por familia de anomalía no se sostiene para DoS, MSCI ni MPCI.** Es la misma
+objeción que este documento ya levantaba contra los tipos de Westermo con
+pocos eventos, y que no se le aplicaba a Morris. El barrido del umbral de
+agrupación está en §9.6.b de `eda/salidas/p9_intervalos_pd.txt`, porque el
+umbral es una elección y corresponde dejarla a la vista.
 
 ## 2. Partición usada y qué se exploró
 
@@ -717,10 +788,10 @@ En QUT restringido a DNP3 el Jaccard es **1,00**: siempre los mismos dos
 interlocutores.
 
 La **autocorrelación de la tasa** cierra el cuadro. En el normal limpio de
-Westermo vale −0,27 en el retardo de 1 s: si un segundo queda por encima de la
+Westermo vale −0,29 en el retardo de 1 s: si un segundo queda por encima de la
 media, el siguiente queda por debajo. Es la firma de un lazo de sondeo con
 cupo fijo, y explica que el índice de dispersión caiga por debajo de 1. Los
-rebrotes positivos son débiles, 0,17 en 6 s y 0,13 en 11 s, y el análisis no
+rebrotes positivos son débiles, 0,18 en 6 s y 0,10 en 11 s, y el análisis no
 llega más lejos que 15 s porque los huecos limpios no dan para más. En QUT el
 perfil oscila con picos de hasta 0,29 repartidos a lo largo de 180 s, sin un
 período dominante. **En ninguno de los dos conjuntos hay un ciclo operativo
@@ -751,21 +822,38 @@ alguno no se había visto nunca en tráfico limpio— dan PD de 0,118 y 0,132 co
 una PFA de 0 y 2 sobre 504 ventanas limpias **retenidas**, que no entraron en
 el conjunto de referencia.
 
-**Y al mismo punto de operación las dos formas dan lo mismo.** Al PFA de 0,4 %
-que deja la novedad de pares, el recuento da PD 0,128 contra 0,132. Una
-versión anterior de esta sección decía que «solo uno de los dos modos sirve»,
-y comparaba el recuento a un PFA elegido del 2 % contra una novedad cuya PFA
-era **cero por construcción**: el conjunto de referencia se armaba con todas
-las ventanas limpias y la PFA se medía sobre esas mismas ventanas, de modo que
-no podía dar otra cosa. Medida fuera de muestra no es cero, y el intervalo al
-95 % de la de pares es [0,0011, 0,0144].
+**Y el recuento hay que medirlo con la misma regla, que es lo que faltaba.**
+Una versión anterior comparaba el recuento a un PFA elegido del 2 % contra una
+novedad cuya PFA era **cero por construcción**: el conjunto de referencia se
+armaba con todas las ventanas limpias y la PFA se medía sobre esas mismas
+ventanas. Esa parte quedó corregida —medida fuera de muestra no es cero, y el
+intervalo al 95 % de la de pares es [0,0011, 0,0144]— pero la corrección dejó
+el otro lado como estaba: el umbral del recuento salía todavía del cuantil
+de **todas** las ventanas limpias, de modo que un lado quedaba calibrado
+dentro de muestra y el otro no.
 
-De modo que lo que se sostiene es más modesto: **ninguna de las tres
-características, de ninguna de las dos formas, pasa de una PD de 0,13 a una
-PFA del orden del medio por ciento.** La forma de pertenencia es todavía la
-más razonable de escribir —no necesita umbral ni supone una distribución, y
-es la única posible para las características constantes en el normal (§5.5)—
-pero eso es un argumento de diseño, no una ventaja medida.
+Con la misma regla para los tres —umbral y conjunto de referencia sobre las
+754 ventanas limpias de referencia, PFA sobre las 504 retenidas—:
+
+| Forma | PD | Falsas alarmas sobre 504 |
+|---|---:|---:|
+| recuento de paquetes | **0,135** | **0** |
+| pares nunca vistos | 0,132 | 2 |
+| tamaños nunca vistos | 0,118 | 0 |
+
+De modo que la comparación honesta **no favorece a la pertenencia**: el
+recuento llega más alto y con menos falsas alarmas. La frase «al mismo punto
+de operación las dos formas dan lo mismo» ponía juntas una PFA nominal y una
+PFA medida, que no son el mismo punto.
+
+Lo que se sostiene es la cota, y es modesta: **ninguna de las tres
+características, de ninguna de las dos formas, pasa de una PD de 0,14.** La
+forma de pertenencia es todavía razonable de escribir —no necesita umbral
+ni supone una distribución, y es la única posible para las características
+constantes en el normal (§5.5)— pero eso es un argumento de diseño, y ahora
+además va contra una medición. Conviene anotar también que con 504 ventanas
+retenidas la PFA más chica que se puede resolver es 1/504: «cero falsas
+alarmas» acá significa «por debajo del 2 por mil», no cero.
 
 ### Pregunta 3 — ¿Lo que afirma la documentación está en los datos?
 
@@ -898,11 +986,11 @@ A partir de 22.04 solo hay una columna binaria. HAI no permite PD por tipo.
 
 ### Pregunta 4 — ¿Alcanzan las muestras para medir PD por tipo?
 
-**Para Morris sí, con holgura. Para Westermo no. Para HAI no, por otro motivo.**
+**Para Morris, según qué se cuente. Para Westermo no. Para HAI no, por otro
+motivo.**
 
-**Morris.** Un «evento» es una racha contigua de filas de la misma categoría. En
-este conjunto las inyecciones son aisladas —uno o dos registros, el comando y
-su respuesta—, de modo que instancias y eventos casi coinciden:
+**Morris.** Un «evento» es una racha contigua de filas de la misma categoría.
+Contadas así, hay de sobra:
 
 | Categoría | Instancias | Eventos | Eventos en prueba |
 |---|---:|---:|---:|
@@ -914,10 +1002,49 @@ su respuesta—, de modo que instancias y eventos casi coinciden:
 | DoS | 2176 | 1088 | 281 |
 | Reconocimiento | 3874 | 2258 | 477 |
 
-Con 281 eventos en el peor caso (DoS), el intervalo de confianza del 95 % de
-una PD cercana a 0,5 tiene un semiancho de **±0,058** (Wilson; ±0,060 con
-Clopper-Pearson). **Morris sostiene sin problemas el compromiso de un punto de
-operación por familia de anomalía que el proyecto se propone.**
+Con 281 de esas rachas en el peor caso (DoS), el intervalo de confianza del
+95 % de una PD cercana a 0,5 tiene un semiancho de **±0,058** (Wilson; ±0,060
+con Clopper-Pearson).
+
+**Pero una racha no es un episodio de ataque, y la diferencia es de un orden
+de magnitud.** Una versión anterior de esta sección decía que «las inyecciones
+son aisladas —uno o dos registros, el comando y su respuesta—, de modo que
+instancias y eventos casi coinciden», y concluía que Morris sostenía sin
+problemas un punto de operación por familia. Medido: las rachas sucesivas de
+una misma categoría están separadas por **tres o cuatro filas** y por 3,2 s de
+mediana, es decir una o dos transacciones normales en medio. No son
+inyecciones aisladas sino una sola inyección partida en decenas de rachas por
+la definición del objeto que se cuenta.
+
+Agrupando las rachas separadas por menos de 10 s —el umbral es una elección,
+y por eso va barrido en §9.6.b de `eda/salidas/p9_intervalos_pd.txt`—:
+
+| Categoría | Rachas en prueba | Semiancho | Episodios | Semiancho | Rejilla |
+|---|---:|---:|---:|---:|---:|
+| CMRI | 2581 | ±0,019 | 395 | ±0,049 | 0,0025 |
+| NMRI | 1639 | ±0,024 | 253 | ±0,061 | 0,0040 |
+| MPCI | 1808 | ±0,023 | **75** | **±0,110** | 0,0133 |
+| MSCI | 676 | ±0,038 | **28** | **±0,174** | 0,0357 |
+| MFCI | 646 | ±0,038 | 646 | ±0,038 | 0,0015 |
+| Reconocimiento | 477 | ±0,045 | 477 | ±0,045 | 0,0021 |
+| DoS | 281 | ±0,058 | **13** | **±0,239** | 0,0769 |
+
+MFCI y Reconocimiento no se agrupan a 10 s porque su separación mediana es de
+11,7 s; a 30 s dan 29 y 25 episodios, de modo que su columna es una cota
+superior. El umbral no cambia el peor caso: DoS da 13 episodios con cualquier
+valor entre 5 s y 60 s, un rango de doce veces.
+
+Con 13 episodios el semiancho pasa de ±0,058 a **±0,24**, y además la PD solo
+puede tomar catorce valores espaciados 1/13: **0,5 no es alcanzable**, los dos
+más cercanos son 0,462 y 0,538. Es la misma objeción que esta sección levanta
+contra los tipos de Westermo con pocos eventos, y que no se le aplicaba a
+Morris.
+
+De modo que la afirmación correcta es: **Morris es todavía el mejor de los
+cinco para medir PD por tipo, y por lejos, pero el compromiso de un punto de
+operación por familia no se sostiene para DoS, MSCI ni MPCI.** Para esos tres
+hay que reportar PD agregada, o por familia con el intervalo a la vista y
+sin prometer una precisión que la muestra no da.
 
 Una aclaración sobre esa cifra, porque una versión anterior de este documento
 publicaba ±0,03 y la llamaba «error estándar». Lo era: ±0,03 es un error
@@ -945,7 +1072,9 @@ consecutiva por construcción**. Eso fuerza la suma de productos cruzados a
 cero y la autocorrelación a −p/(1−p), que es negativa siempre. Despejando el
 largo de la secuencia de cada una de las siete, las siete dan el mismo 14.696:
 no eran siete mediciones sino una identidad algebraica evaluada en siete
-valores. `eda/salidas/p9_intervalos_pd.txt`, sección 9.6, lo informa como tal.
+valores. `eda/salidas/p9_intervalos_pd.txt`, sección 9.6, lo informa como tal,
+y en 9.6.b mide lo que esa columna no puede medir: cuántos episodios de ataque
+distintos hay.
 
 Lo que el intervalo necesita, y no está medido, es si los **errores del
 detector** se correlacionan entre eventos vecinos. Eso no se puede saber sin
@@ -1041,17 +1170,20 @@ Qué hacer, en orden de preferencia:
    sobra, pero el alcance tiene que ir declarado con la cifra: son 6245 flujos
    anómalos bajo NST en `reduced/flows/output_bottom.csv`, que es **un** punto
    de captura y **una** variante, y la unión de los tres puntos de la variante
-   reducida son 48.657 flujos con el 24,5 % anómalo. El costo, en los dos
+   reducida son 48.657 flujos con el 24,7 % anómalo. El costo, en los dos
    casos, es que los flujos de un mismo evento no son independientes.
 2. **Usar los tres puntos de captura a la vez**, para resolver el problema de
    visibilidad: hay eventos que un punto no ve. Pero **no triplica la
    evidencia**: el 79,4 % de los flujos de `right` y el 63,4 % de los de
-   `left` son re-observaciones de flujos que ya están en otro punto (§1.6).
-   La unión sirve para *ver* más eventos, no para tener más muestras
-   independientes, y cualquier intervalo calculado sobre ella como si lo
-   fueran sale demasiado angosto.
-3. **Comprometer el punto de operación por familia solo sobre Morris**, y
-   reportar Westermo de forma agregada con intervalo de confianza explícito.
+   `left` también están en otro punto, y de las 28.742 observaciones de la
+   unión solo 23.786 son flujos distintos (§1.6). La unión sirve para *ver*
+   más eventos, no para tener más muestras independientes, y cualquier
+   intervalo calculado sobre ella como si lo fueran sale demasiado angosto.
+3. **Comprometer el punto de operación por familia solo sobre Morris, y solo
+   para los tipos que lo sostienen por episodio.** CMRI y NMRI quedan
+   con un semiancho de ±0,05 y ±0,06; MPCI, MSCI y DoS, con ±0,11, ±0,17 y
+   ±0,24. Para esos tres el compromiso tiene que ser agregado o venir con el
+   intervalo a la vista. Westermo, de forma agregada con intervalo explícito.
 
 No se recomienda cambiar la partición temporal para ganar eventos de prueba:
 el criterio de no mirar el test vale más que los tres eventos adicionales.
@@ -1088,23 +1220,32 @@ tramos **contiguos** de una serie autocorrelacionada. El nulo que corresponde
 es el de la segunda fila: cortar en bloques del largo de la decorrelación,
 permutarlos y recién ahí partir en dos mitades contiguas.
 
-Eso cambia el margen por un factor de quince. Contra el barajado, la deriva
-interna parecía superar al ruido **entre 23 y 43 veces**; contra el nulo
-correcto queda **entre 0,9 y 2,7**:
+Eso cambia el margen por un factor de más de quince. Contra el barajado, la
+deriva interna parecía superar al ruido **entre 19 y 43 veces**; contra el
+nulo correcto queda **entre 1,2 y 2,5**:
 
 | Versión | En orden | Nulo por bloques | Razón |
 |---|---:|---:|---:|
-| hai-20.07 | 0,097 | 0,036 | 2,7× |
-| hai-21.03 | 0,104 | 0,062 | 1,7× |
-| hai-22.04 | 0,184 | 0,074 | 2,5× |
-| hai-23.05 | 0,098 | 0,044 | 2,3× |
-| haiend-23.05 | 0,054 | 0,058 | **0,9×** |
+| hai-20.07 | 0,097 | 0,038 | 2,5× |
+| hai-21.03 | 0,104 | 0,059 | 1,8× |
+| hai-22.04 | 0,184 | 0,077 | 2,4× |
+| hai-23.05 | 0,098 | 0,044 | 2,2× |
+| haiend-23.05 | 0,054 | 0,044 | **1,2×** |
 
 **Qué sobrevive.** En cuatro de las cinco versiones lo observado supera a las
-ocho permutaciones, de modo que la deriva dentro de una campaña es real. En
-`haiend-23.05` **no llega ni a la mediana del nulo**: ahí no hay deriva
-intra-campaña demostrada, y lo medido es compatible con el tamaño finito más
-la autocorrelación de la serie. El documento afirmaba 23× para esa versión.
+**sesenta** permutaciones de bloques, es decir con p ≤ 0,016, de modo que la
+deriva dentro de una campaña es real. En `haiend-23.05` no las supera: su
+estadístico está por encima de la mediana del nulo —1,2×— pero dentro de la
+dispersión de las sesenta permutaciones, de modo que ahí **la deriva
+intra-campaña no alcanza significación**, que no es lo mismo que no existir.
+El documento afirmaba 23× para esa versión.
+
+Una versión anterior de este párrafo publicaba la tabla de un nulo de **ocho**
+permutaciones y decía que `haiend-23.05` «no llega ni a la mediana del nulo».
+Con ocho permutaciones el p-valor mínimo alcanzable es 1/9 = 0,111, de modo
+que superarlas no habilitaba ninguna conclusión de significación; y con
+sesenta, la mediana del nulo de esa versión baja de 0,058 a 0,044 y su
+estadístico queda por encima, no por debajo.
 
 Una versión anterior llamaba a la primera fila «el ruido de fondo del
 estimador» y leía la columna «Razón» de la tabla que sigue como una relación
@@ -1132,8 +1273,16 @@ distribuciones discretas, y queda declarado en la salida.
 
 **La deriva entre campañas es real, y es el efecto más firme de la sección.**
 Contra el nulo por bloques, la diferencia entre `train` sucesivos queda entre
-**1,4× y 7,5×** según la versión y el par, con el máximo en 20.07, que es la
-que tiene el hueco de 47 días. Las tres versiones cuya razón de la tabla
+**1,4× y 7,1×** según la versión y el par, con el máximo en 20.07, que es la
+que tiene el hueco de 47 días.
+
+Una salvedad de comparabilidad sobre esa razón, porque el numerador y el
+denominador no se toman sobre el mismo conjunto de columnas: la mediana
+intra-archivo se calcula sobre 50, 57, 60, 66 y 67 columnas según la versión,
+y la de entre campañas sobre conjuntos de 51 a 68. En `hai-22.04` la
+diferencia es de 60 contra 66 a 68, de modo que ahí la razón no divide dos
+medianas de la misma población de columnas. El efecto es chico frente al tamaño de la razón,
+pero el número no es exacto en el sentido en que lo parece. Las tres versiones cuya razón de la tabla
 anterior ronda 1 —22.04, 23.05 y haiend— no son versiones sin deriva entre
 campañas: son versiones donde esa diferencia es del mismo tamaño que la
 interna, y las dos superan al nulo.
@@ -1364,9 +1513,14 @@ están marcados como normales.
 | **Total** | **5.924.975** | **802** | **143** |
 
 Son 802 escrituras en 25,2 millones de paquetes. Las 5.924.975 ADU Modbus se
-reparten casi por mitades entre peticiones y respuestas —2.962.090 y
-2.962.885 medidas, no supuestas—, de modo que hay unos 2,96
-millones de peticiones y las escrituras son una de cada 3693. El cuello de
+reparten casi por mitades entre peticiones y respuestas —**2.962.090 y
+2.962.885**, contadas sobre el PCAP completo con el criterio de `modbus.py`:
+puerto de destino 502 es petición—, de modo que hay unos 2,96 millones de
+peticiones y las escrituras son una de cada 3692. Conviene anotar que
+`p6_icsflow.txt` §6.5 publica «peticiones Modbus (la mitad de las ADU):
+2.962.487», que es la división por dos y lo dice en su propia etiqueta; las
+dos cifras de arriba son el recuento, y la diferencia entre el supuesto y lo
+medido es de 397 ADU. El cuello de
 botella deja de ser la semántica y pasa a ser el tamaño de muestra.
 
 | Unidad de medida | n en prueba | IC 95 % (Wilson) de una PD cercana a 0,5 | ¿0,5 alcanzable? |
@@ -1401,7 +1555,9 @@ el número honesto queda entre ±0,13 y ±0,21, y por evento, con 5 eventos, no
 es estimable. Las dos cifras salen de
 `eda/salidas/p9_intervalos_pd.txt`, donde el caso de 17 entra marcado como
 hipotético para que no se lo confunda con una medición. Morris es todavía el
-único que sostiene un compromiso numérico por tipo, y sigue sin carga útil.
+que mejor sostiene un compromiso numérico por tipo, y sigue sin carga útil
+—con la salvedad de la pregunta 4: por episodio de ataque y no por racha de
+filas, tres de sus siete tipos tampoco lo sostienen—.
 
 De modo que la división de roles **no se resuelve: pasa de dos conjuntos a
 tres**. QUT para el grueso de las características semánticas de función y
@@ -1498,6 +1654,13 @@ numéricas que fijan las unidades se cumplen en ambos con las mismas
 tolerancias, y las cuatro columnas de etiqueta traen las mismas dos
 estrategias, IT y NST. Los generó la misma herramienta.
 
+**Y no solo el esquema.** El proceso que los dos conjuntos describen sale
+también del mismo simulador, ICSSIM, con el mismo mapa de registros (§1.8).
+Lo que los separa es la red —física en Westermo, emulada en ICS-Flow— y no la
+planta. Eso es información de primer orden para leer §5.3, porque la pregunta
+de si son la misma población se vuelve la pregunta de cuánto aporta la red por
+encima de un proceso compartido.
+
 Esa coincidencia no se repite en ninguna otra parte del conjunto de cinco:
 
 | Intersección de nombres de campo | Campos comunes |
@@ -1526,7 +1689,7 @@ solo significa algo si supera ese nivel.
 
 Sobre las 37 características que sí varían, el estadístico cruzado
 tiene mediana **0,124**, y la razón entre el cruzado y el mayor de los dos
-niveles de referencia de cada campo tiene mediana **7,6**. Esa es la regla:
+niveles de referencia de cada campo tiene mediana **7,5**. Esa es la regla:
 primero el cociente campo por campo contra su propia variabilidad interna,
 después la mediana entre campos; el mayor de los dos niveles es la elección
 conservadora, porque da el factor más chico. Conviene no llamar «ruido» a ese
@@ -1537,8 +1700,39 @@ advertencia que no cabe sobre la mediana, y está en §5.6.
 
 Ninguna distribución es disjunta, así que la diferencia no es dramática, pero
 **se concentra en el temporizado**: cuatro de las cinco que encabezan la
-tabla son tasas de carga, intervalos entre paquetes y retardos de ACK. Entrenar sobre la
-unión de las filas ensancha la envolvente del normal en esas variables.
+tabla son tasas de carga, intervalos entre paquetes y retardos de ACK.
+Entrenar sobre la unión de las filas ensancha la envolvente del normal en esas
+variables.
+
+**Y una parte de esa diferencia es todavía el instrumento de Westermo, no la
+red.** La corrección de §1.7 recontó los seis contadores de volumen, pero
+`duration` es un campo del conjunto y no se toca. Para una fila cuyo contenido
+real es un solo paquete, `duration` no es una duración sino la separación
+entre sus dos copias de captura, del orden de 5 µs, y todo cociente por ella
+sale disparado. Esas filas son **2304 de los 17.456 normales de Westermo —el
+13,2 %— contra 34 de 22.856 en ICS-Flow, el 0,1 %**: la asimetría es de dos
+órdenes y entra entera en la comparación.
+
+| Resumen | Con esas filas | Sin esas filas |
+|---|---:|---:|
+| Mediana del cruzado | 0,124 | **0,078** |
+| Factor mediano | 7,5 | **5,1** |
+
+El efecto no es uniforme, y en dos campos va al revés de lo que se esperaría:
+
+| Campo | Cruzado | Sin el artefacto |
+|---|---:|---:|
+| `rLoad` | 0,644 | 0,614 |
+| `rBytesSum` | 0,332 | 0,283 |
+| `duration` | 0,250 | **0,352** |
+| `sLoad` | 0,236 | **0,339** |
+
+De modo que el artefacto infla los dos primeros y **tapa** los dos últimos. La
+conclusión de alcance se sostiene —los dos conjuntos no son la misma
+población— pero no se puede decir que la corrección del doble conteo haya
+descontado el instrumento de esta tabla: lo descontó de los contadores y no de
+`duration`. Cualquier unión de las filas tiene que marcar esas 2304 filas o
+dejar afuera los campos que son un cociente por `duration`.
 
 Esa atribución cambió al corregir el doble conteo de §1.7, y conviene dejar
 dicho cómo. Con los contadores publicados, las tres primeras filas de esta
@@ -1672,7 +1866,7 @@ de red en las cinco versiones de HAI y la ausencia de captura en Morris. Todas
 reproducen.
 
 Con una diferencia de criterio que corresponde declarar. `p11` resume la
-divergencia entre los dos conjuntos con una mediana de 0,066 y un factor de 4,
+divergencia entre los dos conjuntos con una mediana de 0,067 y un factor de 4,
 calculados **sobre las 47 características**; como 10 de ellas son constantes
 en ambos y no pueden diferir, aportan un cero cada una y bajan las dos cifras.
 Se comprobó que la regla del factor es la misma en los dos cálculos —el
@@ -1687,7 +1881,7 @@ Las dos medianas se pueden rehacer sin correr nada: `p11_integracion.json`
 trae los 47 valores individuales en `westermo_icsflow.ks`, con el nombre del
 campo, los dos niveles de referencia y el estadístico cruzado, y la lista de
 las diez constantes en `westermo_icsflow.campos_constantes_en_ambos`. La
-mediana de las 47 da 0,066 y la de las 37 restantes, 0,124, por tres caminos
+mediana de las 47 da 0,067 y la de las 37 restantes, 0,124, por tres caminos
 distintos: el script original, un recálculo desde cero y la cuenta sobre el
 JSON publicado.
 
@@ -1715,8 +1909,8 @@ veces»**.
    parámetros de comando y no trae la separación comando/respuesta en su
    estructura de archivos. **Y ya no es la única opción para eso**: Westermo
    trae cerca de 496.800 mensajes Modbus/TCP decodificables al 100 %, sobre
-   tráfico real y
-   con etiquetas (§1.8). Antes de apoyar la semántica de función en QUT
+   una red física y con etiquetas (§1.8), aunque el proceso que esos mensajes
+   describen lo genere un simulador. Antes de apoyar la semántica de función en QUT
    conviene comparar las dos, que es una comparación que este análisis no
    hizo.
 2. **Incorporar ICS-Flow con un rol acotado** (sección 4). Cierra la mitad de
@@ -1736,13 +1930,17 @@ veces»**.
 4. **Filtrar los dos ataques de `hai-20.07/train2.csv`** antes de usar ese
    archivo como tráfico normal.
 5. **Elegir las características de la línea base con el resultado de la
-   pregunta 2, y escribirlas como novedad y no como recuento.** El conjunto
-   de pares, el repertorio de tamaños y el vocabulario de funciones funcionan
-   si la característica es «apareció algo que no estaba en el conjunto
-   limpio»; de recuento por ventana los tres quedan entre 0,55 y 0,57 de AUC.
-   El volumen por ventana, que una versión anterior ponía primero, no entra:
-   0,547. Tampoco el intervalo entre paquetes agregado. Con un modelo por
-   conversación.
+   pregunta 2, y no descartar el recuento.** Medidas las tres con la misma
+   regla —umbral y referencia sobre las ventanas de referencia, PFA sobre las
+   retenidas— el recuento de paquetes da PD 0,135 con cero falsas alarmas en
+   504 ventanas, por encima de las dos formas de pertenencia. Una versión
+   anterior recomendaba escribirlas como novedad y no como recuento; esa
+   preferencia salía de comparar un PFA nominal contra uno medido y no se
+   sostiene. La forma de pertenencia conserva un argumento de diseño —no
+   necesita umbral y es la única posible para las características constantes
+   en el normal (§5.5)— pero no una ventaja medida. Y el AUC no decide esto:
+   0,547 de AUC convive con PD 0,135 en la cola, porque contestan preguntas
+   distintas. Con un modelo por conversación.
 6. **Decidir cómo se reporta PD en Westermo** antes de correr el experimento
    (pregunta 4). Con 17 eventos de prueba, un compromiso por tipo no es
    defendible; por flujo o agregado con intervalo de confianza, sí.

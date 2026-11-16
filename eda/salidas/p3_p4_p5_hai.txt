@@ -139,9 +139,9 @@ hai-22.04          0.1838     0.0046     0.0768     40 veces    2.4 veces
 hai-23.05          0.0983     0.0027     0.0441     37 veces    2.2 veces
 haiend-23.05       0.0542     0.0028     0.0436     19 veces    1.2 veces
 
-**El margen cae de decenas a unidades, y una version se cae del todo.**
-Contra el barajado fila por fila el cociente daba de 23 a 43. Contra
-el nulo correcto queda entre 0,9 y 2,7.
+**El margen cae de decenas a unidades.** Contra el barajado fila por
+fila el cociente daba de 19 a 43. Contra el nulo correcto queda
+entre 1.2 y 2.5.
 
    supera a las 60 permutaciones de bloques (p <= 0.016): hai-20.07, hai-21.03, hai-22.04, hai-23.05
 
@@ -182,6 +182,34 @@ Columnas con mayor KS en cada comparacion:
   haiend-23.05   end-train1 -> end-train2     DM-AIT-DO=0.98, PP04-SP-OUT=0.76, DM-AIT-PH=0.66, 1003.18-OUT=0.59, DM-TWIT-05=0.45
   haiend-23.05   end-train2 -> end-train3     PP04-SP-OUT=1.00, DM-PCV02-Z=1.00, 1003.18-OUT=0.80, 1003.24-OUT=0.72, DM-TWIT-05=0.47
   haiend-23.05   end-train3 -> end-train4     DM-AIT-PH=0.85, 1003.18-OUT=0.85, 1003.24-OUT=0.80, DM-TWIT-05=0.80, PP04-SP-OUT=0.77
+
+
+### P5.b.2 La deriva entre campanas contra el nulo por bloques
+
+   version        par                             razon    cols
+   hai-20.07      train1 -> train2                7.07x      51
+   hai-21.03      train1 -> train2                3.70x      57
+   hai-21.03      train2 -> train3                2.78x      57
+   hai-22.04      train1 -> train2                2.72x      66
+   hai-22.04      train2 -> train3                3.50x      68
+   hai-22.04      train3 -> train4                2.66x      66
+   hai-22.04      train4 -> train5                1.69x      66
+   hai-22.04      train5 -> train6                1.36x      68
+   hai-23.05      hai-train1 -> hai-train2        2.64x      66
+   hai-23.05      hai-train2 -> hai-train3        1.92x      66
+   hai-23.05      hai-train3 -> hai-train4        3.16x      66
+   haiend-23.05   end-train1 -> end-train2        1.87x      67
+   haiend-23.05   end-train2 -> end-train3        2.14x      67
+   haiend-23.05   end-train3 -> end-train4        3.33x      67
+
+   Rango: de 1.4 a 7.1 veces el nulo.
+
+   **Salvedad de comparabilidad.** El numerador y el denominador no
+   se toman sobre el mismo conjunto de columnas: la mediana
+   intra-archivo se calcula sobre 50, 57, 60, 66, 67 columnas segun la version,
+   y la de entre campanas sobre 51, 57, 66, 67, 68.
+   Donde difieren, la razon no divide dos medianas de la misma
+   poblacion de columnas.
 
 ### P5.c Entre versiones: cambio de banco, no deriva
 

@@ -129,6 +129,10 @@ def leer_paquetes(path, t_hasta=None, filtro=None, dedup=False):
     t0 = None
     recientes = {}
     descartados = 0
+    # Cuantas veces aparece cada firma, para poder decir con una medicion por
+    # que la ventana no puede ser infinita: un deduplicado sin ventana borraria
+    # las balizas periodicas, que son trafico legitimo.
+    veces = {}
     with open(path, "rb") as fh:
         pcap = dpkt.pcap.Reader(fh)
         for ts, buf in pcap:
@@ -141,6 +145,7 @@ def leer_paquetes(path, t_hasta=None, filtro=None, dedup=False):
                 h = hashlib.md5(buf).digest()
                 prev = recientes.get(h)
                 recientes[h] = ts
+                veces[h] = veces.get(h, 0) + 1
                 if prev is not None and (ts - prev) * 1e6 < DEDUP_US:
                     descartados += 1
                     continue
@@ -172,8 +177,14 @@ def leer_paquetes(path, t_hasta=None, filtro=None, dedup=False):
             if filtro is not None and not filtro(t):
                 continue
             filas.append((t, src, dst, sp, dp, size, proto))
-    return pd.DataFrame(filas, columns=["t", "src", "dst", "sport", "dport",
-                                        "size", "proto"])
+    df = pd.DataFrame(filas, columns=["t", "src", "dst", "sport", "dport",
+                                      "size", "proto"])
+    if dedup:
+        # Se adjunta como atributo para no cambiar la firma de la funcion.
+        df.attrs["firmas_distintas"] = len(veces)
+        df.attrs["firma_mas_repetida"] = max(veces.values()) if veces else 0
+        df.attrs["copias_descartadas"] = descartados
+    return df
 
 
 def autocorr_segmentos(segmentos, lag_max):
@@ -473,6 +484,18 @@ def main():
     w("")
     print("  leyendo %s" % comun.rel(pcap), file=sys.stderr)
     df_todo = leer_paquetes(pcap, t_hasta=tr, dedup=True)
+    w("Deduplicado con ventana de %.0f us: se descartaron %d copias y quedan"
+      % (DEDUP_US, df_todo.attrs.get("copias_descartadas", 0)))
+    w("%d firmas distintas. **La ventana no puede ser infinita**, y esta es la"
+      % df_todo.attrs.get("firmas_distintas", 0))
+    w("medicion que lo dice: la firma mas repetida del tramo aparece **%d"
+      % df_todo.attrs.get("firma_mas_repetida", 0))
+    w("veces**, de modo que un deduplicado sin ventana borraria las balizas")
+    w("periodicas identicas, que son trafico legitimo. La separacion entre")
+    w("apariciones de una misma firma es bimodal --- la copia de captura por")
+    w("debajo de 100 us, mediana 1,0 us, y las balizas entre 1 y 10 s --- y")
+    w("entre esos dos modos casi no hay nada.")
+    w("")
     w("### (a) Westermo, todo el tramo de entrenamiento")
     ra = caracterizar(df_todo, "westermo_entrenamiento_todo", [(0.0, tr)])
     imprimir(ra, w)
@@ -795,25 +818,50 @@ def main():
         nov[nom] = {"pfa": pfa, "pd": pdd, "k": k, "n": nn,
                     "ic95": [lo, hi]}
     w("")
-    w("**Y al mismo punto de operacion el recuento da lo mismo.** Esta es la")
-    w("comparacion que falta hacer antes de preferir una forma sobre la")
-    w("otra: poner las dos al mismo PFA en lugar de comparar una a un PFA")
-    w("elegido contra otra a un PFA que es cero por construccion.")
+    w("**Y el recuento hay que medirlo con la misma regla.** Comparar la")
+    w("novedad medida fuera de muestra contra un recuento cuyo umbral sale")
+    w("del cuantil de TODAS las ventanas limpias deja un lado calibrado")
+    w("dentro de muestra y el otro no. Aca el umbral se calcula sobre las")
+    w("%d ventanas de referencia y la PFA se mide sobre las %d retenidas,"
+      % (len(ref_idx), len(val_idx)))
+    w("que es exactamente lo que se hizo con la novedad:")
     w("")
-    for nom, v in nov.items():
-        if v["pfa"] <= 0:
-            w("   %-22s PFA fuera de muestra 0: no hay punto que igualar"
-              % nom)
-            continue
-        u = np.quantile(cuenta_v[~y], 1 - v["pfa"])
-        w("   al PFA de «%s» (%.4f): recuento PD %.3f contra novedad PD %.3f"
-          % (nom, v["pfa"], float((cuenta_v[y] > u).mean()), v["pd"]))
+    w("   %-26s %10s %10s %22s" % ("", "PFA", "PD", "IC 95 % de la PFA"))
+    rec = {}
+    for pfa_obj in (0.004, 0.02):
+        u = float(np.quantile(cuenta_v[ref_idx], 1 - pfa_obj))
+        k = int((cuenta_v[val_idx] > u).sum())
+        nn = len(val_idx)
+        pfa = k / nn if nn else float("nan")
+        pdd = float((cuenta_v[y] > u).mean())
+        lo, hi = _wilson(k, nn)
+        w("   %-26s %10.4f %10.3f      [%.4f, %.4f]"
+          % ("recuento, objetivo %.1f %%" % (100 * pfa_obj), pfa, pdd, lo, hi))
+        rec["objetivo_%.3f" % pfa_obj] = {
+            "umbral": u, "pfa": pfa, "pd": pdd, "k": k, "n": nn,
+            "ic95": [lo, hi]}
     w("")
-    w("De modo que **no se sostiene** decir que una de las dos formas sirve")
-    w("y la otra no. Lo que se sostiene es que ninguna de las tres")
+    mejor = max(rec.values(), key=lambda v: v["pd"])
+    mejor_nov = max(nov.values(), key=lambda v: v["pd"])
+    w("Con las tres medidas asi, el recuento llega a PD **%.3f** con %d"
+      % (mejor["pd"], mejor["k"]))
+    w("falsas alarmas en %d ventanas, y la mejor de las dos formas de"
+      % mejor["n"])
+    w("pertenencia a PD %.3f con %d. De modo que **la comparacion honesta no"
+      % (mejor_nov["pd"], mejor_nov["k"]))
+    w("favorece a la pertenencia**: el recuento no queda descartado, y la")
+    w("version anterior de esta seccion lo descartaba comparando un PFA")
+    w("nominal contra un PFA medido.")
+    w("")
+    w("Lo que si se sostiene es la cota: ninguna de las tres")
     w("caracteristicas, de ninguna de las dos formas, pasa de una PD de")
-    w("0,13 a una PFA del orden del medio por ciento.")
+    w("0,14. Y con %d ventanas retenidas la PFA mas chica que se puede"
+      % len(val_idx))
+    w("resolver es 1/%d = %.4f, de modo que un «cero falsas alarmas» aca"
+      % (len(val_idx), 1.0 / len(val_idx)))
+    w("significa «por debajo del %.1f por mil», no cero." % (1000.0 / len(val_idx)))
     w("")
+    sep["recuento_fuera_de_muestra"] = rec
     sep["pares_recuento_auc"] = a_par
     sep["tamanos_recuento_auc"] = a_tam
     sep["novedad_fuera_de_muestra"] = nov

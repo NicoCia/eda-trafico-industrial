@@ -298,13 +298,46 @@ explicadas por campos degenerados. **Como esquema, son el mismo
 conjunto.**
 
 Como poblacion, no. La diferencia no es dramatica --- ninguna
-distribucion es disjunta y la mediana del KS cruzado es 0.067 ---, pero
-supera el nivel de referencia interno por un factor mediano de 4 y se
-concentra justo donde duele: los 2 campos que mas difieren son de
-**volumen y de temporizado**, que son las caracteristicas que la
-pregunta 2 de INFORME.md identifico como discriminantes. Entrenar
-sobre la union de las filas ensancha la envolvente del 'normal' en
-exactamente las variables que llevan la senal.
+distribucion es disjunta ---, pero supera el nivel de referencia
+interno. Los dos resumenes, con su denominador declarado, porque los
+10 campos constantes en los dos conjuntos aportan un cero cada uno y
+bajan las dos cifras:
+
+                                         mediana     factor
+   sobre los 47 campos evaluados           0.067        3.9
+   sobre los 37 que varian                 0.124        7.5
+
+
+**Y una parte de esta diferencia sigue siendo el instrumento.**
+`duration` no se recontó al corregir el doble conteo, y para las
+filas de un solo paquete real es la separacion entre dos copias de
+captura, no una duracion: son 2304 de los 17456 normales de Westermo
+(13.2 %) contra 34 de 22856 en ICS-Flow (0.1 %). Quitandolas:
+
+                                         mediana     factor
+   con esas filas                          0.124        7.5
+   sin esas filas                          0.078        5.1
+
+Y el efecto no es uniforme: infla los campos que son un cociente
+por `duration` en el sentido de la diferencia y **tapa** otros.
+
+   campo                   cruzado  sin artefacto
+   rLoad                    0.6444         0.6136
+   rBytesSum                0.3324         0.2830
+   duration                 0.2504         0.3518
+   sLoad                    0.2363         0.3394
+
+De modo que la conclusion de alcance se sostiene --- los dos
+conjuntos no son la misma poblacion --- pero no se puede decir que
+la correccion del doble conteo haya descontado el instrumento de
+esta tabla: lo descontó de los contadores y no de `duration`.
+
+La diferencia se concentra justo donde duele: los 2 campos que mas
+difieren son `rLoad` y `rInterPacketAvg`,
+del tipo que la pregunta 2 de INFORME.md identifico como
+discriminante. Entrenar sobre la union de las filas
+ensancha la envolvente del 'normal' en exactamente las variables que
+llevan la senal.
 
 Hay una asimetria que conviene registrar: el nivel de referencia interno
 de Westermo en los campos de temporizado (`duration` 0.200,
@@ -602,7 +635,7 @@ control del proyecto, que es justo lo que pide el requerimiento 2.3.
 
 Y tiene un limite, enunciado con su alcance: de las 47
 caracteristicas, **10 no varian en el TRAFICO NORMAL de los dos
-conjuntos** (seccion 2.4). Eso no las vuelve descartables: 6 de ellas
+conjuntos** (seccion 2.4). Eso no las vuelve descartables: 47 de ellas
 si varian sobre los flujos anomalos, y sobre todo el tramo las que no
 varian son 5 en Westermo y 4 en ICS-Flow.
 

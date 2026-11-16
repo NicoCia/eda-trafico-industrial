@@ -170,7 +170,13 @@ def autocorrelacion_objetivo(df, objetivo, tcol):
             act = 0
     if act:
         rachas.append(act)
+    # El n efectivo por AR(1) solo vale si la serie ES un AR(1). Una etiqueta
+    # que marca eventos no lo es: la dependencia se mantiene a lo largo del
+    # evento en lugar de decaer geometricamente. Se informan los dos
+    # estimadores y el diagnostico que decide cual vale.
+    ind = comun.observaciones_independientes(b)
     return {"rho_lag1": rho, "n": len(b), "n_efectivo": float(n_eff),
+            "independientes": ind,
             "rachas": len(rachas),
             "clase_minoritaria": str(y.value_counts().idxmin()),
             "racha_mas_larga": max(rachas) if rachas else 0,
@@ -340,13 +346,32 @@ def main():
         w("")
         aco = autocorrelacion_objetivo(df, OBJETIVO, tcol)
         acp = autocorrelacion_objetivo(df, PARALELO, tcol)
-        w("%-14s %10s %12s %10s %14s"
-          % ("etiqueta", "rho(1)", "n_efectivo", "rachas", "racha + larga"))
+        w("%-14s %8s %10s %8s %8s %8s %8s %12s"
+          % ("etiqueta", "rho(1)", "n AR(1)", "rho(10)", "AR1 pred",
+             "tau", "n/tau", "rachas"))
         for etq, a in ((OBJETIVO, aco), (PARALELO, acp)):
             if a:
-                w("%-14s %10.3f %12d %10d %14d"
+                i = a.get("independientes") or {}
+                w("%-14s %8.3f %10d %8.3f %8.3f %8s %8d %12d"
                   % (etq, a["rho_lag1"], round(a["n_efectivo"]),
-                     a["rachas"], a["racha_mas_larga"]))
+                     i.get("rho10", float("nan")),
+                     i.get("ar1_predice10", float("nan")),
+                     (">=%d" % i["tau"]) if i.get("tau_censurado")
+                     else "%d" % i.get("tau", 0),
+                     round(i.get("n_tau", 0)), a["rachas"]))
+        w("")
+        iobj = (aco or {}).get("independientes") or {}
+        if iobj and iobj.get("rho10", 0) > 3 * max(iobj.get("ar1_predice10", 0), 1e-9):
+            w("**El n efectivo por AR(1) no vale para esta serie.** AR(1) con")
+            w("rho(1) = %.3f predice rho(10) = %.3f y lo medido es %.3f: la"
+              % (iobj["rho1"], iobj["ar1_predice10"], iobj["rho10"]))
+            w("dependencia no decae geometricamente, se mantiene a lo largo")
+            w("del evento. El estimador que corresponde es el tiempo de")
+            w("decorrelacion, que no supone ningun modelo y es el que este")
+            w("trabajo ya usaba para HAI: con tau = %d filas, las %d valen"
+              % (iobj["tau"], iobj["n"]))
+            w("como **%d**, no como %d."
+              % (round(iobj["n_tau"]), round(aco["n_efectivo"])))
         r["autocorrelacion_objetivo"] = {"objetivo": aco, "paralelo": acp}
         w("")
         if aco and aco["rho_lag1"] >= 0.3:
@@ -356,9 +381,11 @@ def main():
               % aco["racha_mas_larga"])
             w("contiguos de la misma clase, de modo que el vecino de una fila")
             w("de validación cae en el ajuste. La partición tiene que ser por")
+            _i = aco.get("independientes") or {}
+            _ne = round(_i["n_tau"]) if _i.get("tau") else round(aco["n_efectivo"])
             w("bloques temporales, y el tamaño efectivo para cualquier")
             w("intervalo sobre la etiqueta es **%d de %d**, no las %d filas."
-              % (round(aco["n_efectivo"]), aco["n"], aco["n"]))
+              % (_ne, aco["n"], aco["n"]))
             w("")
             w("Esto vale aunque la autocorrelación de las características sea")
             w("baja: son dos preguntas distintas y no se deducen una de otra.")

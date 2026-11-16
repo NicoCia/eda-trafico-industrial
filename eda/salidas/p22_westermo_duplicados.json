@@ -31,9 +31,11 @@
     "razon_crudo_publicado": 1.0,
     "razon_unico_crudo": 0.555313856658613
    },
-   "inflacion_paquetes": 1.9509025580606023,
+   "inflacion_contadores_csv": 1.9509025580606023,
+   "inflacion_paquetes_pcap": 1.9343678482575144,
    "copias": 731226,
-   "paquetes_leidos": 1513815
+   "paquetes_leidos": 1513815,
+   "paquetes_contabilizados_en_csv": 1500207
   },
   "reduced/left": {
    "sPackets": {
@@ -66,9 +68,11 @@
     "razon_crudo_publicado": 1.0,
     "razon_unico_crudo": 0.509514144735456
    },
-   "inflacion_paquetes": 1.8382762034985147,
+   "inflacion_contadores_csv": 1.8382762034985147,
+   "inflacion_paquetes_pcap": 1.7944552255955877,
    "copias": 124453,
-   "paquetes_leidos": 281105
+   "paquetes_leidos": 281105,
+   "paquetes_contabilizados_en_csv": 272916
   },
   "reduced/right": {
    "sPackets": {
@@ -101,9 +105,11 @@
     "razon_crudo_publicado": 1.0,
     "razon_unico_crudo": 0.9863934355396865
    },
-   "inflacion_paquetes": 1.1312151531352632,
+   "inflacion_contadores_csv": 1.1312151531352632,
+   "inflacion_paquetes_pcap": 1.108627612152635,
    "copias": 3436,
-   "paquetes_leidos": 35067
+   "paquetes_leidos": 35067,
+   "paquetes_contabilizados_en_csv": 29622
   },
   "extended/bottom": {
    "sPackets": {
@@ -136,9 +142,11 @@
     "razon_crudo_publicado": 0.999804049155283,
     "razon_unico_crudo": 0.5117281441114477
    },
-   "inflacion_paquetes": 1.9826774421196327,
+   "inflacion_contadores_csv": 1.9826774421196327,
+   "inflacion_paquetes_pcap": 1.9746028214383191,
    "copias": 2163897,
-   "paquetes_leidos": 4384183
+   "paquetes_leidos": 4384183,
+   "paquetes_contabilizados_en_csv": 4365939
   },
   "extended/left": {
    "sPackets": {
@@ -171,9 +179,11 @@
     "razon_crudo_publicado": 1.0,
     "razon_unico_crudo": 0.509514144735456
    },
-   "inflacion_paquetes": 1.838611047506162,
+   "inflacion_contadores_csv": 1.838611047506162,
+   "inflacion_paquetes_pcap": 1.7947790011169618,
    "copias": 124522,
-   "paquetes_leidos": 281197
+   "paquetes_leidos": 281197,
+   "paquetes_contabilizados_en_csv": 273008
   },
   "extended/right": {
    "sPackets": {
@@ -206,9 +216,11 @@
     "razon_crudo_publicado": 0.9993405325199901,
     "razon_unico_crudo": 0.9863934355396865
    },
-   "inflacion_paquetes": 1.1319523918516823,
+   "inflacion_contadores_csv": 1.1319523918516823,
+   "inflacion_paquetes_pcap": 1.1092373282804358,
    "copias": 3459,
-   "paquetes_leidos": 35124
+   "paquetes_leidos": 35124,
+   "paquetes_contabilizados_en_csv": 29673
   },
   "filas_con_un_solo_paquete_real": {
    "reduced/bottom": {

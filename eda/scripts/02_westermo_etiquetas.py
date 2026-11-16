@@ -34,6 +34,11 @@ PUNTOS = ["bottom", "left", "right"]
 # `bottom`, es decir que la clave encontraba coincidencias espurias; con
 # 0,05 s ese control da cero y lo que queda son gemelos de verdad.
 TOL_GEMELO = 0.05
+# Clave de nueve campos con la que se declara que dos filas son el mismo
+# flujo visto en dos puntos. Vive a nivel de modulo porque la usan la busqueda
+# de gemelos y el conteo de componentes.
+CAMPOS_GEMELO = ["sAddress", "rAddress", "protocol", "sPackets", "rPackets",
+                 "sBytesSum", "rBytesSum", "sPayloadSum", "rPayloadSum"]
 
 # Agrupacion de la cifra publicada: normal / malas config. y SSH malicioso /
 # ataques. GOOD-SSH es trafico legitimo, va con el normal.
@@ -107,6 +112,72 @@ def particion(off):
     if off < b:
         return "calibracion"
     return "prueba"
+
+
+def componentes_gemelos(var="reduced", puntos=("bottom", "left", "right")):
+    """Flujos distintos y copias redundantes en la union de los puntos.
+
+    Marcar «tiene gemelo» cuenta las dos puntas de cada par, de modo que
+    sobreestima la redundancia. Lo que hay que contar son componentes conexas:
+    una componente de tamano k son k observaciones de UN flujo, es decir k-1
+    copias redundantes.
+    """
+    tablas = {}
+    for pt in puntos:
+        try:
+            d = comun.westermo_flujos(var, pt)
+        except Exception:
+            return None
+        tablas[pt] = d[d["startOffset"] < comun.WESTERMO_CORTES[0]] \
+            .reset_index(drop=True)
+    padre = {}
+
+    def find(x):
+        while padre[x] != x:
+            padre[x] = padre[padre[x]]
+            x = padre[x]
+        return x
+
+    for pt, d in tablas.items():
+        for i in range(len(d)):
+            padre[(pt, i)] = (pt, i)
+    for a in range(len(puntos)):
+        for b in range(a + 1, len(puntos)):
+            pa, pb = puntos[a], puntos[b]
+            idx = {}
+            for i, (k, s) in enumerate(zip(
+                    map(tuple, tablas[pb][CAMPOS_GEMELO].itertuples(index=False,
+                                                          name=None)),
+                    tablas[pb]["start"])):
+                idx.setdefault(k, []).append((float(s), i))
+            for v in idx.values():
+                v.sort()
+            for i, (k, s) in enumerate(zip(
+                    map(tuple, tablas[pa][CAMPOS_GEMELO].itertuples(index=False,
+                                                          name=None)),
+                    tablas[pa]["start"])):
+                v = idx.get(k)
+                if not v:
+                    continue
+                marcas = [x[0] for x in v]
+                j = np.searchsorted(marcas, float(s))
+                for jj in (j - 1, j):
+                    if 0 <= jj < len(v) and \
+                            abs(v[jj][0] - float(s)) <= TOL_GEMELO:
+                        ra, rb = find((pa, i)), find((pb, v[jj][1]))
+                        if ra != rb:
+                            padre[ra] = rb
+                        break
+    import collections as _c
+    comp = _c.Counter(find(x) for x in padre)
+    tam = _c.Counter(comp.values())
+    obs = sum(len(d) for d in tablas.values())
+    return {"observaciones": obs,
+            "distintos": len(comp),
+            "tamanos": {int(k): int(v) for k, v in tam.items()},
+            "con_gemelo": int(sum(k * v for k, v in tam.items() if k > 1)),
+            "redundantes": int(sum((k - 1) * v for k, v in tam.items()
+                                   if k > 1))}
 
 
 def main():
@@ -243,8 +314,7 @@ def main():
     # que son el mismo flujo y no una colision de clave. NO se agrega
     # `duration`: entre dos taps difiere por microsegundos (mediana 1 us) y
     # rechazaria gemelos legitimos.
-    CMP = ["sAddress", "rAddress", "protocol", "sPackets", "rPackets",
-           "sBytesSum", "rBytesSum", "sPayloadSum", "rPayloadSum"]
+    CMP = CAMPOS_GEMELO
     dup = {}
     for var in VARIANTES:
         tablas = {}
@@ -335,6 +405,31 @@ def main():
     w("coinciden tambien en carga util, y su `duration` difiere por")
     w("microsegundos: es el mismo flujo visto desde dos taps.")
     w("")
+    # Las observaciones que TIENEN gemelo no son las re-observaciones: la
+    # relacion es simetrica, de modo que un flujo visto en dos taps aporta dos
+    # observaciones y UNA copia redundante. Hay que contar componentes.
+    comp = componentes_gemelos("reduced")
+    componentes = None
+    if comp:
+        w("**Y «tener gemelo» no es lo mismo que «ser una re-observacion».**")
+        w("La relacion es simetrica: un flujo visto en dos taps aporta dos")
+        w("observaciones y UNA copia redundante, y uno visto en los tres")
+        w("aporta tres y dos. Contando componentes conexas del grafo de")
+        w("gemelos:")
+        w("")
+        for k in sorted(comp["tamanos"]):
+            w("   vistos en %d punto(s): %6d flujos" % (k, comp["tamanos"][k]))
+        w("")
+        w("   observaciones de la union        %6d" % comp["observaciones"])
+        w("   flujos distintos                 %6d" % comp["distintos"])
+        w("   con al menos un gemelo           %6d  (%.1f %%)"
+          % (comp["con_gemelo"],
+             100.0 * comp["con_gemelo"] / comp["observaciones"]))
+        w("   RE-OBSERVACIONES redundantes     %6d  (%.1f %%)"
+          % (comp["redundantes"],
+             100.0 * comp["redundantes"] / comp["observaciones"]))
+        w("")
+        componentes = comp
     w("De modo que la union de los tres puntos **no triplica la evidencia**:")
     w("re-observa. Tratarla como muestras independientes deja cualquier")
     w("intervalo demasiado angosto.")
@@ -581,6 +676,7 @@ def main():
             "reparto_csv": resumen,
             "union_de_puntos": resumen_union,
             "eventos_por_particion": {k: dict(v) for k, v in cuenta.items()},
+            "gemelos_componentes": componentes,
         }, fh, indent=1, ensure_ascii=False)
 
     # Figura: linea de tiempo de los eventos y los cortes de la particion.

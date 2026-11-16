@@ -116,23 +116,76 @@ retardo       mediana   con |ac|>0,3
 5                0.71             11
 10               0.60             12
 
-Con 0.86 a retardo 1, las 163823 transacciones valen como **12060**, el 7 %.
+**Pero el retardo 1 de la mayoría de estas columnas no es medible, y
+el número de arriba no es lo que parece.** El cálculo quita los
+ausentes y recién después empareja posiciones contiguas del arreglo
+compacto, de modo que para una columna presente en un cuarto de las
+filas «retardo 1» empareja filas que están a cuatro de distancia:
+
+   columna                    cob.%       rho   n propio pares contig.
+   setpoint                    23.4     0.915      38398            0
+   gain                        23.4     0.944      38398            0
+   reset rate                  23.4     0.755      38398            0
+   deadband                    23.4     0.950      38398            0
+   cycle time                  23.4     0.965      38398            0
+   rate                        23.4     0.811      38398            0
+   system mode                 23.4     0.970      38398            0
+   control scheme              23.4     0.980      38398            0
+   pump                        23.4     0.973      38398            0
+   solenoid                    23.4     0.973      38398            0
+   pressure measurement        25.1    -0.003      41085           44
+   address                    100.0    -0.000     163823       163822
+   function                   100.0     0.011     163823       163822
+   length                     100.0    -0.103     163823       163822
+   crc rate                   100.0    -0.173     163823       163822
+   command response           100.0    -0.996     163823       163822
+
+**10 de las 16 columnas no tienen ni un par de filas contiguas con los
+dos valores presentes**: los atributos de proceso vienen solo en las
+respuestas. Para ellas el retardo 1 entre filas no es estimable, y lo
+que se calcula es la autocorrelación de la subsecuencia, con un
+retardo efectivo de unas cuatro filas y sobre 38398 filas de un solo
+tipo de transacción. Las completas dan rho entre -0.996 y 0.011.
+
+Encima el n efectivo de arriba usa las 163823 filas para todas. Con el n
+propio de cada columna, la mediana del n efectivo es **2859**, no 12060.
 Las transacciones consecutivas se parecen porque el lazo de control
-repite el mismo ciclo, así que vale la misma advertencia que en
-ICS-Flow: validación por bloques y no al azar.
+repite el mismo ciclo, así que vale la advertencia de siempre
+—validación por bloques y no al azar— pero la magnitud de la
+corrección no es la que publicaba este cuadro.
 
 La autocorrelación de la **etiqueta**, que es otra pregunta y la que
 decide si un corte al azar filtra:
 
 - a retardo 1: **0.314** (contra 0.863 de las características)
-- tamaño efectivo: **85529** sobre 163823
 - rachas: 38048 ; racha anómala más larga: 3 filas
 
-Es mucho más baja que la de las características, y la racha anómala
-más larga es de pocas filas: las inyecciones de Morris son aisladas,
-no campañas. De modo que el conjunto tiene **órdenes de magnitud más**
-observaciones útiles para estimar una PD de las que sugiere la fila de
-las características.
+**Y acá el retardo 1 es justo donde no está la estructura.** La
+etiqueta alterna comando y respuesta, lo que fuerza los retardos 1 y 2
+hacia abajo y pone la dependencia en los múltiplos de 4:
+
+   retardo           rho
+   1              0.3140
+   2              0.0689
+   3              0.3088
+   4              0.9426
+   8              0.8961
+   16             0.8096
+   32             0.6268
+
+De modo que la corrección AR(1) con rho(1) no corresponde: con
+rho(1) = 0.314 un AR(1) predeciría rho(4) = 0.0097, y lo medido en
+ese retardo es **0.9426**. Los dos estimadores dan:
+
+- AR(1) con rho(1): 85529 de 163823
+- tiempo de decorrelación (último retardo con rho >= 1/e): tau = 56 filas -> **2925 de 163823**
+
+El segundo no supone ningún modelo y es el criterio que este
+trabajo ya usa para HAI, de modo que es el que hace comparable la
+fila entre los cuatro conjuntos. La lectura de fondo no cambia —la
+etiqueta de Morris es mucho menos dependiente que sus
+características— pero la ventaja es de un orden y no de tres.
+
 
 ### ¿Conviene reducir la dimensión?
 

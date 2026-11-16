@@ -487,17 +487,97 @@ def seccion_2(w, J, esq):
     w("explicadas por campos degenerados. **Como esquema, son el mismo")
     w("conjunto.**")
     w("")
+    varian = cruzados > 0
+    raz = cruzados / np.maximum(refs, 1e-9)
     w("Como poblacion, no. La diferencia no es dramatica --- ninguna")
-    w("distribucion es disjunta y la mediana del KS cruzado es %.3f ---, pero"
-      % float(np.median(cruzados)))
-    w("supera el nivel de referencia interno por un factor mediano de %.0f y se"
-      % float(np.median(cruzados / np.maximum(refs, 1e-9))))
-    w("concentra justo donde duele: los %d campos que mas difieren son de"
+    w("distribucion es disjunta ---, pero supera el nivel de referencia")
+    w("interno. Los dos resumenes, con su denominador declarado, porque los")
+    w("%d campos constantes en los dos conjuntos aportan un cero cada uno y"
+      % int((~varian).sum()))
+    w("bajan las dos cifras:")
+    w("")
+    w("   %-34s %10s %10s" % ("", "mediana", "factor"))
+    w("   %-34s %10.3f %10.1f"
+      % ("sobre los %d campos evaluados" % len(filas),
+         float(np.median(cruzados)), float(np.median(raz))))
+    w("   %-34s %10.3f %10.1f"
+      % ("sobre los %d que varian" % int(varian.sum()),
+         float(np.median(cruzados[varian])), float(np.median(raz[varian]))))
+    w("")
+    # --- cuanto de esta diferencia es el instrumento de Westermo ----------
+    # La correccion del doble conteo reconto los seis contadores de volumen
+    # pero NO `duration`, que es del conjunto. Para una fila cuyo contenido
+    # real es un solo paquete, `duration` es la separacion entre sus dos
+    # copias de captura, de modo que todo cociente por ella sale disparado.
+    # Esas filas son el 13 % del normal de Westermo y el 0,1 % del de
+    # ICS-Flow, asi que la asimetria entra en la comparacion.
+    unw = ((pd.to_numeric(nw["sPackets"], errors="coerce")
+            + pd.to_numeric(nw["rPackets"], errors="coerce")) == 1).to_numpy()
+    uni = ((pd.to_numeric(ni["sPackets"], errors="coerce")
+            + pd.to_numeric(ni["rPackets"], errors="coerce")) == 1).to_numpy()
+    sin_w, sin_i = nw[~unw], ni[~uni]
+    f2 = []
+    for c in numericas:
+        a_ = pd.to_numeric(sin_w[c], errors="coerce").dropna().values
+        b_ = pd.to_numeric(sin_i[c], errors="coerce").dropna().values
+        if len(a_) < 50 or len(b_) < 50:
+            continue
+        f2.append((c, ks(a_[: len(a_) // 2], a_[len(a_) // 2:]),
+                   ks(b_[: len(b_) // 2], b_[len(b_) // 2:]),
+                   ks(a_, b_)))
+    if f2:
+        c2 = np.array([f[3] for f in f2])
+        r2 = np.array([max(f[1], f[2]) for f in f2])
+        v2 = c2 > 0
+        w("")
+        w("**Y una parte de esta diferencia sigue siendo el instrumento.**")
+        w("`duration` no se recontó al corregir el doble conteo, y para las")
+        w("filas de un solo paquete real es la separacion entre dos copias de")
+        w("captura, no una duracion: son %d de los %d normales de Westermo"
+          % (int(unw.sum()), len(nw)))
+        w("(%.1f %%) contra %d de %d en ICS-Flow (%.1f %%). Quitandolas:"
+          % (100.0 * unw.mean(), int(uni.sum()), len(ni), 100.0 * uni.mean()))
+        w("")
+        w("   %-34s %10s %10s" % ("", "mediana", "factor"))
+        w("   %-34s %10.3f %10.1f"
+          % ("con esas filas", float(np.median(cruzados[varian])),
+             float(np.median(raz[varian]))))
+        w("   %-34s %10.3f %10.1f"
+          % ("sin esas filas", float(np.median(c2[v2])),
+             float(np.median((c2 / np.maximum(r2, 1e-9))[v2]))))
+        w("")
+        w("Y el efecto no es uniforme: infla los campos que son un cociente")
+        w("por `duration` en el sentido de la diferencia y **tapa** otros.")
+        d1 = dict((f[0], f[3]) for f in filas)
+        d2 = dict((f[0], f[3]) for f in f2)
+        w("")
+        w("   %-20s %10s %14s" % ("campo", "cruzado", "sin artefacto"))
+        for c in ("rLoad", "rBytesSum", "duration", "sLoad"):
+            if c in d1 and c in d2:
+                w("   %-20s %10.4f %14.4f" % (c, d1[c], d2[c]))
+        w("")
+        w("De modo que la conclusion de alcance se sostiene --- los dos")
+        w("conjuntos no son la misma poblacion --- pero no se puede decir que")
+        w("la correccion del doble conteo haya descontado el instrumento de")
+        w("esta tabla: lo descontó de los contadores y no de `duration`.")
+        J["sin_artefacto_duration"] = {
+            "filas_quitadas_westermo": int(unw.sum()),
+            "filas_quitadas_icsflow": int(uni.sum()),
+            "ks_mediana_varian": float(np.median(c2[v2])),
+            "factor_mediano_varian":
+                float(np.median((c2 / np.maximum(r2, 1e-9))[v2])),
+            "por_campo": {f[0]: f[3] for f in f2}}
+    w("")
+    nom = ["`%s`" % f[0] for f in fuertes]
+    lista = (" y ".join(nom) if len(nom) < 3
+             else ", ".join(nom[:-1]) + " y " + nom[-1])
+    w("La diferencia se concentra justo donde duele: los %d campos que mas"
       % len(fuertes))
-    w("**volumen y de temporizado**, que son las caracteristicas que la")
-    w("pregunta 2 de INFORME.md identifico como discriminantes. Entrenar")
-    w("sobre la union de las filas ensancha la envolvente del 'normal' en")
-    w("exactamente las variables que llevan la senal.")
+    w("difieren son %s," % lista)
+    w("del tipo que la pregunta 2 de INFORME.md identifico como")
+    w("discriminante. Entrenar sobre la union de las filas")
+    w("ensancha la envolvente del 'normal' en exactamente las variables que")
+    w("llevan la senal.")
     w("")
     w("Hay una asimetria que conviene registrar: el nivel de referencia interno")
     w("de Westermo en los campos de temporizado (`duration` %.3f,"

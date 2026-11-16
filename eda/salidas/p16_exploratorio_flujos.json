@@ -4,6 +4,12 @@
   "columnas": 64,
   "duplicadas": 0,
   "duplicadas_features": 2663,
+  "faltantes_denominador": {
+   "celdas_cuadro_pct": 8.216541152751422,
+   "celdas_caracteristicas_pct": 10.758912350115063,
+   "huecos_en_identificadores": 4256,
+   "huecos_en_caracteristicas": 106595
+  },
   "patrones_faltantes": {
    "patrones": 10,
    "campos_con_hueco": 38,
@@ -145,11 +151,58 @@
    }
   }
  },
+ "_artefacto_duration": {
+  "bottom": {
+   "filas": 21080,
+   "un_paquete_real": 2692,
+   "archivo_entero_filas": 35404,
+   "archivo_entero_un_paquete_declarado": 1393,
+   "archivo_entero_de_esas_sobre_1e8": 1387,
+   "pct": 12.770398481973436,
+   "sLoad_mediana": 299084224.938,
+   "sLoad_mediana_resto": 31215.855,
+   "pct_del_decil": 100.0,
+   "un_paquete_declarado_en_el_publicado": 905,
+   "de_esas_con_sLoad_sobre_1e8": 901
+  },
+  "left": {
+   "filas": 4800,
+   "un_paquete_real": 2587,
+   "archivo_entero_filas": 8533,
+   "archivo_entero_un_paquete_declarado": 1201,
+   "archivo_entero_de_esas_sobre_1e8": 1195,
+   "pct": 53.89583333333333,
+   "sLoad_mediana": 379963582.668,
+   "sLoad_mediana_resto": 60219.101,
+   "pct_del_decil": 98.98373983739837,
+   "un_paquete_declarado_en_el_publicado": 766,
+   "de_esas_con_sLoad_sobre_1e8": 761
+  },
+  "right": {
+   "filas": 2862,
+   "un_paquete_real": 2382,
+   "archivo_entero_filas": 4720,
+   "archivo_entero_un_paquete_declarado": 993,
+   "archivo_entero_de_esas_sobre_1e8": 989,
+   "pct": 83.22851153039832,
+   "sLoad_mediana": 330197757.904,
+   "sLoad_mediana_resto": 32083.127500000002,
+   "pct_del_decil": 100.0,
+   "un_paquete_declarado_en_el_publicado": 597,
+   "de_esas_con_sLoad_sobre_1e8": 594
+  }
+ },
  "ICS-Flow": {
   "filas": 25620,
   "columnas": 64,
   "duplicadas": 0,
   "duplicadas_features": 334,
+  "faltantes_denominador": {
+   "celdas_cuadro_pct": 1.6038495316159251,
+   "celdas_caracteristicas_pct": 2.075672264022456,
+   "huecos_en_identificadores": 1304,
+   "huecos_en_caracteristicas": 24994
+  },
   "patrones_faltantes": {
    "patrones": 10,
    "campos_con_hueco": 38,

@@ -360,6 +360,141 @@
    "ic95": 0.05695888745433511
   }
  ],
+ "autocorrelacion_entre_eventos_es_identidad": {
+  "formula": "rho = -p/(1-p) con p = eventos/largo de la secuencia",
+  "largo_despejado": [
+   14696.1756701592,
+   14696.12307796979,
+   14696.111579806771,
+   14696.046060688534,
+   14696.044019594501,
+   14696.032521431493,
+   14696.019186283847
+  ]
+ },
+ "episodios_morris": {
+  "umbrales": [
+   5.0,
+   10.0,
+   30.0,
+   60.0,
+   300.0
+  ],
+  "por_categoria": [
+   {
+    "categoria": "CMRI",
+    "codigo": "2",
+    "rachas": 2581,
+    "separacion_mediana_s": 3.373207449913025,
+    "filas_entre_rachas_mediana": 4.0,
+    "episodios": {
+     "5": 397,
+     "10": 395,
+     "30": 103,
+     "60": 97,
+     "300": 52
+    },
+    "semi_rachas": 0.0192752997263862,
+    "semi_episodios": 0.04907021347228055
+   },
+   {
+    "categoria": "MPCI",
+    "codigo": "4",
+    "rachas": 1808,
+    "separacion_mediana_s": 3.212873935699463,
+    "filas_entre_rachas_mediana": 3.0,
+    "episodios": {
+     "5": 75,
+     "10": 75,
+     "30": 75,
+     "60": 73,
+     "300": 54
+    },
+    "semi_rachas": 0.023022792475698124,
+    "semi_episodios": 0.11036738929911075
+   },
+   {
+    "categoria": "NMRI",
+    "codigo": "1",
+    "rachas": 1639,
+    "separacion_mediana_s": 3.3710120916366577,
+    "filas_entre_rachas_mediana": 4.0,
+    "episodios": {
+     "5": 254,
+     "10": 253,
+     "30": 71,
+     "60": 69,
+     "300": 50
+    },
+    "semi_rachas": 0.024177994155174562,
+    "semi_episodios": 0.06114846104095641
+   },
+   {
+    "categoria": "MSCI",
+    "codigo": "3",
+    "rachas": 676,
+    "separacion_mediana_s": 3.2065460681915283,
+    "filas_entre_rachas_mediana": 3.0,
+    "episodios": {
+     "5": 28,
+     "10": 28,
+     "30": 28,
+     "60": 28,
+     "300": 26
+    },
+    "semi_rachas": 0.03758497558986091,
+    "semi_episodios": 0.17366872542706532
+   },
+   {
+    "categoria": "MFCI",
+    "codigo": "5",
+    "rachas": 646,
+    "separacion_mediana_s": 11.687132120132446,
+    "filas_entre_rachas_mediana": 3.0,
+    "episodios": {
+     "5": 646,
+     "10": 646,
+     "30": 29,
+     "60": 29,
+     "300": 23
+    },
+    "semi_rachas": 0.038442744727166536,
+    "semi_episodios": 0.038442744727166536
+   },
+   {
+    "categoria": "Reconnaissance",
+    "codigo": "7",
+    "rachas": 477,
+    "separacion_mediana_s": 11.715410590171814,
+    "filas_entre_rachas_mediana": 3.0,
+    "episodios": {
+     "5": 477,
+     "10": 477,
+     "30": 25,
+     "60": 25,
+     "300": 19
+    },
+    "semi_rachas": 0.04469069847216336,
+    "semi_episodios": 0.04469069847216336
+   },
+   {
+    "categoria": "DoS",
+    "codigo": "6",
+    "rachas": 281,
+    "separacion_mediana_s": 3.200131058692932,
+    "filas_entre_rachas_mediana": 3.0,
+    "episodios": {
+     "5": 13,
+     "10": 13,
+     "30": 13,
+     "60": 13,
+     "300": 11
+    },
+    "semi_rachas": 0.05806527599758423,
+    "semi_episodios": 0.23879665635965175
+   }
+  ]
+ },
  "estadistico": {
   "elegido": "Wilson score, 95 %",
   "control": "Clopper-Pearson, 95 %",

@@ -57,13 +57,18 @@ Reproduce en las 6 capturas. La asignacion paquete-fila es correcta.
 
 ## 22.2 Cuanto infla el doble conteo
 
-captura             paquetes    copias % copias factor de inflacion
-reduced/bottom       1513815    731226    48.3%              1.951x
-reduced/left          281105    124453    44.3%              1.838x
-reduced/right          35067      3436     9.8%              1.131x
-extended/bottom      4384183   2163897    49.4%              1.983x
-extended/left         281197    124522    44.3%              1.839x
-extended/right         35124      3459     9.8%              1.132x
+Las dos primeras columnas son del PCAP y las dos ultimas de los CSV
+de flujo, que no contabilizan todos los paquetes del archivo. Son dos
+poblaciones, de modo que el factor **no se deduce** de las copias que
+tiene al lado: se informan los dos.
+
+captura             paquetes    copias % copias  infl. paq.   infl. CSV
+reduced/bottom       1513815    731226    48.3%      1.934x      1.951x
+reduced/left          281105    124453    44.3%      1.794x      1.838x
+reduced/right          35067      3436     9.8%      1.109x      1.131x
+extended/bottom      4384183   2163897    49.4%      1.975x      1.983x
+extended/left         281197    124522    44.3%      1.795x      1.839x
+extended/right         35124      3459     9.8%      1.109x      1.132x
 
 ## 22.3 El efecto campo por campo
 

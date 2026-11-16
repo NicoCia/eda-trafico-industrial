@@ -76,16 +76,24 @@ dependencia de **la variable a predecir** en el orden temporal
 global. Se mide aparte porque las dos respuestas pueden ser
 opuestas, y acá lo son.
 
-etiqueta           rho(1)   n_efectivo     rachas  racha + larga
-NST_B_Label         0.779         2618        663            228
-IT_B_Label          0.984          170         79            295
+etiqueta         rho(1)    n AR(1)  rho(10) AR1 pred      tau    n/tau       rachas
+NST_B_Label       0.779       2618    0.743    0.082       66      319          663
+IT_B_Label        0.984        170    0.885    0.851       62      340           79
+
+**El n efectivo por AR(1) no vale para esta serie.** AR(1) con
+rho(1) = 0.779 predice rho(10) = 0.082 y lo medido es 0.743: la
+dependencia no decae geometricamente, se mantiene a lo largo
+del evento. El estimador que corresponde es el tiempo de
+decorrelacion, que no supone ningun modelo y es el que este
+trabajo ya usaba para HAI: con tau = 66 filas, las 21080 valen
+como **319**, no como 2618.
 
 Con rho de **0.779** sobre la etiqueta, una validación cruzada
 al azar **sí filtra**: un evento deja hasta 228 flujos
 contiguos de la misma clase, de modo que el vecino de una fila
 de validación cae en el ajuste. La partición tiene que ser por
 bloques temporales, y el tamaño efectivo para cualquier
-intervalo sobre la etiqueta es **2618 de 21080**, no las 21080 filas.
+intervalo sobre la etiqueta es **319 de 21080**, no las 21080 filas.
 
 Esto vale aunque la autocorrelación de las características sea
 baja: son dos preguntas distintas y no se deducen una de otra.
@@ -194,16 +202,24 @@ dependencia de **la variable a predecir** en el orden temporal
 global. Se mide aparte porque las dos respuestas pueden ser
 opuestas, y acá lo son.
 
-etiqueta           rho(1)   n_efectivo     rachas  racha + larga
-NST_B_Label         0.727         4049        673            148
-IT_B_Label          0.993           91         27            545
+etiqueta         rho(1)    n AR(1)  rho(10) AR1 pred      tau    n/tau       rachas
+NST_B_Label       0.727       4049    0.635    0.041       82      312          673
+IT_B_Label        0.993         91    0.932    0.931    >=400       64           27
+
+**El n efectivo por AR(1) no vale para esta serie.** AR(1) con
+rho(1) = 0.727 predice rho(10) = 0.041 y lo medido es 0.635: la
+dependencia no decae geometricamente, se mantiene a lo largo
+del evento. El estimador que corresponde es el tiempo de
+decorrelacion, que no supone ningun modelo y es el que este
+trabajo ya usaba para HAI: con tau = 82 filas, las 25620 valen
+como **312**, no como 4049.
 
 Con rho de **0.727** sobre la etiqueta, una validación cruzada
 al azar **sí filtra**: un evento deja hasta 148 flujos
 contiguos de la misma clase, de modo que el vecino de una fila
 de validación cae en el ajuste. La partición tiene que ser por
 bloques temporales, y el tamaño efectivo para cualquier
-intervalo sobre la etiqueta es **4049 de 25620**, no las 25620 filas.
+intervalo sobre la etiqueta es **312 de 25620**, no las 25620 filas.
 
 Esto vale aunque la autocorrelación de las características sea
 baja: son dos preguntas distintas y no se deducen una de otra.
