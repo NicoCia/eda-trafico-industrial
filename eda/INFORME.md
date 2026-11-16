@@ -396,8 +396,16 @@ error que §1.7 define.
 
 El 100,0000 % no es una tolerancia: cada octeto de carga del puerto 5502 forma
 parte de una cabecera MBAP bien formada. El control de la medida corre el
-mismo delimitador sobre el puerto 22 del mismo archivo y da 35,7 %, de modo
-que la contabilidad distingue Modbus de un flujo cualquiera.
+mismo delimitador sobre el puerto 22 y da **35,7 %**: de los 397.848 octetos
+de SSH, 250.442 quedan fuera de toda ADU, contra cero de los 12.420.460 de
+Modbus. De modo que la contabilidad distingue Modbus de un flujo cualquiera.
+
+Dos salvedades sobre ese control, porque no se mide sobre la misma población
+que lo que controla. Corre sobre los primeros 600.000 paquetes de cada archivo
+—es un control y no un censo, y el tope va escrito en la salida—, mientras el
+100,0000 % es sobre el archivo entero. Y un 35,7 % de coincidencia accidental
+no es bajo en términos absolutos: lo que separa a los dos casos es el
+contraste con el cero, no el valor del control.
 
 Los registros se decodifican con el mapa de ICSSIM —el mismo que el análisis
 verificó en ICS-Flow— y dan variables de proceso con nombre:
