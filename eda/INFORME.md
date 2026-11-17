@@ -358,6 +358,16 @@ Las conclusiones estructurales se sostienen —la inversión de §1.5 sigue en
 pie, con 16,48 contra 3,07—, pero ninguna de las cifras anteriores era una
 propiedad del tráfico.
 
+**Qué no toca esta corrección, con su efecto medido.** Dos cosas, y conviene
+separarlas porque no son el mismo caso. `duration` es un campo del conjunto y
+queda como está: para el 12,8 % de las filas del tramo de `bottom` —y hasta el
+83,2 % en `right`— no es una duración sino la separación entre dos copias, y
+§5.3 mide cuánto pesa eso en la comparación entre conjuntos. Los seis campos `AckDelay` tampoco se recalculan, pero ahí el
+motivo es distinto: **no hace falta**. Son mínimo, promedio y máximo de un
+conjunto, no sumas, y en las filas que traen el dato la duplicación es el
+doble exacto en el 98 % de los casos, de modo que duplicar cada elemento no
+les cambia ninguno de los tres. La medición está en §5.3.
+
 **Y una lección de método, porque este análisis se equivocó hacia el lado
 cómodo.** Una versión anterior de §1.6 decía: «la duplicación que el README
 describe es de paquetes y no sobrevive al armado de flujos». Lo que estaba
@@ -1751,6 +1761,49 @@ población— pero no se puede decir que la corrección del doble conteo haya
 descontado el instrumento de esta tabla: lo descontó de los contadores y no de
 `duration`. Cualquier unión de las filas tiene que marcar esas 2304 filas o
 dejar afuera los campos que son un cociente por `duration`.
+
+**Cuánto de este resumen descansa en los seis `AckDelay`.** Son seis de los
+37 que varían, están correlacionados entre sí y dos encabezan la tabla, de
+modo que conviene medir el resumen sin ellos: la mediana baja de 0,124 a
+**0,080** y el factor **no se mueve**, porque su cociente contra la referencia
+interna está en el medio del reparto. Lo que sí cambia es la composición del
+encabezado, y hay que decirlo con cuidado porque depende de qué corrección se
+aplique:
+
+| Qué se quita | Las cinco que encabezan | Del temporizado |
+|---|---|---:|
+| nada | `rLoad`, `rInterPacketAvg`, `rAckDelayAvg`, `rBytesSum`, `sAckDelayAvg` | 4 de 5 |
+| los seis `AckDelay` | `rLoad`, `rInterPacketAvg`, `rBytesSum`, `rPayloadSum`, `rPackets` | 2 de 5 |
+| el artefacto de `duration` | `rInterPacketAvg`, `rLoad`, `duration`, `rAckDelayAvg`, `sLoad` | 5 de 5 |
+| los dos | `rInterPacketAvg`, `rLoad`, `duration`, `sLoad`, `rBytesSum` | 4 de 5 |
+
+Sin los `AckDelay` y **sin** quitar el artefacto, el encabezado se puebla de
+volumen y la frase «se concentra en el temporizado» se debilita a dos de
+cinco. Pero esa combinación es la menos defendible de las cuatro, porque deja
+adentro las 2304 filas cuyo `duration` no es una duración. Con las dos
+correcciones a la vez —que es la lectura que corresponde— el encabezado
+vuelve a ser cuatro de cinco de temporizado, con la mediana en 0,067. La
+conclusión se sostiene; lo que no se sostiene es citarla sin decir sobre qué
+versión de la tabla está medida.
+
+**Y los seis `AckDelay` no arrastran el doble conteo**, que es lo que §1.7
+deja sin corregir. Una versión anterior de §22.3 decía que esos campos
+«siguen calculados sobre el flujo con copias, donde los pares separados por un
+microsegundo tiran el mínimo y el promedio hacia abajo». Eso era un mecanismo
+supuesto. Medido: son mínimo, promedio y máximo de un conjunto, no sumas, y
+duplicar cada elemento de un conjunto no le cambia ninguno de los tres; en las
+filas que traen el dato la duplicación es **el doble exacto en el 98,6 % y el
+98,1 %** de los casos, y en el resto el desplazamiento está acotado por la
+separación entre copias —mediana de 1 µs— contra retardos cuyas medianas son
+de 0,55 ms y 29 ms. De modo que la corrección no los toca porque no hace
+falta, y no porque quede pendiente.
+
+Queda una salvedad que no es de la duplicación. Sobre los flujos normales que
+esta sección compara, `sAckDelayMin` vale cero o casi en el 84,7 % de las
+filas de Westermo y en el **98,1 %** de las de ICS-Flow; `rAckDelayMin`, en el
+99,2 % y el 99,7 %. Que el conjunto **sin** copias tenga más ceros que el
+conjunto con copias descarta que vengan de la duplicación; qué significan es
+una pregunta sobre el generador de flujos, y este análisis no la contesta.
 
 Esa atribución cambió al corregir el doble conteo de §1.7, y conviene dejar
 dicho cómo. Con los contadores publicados, las tres primeras filas de esta

@@ -332,6 +332,61 @@ conjuntos no son la misma poblacion --- pero no se puede decir que
 la correccion del doble conteo haya descontado el instrumento de
 esta tabla: lo descontó de los contadores y no de `duration`.
 
+
+**Cuanto de este resumen descansa en los seis `AckDelay`.** Son
+seis de los 37 que varian, estan correlacionados entre si y dos
+encabezan la tabla, asi que conviene medir el resumen sin ellos:
+
+                                         mediana     factor
+   con los seis                            0.124        7.5
+   sin los seis                            0.080        7.5
+
+La mediana baja y el factor no se mueve: los seis son de alta
+divergencia, pero su cociente contra la referencia interna esta en
+el medio del reparto.
+
+Las cuatro versiones de la tabla, con su encabezado:
+
+   que se quita                     mediana   factor del temporizado
+   nada                               0.124      7.5           4 de 5
+   los seis AckDelay                  0.080      7.5           2 de 5
+   el artefacto de duration           0.078      5.1           5 de 5
+   los dos                            0.067      5.1           4 de 5
+
+La frase «se concentra en el temporizado» depende de cual de las
+cuatro se cite, de modo que no se puede escribir sin decir sobre
+que version de la tabla esta medida.
+
+**Y esos seis no arrastran el doble conteo**, que es lo que
+`p22_westermo_duplicados.txt` 22.3 deja sin corregir. Son
+minimo, promedio y maximo de un conjunto, no sumas, y duplicar
+cada elemento de un conjunto no le cambia ninguno de los tres.
+Eso vale donde la duplicacion es completa dentro de la fila:
+
+   sAckDelayAvg   dato en  17589 filas; duplicacion exactamente doble
+                  en  17345 de ellas (98.6 %)
+   rAckDelayAvg   dato en  17658 filas; duplicacion exactamente doble
+                  en  17328 de ellas (98.1 %)
+
+
+Una salvedad que NO es de la duplicacion: los campos
+`AckDelayMin` valen cero o casi en buena parte de las filas
+de los dos conjuntos, y en ICS-Flow --- que no tiene copias
+--- son mas:
+
+   sAckDelayMin   Westermo  84.7 %   ICS-Flow  98.1 %
+   rAckDelayMin   Westermo  99.2 %   ICS-Flow  99.7 %
+
+Que el conjunto sin copias tenga mas ceros descarta que
+vengan de la duplicacion. Que significan es una pregunta
+sobre el generador de flujos y aca no se contesta.
+
+En el resto el desplazamiento esta acotado por la separacion
+entre copias --- mediana de 1 us --- contra retardos cuyas
+medianas son de 0,55 ms y 29 ms: tres y cuatro ordenes de
+magnitud mas. De modo que la correccion no los toca porque no
+hace falta, y no porque quede pendiente.
+
 La diferencia se concentra justo donde duele: los 2 campos que mas
 difieren son `rLoad` y `rInterPacketAvg`,
 del tipo que la pregunta 2 de INFORME.md identifico como

@@ -118,15 +118,22 @@ las mismas filas y columnas del CSV publicado y:
   - los 8 derivados recalculados con la definicion del conjunto a
     partir de esos contadores: sBytesAvg, rBytesAvg, sPayloadAvg, rPayloadAvg, sLoad, rLoad, sInterPacketAvg, rInterPacketAvg
 
-**Lo que NO se corrige**, y hay que tenerlo a la vista: sAckDelayMin, sAckDelayMax, sAckDelayAvg, rAckDelayMin, rAckDelayMax, rAckDelayAvg.
-Reconstruir el retardo de ACK exige seguir el emparejamiento TCP de
-cada flujo, que es otro trabajo. Esos seis campos siguen calculados
-sobre el flujo con copias, donde los pares separados por un
-microsegundo tiran el minimo y el promedio hacia abajo.
+**Lo que NO se corrige**: sAckDelayMin, sAckDelayMax, sAckDelayAvg, rAckDelayMin, rAckDelayMax, rAckDelayAvg.
+Una version anterior decia que quedaban pendientes porque
+reconstruir el retardo de ACK exige seguir el emparejamiento TCP de
+cada flujo, y agregaba que las copias separadas por un microsegundo
+tiraban el minimo y el promedio hacia abajo. Lo primero es cierto; lo
+segundo era un mecanismo supuesto y no medido, y la medicion dice
+otra cosa: **esos seis no hacen falta corregirlos**, por el mismo
+motivo que los minimos y maximos de octetos y de carga util. Son
+minimo, promedio y maximo de un conjunto, no sumas, y duplicar cada
+elemento de un conjunto no le cambia ninguno de los tres.
 
-Los minimos y maximos de octetos y de carga util no hacen falta
-corregirlos: el minimo y el maximo de un conjunto no cambian al
-quitarle copias exactas.
+La medicion esta en `p11_integracion.txt`, en la seccion de poblacion:
+en las filas que traen el dato la duplicacion es exactamente doble en
+el 98 % de los casos, y en el resto el desplazamiento esta acotado por
+la separacion entre copias --- mediana de 1 us --- contra retardos
+cuyas medianas son de 0,55 ms y 29 ms.
 
 ## 22.4 `duration` no se corrige, y para algunas filas es un artefacto
 

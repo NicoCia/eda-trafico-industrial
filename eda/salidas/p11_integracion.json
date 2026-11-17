@@ -1896,6 +1896,82 @@
    "rAckDelayAvg": 0.3487332242631714
   }
  },
+ "ackdelay": {
+  "versiones_de_la_tabla": {
+   "nada": {
+    "mediana": 0.12401783998030559,
+    "factor": 7.528875421200439,
+    "encabezado": [
+     "rLoad",
+     "rInterPacketAvg",
+     "rAckDelayAvg",
+     "rBytesSum",
+     "sAckDelayAvg"
+    ],
+    "del_temporizado": 4
+   },
+   "los seis AckDelay": {
+    "mediana": 0.07975768765353003,
+    "factor": 7.528875421200439,
+    "encabezado": [
+     "rLoad",
+     "rInterPacketAvg",
+     "rBytesSum",
+     "rPayloadSum",
+     "rPackets"
+    ],
+    "del_temporizado": 2
+   },
+   "el artefacto de duration": {
+    "mediana": 0.07821721387828234,
+    "factor": 5.085080538685005,
+    "encabezado": [
+     "rInterPacketAvg",
+     "rLoad",
+     "duration",
+     "rAckDelayAvg",
+     "sLoad"
+    ],
+    "del_temporizado": 5
+   },
+   "los dos": {
+    "mediana": 0.06728273953995255,
+    "factor": 5.085080538685005,
+    "encabezado": [
+     "rInterPacketAvg",
+     "rLoad",
+     "duration",
+     "sLoad",
+     "rBytesSum"
+    ],
+    "del_temporizado": 4
+   }
+  },
+  "ackdelaymin_casi_cero": {
+   "sAckDelayMin": {
+    "westermo_pct_bajo_10us": 84.6540027137042,
+    "icsflow_pct_bajo_10us": 98.09936350777934
+   },
+   "rAckDelayMin": {
+    "westermo_pct_bajo_10us": 99.15213999864343,
+    "icsflow_pct_bajo_10us": 99.7354613994092
+   }
+  },
+  "mediana_sin_los_seis": 0.07975768765353003,
+  "factor_sin_los_seis": 7.528875421200439,
+  "duplicacion": {
+   "sAckDelayAvg": {
+    "filas_con_dato": 17589,
+    "con_duplicacion_completa": 17345,
+    "pct": 98.61276934447666
+   },
+   "rAckDelayAvg": {
+    "filas_con_dato": 17658,
+    "con_duplicacion_completa": 17328,
+    "pct": 98.13115868161739
+   }
+  }
+ },
  "westermo_icsflow": {
   "cabecera_identica": true,
   "md5_cabecera": {

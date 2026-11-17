@@ -568,6 +568,138 @@ def seccion_2(w, J, esq):
                 float(np.median((c2 / np.maximum(r2, 1e-9))[v2])),
             "por_campo": {f[0]: f[3] for f in f2}}
     w("")
+    # --- cuanto de este resumen descansa en los seis AckDelay --------------
+    # Son seis de los que varian, estan correlacionados entre si y dos de
+    # ellos encabezan la tabla, de modo que conviene saber que pasa sin ellos.
+    ACK = [c for c in numericas if "AckDelay" in c]
+    f3 = [f for f in filas if f[0] not in ACK]
+    if ACK and f3:
+        c3 = np.array([f[3] for f in f3])
+        r3 = np.array([max(f[1], f[2]) for f in f3])
+        v3 = c3 > 0
+        w("")
+        w("**Cuanto de este resumen descansa en los seis `AckDelay`.** Son")
+        w("seis de los %d que varian, estan correlacionados entre si y dos"
+          % int(varian.sum()))
+        w("encabezan la tabla, asi que conviene medir el resumen sin ellos:")
+        w("")
+        w("   %-34s %10s %10s" % ("", "mediana", "factor"))
+        w("   %-34s %10.3f %10.1f"
+          % ("con los seis", float(np.median(cruzados[varian])),
+             float(np.median(raz[varian]))))
+        w("   %-34s %10.3f %10.1f"
+          % ("sin los seis", float(np.median(c3[v3])),
+             float(np.median((c3 / np.maximum(r3, 1e-9))[v3]))))
+        w("")
+        w("La mediana baja y el factor no se mueve: los seis son de alta")
+        w("divergencia, pero su cociente contra la referencia interna esta en")
+        w("el medio del reparto.")
+        w("")
+        # Las dos correcciones a la vez, y como queda el encabezado en cada
+        # caso: la frase «se concentra en el temporizado» depende de cual se
+        # aplique, de modo que no se puede citar sin decir cual.
+        f4 = [f for f in f2 if f[0] not in ACK] if f2 else []
+        TEMPO = ("Load", "InterPacket", "AckDelay", "duration")
+        w("Las cuatro versiones de la tabla, con su encabezado:")
+        w("")
+        w("   %-30s %9s %8s %14s" % ("que se quita", "mediana", "factor",
+                                     "del temporizado"))
+        comp = {}
+        for etq, fil in (("nada", filas), ("los seis AckDelay", f3),
+                         ("el artefacto de duration", f2),
+                         ("los dos", f4)):
+            if not fil:
+                continue
+            cx = np.array([f[3] for f in fil])
+            rx = np.array([max(f[1], f[2]) for f in fil])
+            vx = cx > 0
+            top = sorted(fil, key=lambda f: -f[3])[:5]
+            n_t = sum(1 for f in top if any(k in f[0] for k in TEMPO))
+            w("   %-30s %9.3f %8.1f %11d de 5"
+              % (etq, float(np.median(cx[vx])),
+                 float(np.median((cx / np.maximum(rx, 1e-9))[vx])), n_t))
+            comp[etq] = {"mediana": float(np.median(cx[vx])),
+                         "factor": float(np.median((cx / np.maximum(rx, 1e-9))[vx])),
+                         "encabezado": [f[0] for f in top],
+                         "del_temporizado": n_t}
+        w("")
+        w("La frase «se concentra en el temporizado» depende de cual de las")
+        w("cuatro se cite, de modo que no se puede escribir sin decir sobre")
+        w("que version de la tabla esta medida.")
+        w("")
+        try:
+            pubw = comun.westermo_flujos("reduced", "bottom", unico=False)
+            uniw = comun.westermo_flujos("reduced", "bottom", unico=True)
+        except Exception:
+            pubw, uniw = None, None
+        if pubw is not None and len(pubw) == len(uniw):
+            mm = (pubw["startOffset"] < comun.WESTERMO_CORTES[0]).to_numpy()
+            w("**Y esos seis no arrastran el doble conteo**, que es lo que")
+            w("`p22_westermo_duplicados.txt` 22.3 deja sin corregir. Son")
+            w("minimo, promedio y maximo de un conjunto, no sumas, y duplicar")
+            w("cada elemento de un conjunto no le cambia ninguno de los tres.")
+            w("Eso vale donde la duplicacion es completa dentro de la fila:")
+            w("")
+            det = {}
+            for lado in ("s", "r"):
+                cc, pp = "%sAckDelayAvg" % lado, "%sPackets" % lado
+                a_ = pd.to_numeric(pubw[pp], errors="coerce").to_numpy(float)[mm]
+                b_ = pd.to_numeric(uniw[pp], errors="coerce").to_numpy(float)[mm]
+                tiene = pd.to_numeric(pubw[cc], errors="coerce") \
+                    .notna().to_numpy()[mm]
+                ok = a_ > 0
+                razon = np.where(ok, b_ / np.maximum(a_, 1.0), 1.0)
+                compl = np.isclose(razon, 0.5)
+                n_t = int(tiene.sum())
+                n_c = int((tiene & compl).sum())
+                det[cc] = {"filas_con_dato": n_t,
+                           "con_duplicacion_completa": n_c,
+                           "pct": 100.0 * n_c / max(1, n_t)}
+                w("   %-14s dato en %6d filas; duplicacion exactamente doble"
+                  % (cc, n_t))
+                w("   %-14s en %6d de ellas (%.1f %%)"
+                  % ("", n_c, 100.0 * n_c / max(1, n_t)))
+            w("")
+            # Y los ceros de los campos Min, que no son de la duplicacion.
+            ceros = {}
+            for lado in ("s", "r"):
+                cc = "%sAckDelayMin" % lado
+                min_w = pd.to_numeric(nw[cc], errors="coerce").dropna()
+                min_i = pd.to_numeric(ni[cc], errors="coerce").dropna()
+                if len(min_w) and len(min_i):
+                    ceros[cc] = {
+                        "westermo_pct_bajo_10us":
+                            100.0 * float((min_w < 1e-5).mean()),
+                        "icsflow_pct_bajo_10us":
+                            100.0 * float((min_i < 1e-5).mean())}
+            if ceros:
+                w("")
+                w("Una salvedad que NO es de la duplicacion: los campos")
+                w("`AckDelayMin` valen cero o casi en buena parte de las filas")
+                w("de los dos conjuntos, y en ICS-Flow --- que no tiene copias")
+                w("--- son mas:")
+                w("")
+                for cc, v in ceros.items():
+                    w("   %-14s Westermo %5.1f %%   ICS-Flow %5.1f %%"
+                      % (cc, v["westermo_pct_bajo_10us"], v["icsflow_pct_bajo_10us"]))
+                w("")
+                w("Que el conjunto sin copias tenga mas ceros descarta que")
+                w("vengan de la duplicacion. Que significan es una pregunta")
+                w("sobre el generador de flujos y aca no se contesta.")
+                w("")
+            w("En el resto el desplazamiento esta acotado por la separacion")
+            w("entre copias --- mediana de 1 us --- contra retardos cuyas")
+            w("medianas son de 0,55 ms y 29 ms: tres y cuatro ordenes de")
+            w("magnitud mas. De modo que la correccion no los toca porque no")
+            w("hace falta, y no porque quede pendiente.")
+            w("")
+            J["ackdelay"] = {
+                "versiones_de_la_tabla": comp,
+                "ackdelaymin_casi_cero": ceros,
+                "mediana_sin_los_seis": float(np.median(c3[v3])),
+                "factor_sin_los_seis":
+                    float(np.median((c3 / np.maximum(r3, 1e-9))[v3])),
+                "duplicacion": det}
     nom = ["`%s`" % f[0] for f in fuertes]
     lista = (" y ".join(nom) if len(nom) < 3
              else ", ".join(nom[:-1]) + " y " + nom[-1])
