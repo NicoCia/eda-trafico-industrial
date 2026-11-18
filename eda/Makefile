@@ -86,6 +86,7 @@ verificaciones: $(PY)
 	$(PY) -I $(SCRIPTS)/13_icsflow_determinismo.py
 	$(PY) -I $(SCRIPTS)/14_schuster_pd_pfa.py
 	$(PY) -I $(SCRIPTS)/19_qut_escrituras.py
+	$(PY) -I $(SCRIPTS)/23_qut_control_independiente.py
 
 # 15 no es una medicion sino una guarda: escribe la regla que convierte cada
 # medicion en un simbolo, la aplica a los insumos y compara celda por celda

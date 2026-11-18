@@ -96,22 +96,54 @@ Lo que sí aparece es sondeo por clase y telemetría:
 | g50v3 (marca de tiempo) | 54.902 | g52v2 (retardo) | 54 |
 
 Las 207.798 operaciones `WRITE` del conjunto **no escriben consignas de
-proceso**, y conviene ser preciso sobre qué sostiene eso. La salida del script
-01 guarda los códigos de función y las cabeceras de objeto como contadores
-separados, sin ninguna clave que los cruce, de modo que **la atribución
-mensaje por mensaje no se midió**. Lo que sí se midió, y de forma exhaustiva,
-es una pregunta de conteos: de los once grupos de objetos que la captura
-contiene, **el único subconjunto cuyos conteos suman las 207.798 escrituras es
-g80v1 más g50v3**, con 152.896 y 54.902 cabeceras. Único en todo el espacio de
-2047 subconjuntos, de modo que no es la coincidencia de dos números elegidos
-de antemano sino un argumento de conteo, que no se apoya en el protocolo en
-ningún paso. Lo que sí sale del protocolo, y queda atribuido como tal, es qué
-**son** esos dos objetos: el bit de reinicio de las indicaciones internas y la
-hora. Ninguno de los dos es un parámetro de proceso.
+proceso**, y eso se sostiene por dos caminos que se llegaron a cruzar.
 
-La comprobación la hace `eda/scripts/19_qut_escrituras.py`, que además es una
-guarda: termina con código distinto de cero si apareciera un objeto de control
-o si el subconjunto que cierra dejara de ser único.
+El primero no se apoya en el protocolo en ningún paso: es un argumento de
+conteo. De los once grupos de objetos que la captura contiene, **el único
+subconjunto cuyos conteos suman las 207.798 escrituras es g80v1 más g50v3**,
+con 152.896 y 54.902 cabeceras. Único en todo el espacio de 2047
+subconjuntos, de modo que no es la coincidencia de dos números elegidos de
+antemano.
+
+El segundo es la atribución directa, que durante un tiempo quedó declarada
+como no medida, y con razón: la salida del script 01 guarda los códigos de
+función y las cabeceras de objeto como contadores separados, sin ninguna clave
+que los cruce. Una relectura de los PCAP que anote función y grupo juntos la
+mide, y **coincide con lo que el conteo había inferido, cifra por cifra**:
+152.896 escrituras llevan g80v1 y 54.902 llevan g50v3. Que un argumento de
+conteo acertara los dos números por separado no estaba garantizado.
+
+Lo que sale del protocolo, y queda atribuido como tal, es qué **son** esos dos
+objetos: el bit de reinicio de las indicaciones internas y la hora. Ninguno de
+los dos es un parámetro de proceso.
+
+**Y la ausencia se verificó sin el lector de este trabajo**, porque una
+afirmación de ausencia es justo lo que fabrica un lector que no sepa
+decodificar algo. El único respaldo que tenía esta sección era
+`eda/scripts/dnp3.py`, y esa capa ya se había equivocado una vez de una manera
+que ningún control de sumas podía encontrar (§3, pregunta 1).
+`eda/scripts/23_qut_control_independiente.py` no lo importa: reimplementa el
+CRC-16 y los desplazamientos desde la especificación, y lee cada trama de las
+**dos** maneras —la correcta y la del error del bit FIR— para que el
+resultado no dependa de haber resuelto bien esa pregunta. Sobre las
+2.372.700 tramas cuyo CRC de cabecera cierra no aparece **ni un** código
+SELECT, OPERATE, DIRECT_OPERATE o DIRECT_OPERATE_NR, ni un `WRITE` sobre
+g12, g40 o g41, en ninguna de las dos lecturas.
+
+El contraste entre los dos lectores cierra en diez de los once códigos de
+función, cifra por cifra. La única diferencia son **+186 en
+UNSOLICITED_RESPONSE**, y es la que corresponde: la lectura independiente no
+mira el bit FIR a propósito, de modo que reproduce el número anterior a esa
+corrección, 151.146 en lugar de 150.960. Dos lectores escritos aparte llegan
+al mismo recuento de tramas de continuación, lo que confirma el tamaño de
+aquel error en lugar de contradecirlo.
+
+Las dos comprobaciones son además guardas. `19_qut_escrituras.py` termina con
+código distinto de cero si apareciera un objeto de control o si el subconjunto
+que cierra dejara de ser único; `23_qut_control_independiente.py`, si aparece
+un comando de control, si el CRC deja de validar las tramas esperadas, si los
+desplazamientos dejan de caer sobre códigos de función de la especificación o
+si la divergencia contra el censo deja de ser esa única de 186.
 
 **Qué hacer con esto.** El requerimiento 2.3 del plan pide características
 semánticas, y sobre QUT se pueden construir las de *código de función, clase

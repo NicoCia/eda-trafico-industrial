@@ -56,7 +56,11 @@ conclusion de la seccion 1.2 se sostiene por dos caminos: los objetos
 de control no aparecen (19.2), y lo que las escrituras mueven son el
 bit de reinicio y la hora.
 
-Lo que sigue sin medirse es cuantas de las 207798 escrituras lleva cada
-uno de los dos. Para eso hay que volver a leer los PCAP registrando
-objeto y funcion juntos, y ninguna conclusion de este analisis lo
-necesita.
+Cuantas de las 207798 escrituras lleva cada uno de los dos NO se puede
+medir con esta salida, y durante un tiempo quedo declarado como no
+medido. Ya se midio aparte: `23_qut_control_independiente.py` vuelve
+a leer los PCAP registrando funcion y grupo juntos y atribuye 152.896
+escrituras a g80v1 y 54.902 a g50v3, que es exactamente lo que el
+subconjunto de arriba habia inferido por conteo. Que un argumento de
+conteo acertara los dos numeros por separado no estaba garantizado,
+de modo que el contraste vale como comprobacion de este script.

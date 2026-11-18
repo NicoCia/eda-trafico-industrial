@@ -1,0 +1,99 @@
+# Pregunta 23 - comandos de control en QUT, sin el lector propio
+
+Generado por `eda/scripts/23_qut_control_independiente.py`.
+Solo tramo `training/`. No importa `dnp3.py`: el CRC y los
+desplazamientos estan reimplementados desde la especificacion.
+
+## Cuanto se leyo
+
+agregados abiertos                               42
+paquetes                                   31124992
+cabeceras de enlace con CRC valido          2372700
+primeros bloques con CRC valido             2372108
+
+El censo de `dnp3.py` publica 2.372.794 tramas de enlace. Este
+recuento no tiene por que coincidir al numero: no reensambla
+fragmentos y descarta la trama cuyo primer bloque no cierra. Lo que
+importa es que sea del mismo orden, porque una diferencia grande
+diria que uno de los dos lectores no esta viendo el mismo trafico.
+
+## Las guardas, antes del resultado
+
+Un resultado negativo se fabrica sin querer: con el CRC mal o los
+desplazamientos corridos, no validaria nada, el recuento daria cero
+y se leeria como confirmacion. Las dos guardas miden que se estaba
+mirando donde hay que mirar.
+
+   tramas con CRC valido (piso 2000000)              2372700  pasa
+   funciones dentro de la especificacion (piso 99%)      100.00%  pasa
+
+## El resultado
+
+**No aparece ni uno, contando de las dos maneras.**
+
+Ni un codigo de funcion SELECT (3), OPERATE (4), DIRECT_OPERATE
+(5) o DIRECT_OPERATE_NR (6), ni un WRITE sobre g12, g40 o g41,
+en ninguna de las dos lecturas de la trama. De modo que la
+ausencia de comandos de control no depende de como `dnp3.py`
+resuelva el bit FIR: no hay interpretacion bajo la cual
+aparezcan.
+
+## Que hay en esas posiciones, entonces
+
+Si la posicion de la funcion no trae comandos, conviene mostrar que
+si trae, porque un histograma vacio o absurdo delataria que los
+desplazamientos estan mal elegidos.
+
+Lectura A (la correcta), codigos de funcion mas frecuentes:
+
+     func       tramas
+      129       849947
+        1       821203
+        0       216762
+        2       207798
+      130       151146
+        7       123110
+       24         1002
+       20          864
+        8          108
+       14           90
+       13           78
+
+Grupo del primer objeto de cada WRITE (lectura A). Es la atribucion
+que el script 19 declara no poder hacer con lo que habia, y que esta
+pasada si registra, porque lee funcion y grupo juntos:
+
+    grupo   escrituras
+       80       152896
+       50        54902
+
+## Contra el censo del lector del trabajo
+
+La medicion de arriba no usa `dnp3.py`. Esta comparacion si lee su
+salida, porque de eso se trata: dos lectores escritos aparte sobre
+los mismos archivos.
+
+   funcion                   cod      dnp3.py         este    difer.
+   RESPONSE                  129       849947       849947         =
+   READ                        1       821203       821203         =
+   CONFIRM                     0       216762       216762         =
+   WRITE                       2       207798       207798         =
+   UNSOLICITED_RESPONSE      130       150960       151146       186
+   IMMED_FREEZE                7       123110       123110         =
+   RECORD_CURRENT_TIME        24         1002         1002         =
+   ENABLE_UNSOLICITED         20          864          864         =
+   IMMED_FREEZE_NR             8          108          108         =
+   WARM_RESTART               14           90           90         =
+   COLD_RESTART               13           78           78         =
+
+Coinciden exactos 10 de 11 codigos.
+
+Y la unica diferencia es la esperada: **+186 en
+UNSOLICITED_RESPONSE**. La lectura A no mira el bit FIR a
+proposito, de modo que en las tramas de continuacion lee
+octetos de objeto como codigo de funcion ---el error que
+`dnp3.py` tenia antes de mirarlo--- y reproduce el numero
+viejo, 151.146 en lugar de 150.960. Que la diferencia sea
+exactamente 186 es una confirmacion independiente del tamano
+de aquel error: dos lectores escritos aparte llegan al mismo
+recuento de tramas de continuacion.

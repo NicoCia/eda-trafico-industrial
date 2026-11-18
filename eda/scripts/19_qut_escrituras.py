@@ -11,8 +11,10 @@ LO QUE NO SE PUEDE MEDIR CON LO QUE HAY
 contadores independientes: `func_app` (codigos de funcion de aplicacion) y
 `objetos` (grupo y variacion de cada cabecera de objeto). **No hay ninguna
 clave que los cruce**, de modo que la atribucion mensaje por mensaje --- que
-objeto lleva cada WRITE --- no existe en esta salida y no se puede reconstruir
-sin volver a leer los PCAP. Este script no la inventa.
+objeto lleva cada WRITE --- no existe en esta salida y no se puede
+reconstruir sin volver a leer los PCAP. Este script no la inventa; la mide
+`23_qut_control_independiente.py`, que si vuelve a leerlos, y el resultado
+coincide con el que el argumento de conteo de aca infiere.
 
 LO QUE SI SE PUEDE MEDIR
 ------------------------
@@ -209,11 +211,15 @@ def main():
     w("de control no aparecen (19.2), y lo que las escrituras mueven son el")
     w("bit de reinicio y la hora.")
     w("")
-    w("Lo que sigue sin medirse es cuantas de las %d escrituras lleva cada"
+    w("Cuantas de las %d escrituras lleva cada uno de los dos NO se puede"
       % escrituras)
-    w("uno de los dos. Para eso hay que volver a leer los PCAP registrando")
-    w("objeto y funcion juntos, y ninguna conclusion de este analisis lo")
-    w("necesita.")
+    w("medir con esta salida, y durante un tiempo quedo declarado como no")
+    w("medido. Ya se midio aparte: `23_qut_control_independiente.py` vuelve")
+    w("a leer los PCAP registrando funcion y grupo juntos y atribuye 152.896")
+    w("escrituras a g80v1 y 54.902 a g50v3, que es exactamente lo que el")
+    w("subconjunto de arriba habia inferido por conteo. Que un argumento de")
+    w("conteo acertara los dos numeros por separado no estaba garantizado,")
+    w("de modo que el contraste vale como comprobacion de este script.")
 
     comun.escribir("p19_qut_escrituras.txt", "\n".join(L))
     with open(os.path.join(comun.SALIDAS, "p19_qut_escrituras.json"),
