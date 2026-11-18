@@ -7,3 +7,6 @@ datasets/morris-turnipseed/*
 
 eda/.venv/
 eda/derivados/
+.idea/
+.vscode/
+.DS_Store

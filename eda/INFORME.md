@@ -1301,8 +1301,15 @@ distribuciones discretas, y queda declarado en la salida.
 
 **La deriva entre campañas es real, y es el efecto más firme de la sección.**
 Contra el nulo por bloques, la diferencia entre `train` sucesivos queda entre
-**1,4× y 7,1×** según la versión y el par, con el máximo en 20.07, que es la
-que tiene el hueco de 47 días.
+**1,4× y 7,1×** según la versión y el par, con el máximo en 20.07.
+
+**Ese máximo viene del denominador, no del numerador**, y conviene decirlo
+porque la razón invita a leerlo al revés. La deriva mayor en crudo no es la de
+20.07: es la de `hai-22.04` entre `train2` y `train3`, con KS mediano
+**0,2689** contra **0,2687**, una diferencia en el cuarto decimal. Lo que
+distingue a 20.07 es que su nulo es el más chico de las cinco versiones
+—0,038 contra 0,077 en 22.04—, de modo que la misma deriva dividida por la
+mitad del ruido da el doble exacto de razón.
 
 Una salvedad de comparabilidad sobre esa razón, porque el numerador y el
 denominador no se toman sobre el mismo conjunto de columnas: la mediana
@@ -1313,7 +1320,10 @@ medianas de la misma población de columnas. El efecto es chico frente al tamañ
 pero el número no es exacto en el sentido en que lo parece. Las tres versiones cuya razón de la tabla
 anterior ronda 1 —22.04, 23.05 y haiend— no son versiones sin deriva entre
 campañas: son versiones donde esa diferencia es del mismo tamaño que la
-interna, y las dos superan al nulo.
+interna, y las dos superan la mediana del nulo. La interna, además, supera
+las sesenta permutaciones en 22.04 y 23.05, no en `haiend`; para la de entre
+campañas no hay test propio, por lo que ahí «supera al nulo» quiere decir
+superar su mediana y nada más.
 
 Para el proyecto la consecuencia es: **una línea base ajustada sobre un
 `train` de HAI no vale para el siguiente.** Lo que ya no se puede afirmar con
@@ -1340,9 +1350,25 @@ continuos. Están separados por huecos:
 | hai-23.05 y haiend | 5,3 / 3,0 / 1,6 días |
 
 Lo que se mide, entonces, es la diferencia entre **campañas de adquisición
-separadas en el tiempo**, no deriva continua. Que el salto mayor (20.07, 2,8×)
-corresponda al hueco mayor (47 días) es consistente con deriva temporal, pero
-con dos archivos no alcanza para afirmar una tendencia.
+separadas en el tiempo**, no deriva continua. Una versión anterior anotaba
+que el salto mayor corresponde al hueco mayor y lo llamaba «consistente con
+deriva temporal». Eso quedaba insinuado sin medirlo, con los dos números ya
+calculados en la misma salida y nunca cruzados.
+
+**Cruzados los catorce pares, el tiempo transcurrido no ordena la magnitud.**
+El coeficiente de Spearman entre el hueco y la razón da **+0,26** con
+p = 0,37, y sin el par de 47 días —el único de más de treinta, que arrastra
+la correlación por sí solo— baja a **+0,07** con p = 0,81. Dentro de una misma
+versión, donde el nulo y el conjunto de columnas son los mismos y la
+comparación es más limpia, el orden llega a invertirse: en `haiend-23.05` los
+tres pares van al revés sin excepción, rho = **−1,00**, con la razón más alta en
+el hueco más corto. La coincidencia de 20.07 es de ranking, no de mecanismo.
+
+Qué queda sin separar, para no cambiar una afirmación de más por otra: el
+hueco varía sobre todo **entre** versiones, de modo que la correlación
+agrupada no distingue tiempo transcurrido de campaña, y con catorce pares no
+hay con qué separarlos. Lo que se puede afirmar es lo negativo —no hay una
+tendencia que el tiempo explique—, no que el tiempo sea irrelevante.
 
 Ese hueco tiene una consecuencia en el código, no solo en la lectura: **una
 serie con 47 días de hueco no se puede concatenar antes de medir nada que mire

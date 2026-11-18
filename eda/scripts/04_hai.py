@@ -232,12 +232,16 @@ def main():
       % ("version", "archivo", "filas", "desde", "hasta", "horas",
          "etiq != 0"))
     contaminacion = {}
+    # El hueco de cada par de `train` sucesivos, guardado con el mismo
+    # nombre de par que arma P5.b, para poder cruzarlo contra la razon.
+    HUECOS = {}
     for ver, sep, coltime, _e in VERSIONES:
         info = formato.get(ver)
         if not info:
             continue
         etq = info["etiquetas_en_train"]
         anterior = None
+        anterior_base = None
         for ruta in trains(ver):
             cols = [coltime] + etq
             x = pd.read_csv(ruta, sep=sep,
@@ -257,11 +261,15 @@ def main():
                 contaminacion.setdefault(ver, []).append(
                     {"archivo": os.path.basename(ruta), "filas": int(n_pos),
                      "eventos": int(n_ev)})
+            base_actual = os.path.basename(ruta).replace(".csv", "")
             if anterior is not None:
                 hueco = (t.min() - anterior).total_seconds() / 86400.0
                 w("%-14s %-16s   (hueco respecto del archivo anterior: "
                   "%.1f dias)" % ("", "", hueco))
+                HUECOS[(ver, "%s -> %s"
+                        % (anterior_base, base_actual))] = hueco
             anterior = t.max()
+            anterior_base = base_actual
     w("")
     if contaminacion:
         w("AVISO. Hay ataques etiquetados dentro de archivos de")
@@ -538,6 +546,90 @@ def main():
         w("   Donde difieren, la razon no divide dos medianas de la misma")
         w("   poblacion de columnas.")
     w("")
+    # ---- P5.b.3: el hueco entre campanas contra la magnitud ----------
+    # INFORME.md decia "el maximo en 20.07, que es la que tiene el hueco
+    # de 47 dias", que insinua que el tiempo transcurrido explica la
+    # magnitud. Los dos numeros se calculaban por separado y nunca se
+    # cruzaron, de modo que la insinuacion no estaba medida.
+    w("### P5.b.3 El hueco entre campanas explica la magnitud?")
+    w("")
+    w("El hueco de cada par se calcula en P3.b y la razon en P5.b.2, sin")
+    w("cruzarse. Aca se cruzan: si el tiempo transcurrido explicara la")
+    w("magnitud, los pares mas separados tendrian las razones mas altas.")
+    w("")
+    filas_h = []
+    for ver, par, r, _c in ent:
+        h = HUECOS.get((ver, par))
+        if h is None:
+            continue
+        filas_h.append((ver, par, h, r, dentro[ver][par]["ks_mediana"]))
+    if len(filas_h) < 5:
+        w("**No se pudo calcular**: solo %d pares tienen hueco y razon."
+          % len(filas_h))
+        J_HUECO = {}
+    else:
+        w("   %-14s %-28s %8s %8s %8s"
+          % ("version", "par", "hueco d", "razon", "KS med"))
+        for ver, par, h, r, k in sorted(filas_h, key=lambda f: -f[2]):
+            w("   %-14s %-28s %8.1f %7.2fx %8.4f" % (ver, par, h, r, k))
+        w("")
+        hs = [f[2] for f in filas_h]
+        rs = [f[3] for f in filas_h]
+        kk = [f[4] for f in filas_h]
+        rho_r, p_r = stats.spearmanr(hs, rs)
+        rho_k, p_k = stats.spearmanr(hs, kk)
+        w("   Spearman hueco vs razon:  rho = %+.2f  (p = %.3f, n = %d)"
+          % (rho_r, p_r, len(hs)))
+        w("   Spearman hueco vs KS med: rho = %+.2f  (p = %.3f, n = %d)"
+          % (rho_k, p_k, len(hs)))
+        # 20.07 es el unico hueco de mas de 30 dias: una correlacion que
+        # se apoye solo en ese punto no es una tendencia.
+        sin = [f for f in filas_h if f[2] < 30.0]
+        rho_s, p_s = (float("nan"), float("nan"))
+        if len(sin) >= 5:
+            rho_s, p_s = stats.spearmanr([f[2] for f in sin],
+                                         [f[3] for f in sin])
+            w("   Sin el par de %.0f dias:    rho = %+.2f  (p = %.3f, n = %d)"
+              % (max(hs), rho_s, p_s, len(sin)))
+        w("")
+        w("   Dentro de cada version el nulo y el conjunto de columnas son")
+        w("   casi los mismos, de modo que ahi la comparacion es mas limpia")
+        w("   (n por version es chico: es una mirada, no un test):")
+        por_version = {}
+        for ver in sorted({f[0] for f in filas_h}):
+            g = sorted((f for f in filas_h if f[0] == ver),
+                       key=lambda f: f[2])
+            detalle = ", ".join("%.1f d -> %.2fx" % (f[2], f[3]) for f in g)
+            if len(g) < 3:
+                w("     %-14s %d pares   %s" % (ver, len(g), detalle))
+                por_version[ver] = {"pares": len(g), "rho": None}
+                continue
+            rv, pv = stats.spearmanr([f[2] for f in g], [f[3] for f in g])
+            w("     %-14s %d pares  rho = %+.2f   %s"
+              % (ver, len(g), rv, detalle))
+            por_version[ver] = {"pares": len(g), "rho": float(rv),
+                                "p": float(pv)}
+        w("")
+        w("   Salvedad que decide como leer esto: el hueco varia sobre todo")
+        w("   ENTRE versiones, de modo que la correlacion agrupada no puede")
+        w("   separar el tiempo transcurrido de la version. Son dos cosas")
+        w("   que cambian juntas, y con %d pares no hay con que separarlas."
+          % len(filas_h))
+        J_HUECO = {
+            "pares": [{"version": v, "par": p, "hueco_dias": h,
+                       "razon": r, "ks_mediana": k}
+                      for v, p, h, r, k in filas_h],
+            "spearman_hueco_razon": {"rho": float(rho_r), "p": float(p_r),
+                                     "n": len(hs)},
+            "spearman_hueco_ks": {"rho": float(rho_k), "p": float(p_k),
+                                  "n": len(hs)},
+            "spearman_sin_el_hueco_mayor": {"rho": float(rho_s),
+                                            "p": float(p_s),
+                                            "n": len(sin)},
+            "por_version": por_version,
+        }
+    w("")
+
     J_ENTRE.extend({"version": v, "par": par, "razon": r, "columnas": c}
                    for v, par, r, c in ent)
 
@@ -583,6 +675,7 @@ def main():
                        for k, v in ruido.items()},
                    "deriva_intra_version": dentro,
                    "deriva_entre_campanas_contra_nulo": J_ENTRE,
+                   "hueco_contra_magnitud": J_HUECO,
                    "columnas_por_version": {k: sorted(v)
                                             for k, v in juegos.items()}},
                   fh, indent=1, ensure_ascii=False)

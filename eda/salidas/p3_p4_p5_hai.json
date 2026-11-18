@@ -838,6 +838,148 @@
    "columnas": 67
   }
  ],
+ "hueco_contra_magnitud": {
+  "pares": [
+   {
+    "version": "hai-20.07",
+    "par": "train1 -> train2",
+    "hueco_dias": 47.416678240740744,
+    "razon": 7.074829940606927,
+    "ks_mediana": 0.26872242469821433
+   },
+   {
+    "version": "hai-21.03",
+    "par": "train1 -> train2",
+    "hueco_dias": 18.416666666666668,
+    "razon": 3.695768965466405,
+    "ks_mediana": 0.2172461970116989
+   },
+   {
+    "version": "hai-21.03",
+    "par": "train2 -> train3",
+    "hueco_dias": 1.375,
+    "razon": 2.7778698618784663,
+    "ks_mediana": 0.1632898779456986
+   },
+   {
+    "version": "hai-22.04",
+    "par": "train1 -> train2",
+    "hueco_dias": 4.500011574074074,
+    "razon": 2.7228960531352815,
+    "ks_mediana": 0.2091917256206817
+   },
+   {
+    "version": "hai-22.04",
+    "par": "train2 -> train3",
+    "hueco_dias": 4.41667824074074,
+    "razon": 3.5000725112740128,
+    "ks_mediana": 0.26889980158730153
+   },
+   {
+    "version": "hai-22.04",
+    "par": "train3 -> train4",
+    "hueco_dias": 1.2916666666666667,
+    "razon": 2.6621200463650982,
+    "ks_mediana": 0.20452249202362627
+   },
+   {
+    "version": "hai-22.04",
+    "par": "train4 -> train5",
+    "hueco_dias": 6.125011574074074,
+    "razon": 1.690424796247395,
+    "ks_mediana": 0.12987013578862197
+   },
+   {
+    "version": "hai-22.04",
+    "par": "train5 -> train6",
+    "hueco_dias": 1.000011574074074,
+    "razon": 1.3625997142893267,
+    "ks_mediana": 0.10468434343434346
+   },
+   {
+    "version": "hai-23.05",
+    "par": "hai-train1 -> hai-train2",
+    "hueco_dias": 5.29167824074074,
+    "razon": 2.6415556960908755,
+    "ks_mediana": 0.11652289754141604
+   },
+   {
+    "version": "hai-23.05",
+    "par": "hai-train2 -> hai-train3",
+    "hueco_dias": 3.0000115740740743,
+    "razon": 1.9158893119899063,
+    "ks_mediana": 0.08451268861454049
+   },
+   {
+    "version": "hai-23.05",
+    "par": "hai-train3 -> hai-train4",
+    "hueco_dias": 1.5833449074074073,
+    "razon": 3.156505642663961,
+    "ks_mediana": 0.13923809523809524
+   },
+   {
+    "version": "haiend-23.05",
+    "par": "end-train1 -> end-train2",
+    "hueco_dias": 5.29167824074074,
+    "razon": 1.869176114890399,
+    "ks_mediana": 0.08154347367310327
+   },
+   {
+    "version": "haiend-23.05",
+    "par": "end-train2 -> end-train3",
+    "hueco_dias": 3.0000115740740743,
+    "razon": 2.1372230212720003,
+    "ks_mediana": 0.09323711542230062
+   },
+   {
+    "version": "haiend-23.05",
+    "par": "end-train3 -> end-train4",
+    "hueco_dias": 1.5833449074074073,
+    "razon": 3.3262358865624173,
+    "ks_mediana": 0.1451082251082252
+   }
+  ],
+  "spearman_hueco_razon": {
+   "rho": 0.2601998797818529,
+   "p": 0.36895852297625276,
+   "n": 14
+  },
+  "spearman_hueco_ks": {
+   "rho": 0.20948295406166126,
+   "p": 0.47228148782716484,
+   "n": 14
+  },
+  "spearman_sin_el_hueco_mayor": {
+   "rho": 0.07448339629339946,
+   "p": 0.808913065017844,
+   "n": 13
+  },
+  "por_version": {
+   "hai-20.07": {
+    "pares": 1,
+    "rho": null
+   },
+   "hai-21.03": {
+    "pares": 2,
+    "rho": null
+   },
+   "hai-22.04": {
+    "pares": 5,
+    "rho": 0.3,
+    "p": 0.6238376647810728
+   },
+   "hai-23.05": {
+    "pares": 3,
+    "rho": -0.5,
+    "p": 0.6666666666666667
+   },
+   "haiend-23.05": {
+    "pares": 3,
+    "rho": -1.0,
+    "p": 0.0
+   }
+  }
+ },
  "columnas_por_version": {
   "hai-20.07": [
    "P1_B2004",

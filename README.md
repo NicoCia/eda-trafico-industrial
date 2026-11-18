@@ -20,8 +20,7 @@ script que lo calcula.
 1. **[`eda/EXPLORATORIO.md`](eda/EXPLORATORIO.md)** — qué contiene cada
    conjunto. Una sección por conjunto: variables y tipos, faltantes y su
    mecanismo, redundancia, poder discriminante, estructura temporal, balance de
-   clases y datos sensibles. Se lee primero porque describe los datos sin
-   discutir todavía qué hacer con ellos.
+   clases y datos sensibles.
 2. **[`eda/INFORME.md`](eda/INFORME.md)** — qué implican. Los nueve hallazgos
    que cambian cómo se usan estos conjuntos, las cinco preguntas que el
    análisis tenía que responder, el papel de ICS-Flow y si los cinco se pueden
@@ -46,17 +45,6 @@ archivo.
 **Nada se afirma sin haberlo medido.** Donde un dato no se pudo verificar, el
 texto lo dice en lugar de completarlo, y `INFORME.md` enumera las cifras que
 no salen de correr el código.
-
-Y eso no alcanzó, lo que también se deja dicho. Cinco auditorías
-independientes recalcularon las cifras contra los archivos y encontraron
-errores que la aritmética no muestra: una frase que responde una pregunta
-distinta de la que mide la cifra de al lado —otra población, otro denominador,
-otra ventana—, y un estadístico que no contesta la pregunta que la oración
-afirma —un estimador que supone un modelo que la serie no cumple, un umbral
-calibrado sobre los datos donde después se mide el desempeño, un conteo
-forzado por cómo se definió el objeto que se cuenta—. Están corregidos, y los
-documentos registran en su lugar cuál era el error y qué lo reemplaza, porque
-esa historia es parte del resultado.
 
 ## Los datos no están acá
 
@@ -101,7 +89,7 @@ Los lectores de DNP3 y de Modbus/TCP están escritos para este análisis, en
 quitan los CRC de enlace e interpretan los objetos y las escrituras; no hacen
 falta herramientas externas de captura.
 
-**Dos comprobaciones no corren acá, y las dos lo dicen en lugar de callarlo.**
+**Dos comprobaciones no corren acá.**
 El script 14 deriva la probabilidad de detección y de falsa alarma de un trabajo
 publicado, a partir de las tablas que ese trabajo trae, y comprueba su propia
 transcripción contra el texto extraído del PDF, que no se redistribuye. Sin ese

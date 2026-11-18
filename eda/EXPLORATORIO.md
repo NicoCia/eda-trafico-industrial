@@ -20,10 +20,7 @@ Donde una sección no aplica se dice por qué, en lugar de omitirla.
 
 **Solo el tramo de entrenamiento.** El proyecto adoptó partición temporal
 estricta y la regla de que ninguna decisión se tome con el conjunto de
-prueba a la vista. Eso vale también para describir: un estudio exploratorio que mire el
-test contamina el protocolo antes de empezar, y la descripción de las
-distribuciones es la clase de información que condiciona las
-decisiones posteriores.
+prueba a la vista.
 
 | Conjunto | Tramo descrito | Registros | De un total de |
 |---|---|---:|---:|
